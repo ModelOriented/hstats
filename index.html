@@ -98,21 +98,23 @@
 <div class="section level2">
 <h2 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a>
 </h2>
-<p>Let’s model diamonds prices!</p>
+<p>Let’s model iris flowers, as usual :-).</p>
 <div class="section level3">
 <h3 id="linear-regression">Linear regression<a class="anchor" aria-label="anchor" href="#linear-regression"></a>
 </h3>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/mayer79/fastpdp" class="external-link">fastpdp</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/mayer79/fastpdp" class="external-link">fastpdp</a></span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">fit_lm</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="va">price</span> <span class="op">~</span> <span class="va">carat</span> <span class="op">+</span> <span class="va">clarity</span> <span class="op">+</span> <span class="va">color</span> <span class="op">+</span> <span class="va">cut</span>, data <span class="op">=</span> <span class="va">diamonds</span><span class="op">)</span></span>
+<span><span class="va">fit_lm</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="va">Sepal.Width</span> <span class="op">~</span> <span class="va">.</span>, data <span class="op">=</span> <span class="va">iris</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Quantile grid with trimmed outliers</span></span>
-<span><span class="fu"><a href="reference/fastpdp.html">fastpdp</a></span><span class="op">(</span><span class="va">fit_lm</span>, v <span class="op">=</span> <span class="st">"carat"</span>, X <span class="op">=</span> <span class="va">diamonds</span><span class="op">)</span></span>
+<span><span class="fu"><a href="reference/fastpdp.html">fastpdp</a></span><span class="op">(</span><span class="va">fit_lm</span>, v <span class="op">=</span> <span class="st">"Petal.Width"</span>, X <span class="op">=</span> <span class="va">iris</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Own grid</span></span>
-<span><span class="fu"><a href="reference/fastpdp.html">fastpdp</a></span><span class="op">(</span><span class="va">fit_lm</span>, v <span class="op">=</span> <span class="st">"carat"</span>, X <span class="op">=</span> <span class="va">diamonds</span>, grid <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0.2</span>, <span class="fl">2.6</span>, by <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="reference/fastpdp.html">fastpdp</a></span><span class="op">(</span><span class="va">fit_lm</span>, v <span class="op">=</span> <span class="st">"Petal.Width"</span>, X <span class="op">=</span> <span class="va">iris</span>, grid <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">2.5</span>, by <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Randomly selected 2D grid_</span></span>
+<span><span class="fu"><a href="reference/fastpdp.html">fastpdp</a></span><span class="op">(</span><span class="va">fit_lm</span>, v <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Species"</span>, <span class="st">"Petal.Width"</span><span class="op">)</span>, X <span class="op">=</span> <span class="va">iris</span>, grid_type <span class="op">=</span> <span class="st">"random"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="random-forest">Random forest<a class="anchor" aria-label="anchor" href="#random-forest"></a>
@@ -120,11 +122,9 @@
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/imbs-hl/ranger" class="external-link">ranger</a></span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">fit_rf</span> <span class="op">&lt;-</span> <span class="fu">ranger</span><span class="op">(</span></span>
-<span>  <span class="va">price</span> <span class="op">~</span> <span class="va">carat</span> <span class="op">+</span> <span class="va">clarity</span> <span class="op">+</span> <span class="va">color</span> <span class="op">+</span> <span class="va">cut</span>, data <span class="op">=</span> <span class="va">diamonds</span></span>
-<span><span class="op">)</span></span>
+<span><span class="va">fit_rf</span> <span class="op">&lt;-</span> <span class="fu">ranger</span><span class="op">(</span><span class="va">Species</span> <span class="op">~</span> <span class="va">.</span>, data <span class="op">=</span> <span class="va">iris</span>, probability <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="reference/fastpdp.html">fastpdp</a></span><span class="op">(</span><span class="va">fit_rf</span>, v <span class="op">=</span> <span class="st">"clarity"</span>, X <span class="op">=</span> <span class="va">diamonds</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="reference/fastpdp.html">fastpdp</a></span><span class="op">(</span><span class="va">fit_rf</span>, v <span class="op">=</span> <span class="st">"Sepal.Width"</span>, X <span class="op">=</span> <span class="va">iris</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="deep-neural-net">Deep neural net<a class="anchor" aria-label="anchor" href="#deep-neural-net"></a>
@@ -133,7 +133,8 @@
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tensorflow.rstudio.com/" class="external-link">keras</a></span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"carat"</span>, <span class="st">"clarity"</span>, <span class="st">"color"</span>, <span class="st">"cut"</span><span class="op">)</span></span>
+<span><span class="va">y</span> <span class="op">&lt;-</span> <span class="va">iris</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span></span>
+<span><span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.matrix.html" class="external-link">data.matrix</a></span><span class="op">(</span><span class="va">iris</span><span class="op">[</span><span class="fl">2</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">nn</span> <span class="op">&lt;-</span> <span class="fu">keras_model_sequential</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">nn</span> <span class="op">|&gt;</span></span>
@@ -142,7 +143,7 @@
 <span>  <span class="fu">layer_dense</span><span class="op">(</span>units <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">nn</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">compile</span><span class="op">(</span>optimizer <span class="op">=</span> <span class="fu">optimizer_adam</span><span class="op">(</span><span class="fl">0.5</span><span class="op">)</span>, loss <span class="op">=</span> <span class="st">"mse"</span><span class="op">)</span></span>
+<span>  <span class="fu">compile</span><span class="op">(</span>optimizer <span class="op">=</span> <span class="fu">optimizer_adam</span><span class="op">(</span><span class="fl">0.05</span><span class="op">)</span>, loss <span class="op">=</span> <span class="st">"mse"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">cb</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>  <span class="fu">callback_early_stopping</span><span class="op">(</span>patience <span class="op">=</span> <span class="fl">20</span><span class="op">)</span>,</span>
@@ -151,15 +152,15 @@
 <span>       </span>
 <span><span class="va">nn</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">fit</span><span class="op">(</span></span>
-<span>    x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.matrix.html" class="external-link">data.matrix</a></span><span class="op">(</span><span class="va">diamonds</span><span class="op">[</span><span class="va">x</span><span class="op">]</span><span class="op">)</span>,</span>
-<span>    y <span class="op">=</span> <span class="va">diamonds</span><span class="op">$</span><span class="va">price</span>,</span>
+<span>    x <span class="op">=</span> <span class="va">X</span>,</span>
+<span>    y <span class="op">=</span> <span class="va">y</span>,</span>
 <span>    epochs <span class="op">=</span> <span class="fl">100</span>,</span>
-<span>    batch_size <span class="op">=</span> <span class="fl">400</span>, </span>
+<span>    batch_size <span class="op">=</span> <span class="fl">10</span>, </span>
 <span>    validation_split <span class="op">=</span> <span class="fl">0.2</span>,</span>
 <span>    callbacks <span class="op">=</span> <span class="va">cb</span></span>
 <span>  <span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="reference/fastpdp.html">fastpdp</a></span><span class="op">(</span><span class="va">nn</span>, v <span class="op">=</span> <span class="st">"clarity"</span>, X <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.matrix.html" class="external-link">data.matrix</a></span><span class="op">(</span><span class="va">diamonds</span><span class="op">[</span><span class="va">x</span><span class="op">]</span><span class="op">)</span>, batch_size <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="reference/fastpdp.html">fastpdp</a></span><span class="op">(</span><span class="va">nn</span>, v <span class="op">=</span> <span class="st">"Species"</span>, X <span class="op">=</span> <span class="va">X</span>, batch_size <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
@@ -186,16 +187,14 @@
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="va">iris_wf</span> <span class="op">%&gt;%</span></span>
 <span>  <span class="fu">fit</span><span class="op">(</span><span class="va">iris</span><span class="op">)</span></span>
 <span>  </span>
-<span><span class="va">ks</span> <span class="op">&lt;-</span> <span class="fu">kernelshap</span><span class="op">(</span><span class="va">fit</span>, <span class="va">iris</span><span class="op">[</span>, <span class="op">-</span><span class="fl">1</span><span class="op">]</span>, bg_X <span class="op">=</span> <span class="va">iris</span><span class="op">)</span></span>
-<span><span class="va">ks</span></span></code></pre></div>
+<span><span class="fu"><a href="reference/fastpdp.html">fastpdp</a></span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="st">"Species"</span>, X <span class="op">=</span> <span class="va">iris</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="caret">caret<a class="anchor" aria-label="anchor" href="#caret"></a>
 </h3>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/topepo/caret/" class="external-link">caret</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ModelOriented/kernelshap" class="external-link">kernelshap</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ModelOriented/shapviz" class="external-link">shapviz</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/mayer79/fastpdp" class="external-link">fastpdp</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">train</span><span class="op">(</span></span>
 <span>  <span class="va">Sepal.Length</span> <span class="op">~</span> <span class="va">.</span>, </span>
@@ -205,9 +204,7 @@
 <span>  trControl <span class="op">=</span> <span class="fu">trainControl</span><span class="op">(</span>method <span class="op">=</span> <span class="st">"none"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu">kernelshap</span><span class="op">(</span><span class="va">fit</span>, <span class="va">iris</span><span class="op">[</span>, <span class="op">-</span><span class="fl">1</span><span class="op">]</span>, <span class="va">predict</span>, bg_X <span class="op">=</span> <span class="va">iris</span><span class="op">)</span></span>
-<span><span class="va">sv</span> <span class="op">&lt;-</span> <span class="fu">shapviz</span><span class="op">(</span><span class="va">s</span><span class="op">)</span></span>
-<span><span class="fu">sv_waterfall</span><span class="op">(</span><span class="va">sv</span>, <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="reference/fastpdp.html">fastpdp</a></span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="st">"Species"</span>, X <span class="op">=</span> <span class="va">iris</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="mlr3">mlr3<a class="anchor" aria-label="anchor" href="#mlr3"></a>
@@ -215,17 +212,15 @@
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://mlr3.mlr-org.com" class="external-link">mlr3</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://mlr3learners.mlr-org.com" class="external-link">mlr3learners</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ModelOriented/kernelshap" class="external-link">kernelshap</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ModelOriented/shapviz" class="external-link">shapviz</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/mayer79/fastpdp" class="external-link">fastpdp</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">mlr_tasks</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"iris"</span><span class="op">)</span></span>
 <span><span class="fu">tsk</span><span class="op">(</span><span class="st">"iris"</span><span class="op">)</span></span>
 <span><span class="va">task_iris</span> <span class="op">&lt;-</span> <span class="va">TaskRegr</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span>id <span class="op">=</span> <span class="st">"iris"</span>, backend <span class="op">=</span> <span class="va">iris</span>, target <span class="op">=</span> <span class="st">"Sepal.Length"</span><span class="op">)</span></span>
-<span><span class="va">fit_lm</span> <span class="op">&lt;-</span> <span class="fu">lrn</span><span class="op">(</span><span class="st">"regr.lm"</span><span class="op">)</span></span>
-<span><span class="va">fit_lm</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span><span class="va">task_iris</span><span class="op">)</span></span>
-<span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu">kernelshap</span><span class="op">(</span><span class="va">fit_lm</span>, <span class="va">iris</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span><span class="op">]</span>, bg_X <span class="op">=</span> <span class="va">iris</span><span class="op">)</span></span>
-<span><span class="va">sv</span> <span class="op">&lt;-</span> <span class="fu">shapviz</span><span class="op">(</span><span class="va">s</span><span class="op">)</span></span>
-<span><span class="fu">sv_dependence</span><span class="op">(</span><span class="va">sv</span>, <span class="st">"Species"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">lrn</span><span class="op">(</span><span class="st">"regr.lm"</span><span class="op">)</span></span>
+<span><span class="va">fit</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span><span class="va">task_iris</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="reference/fastpdp.html">fastpdp</a></span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="st">"Species"</span>, X <span class="op">=</span> <span class="va">iris</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
