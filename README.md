@@ -25,21 +25,23 @@ devtools::install_github("mayer79/fastpdp")
 
 ## Usage
 
-Let's model diamonds prices!
+Let's model iris flowers, as usual :-).
 
 ### Linear regression
 
 ```r
-library(ggplot2)
 library(fastpdp)
 
-fit_lm <- lm(price ~ carat + clarity + color + cut, data = diamonds)
+fit_lm <- lm(Sepal.Width ~ ., data = iris)
 
 # Quantile grid with trimmed outliers
-fastpdp(fit_lm, v = "carat", X = diamonds)
+fastpdp(fit_lm, v = "Petal.Width", X = iris)
 
 # Own grid
-fastpdp(fit_lm, v = "carat", X = diamonds, grid = seq(0.2, 2.6, by = 0.1))
+fastpdp(fit_lm, v = "Petal.Width", X = iris, grid = seq(0.1, 2.5, by = 0.1))
+
+# Randomly selected 2D grid_
+fastpdp(fit_lm, v = c("Species", "Petal.Width"), X = iris, grid_type = "random")
 ```
 
 ### Random forest
@@ -47,11 +49,9 @@ fastpdp(fit_lm, v = "carat", X = diamonds, grid = seq(0.2, 2.6, by = 0.1))
 ```r
 library(ranger)
 
-fit_rf <- ranger(
-  price ~ carat + clarity + color + cut, data = diamonds
-)
+fit_rf <- ranger(Species ~ ., data = iris, probability = TRUE)
 
-fastpdp(fit_rf, v = "clarity", X = diamonds)
+fastpdp(fit_rf, v = "Sepal.Width", X = iris)
 ```
 
 ### Deep neural net
@@ -61,7 +61,8 @@ Or a deep neural net (results not fully reproducible):
 ```r
 library(keras)
 
-x <- c("carat", "clarity", "color", "cut")
+y <- iris[, 1]
+X <- data.matrix(iris[2:5])
 
 nn <- keras_model_sequential()
 nn |>
@@ -70,7 +71,7 @@ nn |>
   layer_dense(units = 1)
 
 nn |>
-  compile(optimizer = optimizer_adam(0.5), loss = "mse")
+  compile(optimizer = optimizer_adam(0.05), loss = "mse")
 
 cb <- list(
   callback_early_stopping(patience = 20),
@@ -79,15 +80,15 @@ cb <- list(
        
 nn |>
   fit(
-    x = data.matrix(diamonds[x]),
-    y = diamonds$price,
+    x = X,
+    y = y,
     epochs = 100,
-    batch_size = 400, 
+    batch_size = 10, 
     validation_split = 0.2,
     callbacks = cb
   )
 
-fastpdp(nn, v = "clarity", X = data.matrix(diamonds[x]), batch_size = 1000)
+fastpdp(nn, v = "Species", X = X, batch_size = 1000)
 
 ```
 
@@ -114,16 +115,14 @@ iris_wf <- workflow() %>%
 fit <- iris_wf %>%
   fit(iris)
   
-ks <- kernelshap(fit, iris[, -1], bg_X = iris)
-ks
+fastpdp(fit, v = "Species", X = iris)
 ```
 
 ### caret
 
 ```r
 library(caret)
-library(kernelshap)
-library(shapviz)
+library(fastpdp)
 
 fit <- train(
   Sepal.Length ~ ., 
@@ -133,9 +132,7 @@ fit <- train(
   trControl = trainControl(method = "none")
 )
 
-s <- kernelshap(fit, iris[, -1], predict, bg_X = iris)
-sv <- shapviz(s)
-sv_waterfall(sv, 1)
+fastpdp(fit, v = "Species", X = iris)
 ```
 
 ### mlr3
@@ -143,17 +140,15 @@ sv_waterfall(sv, 1)
 ```r
 library(mlr3)
 library(mlr3learners)
-library(kernelshap)
-library(shapviz)
+library(fastpdp)
 
 mlr_tasks$get("iris")
 tsk("iris")
 task_iris <- TaskRegr$new(id = "iris", backend = iris, target = "Sepal.Length")
-fit_lm <- lrn("regr.lm")
-fit_lm$train(task_iris)
-s <- kernelshap(fit_lm, iris[-1], bg_X = iris)
-sv <- shapviz(s)
-sv_dependence(sv, "Species")
+fit <- lrn("regr.lm")
+fit$train(task_iris)
+
+fastpdp(fit, v = "Species", X = iris)
 ```
 
 ## References
