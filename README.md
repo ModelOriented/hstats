@@ -33,15 +33,127 @@ Let's model diamonds prices!
 library(ggplot2)
 library(fastpdp)
 
-diamonds <- transform(
-  diamonds,
-  log_price = log(price), 
-  log_carat = log(carat)
+fit_lm <- lm(price ~ carat + clarity + color + cut, data = diamonds)
+
+# Quantile grid with trimmed outliers
+fastpdp(fit_lm, v = "carat", X = diamonds)
+
+# Own grid
+fastpdp(fit_lm, v = "carat", X = diamonds, grid = seq(0.2, 2.6, by = 0.1))
+```
+
+### Random forest
+
+```r
+library(ranger)
+
+fit_rf <- ranger(
+  price ~ carat + clarity + color + cut, data = diamonds
 )
 
-fit_lm <- lm(log_price ~ log_carat + clarity + color + cut, data = diamonds)
+fastpdp(fit_rf, v = "clarity", X = diamonds)
+```
 
-fastpdp(fit_lm)
+### Deep neural net
+
+Or a deep neural net (results not fully reproducible):
+
+```r
+library(keras)
+
+x <- c("carat", "clarity", "color", "cut")
+
+nn <- keras_model_sequential()
+nn |>
+  layer_dense(units = 30, activation = "relu", input_shape = 4) |>
+  layer_dense(units = 15, activation = "relu") |>
+  layer_dense(units = 1)
+
+nn |>
+  compile(optimizer = optimizer_adam(0.5), loss = "mse")
+
+cb <- list(
+  callback_early_stopping(patience = 20),
+  callback_reduce_lr_on_plateau(patience = 5)
+)
+       
+nn |>
+  fit(
+    x = data.matrix(diamonds[x]),
+    y = diamonds$price,
+    epochs = 100,
+    batch_size = 400, 
+    validation_split = 0.2,
+    callbacks = cb
+  )
+
+fastpdp(nn, v = "clarity", X = data.matrix(diamonds[x]), batch_size = 1000)
+
+```
+
+## Meta-learning packages
+
+Here, we provide some working examples for "tidymodels", "caret", and "mlr3".
+
+### tidymodels
+
+```r
+library(tidymodels)
+library(fastpdp)
+
+iris_recipe <- iris %>%
+  recipe(Sepal.Length ~ .)
+
+reg <- linear_reg() %>%
+  set_engine("lm")
+  
+iris_wf <- workflow() %>%
+  add_recipe(iris_recipe) %>%
+  add_model(reg)
+
+fit <- iris_wf %>%
+  fit(iris)
+  
+ks <- kernelshap(fit, iris[, -1], bg_X = iris)
+ks
+```
+
+### caret
+
+```r
+library(caret)
+library(kernelshap)
+library(shapviz)
+
+fit <- train(
+  Sepal.Length ~ ., 
+  data = iris, 
+  method = "lm", 
+  tuneGrid = data.frame(intercept = TRUE),
+  trControl = trainControl(method = "none")
+)
+
+s <- kernelshap(fit, iris[, -1], predict, bg_X = iris)
+sv <- shapviz(s)
+sv_waterfall(sv, 1)
+```
+
+### mlr3
+
+```r
+library(mlr3)
+library(mlr3learners)
+library(kernelshap)
+library(shapviz)
+
+mlr_tasks$get("iris")
+tsk("iris")
+task_iris <- TaskRegr$new(id = "iris", backend = iris, target = "Sepal.Length")
+fit_lm <- lrn("regr.lm")
+fit_lm$train(task_iris)
+s <- kernelshap(fit_lm, iris[-1], bg_X = iris)
+sv <- shapviz(s)
+sv_dependence(sv, "Species")
 ```
 
 ## References

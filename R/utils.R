@@ -32,7 +32,7 @@ fixed_grid_one <- function(z, m = 27L, trim = c(0.01, 0.99)) {
     return(sort(uni))
   }
   
-  # Numeric and too many disjoint values
+  # Non-discrete
   p <- seq(trim[1L], trim[2L], length.out = m)
   unique(stats::quantile(z, probs = p, names = FALSE, type = 1L))
 }
@@ -59,4 +59,13 @@ make_grid <- function(vv, grid_type = "fixed", m = 27L, trim = c(0.01, 0.99)) {
     vv <- as.data.frame(vv)
   }
   expand.grid(lapply(vv, FUN = fixed_grid_one, m = m, trim = trim))
+}
+
+# removes rownames from vector, matrix, data.frame
+Unname <- function(z) {
+  if (is.vector(z)) {
+    return(unname(z))
+  }
+  rownames(z) <- NULL
+  z
 }

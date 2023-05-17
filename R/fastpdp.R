@@ -51,49 +51,57 @@ fastpdp <- function(object, ...) {
 #' @export
 fastpdp.default <- function(object, v, X, pred_fun = stats::predict, 
                             w = NULL, grid = NULL, grid_type = c("fixed", "random"),
-                            grid_size = 27L, trim = c(0.01, 0.99), ...) {
+                            grid_size = 27L, trim = c(0.01, 0.99), n_max = 1000L, ...) {
   grid_type <- match.arg(grid_type)
   stopifnot(
     is.matrix(X) || is.data.frame(X),
     dim(X) >= 1L,
     all(v %in% colnames(X)),
-    is.function(pred_fun)
+    is.function(pred_fun),
+    is.null(w) || length(w) == nrow(X),
+    is.null(grid) || length(v) == NCOL(grid)
   )
+  D1 <- length(v) == 1L
   
+  # Reduce size of X (and w)
   n <- nrow(X)
-
+  if (nrow(X) > n_max) {
+    ix <- sample(n, n_max)
+    X <- X[ix, , drop = FALSE]
+    if (!is.null(w)) {
+      w <- w[ix]
+    }
+    n <- n_max
+  }
+  
+  # Create evaluation grid
   if (is.null(grid)) {
     grid <- make_grid(X[, v], grid_type = grid_type, m = grid_size, trim = trim)
   }
+  
+  # Sort grid by all v; remove and count duplicates
   RLE <- rle2(grid)
   grid <- RLE$values
   
-  # Explode X, grid, w to m_grid * nrow(X) rows -> only one call to predict()
+  # Explode X, grid, and w to m_grid * n rows -> only one call to predict()
   m_grid <- NROW(grid)
   X_pred <- X[rep(seq_len(n), times = m_grid), , drop = FALSE]
-  if (length(v) == 1L) {
-    g <- rep(grid, each = n)
-  } else {
-    g <- grid[rep(seq_len(m_grid), each = n), ]
-  }
+  g <- if (D1) rep(grid, each = n) else grid[rep(seq_len(m_grid), each = n), ]
   if (!is.null(w)) {
-    if (length(w) != n) {
-      stop("'w' needs to be of same length as 'X'")
-    }
     w <- rep(w, times = m_grid)
   }
   
   # Vary v
-  if (is.data.frame(X) && (length(v) == 1L)) {
+  if (is.data.frame(X) && D1) {
     X_pred[[v]] <- g
   } else {
     X_pred[, v] <- g
   }
   
-  # Aggregate predictions and organize output
+  # Aggregate predictions
   structure(
     list(
-      pd = unname(collapse::fmean(pred_fun(object, X_pred), g = g, w = w)),
+      pd = Unname(collapse::fmean(pred_fun(object, X_pred), g = g, w = w)),
       grid = grid,
       replications = RLE$lengths,
       v = v
@@ -103,12 +111,12 @@ fastpdp.default <- function(object, v, X, pred_fun = stats::predict,
 }
 
 
-#' @describeIn fastpdp PD method for "ranger" models, see Readme for an example.
+#' @describeIn fastpdp Method for "ranger" models, see Readme for an example.
 #' @export
 fastpdp.ranger <- function(object, v, X, 
                            pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions, 
                            w = NULL, grid = NULL, grid_type = c("fixed", "random"),
-                           grid_size = 27L, trim = c(0.01, 0.99), ...) {
+                           grid_size = 27L, trim = c(0.01, 0.99), n_max = 1000L, ...) {
   fastpdp.default(
     object = object, 
     v = v,
@@ -119,16 +127,17 @@ fastpdp.ranger <- function(object, v, X,
     grid_type = grid_type,
     grid_size = grid_size,
     trim = trim,
+    n_max = n_max,
     ...
   )
 }
 
-#' @describeIn fastpdp PD method for "mlr3" models, see Readme for an example.
+#' @describeIn fastpdp Method for "mlr3" models, see Readme for an example.
 #' @export
 fastpdp.Learner <- function(object, v, X, 
                             pred_fun = function(m, X) m$predict_newdata(X)$response, 
                             w = NULL, grid = NULL, grid_type = c("fixed", "random"),
-                            grid_size = 27L, trim = c(0.01, 0.99), ...) {
+                            grid_size = 27L, trim = c(0.01, 0.99), n_max = 1000L, ...) {
   fastpdp.default(
     object = object,
     v = v,
@@ -139,6 +148,7 @@ fastpdp.Learner <- function(object, v, X,
     grid_type = grid_type,
     grid_size = grid_size,
     trim = trim,
+    n_max = n_max,
     ...
   )
 }
