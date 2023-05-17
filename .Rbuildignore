@@ -1,0 +1,8 @@
+^LICENSE\.md$
+^packaging.R$
+[.]Rproj$
+^logo.png$
+^cran-comments\.md$
+^\.github$
+^.*\.Rproj$
+^\.Rproj\.user$
