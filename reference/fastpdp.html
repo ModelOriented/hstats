@@ -180,16 +180,124 @@ The Annals of Statistics, 29:1189–1232.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># MODEL ONE: Linear regression</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="va">Sepal.Length</span> <span class="op">~</span> <span class="va">Species</span> <span class="op">+</span> <span class="va">Petal.Width</span>, data <span class="op">=</span> <span class="va">iris</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">fastpdp</span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="st">"Petal.Width"</span>, X <span class="op">=</span> <span class="va">iris</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Partial dependence profile of dimension 22 x 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $pd</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] 4.835352 4.927042 5.018733 5.110423 5.202113 5.293803 5.660564 5.752254</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [9] 5.843945 5.935635 6.027325 6.119015 6.210705 6.302396 6.394086 6.485776</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [17] 6.577466 6.669157 6.760847 6.852537 6.944227 7.035917</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $grid</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] 0.1 0.2 0.3 0.4 0.5 0.6 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 2.1 2.2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [20] 2.3 2.4 2.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $replications</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $v</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Petal.Width"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span><span class="fu">fastpdp</span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="st">"Sepal.Width"</span>, X <span class="op">=</span> <span class="va">iris</span>, grid <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">2.5</span>, by <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Partial dependence profile of dimension 26 x 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $pd</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] 5.843333 5.843333 5.843333 5.843333 5.843333 5.843333 5.843333 5.843333</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [9] 5.843333 5.843333 5.843333 5.843333 5.843333 5.843333 5.843333 5.843333</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [17] 5.843333 5.843333 5.843333 5.843333 5.843333 5.843333 5.843333 5.843333</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25] 5.843333 5.843333</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $grid</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] 0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [20] 1.9 2.0 2.1 2.2 2.3 2.4 2.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $replications</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $v</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Sepal.Width"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># MODEL TWO: Multi-response linear regression</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">iris</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span> <span class="op">~</span> <span class="va">Petal.Length</span> <span class="op">+</span> <span class="va">Petal.Width</span> <span class="op">+</span> <span class="va">Species</span>, data <span class="op">=</span> <span class="va">iris</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">fastpdp</span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="st">"Petal.Width"</span>, X <span class="op">=</span> <span class="va">iris</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Partial dependence profile of dimension 22 x 2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $pd</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       Sepal.Length Sepal.Width</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1,]     5.849924    2.371959</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [2,]     5.849325    2.434303</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [3,]     5.848725    2.496648</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [4,]     5.848126    2.558992</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [5,]     5.847526    2.621337</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [6,]     5.846927    2.683682</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7,]     5.844528    2.933060</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [8,]     5.843929    2.995404</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [9,]     5.843329    3.057749</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [10,]     5.842730    3.120094</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [11,]     5.842130    3.182438</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [12,]     5.841531    3.244783</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13,]     5.840931    3.307127</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [14,]     5.840332    3.369472</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [15,]     5.839732    3.431816</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [16,]     5.839133    3.494161</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [17,]     5.838533    3.556505</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [18,]     5.837933    3.618850</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19,]     5.837334    3.681195</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [20,]     5.836734    3.743539</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [21,]     5.836135    3.805884</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [22,]     5.835535    3.868228</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $grid</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] 0.1 0.2 0.3 0.4 0.5 0.6 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 2.0 2.1 2.2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [20] 2.3 2.4 2.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $replications</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $v</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Petal.Width"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span><span class="fu">fastpdp</span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Petal.Width"</span>, <span class="st">"Species"</span><span class="op">)</span>, X <span class="op">=</span> <span class="va">iris</span>, grid_type <span class="op">=</span> <span class="st">"random"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Partial dependence profile of dimension 17 x 2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $pd</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       Sepal.Length Sepal.Width</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1,]     7.086927    3.692112</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [2,]     7.086327    3.754457</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [3,]     7.085728    3.816801</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [4,]     7.085128    3.879146</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [5,]     5.483170    2.489110</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [6,]     5.481971    2.613799</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7,]     5.481371    2.676143</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [8,]     5.480772    2.738488</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [9,]     5.480172    2.800832</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [10,]     5.479572    2.863177</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [11,]     4.964088    2.555613</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [12,]     4.963489    2.617958</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13,]     4.962889    2.680302</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [14,]     4.962289    2.742647</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [15,]     4.961690    2.804991</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [16,]     4.961090    2.867336</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [17,]     4.960491    2.929680</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $grid</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Petal.Width    Species</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 38          0.1     setosa</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4           0.2     setosa</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 41          0.3     setosa</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 27          0.4     setosa</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 94          1.0 versicolor</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 74          1.2 versicolor</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 98          1.3 versicolor</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 64          1.4 versicolor</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 79          1.5 versicolor</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 84          1.6 versicolor</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 139         1.8  virginica</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 143         1.9  virginica</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 148         2.0  virginica</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 140         2.1  virginica</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 118         2.2  virginica</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 116         2.3  virginica</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 115         2.4  virginica</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $replications</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] 1 6 3 1 1 2 4 3 3 1 2 1 2 1 2 2 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $v</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Petal.Width" "Species"    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 </code></pre></div>
     </div>
   </div>
