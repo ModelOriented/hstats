@@ -13,7 +13,7 @@
 #'   vector. Otherwise, a matrix or `data.frame` with `length(v)` columns.
 #'   The default (`NULL`) will randomly sample rows from `X[, v]`.
 #' @param grid_type Type of grid. If "fixed", will use unique values for discrete
-#'   features, and quantile cuts otherwise.
+#'   features and quantile cuts for numeric features.
 #' @param grid_size This is the number of rows sampled randomly from `X[, v]`. 
 #'   The result serves as evaluation `grid`. Only used if `grid = NULL`.
 #' @param trim When `grid = NULL` and `grid_type = "fixed"`, numeric columns are
@@ -51,21 +51,32 @@ fastpdp <- function(object, ...) {
 #' @export
 fastpdp.default <- function(object, v, X, pred_fun = stats::predict, 
                             w = NULL, grid = NULL, grid_type = c("fixed", "random"),
-                            grid_size = 27L, trim = c(0.01, 0.99), n_max = 1000L, ...) {
+                            grid_size = 36L, trim = c(0.01, 0.99), n_max = 1000L, ...) {
   grid_type <- match.arg(grid_type)
+  p <- length(v)
   stopifnot(
     is.matrix(X) || is.data.frame(X),
-    dim(X) >= 1L,
+    dim(X) >= 2:1,
     all(v %in% colnames(X)),
     is.function(pred_fun),
     is.null(w) || length(w) == nrow(X),
-    is.null(grid) || length(v) == NCOL(grid)
+    is.null(grid) || p == NCOL(grid)
   )
-  D1 <- length(v) == 1L
+
+  # Create/check evaluation grid. If length(v) == 1, always a vector/factor afterwards
+  if (is.null(grid)) {
+    grid <- make_grid(X[, v], grid_type = grid_type, m = grid_size, trim = trim)
+  } else {
+    grid <- check_grid(grid, v)
+  }
+  
+  # Sort grid by all v; remove and count duplicated rows
+  RLE <- rle2(grid)
+  grid <- RLE$values
   
   # Reduce size of X (and w)
   n <- nrow(X)
-  if (nrow(X) > n_max) {
+  if (n > n_max) {
     ix <- sample(n, n_max)
     X <- X[ix, , drop = FALSE]
     if (!is.null(w)) {
@@ -74,40 +85,33 @@ fastpdp.default <- function(object, v, X, pred_fun = stats::predict,
     n <- n_max
   }
   
-  # Create evaluation grid
-  if (is.null(grid)) {
-    grid <- make_grid(X[, v], grid_type = grid_type, m = grid_size, trim = trim)
+  # Explode X, grid, and w to n_grid * n rows -> only one call to predict()
+  n_grid <- NROW(grid)
+  X_pred <- X[rep(seq_len(n), times = n_grid), , drop = FALSE]
+  if (p == 1L) {
+    grid_pred <- rep(grid, each = n)
+  } else {
+    grid_pred <- grid[rep(seq_len(n_grid), each = n), ]
   }
-  
-  # Sort grid by all v; remove and count duplicates
-  RLE <- rle2(grid)
-  grid <- RLE$values
-  
-  # Explode X, grid, and w to m_grid * n rows -> only one call to predict()
-  m_grid <- NROW(grid)
-  X_pred <- X[rep(seq_len(n), times = m_grid), , drop = FALSE]
-  g <- if (D1) rep(grid, each = n) else grid[rep(seq_len(m_grid), each = n), ]
   if (!is.null(w)) {
-    w <- rep(w, times = m_grid)
+    w <- rep(w, times = n_grid)
   }
   
   # Vary v
-  if (is.data.frame(X) && D1) {
-    X_pred[[v]] <- g
+  if (is.data.frame(X) && p == 1L) {
+    X_pred[[v]] <- grid_pred
   } else {
-    X_pred[, v] <- g
+    X_pred[, v] <- grid_pred
   }
   
   # Aggregate predictions
-  structure(
-    list(
-      pd = Unname(collapse::fmean(pred_fun(object, X_pred), g = g, w = w)),
-      grid = grid,
-      replications = RLE$lengths,
-      v = v
-    ),
-    class = "fastpdp"
+  raw_out <- list(
+    pd = Unname(collapse::fmean(pred_fun(object, X_pred), g = grid_pred, w = w)),
+    grid = grid,
+    replications = RLE$lengths,
+    v = v
   )
+  raw_out
 }
 
 
@@ -152,3 +156,5 @@ fastpdp.Learner <- function(object, v, X,
     ...
   )
 }
+
+# Helper
