@@ -71,24 +71,43 @@ make_grid <- function(vv, grid_type = "fixed", m = 36L, trim = c(0.01, 0.99)) {
 
 # Check consistency of grid and v, drop unnecessary dimension
 check_grid <- function(g, v) {
-  if (is.vector(g) || is.factor(g)) {
-    return(g)
+  if (length(v) != NCOL(grid)) {
+    stop("NCOL(grid) must equal length(v)")
   }
   if (length(v) == 1L) {
-    # Turn 1D grid into vector/factor
-    if (is.matrix(g)) {
-      return(c(g))
+    if (!is.vector(g) && !is.factor(g)) {
+      stop("'grid' should be a vector of values")
     }
-    if (is.data.frame(g)) {
-      return(g[[1L]])
-    } 
-    stop("1D grid must either be numeric or factor.")
+  } else if (is.null(colnames(g)) || !all(v == colnames(g))) {
+      stop("Column names of 'grid' unequal to v")
   }
-  if (is.null(colnames(g)) || !all(v == colnames(g))) {
-    stop("Column names of 'grid' unequal to v")
-  }
-  g
+  TRUE
 }
+
+# Turns predictions into unnamed vectors (if 1D) or matrices without rownames otherwise
+check_pred <- function(x) {
+  if (!is.vector(x) && !is.matrix(x) && !is.data.frame(x) && !is.array(x)) {
+    stop("Predictions must be a vector, matrix, data.frame, or array")
+  }
+  if (!is.vector(x)) {
+    if (NCOL(x) == 1L) {
+      if (is.data.frame(x)) {
+        x <- x[[1L]]
+      } else {
+        x <- c(x)
+      }
+    } else {
+      if (is.data.frame(x) || is.array(x)) {
+        x <- as.matrix(x)
+      }
+    }
+  }
+  if (!is.numeric(x)) {
+    stop("Predictions must be numeric")
+  }
+  x
+}
+
 
 # removes rownames from vector, matrix, data.frame
 Unname <- function(z) {

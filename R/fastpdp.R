@@ -37,7 +37,7 @@
 #' # MODEL ONE: Linear regression
 #' fit <- lm(Sepal.Length ~ Species + Petal.Width, data = iris)
 #' fastpdp(fit, v = "Petal.Width", X = iris)
-#' fastpdp(fit, v = "Sepal.Width", X = iris, grid = seq(0, 2.5, by = 0.1))
+#' fastpdp(fit, v = "Sepal.Width", X = iris, grid = seq(0, 2.5, by = 0.2))
 #' 
 #' # MODEL TWO: Multi-response linear regression
 #' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width + Species, data = iris)
@@ -53,26 +53,20 @@ fastpdp.default <- function(object, v, X, pred_fun = stats::predict,
                             w = NULL, grid = NULL, grid_type = c("fixed", "random"),
                             grid_size = 36L, trim = c(0.01, 0.99), n_max = 1000L, ...) {
   grid_type <- match.arg(grid_type)
-  p <- length(v)
   stopifnot(
     is.matrix(X) || is.data.frame(X),
     dim(X) >= 2:1,
     all(v %in% colnames(X)),
     is.function(pred_fun),
-    is.null(w) || length(w) == nrow(X),
-    is.null(grid) || p == NCOL(grid)
+    is.null(w) || length(w) == nrow(X)
   )
 
   # Create/check evaluation grid. If length(v) == 1, always a vector/factor afterwards
   if (is.null(grid)) {
     grid <- make_grid(X[, v], grid_type = grid_type, m = grid_size, trim = trim)
   } else {
-    grid <- check_grid(grid, v)
+    check_grid(grid, v)
   }
-  
-  # Sort grid by all v; remove and count duplicated rows
-  RLE <- rle2(grid)
-  grid <- RLE$values
   
   # Reduce size of X (and w)
   n <- nrow(X)
@@ -85,33 +79,10 @@ fastpdp.default <- function(object, v, X, pred_fun = stats::predict,
     n <- n_max
   }
   
-  # Explode X, grid, and w to n_grid * n rows -> only one call to predict()
-  n_grid <- NROW(grid)
-  X_pred <- X[rep(seq_len(n), times = n_grid), , drop = FALSE]
-  if (p == 1L) {
-    grid_pred <- rep(grid, each = n)
-  } else {
-    grid_pred <- grid[rep(seq_len(n_grid), each = n), ]
-  }
-  if (!is.null(w)) {
-    w <- rep(w, times = n_grid)
-  }
-  
-  # Vary v
-  if (is.data.frame(X) && p == 1L) {
-    X_pred[[v]] <- grid_pred
-  } else {
-    X_pred[, v] <- grid_pred
-  }
-  
-  # Aggregate predictions
-  raw_out <- list(
-    pd = Unname(collapse::fmean(pred_fun(object, X_pred), g = grid_pred, w = w)),
-    grid = grid,
-    replications = RLE$lengths,
-    v = v
+  out <- pdp_raw(
+    object = object, v = v, X = X, pred_fun = pred_fun, w = w, grid = grid, ...
   )
-  raw_out
+  return(out)
 }
 
 
@@ -157,4 +128,38 @@ fastpdp.Learner <- function(object, v, X,
   )
 }
 
-# Helper
+# Working horse: parameters see fastpdp()
+pdp_raw <- function(object, v, X, pred_fun, w, grid, ...) {
+  D1 <- length(v) == 1L
+  
+  # Sort grid by all v; remove and count duplicated rows
+  RLE <- rle2(grid)
+  grid <- RLE$values
+  
+  # Explode X, grid, and w to n_grid * n rows -> only one call to predict()
+  n <- nrow(X)
+  n_grid <- NROW(grid)
+  X_pred <- X[rep(seq_len(n), times = n_grid), , drop = FALSE]
+  grid_pred <- if (D1) rep(grid, each = n) else grid[rep(seq_len(n_grid), each = n), ]
+  if (!is.null(w)) {
+    w <- rep(w, times = n_grid)
+  }
+  
+  # Vary v
+  if (is.data.frame(X) && D1) {
+    X_pred[[v]] <- grid_pred
+  } else {
+    X_pred[, v] <- grid_pred
+  }
+  
+  # Either a numeric vector or matrix (with column names, but no rownames)
+  pred <- check_pred(pred_fun(object, X_pred, ...))
+  
+  # Aggregate predictions
+  list(
+    pd = Unname(collapse::fmean(pred, g = grid_pred, w = w)),
+    grid = Unname(grid),
+    rep = RLE$lengths,
+    v = v
+  )
+}
