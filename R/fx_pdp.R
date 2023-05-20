@@ -11,16 +11,14 @@
 #' @param w Optional vector of case weights for each row of `X`.
 #' @param grid Optional evaluation grid. If `v` is a single column name, this is a 
 #'   vector. Otherwise, a matrix or `data.frame` with `length(v)` columns.
-#'   The default (`NULL`) will randomly sample rows from `X[, v]`.
-#' @param grid_type Type of grid. If "fixed", will use unique values for discrete
-#'   features and quantile cuts for numeric features.
 #' @param grid_size This is the number of rows sampled randomly from `X[, v]`. 
 #'   The result serves as evaluation `grid`. Only used if `grid = NULL`.
 #' @param trim When `grid = NULL` and `grid_type = "fixed"`, numeric columns are
 #'   trimmed first at those quantiles. Set to `c(0, 1)` to avoid trimming.
+#' @param pred_n description
 #' @param ... Additional arguments passed to `pred_fun(object, X, ...)`.
 #' @returns 
-#'   An object of class "fastpdp" containing
+#'   An object of class "fx_pdp" containing
 #'   - `pd`: A vector, matrix or `data.frame` with PD values. The row order corresponds
 #'     to the `grid` attached to the output.
 #'   - `grid`: A vector, matrix, or `data.frame` representing the evaluation grid in
@@ -36,23 +34,28 @@
 #' @examples
 #' # MODEL ONE: Linear regression
 #' fit <- lm(Sepal.Length ~ Species + Petal.Width, data = iris)
-#' fastpdp(fit, v = "Petal.Width", X = iris)
-#' fastpdp(fit, v = "Sepal.Width", X = iris, grid = seq(0, 2.5, by = 0.2))
+#' pd <- fx_pdp(fit, v = "Petal.Width", X = iris)
+#' pd[1:4, ]
+#' 
+#' fx_pdp(fit, v = "Petal.Width", X = iris, grid = seq(0, 1, by = 0.2), pd_name = "P")
+#' fx_pdp(fit, v = "Petal.Width", X = iris, grid = seq(1, 0, by = -0.2))
+#' fx_pdp(fit, v = "Species", X = iris)
 #' 
 #' # MODEL TWO: Multi-response linear regression
 #' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width + Species, data = iris)
-#' fastpdp(fit, v = "Petal.Width", X = iris)
-#' fastpdp(fit, v = c("Petal.Width", "Species"), X = iris, grid_type = "random")
-fastpdp <- function(object, ...) {
-  UseMethod("fastpdp")
+#' pd <- fx_pdp(fit, v = "Species", X = iris)
+#' pd[1:3, ]
+#' pd <- fx_pdp(fit, v = c("Petal.Width", "Species"), X = iris)
+#' pd[1:4, ]
+fx_pdp <- function(object, ...) {
+  UseMethod("fx_pdp")
 }
 
-#' @describeIn fastpdp Default Kernel SHAP method.
+#' @describeIn fx_pdp Default method.
 #' @export
-fastpdp.default <- function(object, v, X, pred_fun = stats::predict, 
-                            w = NULL, grid = NULL, grid_type = c("fixed", "random"),
-                            grid_size = 36L, trim = c(0.01, 0.99), n_max = 1000L, ...) {
-  grid_type <- match.arg(grid_type)
+fx_pdp.default <- function(object, v, X, pred_fun = stats::predict, 
+                           grid = NULL, grid_size = 36L, trim = c(0.01, 0.99), 
+                           n_max = 500L, pd_names = NULL, w = NULL, ...) {
   stopifnot(
     is.matrix(X) || is.data.frame(X),
     dim(X) >= 2:1,
@@ -60,13 +63,6 @@ fastpdp.default <- function(object, v, X, pred_fun = stats::predict,
     is.function(pred_fun),
     is.null(w) || length(w) == nrow(X)
   )
-
-  # Create/check evaluation grid. If length(v) == 1, always a vector/factor afterwards
-  if (is.null(grid)) {
-    grid <- make_grid(X[, v], grid_type = grid_type, m = grid_size, trim = trim)
-  } else {
-    check_grid(grid, v)
-  }
   
   # Reduce size of X (and w)
   n <- nrow(X)
@@ -78,88 +74,87 @@ fastpdp.default <- function(object, v, X, pred_fun = stats::predict,
     }
     n <- n_max
   }
+
+  # Make/check grid. If length(v) == 1, grid is always a vector/factor
+  if (is.null(grid)) {
+    grid <- fixed_grid(X[, v], m = grid_size, trim = trim)
+  } else{
+    check_grid(grid, v = v, X_is_matrix = is.matrix(X))
+  }
   
-  out <- pdp_raw(
-    object = object, v = v, X = X, pred_fun = pred_fun, w = w, grid = grid, ...
-  )
-  return(out)
+  # Explode everything to n * n_grid rows and vary v
+  n_grid <- NROW(grid)
+  X_pred <- X[rep(seq_len(n), times = n_grid), , drop = FALSE]
+  if (length(v) == 1L) {
+    grid_pred <- rep(grid, each = n)
+  } else {
+    grid_pred <- grid[rep(seq_len(n_grid), each = n), ]
+  }
+  if (!is.null(w)) {
+    w <- rep(w, times = n_grid)
+  }
+  X_pred[, v] <- grid_pred
+  
+  # Create matrix of predictions
+  pred <- fix_pred(pred_fun(object, X_pred, ...))
+  
+  # Turn grid into data.frame to simplify working with collapse
+  if (!is.data.frame(grid_pred)) {
+    grid_pred <- stats::setNames(as.data.frame(grid_pred), v)
+  }
+  g <- collapse::GRP(grid_pred, sort = FALSE)
+  
+  # Calculate PD (always a matrix)
+  pd <- collapse::fmean(pred, g = g, w = w)
+  rownames(pd) <- NULL
+  if (!is.null(pd_names)) {
+    colnames(pd) <- pd_names
+  } else if (is.null(colnames(pd))) {
+    p <- ncol(pd)
+    colnames(pd) <- if (p == 1L) "pred" else paste("pred", seq_len(p), sep = "_")
+  }
+  cbind.data.frame(g[["groups"]], pd)
 }
 
 
-#' @describeIn fastpdp Method for "ranger" models, see Readme for an example.
+#' @describeIn fx_pdp Method for "ranger" models, see Readme for an example.
 #' @export
-fastpdp.ranger <- function(object, v, X, 
+fx_pdp.ranger <- function(object, v, X, 
                            pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions, 
-                           w = NULL, grid = NULL, grid_type = c("fixed", "random"),
-                           grid_size = 27L, trim = c(0.01, 0.99), n_max = 1000L, ...) {
-  fastpdp.default(
-    object = object, 
-    v = v,
-    X = X,
-    pred_fun = pred_fun,
-    w = w,
-    grid = grid,
-    grid_type = grid_type,
-    grid_size = grid_size,
-    trim = trim,
-    n_max = n_max,
-    ...
-  )
-}
-
-#' @describeIn fastpdp Method for "mlr3" models, see Readme for an example.
-#' @export
-fastpdp.Learner <- function(object, v, X, 
-                            pred_fun = function(m, X) m$predict_newdata(X)$response, 
-                            w = NULL, grid = NULL, grid_type = c("fixed", "random"),
-                            grid_size = 27L, trim = c(0.01, 0.99), n_max = 1000L, ...) {
-  fastpdp.default(
+                           grid = NULL, grid_size = 36L, trim = c(0.01, 0.99), 
+                           n_max = 500L, pd_names = NULL, w = NULL, ...) {
+  fx_pdp.default(
     object = object,
     v = v,
     X = X,
     pred_fun = pred_fun,
-    w = w,
     grid = grid,
-    grid_type = grid_type,
     grid_size = grid_size,
     trim = trim,
     n_max = n_max,
+    pd_names = pd_names,
+    w = w,
     ...
   )
 }
 
-# Working horse: parameters see fastpdp()
-pdp_raw <- function(object, v, X, pred_fun, w, grid, ...) {
-  D1 <- length(v) == 1L
-  
-  # Sort grid by all v; remove and count duplicated rows
-  RLE <- rle2(grid)
-  grid <- RLE$values
-  
-  # Explode X, grid, and w to n_grid * n rows -> only one call to predict()
-  n <- nrow(X)
-  n_grid <- NROW(grid)
-  X_pred <- X[rep(seq_len(n), times = n_grid), , drop = FALSE]
-  grid_pred <- if (D1) rep(grid, each = n) else grid[rep(seq_len(n_grid), each = n), ]
-  if (!is.null(w)) {
-    w <- rep(w, times = n_grid)
-  }
-  
-  # Vary v
-  if (is.data.frame(X) && D1) {
-    X_pred[[v]] <- grid_pred
-  } else {
-    X_pred[, v] <- grid_pred
-  }
-  
-  # Either a numeric vector or matrix (with column names, but no rownames)
-  pred <- check_pred(pred_fun(object, X_pred, ...))
-  
-  # Aggregate predictions
-  list(
-    pd = Unname(collapse::fmean(pred, g = grid_pred, w = w)),
-    grid = Unname(grid),
-    rep = RLE$lengths,
-    v = v
+#' @describeIn fx_pdp Method for "mlr3" models, see Readme for an example.
+#' @export
+fx_pdp.Learner <- function(object, v, X, 
+                            pred_fun = function(m, X) m$predict_newdata(X)$response, 
+                            grid = NULL, grid_size = 36L, trim = c(0.01, 0.99), 
+                            n_max = 500L, pd_names = NULL, w = NULL, ...) {
+  fx_pdp.default(
+    object = object,
+    v = v,
+    X = X,
+    pred_fun = pred_fun,
+    grid = grid,
+    grid_size = grid_size,
+    trim = trim,
+    n_max = n_max,
+    pd_names = pd_names,
+    w = w,
+    ...
   )
 }
