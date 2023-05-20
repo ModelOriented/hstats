@@ -82,47 +82,20 @@ fx_pdp.default <- function(object, v, X, pred_fun = stats::predict,
     check_grid(grid, v = v, X_is_matrix = is.matrix(X))
   }
   
-  # Explode everything to n * n_grid rows and vary v
-  n_grid <- NROW(grid)
-  X_pred <- X[rep(seq_len(n), times = n_grid), , drop = FALSE]
-  if (length(v) == 1L) {
-    grid_pred <- rep(grid, each = n)
-  } else {
-    grid_pred <- grid[rep(seq_len(n_grid), each = n), ]
-  }
-  if (!is.null(w)) {
-    w <- rep(w, times = n_grid)
-  }
-  X_pred[, v] <- grid_pred
-  
-  # Create matrix of predictions
-  pred <- fix_pred(pred_fun(object, X_pred, ...))
-  
-  # Turn grid into data.frame to simplify working with collapse
-  if (!is.data.frame(grid_pred)) {
-    grid_pred <- stats::setNames(as.data.frame(grid_pred), v)
-  }
-  g <- collapse::GRP(grid_pred, sort = FALSE)
-  
-  # Calculate PD (always a matrix)
-  pd <- collapse::fmean(pred, g = g, w = w)
-  rownames(pd) <- NULL
-  if (!is.null(pd_names)) {
-    colnames(pd) <- pd_names
-  } else if (is.null(colnames(pd))) {
-    p <- ncol(pd)
-    colnames(pd) <- if (p == 1L) "pred" else paste("pred", seq_len(p), sep = "_")
-  }
-  cbind.data.frame(g[["groups"]], pd)
+  # Calculations
+  out <- pdp_raw(
+    object = object, v = v, X = X, pred_fun = pred_fun, grid = grid, w = NULL, ...
+  )
+  cbind.data.frame(out[["grid"]], fix_pd_names(out[["pd"]], pd_names = pd_names))
 }
 
 
 #' @describeIn fx_pdp Method for "ranger" models, see Readme for an example.
 #' @export
 fx_pdp.ranger <- function(object, v, X, 
-                           pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions, 
-                           grid = NULL, grid_size = 36L, trim = c(0.01, 0.99), 
-                           n_max = 500L, pd_names = NULL, w = NULL, ...) {
+                          pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions, 
+                          grid = NULL, grid_size = 36L, trim = c(0.01, 0.99), 
+                          n_max = 500L, pd_names = NULL, w = NULL, ...) {
   fx_pdp.default(
     object = object,
     v = v,
@@ -141,9 +114,9 @@ fx_pdp.ranger <- function(object, v, X,
 #' @describeIn fx_pdp Method for "mlr3" models, see Readme for an example.
 #' @export
 fx_pdp.Learner <- function(object, v, X, 
-                            pred_fun = function(m, X) m$predict_newdata(X)$response, 
-                            grid = NULL, grid_size = 36L, trim = c(0.01, 0.99), 
-                            n_max = 500L, pd_names = NULL, w = NULL, ...) {
+                           pred_fun = function(m, X) m$predict_newdata(X)$response, 
+                           grid = NULL, grid_size = 36L, trim = c(0.01, 0.99), 
+                           n_max = 500L, pd_names = NULL, w = NULL, ...) {
   fx_pdp.default(
     object = object,
     v = v,
@@ -157,4 +130,41 @@ fx_pdp.Learner <- function(object, v, X,
     w = w,
     ...
   )
+}
+
+# Barebone function. Arguments see fx_pdp()
+pdp_raw <- function(object, v, X, pred_fun, grid, w = NULL, ...) {
+  n <- nrow(X)
+  n_grid <- NROW(grid)
+  D1 <- length(v) == 1L
+  
+  # Explode everything to n * n_grid rows and vary v
+  X_pred <- X[rep(seq_len(n), times = n_grid), , drop = FALSE]
+  if (D1) {
+    grid_pred <- rep(grid, each = n)
+  } else {
+    grid_pred <- grid[rep(seq_len(n_grid), each = n), ]
+  }
+  if (!is.null(w)) {
+    w <- rep(w, times = n_grid)
+  }
+  if (D1 && is.data.frame(X_pred)) {
+    X_pred[[v]] <- grid_pred  #  [, v] <- is slower if df
+  } else {
+    X_pred[, v] <- grid_pred
+  }
+  
+  # Create matrix of predictions
+  pred <- fix_pred(pred_fun(object, X_pred, ...))
+  
+  # Turn grid into data.frame to simplify working with collapse
+  if (!is.data.frame(grid_pred)) {
+    grid_pred <- stats::setNames(as.data.frame(grid_pred), v)
+  }
+  g <- collapse::GRP(grid_pred, sort = FALSE)
+  
+  # Calculate PD (always a matrix)
+  pd <- collapse::fmean(pred, g = g, w = w)
+  rownames(pd) <- NULL
+  list(pd = pd, grid = g[["groups"]])
 }

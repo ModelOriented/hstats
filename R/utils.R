@@ -77,3 +77,14 @@ fix_pred <- function(x) {
   }
   x
 }
+
+fix_pd_names <- function(pd, pd_names) {
+  if (!is.null(pd_names)) {
+    colnames(pd) <- pd_names
+  } else if (is.null(colnames(pd))) {
+    p <- ncol(pd)
+    colnames(pd) <- if (p == 1L) "pred" else paste("pred", seq_len(p), sep = "_")
+  }
+  pd
+}
+
