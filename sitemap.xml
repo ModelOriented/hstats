@@ -16,15 +16,12 @@
     <loc>/news/index.html</loc>
   </url>
   <url>
-    <loc>/reference/fastpdp.html</loc>
+    <loc>/reference/fx_friedmans_h.html</loc>
+  </url>
+  <url>
+    <loc>/reference/fx_pdp.html</loc>
   </url>
   <url>
     <loc>/reference/index.html</loc>
-  </url>
-  <url>
-    <loc>/reference/is.fastpdp.html</loc>
-  </url>
-  <url>
-    <loc>/reference/print.fastpdp.html</loc>
   </url>
 </urlset>
