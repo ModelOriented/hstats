@@ -16,8 +16,9 @@ use_description(
   fields = list(
     Title = "Fast Partial Dependence Profiles",
     Version = "0.1.0",
-    Description = "Fast implementation of Partial Dependence Profiles (PDP). 
-    The package supports multivariate predictions as well as multidimensional PDPs.",
+    Description = "Fast implementation of Partial Dependence Profiles (PDP) and 
+    Friedman's H statistic of interaction. 
+    The package supports multivariate predictions and working with case weights.",
     `Authors@R` = 
     "person('Michael', family='Mayer', role=c('aut', 'cre'), email='mayermichael79@gmail.com')",
     Depends = "R (>= 3.2.0)",
@@ -26,7 +27,6 @@ use_description(
   roxygen = TRUE
 )
 
-use_package("collapse", "Imports")
 use_package("stats", "Imports")
 use_package("utils", "Imports")
 

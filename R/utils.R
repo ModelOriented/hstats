@@ -52,8 +52,8 @@ check_grid <- function(g, v, X_is_matrix) {
   TRUE
 }
 
-pred2matrix <- function(x) {
-  if (!is.matrix(x)) {
+check_pred <- function(x) {
+  if (!is.vector(x) && !is.matrix(x)) {
     x <- as.matrix(x)
   }
   if (!is.numeric(x)) {
@@ -62,13 +62,23 @@ pred2matrix <- function(x) {
   x
 }
 
-fix_pd_names <- function(pd, pd_names) {
-  if (!is.null(pd_names)) {
-    colnames(pd) <- pd_names
-  } else if (is.null(colnames(pd))) {
-    p <- ncol(pd)
-    colnames(pd) <- if (p == 1L) "pred" else paste("pred", seq_len(p), sep = "_")
+fix_names <- function(out, out_names, prefix = "pred") {
+  if (!is.null(out_names)) {
+    colnames(out) <- out_names
+  } else if (is.null(colnames(out))) {
+    p <- ncol(out)
+    colnames(out) <- if (p == 1L) prefix else paste(prefix, seq_len(p), sep = "_")
   }
-  pd
+  out
 }
 
+rowsum2 <- function(x, ngroups, w = NULL) {
+  p <- NCOL(x)
+  n_bg <- NROW(x) %/% ngroups
+  g <- rep(seq_len(ngroups), each = n_bg)
+  if (is.null(w)) {
+    return(rowsum(x, group = g, reorder = FALSE) / n_bg)
+  }
+  # w is recycled over rows and columns
+  rowsum(x * w, group = g, reorder = FALSE) / sum(w)
+}

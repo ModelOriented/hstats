@@ -15,10 +15,11 @@
 #'   values is evaluated at `grid_size` quantiles. If `v` has length \eqn{p > 1},
 #'   the \eqn{p}th root of `grid_size` is used instead. 
 #' @param trim A vector with two probabilities used to trim non-discrete numeric `v` 
-#'   before applying quantile binning. Set to `c(0, 1)` to avoid trimming.
-#'   Not used with `grid = NULL`. 
+#'   before applying quantile binning (only if `grid = NULL`). 
+#'   Set to `c(0, 1)` to avoid trimming.
 #' @param n_max If `X` has more rows than `n_max`, a random sample of `n_max` rows is
 #'   selected. 
+#' @param out_names Names of the output columns.
 #' @param w Optional vector of case weights for each row of `X`.
 #' @param ... Additional arguments passed to `pred_fun(object, X, ...)`.
 #' @returns A dataframe with partial dependence per grid value.
@@ -32,7 +33,7 @@
 #' pd <- fx_pdp(fit, v = "Petal.Width", X = iris)
 #' pd[1:4, ]
 #' 
-#' fx_pdp(fit, v = "Petal.Width", X = iris, grid = seq(0, 1, by = 0.5), pd_name = "P")
+#' fx_pdp(fit, v = "Petal.Width", X = iris, grid = seq(0, 1, by = 0.5), out_name = "P")
 #' fx_pdp(fit, v = "Petal.Width", X = iris, grid = seq(1, 0, by = -0.5))
 #' fx_pdp(fit, v = "Species", X = iris)
 #' 
@@ -49,7 +50,7 @@ fx_pdp <- function(object, ...) {
 #' @export
 fx_pdp.default <- function(object, v, X, pred_fun = stats::predict, 
                            grid = NULL, grid_size = 36L, trim = c(0.01, 0.99), 
-                           n_max = 500L, pd_names = NULL, w = NULL, ...) {
+                           n_max = 500L, out_names = NULL, w = NULL, ...) {
   stopifnot(
     is.matrix(X) || is.data.frame(X),
     dim(X) >= 2:1,
@@ -77,10 +78,16 @@ fx_pdp.default <- function(object, v, X, pred_fun = stats::predict,
   }
   
   # Calculations
-  out <- pdp_raw(
+  pd <- pdp_raw(
     object = object, v = v, X = X, pred_fun = pred_fun, grid = grid, w = NULL, ...
   )
-  cbind.data.frame(out[["grid"]], fix_pd_names(out[["pd"]], pd_names = pd_names))
+  
+  # Cleanup
+  pd <- fix_names(pd, out_names = out_names)
+  if (!is.data.frame(grid)) {
+    grid <- stats::setNames(as.data.frame(grid), v)
+  }
+  cbind.data.frame(grid, pd)
 }
 
 
@@ -89,7 +96,7 @@ fx_pdp.default <- function(object, v, X, pred_fun = stats::predict,
 fx_pdp.ranger <- function(object, v, X, 
                           pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions, 
                           grid = NULL, grid_size = 36L, trim = c(0.01, 0.99), 
-                          n_max = 500L, pd_names = NULL, w = NULL, ...) {
+                          n_max = 500L, out_names = NULL, w = NULL, ...) {
   fx_pdp.default(
     object = object,
     v = v,
@@ -99,7 +106,7 @@ fx_pdp.ranger <- function(object, v, X,
     grid_size = grid_size,
     trim = trim,
     n_max = n_max,
-    pd_names = pd_names,
+    out_names = out_names,
     w = w,
     ...
   )
@@ -110,7 +117,7 @@ fx_pdp.ranger <- function(object, v, X,
 fx_pdp.Learner <- function(object, v, X, 
                            pred_fun = function(m, X) m$predict_newdata(X)$response, 
                            grid = NULL, grid_size = 36L, trim = c(0.01, 0.99), 
-                           n_max = 500L, pd_names = NULL, w = NULL, ...) {
+                           n_max = 500L, out_names = NULL, w = NULL, ...) {
   fx_pdp.default(
     object = object,
     v = v,
@@ -120,7 +127,7 @@ fx_pdp.Learner <- function(object, v, X,
     grid_size = grid_size,
     trim = trim,
     n_max = n_max,
-    pd_names = pd_names,
+    out_names = out_names,
     w = w,
     ...
   )
@@ -128,11 +135,32 @@ fx_pdp.Learner <- function(object, v, X,
 
 # Barebone function. Arguments see fx_pdp()
 # If length(v) == 1, then grid must be a vector/factor.
-# Returns named matrix of "pd", and evaluation "grid" (always a df)
+# Output is matrix of partial dependence values in the same order as grid
 pdp_raw <- function(object, v, X, pred_fun, grid, w = NULL, ...) {
   n <- nrow(X)
-  n_grid <- NROW(grid)
   D1 <- length(v) == 1L
+  
+  # Do we have a lot of duplicates in the grid? We take unique
+  # (Could do the same for X)
+  ugrid <- unique(grid)
+  if (NROW(ugrid) < 0.8 * NROW(grid)) {
+    dup <- TRUE
+    if (D1) {
+      orig <- grid  # always a vector/factor
+      final <- ugrid
+    } else {
+      orig <- apply(grid, MARGIN = 1L, FUN = paste, collapse = "_:_")
+      final <- apply(ugrid, MARGIN = 1L, FUN = paste, collapse = "_:_")
+      if (anyDuplicated(final)) {
+        stop("String '_:_' found in grid values at unlucky position.")
+      }
+    }
+    grid <- ugrid
+  } else{
+    dup <- FALSE
+  }
+  
+  n_grid <- NROW(grid)
   
   # Explode everything to n * n_grid rows
   X_pred <- X[rep(seq_len(n), times = n_grid), , drop = FALSE]
@@ -140,9 +168,6 @@ pdp_raw <- function(object, v, X, pred_fun, grid, w = NULL, ...) {
     grid_pred <- rep(grid, each = n)
   } else {
     grid_pred <- grid[rep(seq_len(n_grid), each = n), ]
-  }
-  if (!is.null(w)) {
-    w <- rep(w, times = n_grid)
   }
   
   # Vary v
@@ -152,17 +177,12 @@ pdp_raw <- function(object, v, X, pred_fun, grid, w = NULL, ...) {
     X_pred[, v] <- grid_pred
   }
   
-  # Create **matrix** of predictions
-  pred <- pred2matrix(pred_fun(object, X_pred, ...))
-  
-  # Turn grid into data.frame to simplify working with collapse
-  if (!is.data.frame(grid_pred)) {
-    grid_pred <- stats::setNames(as.data.frame(grid_pred), v)
-  }
-  g <- collapse::GRP(grid_pred, sort = FALSE)
-  
-  # Calculate PD (always a matrix)
-  pd <- collapse::fmean(pred, g = g, w = w)
+  pred <- check_pred(pred_fun(object, X_pred, ...))
+  pd <- rowsum2(pred, ngroups = n_grid, w = w)
   rownames(pd) <- NULL
-  list(pd = pd, grid = g[["groups"]])
+  if (dup) {
+    return(pd[match(orig, final), , drop = FALSE])
+  }
+  pd
 }
+
