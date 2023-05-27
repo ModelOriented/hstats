@@ -26,8 +26,9 @@ use_description(
   roxygen = TRUE
 )
 
-use_package("stats", "Imports")
 use_package("collapse", "Imports")
+use_package("stats", "Imports")
+use_package("utils", "Imports")
 
 use_gpl_license(2)
 

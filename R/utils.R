@@ -2,9 +2,6 @@
 
 # Discretizes univariate vector z for most types of z
 fixed_grid_one <- function(z, m = 36L, trim = c(0.01, 0.99)) {
-  if (is.factor(z)) {
-    return(levels(z))
-  }
   uni <- unique(z)
   if (!is.numeric(z) || length(uni) <= m) {
     return(sort(uni))
@@ -34,19 +31,6 @@ fixed_grid <- function(vv, m = 36L, trim = c(0.01, 0.99)) {
   if (is_mat) as.matrix(out) else out
 }
 
-random_grid <- function(vv, m = 36L) {
-  p <- NCOL(vv)
-  n <- NROW(vv)
-  if (n <= m) {
-    return(vv)
-  }
-  ix <- sample(n, size = m)
-  if (p == 1L) {
-    return(vv[ix])
-  }
-  return(vv[ix, ])
-}
-
 # Check consistency of grid and v
 check_grid <- function(g, v, X_is_matrix) {
   p <- length(v)
@@ -68,7 +52,7 @@ check_grid <- function(g, v, X_is_matrix) {
   TRUE
 }
 
-fix_pred <- function(x) {
+pred2matrix <- function(x) {
   if (!is.matrix(x)) {
     x <- as.matrix(x)
   }
