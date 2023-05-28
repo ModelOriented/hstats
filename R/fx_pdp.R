@@ -50,7 +50,7 @@ fx_pdp <- function(object, ...) {
 #' @export
 fx_pdp.default <- function(object, v, X, pred_fun = stats::predict, 
                            grid = NULL, grid_size = 36L, trim = c(0.01, 0.99), 
-                           n_max = 500L, out_names = NULL, w = NULL, ...) {
+                           n_max = 1000L, out_names = NULL, w = NULL, ...) {
   stopifnot(
     is.matrix(X) || is.data.frame(X),
     dim(X) >= 2:1,
@@ -96,7 +96,7 @@ fx_pdp.default <- function(object, v, X, pred_fun = stats::predict,
 fx_pdp.ranger <- function(object, v, X, 
                           pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions, 
                           grid = NULL, grid_size = 36L, trim = c(0.01, 0.99), 
-                          n_max = 500L, out_names = NULL, w = NULL, ...) {
+                          n_max = 1000L, out_names = NULL, w = NULL, ...) {
   fx_pdp.default(
     object = object,
     v = v,
@@ -117,7 +117,7 @@ fx_pdp.ranger <- function(object, v, X,
 fx_pdp.Learner <- function(object, v, X, 
                            pred_fun = function(m, X) m$predict_newdata(X)$response, 
                            grid = NULL, grid_size = 36L, trim = c(0.01, 0.99), 
-                           n_max = 500L, out_names = NULL, w = NULL, ...) {
+                           n_max = 1000L, out_names = NULL, w = NULL, ...) {
   fx_pdp.default(
     object = object,
     v = v,
@@ -133,7 +133,7 @@ fx_pdp.Learner <- function(object, v, X,
   )
 }
 
-# Barebone function. Arguments see fx_pdp()
+# Barebone function to calculate PD values. Arguments see fx_pdp()
 # If length(v) == 1, then grid must be a vector/factor.
 # Output is matrix of partial dependence values in the same order as grid
 pdp_raw <- function(object, v, X, pred_fun, grid, w = NULL, ...) {
@@ -156,7 +156,7 @@ pdp_raw <- function(object, v, X, pred_fun, grid, w = NULL, ...) {
   n <- nrow(X)
   D1 <- length(v) == 1L
   
-  # Duplicated values of grid can be removed. At the end, we need to map the PD values
+  # Duplicated values of grid can be removed but, we need to map the PD values
   # back to the original grid position
   ugrid <- unique(grid)
   if (NROW(ugrid) < 0.9 * NROW(grid)) {

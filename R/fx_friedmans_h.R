@@ -16,13 +16,13 @@
 #' # MODEL ONE: Linear regression
 #' fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
 #' fx_friedmans_h(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
-#' fx_friedmans_h(fit, v = names(iris[-1]), X = iris, verbose = FALSE, pairwise = FALSE)
+#' fx_friedmans_h(fit, v = names(iris[-1]), X = iris, verbose = FALSE, pairwise = TRUE)
 #' 
 #' # MODEL TWO: Multi-response linear regression
 #' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
-#' fx_friedmans_h(fit, v = colnames(iris[3:5]), X = iris)
-#' fx_friedmans_h(fit, v = colnames(iris[3:5]), X = iris, pairwise = FALSE)
-#' fx_friedmans_h(fit, v = c("Petal.Width", "Species"), X = iris)
+#' v <- c("Petal.Length", "Petal.Width", "Species")
+#' fx_friedmans_h(fit, v = v, X = iris)
+#' fx_friedmans_h(fit, v = v, X = iris, pairwise = TRUE)
 fx_friedmans_h <- function(object, ...) {
   UseMethod("fx_friedmans_h")
 }
@@ -30,8 +30,8 @@ fx_friedmans_h <- function(object, ...) {
 #' @describeIn fx_friedmans_h Default method.
 #' @export
 fx_friedmans_h.default <- function(object, v, X, pred_fun = stats::predict,
-                                   pairwise = TRUE, normalize = TRUE, squared = FALSE,
-                                   n_max = 300L, out_names = NULL, 
+                                   pairwise = FALSE, normalize = TRUE, squared = FALSE,
+                                   n_max = 200L, out_names = NULL, 
                                    w = NULL, verbose = TRUE, ...) {
   p <- length(v)
   stopifnot(
@@ -45,27 +45,26 @@ fx_friedmans_h.default <- function(object, v, X, pred_fun = stats::predict,
   
   # Reduce size of X (and w)
   if (nrow(X) > n_max) {
-    ix <- sample(nrow(n), n_max)
+    ix <- sample(nrow(X), n_max)
     X <- X[ix, , drop = FALSE]
     if (!is.null(w)) {
       w <- w[ix]
     }
   }
   
-  # For progress bar
+  # Initialize progress bar
   if (verbose) {
     J <- p + if (pairwise) p * (p - 1) / 2 else p
     j <- 1L
     pb <- utils::txtProgressBar(1L, J, style = 3)
   }
   
-  # Univariate results
+  # Univariate PDs (required for both pairwise TRUE/FALSE)
   pd1d <- stats::setNames(vector("list", length = length(v)), v)
   for (z in v) {
+    g <- if (is.data.frame(X)) X[[z]] else X[, z]
     pd1d[[z]] <- .scale(
-      pdp_raw(
-        object = object, v = z, X = X, pred_fun = pred_fun, grid = X[, z], w = w, ...
-      )
+      pdp_raw(object = object, v = z, X = X, pred_fun = pred_fun, grid = g, w = w, ...)
     )
     if (verbose) {
       utils::setTxtProgressBar(pb, j)
@@ -73,6 +72,7 @@ fx_friedmans_h.default <- function(object, v, X, pred_fun = stats::predict,
     }
   }
 
+  # Calculate predictions over X for non-pairwise case (very cheap)
   if (!pairwise) {
     f <- check_pred(pred_fun(object, X, ...))
     if (!is.matrix(f)) {
@@ -103,7 +103,9 @@ fx_friedmans_h.default <- function(object, v, X, pred_fun = stats::predict,
       z <- v[i]
       not_z <- setdiff(colnames(X), z) 
       pd_j <- .scale(
-        pdp_raw(object, v = not_z, X = X, pred_fun = pred_fun, grid = X[, not_z], w = w, ...)
+        pdp_raw(
+          object, v = not_z, X = X, pred_fun = pred_fun, grid = X[, not_z], w = w, ...
+        )
       )
       pd_i <- pd1d[[z]]
     }
@@ -136,15 +138,16 @@ fx_friedmans_h.default <- function(object, v, X, pred_fun = stats::predict,
 #' @describeIn fx_friedmans_h Method for "ranger" models, see Readme for an example.
 #' @export
 fx_friedmans_h.ranger <- function(object, v, X,
-                           pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
-                           normalize = TRUE, squared = FALSE,
-                           n_max = 300L, out_names = NULL, 
-                           w = NULL, verbose = TRUE, ...) {
+                                  pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
+                                  pairwise = FALSE, normalize = TRUE, squared = FALSE,
+                                  n_max = 200L, out_names = NULL, 
+                                  w = NULL, verbose = TRUE, ...) {
   fx_friedmans_h.default(
     object = object,
     v = v,
     X = X,
     pred_fun = pred_fun,
+    pairwise = pairwise,
     normalize = normalize,
     squared = squared,
     n_max = n_max,
@@ -158,15 +161,16 @@ fx_friedmans_h.ranger <- function(object, v, X,
 #' @describeIn fx_friedmans_h Method for "mlr3" models, see Readme for an example.
 #' @export
 fx_friedmans_h.Learner <- function(object, v, X,
-                            pred_fun = function(m, X) m$predict_newdata(X)$response,
-                            normalize = TRUE, squared = FALSE,
-                            n_max = 300L, out_names = NULL, 
-                            w = NULL, verbose = TRUE, ...) {
+                                   pred_fun = function(m, X) m$predict_newdata(X)$response,
+                                   pairwise = FALSE, normalize = TRUE, squared = FALSE,
+                                   n_max = 200L, out_names = NULL, 
+                                   w = NULL, verbose = TRUE, ...) {
   fx_friedmans_h.default(
     object = object,
     v = v,
     X = X,
     pred_fun = pred_fun,
+    pairwise = pairwise,
     normalize = normalize,
     squared = squared,
     n_max = n_max,
