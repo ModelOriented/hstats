@@ -79,7 +79,7 @@ fx_pdp.default <- function(object, v, X, pred_fun = stats::predict,
   
   # Calculations
   pd <- pdp_raw(
-    object = object, v = v, X = X, pred_fun = pred_fun, grid = grid, w = NULL, ...
+    object = object, v = v, X = X, pred_fun = pred_fun, grid = grid, w = w, ...
   )
   
   # Cleanup
@@ -137,14 +137,30 @@ fx_pdp.Learner <- function(object, v, X,
 # If length(v) == 1, then grid must be a vector/factor.
 # Output is matrix of partial dependence values in the same order as grid
 pdp_raw <- function(object, v, X, pred_fun, grid, w = NULL, ...) {
+  # Optimize case where X[, not v] is one-dimensional with >10% duplicates
+  # This is useful in Friedman's H (overall interaction strength per feature)
+  # Implemented by summing up w of duplicated X[, not v]
+  not_v <- setdiff(colnames(X), v)
+  if (length(not_v) == 1L) {
+    x_not_v <- if (is.data.frame(X)) X[[not_v]] else X[, not_v]
+    X_dup <- duplicated(x_not_v)
+    if (mean(X_dup) > 0.1) {
+      if (is.null(w)) {
+        w <- rep(1.0, times = nrow(X))
+      }
+      X <- X[!X_dup, , drop = FALSE]
+      w <- c(rowsum(w, g = x_not_v, reorder = FALSE))
+    }
+  }
+  
   n <- nrow(X)
   D1 <- length(v) == 1L
   
-  # Do we have a lot of duplicates in the grid? We take unique
-  # (Could do the same for X)
+  # Duplicated values of grid can be removed. At the end, we need to map the PD values
+  # back to the original grid position
   ugrid <- unique(grid)
   if (NROW(ugrid) < 0.9 * NROW(grid)) {
-    dup <- TRUE
+    is_dup <- TRUE
     if (D1) {
       orig <- grid  # always a vector/factor
       final <- ugrid
@@ -157,7 +173,7 @@ pdp_raw <- function(object, v, X, pred_fun, grid, w = NULL, ...) {
     }
     grid <- ugrid
   } else{
-    dup <- FALSE
+    is_dup <- FALSE
   }
   
   n_grid <- NROW(grid)
@@ -180,7 +196,7 @@ pdp_raw <- function(object, v, X, pred_fun, grid, w = NULL, ...) {
   pred <- check_pred(pred_fun(object, X_pred, ...))
   pd <- rowmean(pred, ngroups = n_grid, w = w)
   rownames(pd) <- NULL
-  if (dup) {
+  if (is_dup) {
     return(pd[match(orig, final), , drop = FALSE])
   }
   pd
