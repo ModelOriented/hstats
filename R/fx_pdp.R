@@ -143,7 +143,7 @@ pdp_raw <- function(object, v, X, pred_fun, grid, w = NULL, ...) {
   # Do we have a lot of duplicates in the grid? We take unique
   # (Could do the same for X)
   ugrid <- unique(grid)
-  if (NROW(ugrid) < 0.8 * NROW(grid)) {
+  if (NROW(ugrid) < 0.9 * NROW(grid)) {
     dup <- TRUE
     if (D1) {
       orig <- grid  # always a vector/factor
@@ -178,7 +178,7 @@ pdp_raw <- function(object, v, X, pred_fun, grid, w = NULL, ...) {
   }
   
   pred <- check_pred(pred_fun(object, X_pred, ...))
-  pd <- rowsum2(pred, ngroups = n_grid, w = w)
+  pd <- rowmean(pred, ngroups = n_grid, w = w)
   rownames(pd) <- NULL
   if (dup) {
     return(pd[match(orig, final), , drop = FALSE])

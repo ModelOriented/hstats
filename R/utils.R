@@ -72,10 +72,11 @@ fix_names <- function(out, out_names, prefix = "pred") {
   out
 }
 
-rowsum2 <- function(x, ngroups, w = NULL) {
+rowmean <- function(x, ngroups, w = NULL) {
   p <- NCOL(x)
   n_bg <- NROW(x) %/% ngroups
   g <- rep(seq_len(ngroups), each = n_bg)
+  # Faster: cbind(collapse::fmean(x, g = g, w = w))
   if (is.null(w)) {
     return(rowsum(x, group = g, reorder = FALSE) / n_bg)
   }

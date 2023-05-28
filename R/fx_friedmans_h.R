@@ -13,7 +13,7 @@
 #' @examples
 #' # MODEL ONE: Linear regression
 #' fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
-#' fx_friedmans_h(fit, v = names(iris[-1]), X = iris)
+#' fx_friedmans_h(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
 #' 
 #' # MODEL TWO: Multi-response linear regression
 #' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
@@ -108,48 +108,51 @@ fx_friedmans_h.default <- function(object, v, X, pred_fun = stats::predict,
 }
 
 
-#' #' @describeIn fx_friedmans_h Method for "ranger" models, see Readme for an example.
-#' #' @export
-#' fx_friedmans_h.ranger <- function(object, v, X, 
-#'                            pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions, 
-#'                            normalize = TRUE, take_sqrt = TRUE,
-#'                            grid_size = 200L, n_max = 500L, out_names = NULL, 
-#'                            w = NULL, verbose = TRUE, ...) {
-#'   fx_friedmans_h.default(
-#'     object = object,
-#'     v = v,
-#'     X = X,
-#'     pred_fun = pred_fun,
-#'     grid = grid,
-#'     grid_size = grid_size,
-#'     trim = trim,
-#'     n_max = n_max,
-#'     out_names = out_names,
-#'     w = w,
-#'     ...
-#'   )
-#' }
-#' 
-#' #' @describeIn fx_friedmans_h Method for "mlr3" models, see Readme for an example.
-#' #' @export
-#' fx_friedmans_h.Learner <- function(object, v, X, 
-#'                             pred_fun = function(m, X) m$predict_newdata(X)$response, 
-#'                             grid = NULL, grid_size = 36L, trim = c(0.01, 0.99), 
-#'                             n_max = 500L, out_names = NULL, w = NULL, ...) {
-#'   fx_friedmans_h.default(
-#'     object = object,
-#'     v = v,
-#'     X = X,
-#'     pred_fun = pred_fun,
-#'     grid = grid,
-#'     grid_size = grid_size,
-#'     trim = trim,
-#'     n_max = n_max,
-#'     out_names = out_names,
-#'     w = w,
-#'     ...
-#'   )
-#' }
+#' @describeIn fx_friedmans_h Method for "ranger" models, see Readme for an example.
+#' @export
+fx_friedmans_h.ranger <- function(object, v, X,
+                           pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
+                           normalize = TRUE, take_sqrt = TRUE,
+                           grid_size = 200L, n_max = 500L, out_names = NULL, 
+                           w = NULL, verbose = TRUE, ...) {
+  fx_friedmans_h.default(
+    object = object,
+    v = v,
+    X = X,
+    pred_fun = pred_fun,
+    normalize = normalize,
+    take_sqrt = take_sqrt,
+    grid_size = grid_size,
+    n_max = n_max,
+    out_names = out_names,
+    w = w,
+    verbose = verbose,
+    ...
+  )
+}
+
+#' @describeIn fx_friedmans_h Method for "mlr3" models, see Readme for an example.
+#' @export
+fx_friedmans_h.Learner <- function(object, v, X,
+                            pred_fun = function(m, X) m$predict_newdata(X)$response,
+                            normalize = TRUE, take_sqrt = TRUE,
+                            grid_size = 200L, n_max = 500L, out_names = NULL, 
+                            w = NULL, verbose = TRUE, ...) {
+  fx_friedmans_h.default(
+    object = object,
+    v = v,
+    X = X,
+    pred_fun = pred_fun,
+    normalize = normalize,
+    take_sqrt = take_sqrt,
+    grid_size = grid_size,
+    n_max = n_max,
+    out_names = out_names,
+    w = w,
+    verbose = verbose,
+    ...
+  )
+}
 
 
 # Helper

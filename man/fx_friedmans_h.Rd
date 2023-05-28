@@ -16,8 +16,8 @@ fx_friedmans_h(object, ...)
   pred_fun = stats::predict,
   normalize = TRUE,
   take_sqrt = TRUE,
-  grid_size = 50L,
-  n_max = 200L,
+  grid_size = 200L,
+  n_max = 500L,
   out_names = NULL,
   w = NULL,
   verbose = TRUE,
@@ -29,12 +29,13 @@ fx_friedmans_h(object, ...)
   v,
   X,
   pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
-  grid = NULL,
-  grid_size = 36L,
-  trim = c(0.01, 0.99),
+  normalize = TRUE,
+  take_sqrt = TRUE,
+  grid_size = 200L,
   n_max = 500L,
   out_names = NULL,
   w = NULL,
+  verbose = TRUE,
   ...
 )
 
@@ -43,12 +44,13 @@ fx_friedmans_h(object, ...)
   v,
   X,
   pred_fun = function(m, X) m$predict_newdata(X)$response,
-  grid = NULL,
-  grid_size = 36L,
-  trim = c(0.01, 0.99),
+  normalize = TRUE,
+  take_sqrt = TRUE,
+  grid_size = 200L,
   n_max = 500L,
   out_names = NULL,
   w = NULL,
+  verbose = TRUE,
   ...
 )
 }
@@ -67,6 +69,10 @@ represents the model \code{object}, its second argument a data structure like \c
 Additional (named) arguments are passed via \code{...}.
 The default, \code{\link[stats:predict]{stats::predict()}}, will work in most cases.}
 
+\item{normalize}{TODO}
+
+\item{take_sqrt}{TODO}
+
 \item{grid_size}{Determines the grid When \code{grid = NULL}. Character/factor variables
 are evaluated at each unique value. A numeric \code{v} with more than \code{grid_size} unique
 values is evaluated at \code{grid_size} quantiles. If \code{v} has length \eqn{p > 1},
@@ -80,13 +86,6 @@ selected.}
 \item{w}{Optional vector of case weights for each row of \code{X}.}
 
 \item{verbose}{Should a progress bar be shown? Default is \code{TRUE}.}
-
-\item{grid}{Optional evaluation grid. If \code{v} is a single column name, this is a
-vector/factor. Otherwise, a matrix or \code{data.frame} with \code{length(v)} columns.}
-
-\item{trim}{A vector with two probabilities used to trim non-discrete numeric \code{v}
-before applying quantile binning (only if \code{grid = NULL}).
-Set to \code{c(0, 1)} to avoid trimming.}
 }
 \value{
 A data.frame
@@ -105,8 +104,8 @@ Friedman's H
 }}
 \examples{
 # MODEL ONE: Linear regression
-fit <- lm(Sepal.Length ~ Species * Petal.Width, data = iris)
-fx_friedmans_h(fit, v = c("Petal.Width", "Species"), X = iris)
+fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
+fx_friedmans_h(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
 
 # MODEL TWO: Multi-response linear regression
 fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
