@@ -168,3 +168,44 @@ rowmean <- function(x, ngroups, w = NULL) {
   # w is recycled over rows and columns
   rowsum(x * w, group = g, reorder = FALSE) / sum(w)
 }
+
+
+#' Zip Small Values
+#' 
+#' Sets very small or non-finite (NA, ...) values in vector, matrix or data.frame to 0.
+#' 
+#' @noRd
+#' 
+#' @param x Vector, matrix, or data.frame.
+#' @param eps Threshold below which absolute values are set to 0.
+#' @returns x with values below `eps` be replaced by 0.
+#' @examples
+#' .zap_small(1:4)
+#' .zap_small(cbind(c(0, 1e-10, 1)))
+.zap_small <- function(x, eps = 1e-8) {
+  zero <- abs(x) < eps | !is.finite(x)
+  if (any(zero)) {
+    x[zero] <- 0
+  }
+  x
+}
+
+#' Mean Centering of Columns
+#' 
+#' Centers each column of an object by subtracting its mean. If `x` is a vector,
+#' it is mean-centered as well and returned as matrix with a single column.
+#' 
+#' @noRd
+#' 
+#' @param x Matrix, data.frame, or vector.
+#' @returns Centered version of `x` (vectors are turned into single-column matrix).
+#' @examples
+#' .center(cbind(1:10))
+#' .center(iris[1:3])
+.center <- function(x) {
+  if (is.vector(x)) {
+    matrix(x)
+  }
+  sweep(x, MARGIN = 2L, STATS = colMeans(x))
+}
+

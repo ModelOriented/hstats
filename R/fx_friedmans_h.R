@@ -1,16 +1,34 @@
-#' Friedman's H
+#' Fast Friedman's H
+#' 
+#' Fast implementation of Friedman's H statistic to measure interaction strength.
+#' 
+#' The three binary flags 
+#' - `pairwise = FALSE`,
+#' - `normalize = TRUE`, and
+#' - `squared = FALSE`
+#' 
+#' in principle allows the calculation of eight different versions of Friedman's H. 
+#' If all values are left to the default, Friedman's H overall interaction strength
+#' per feature is returned.
+#' 
+#' If `pairwise = TRUE`,
 #' 
 #' @inheritParams fx_pdp
 #' @param v Vector of feature names for which interaction statistics are to be crunched.
+#' @param pairwise The default (`FALSE`) calculates overall interaction strength per 
+#'   feature. Set to `TRUE` to get all pairwise statistics.
 #' @param normalize Should explained variances be normalized? The default is `TRUE`.
 #'   If `squared = FALSE`, this produces Friedman's H.
 #' @param squared Should squared statistics be returned? The default is `FALSE`. 
 #'   If `normalize = TRUE`, this produces Friedman's H.
 #' @param verbose Should a progress bar be shown? Default is `TRUE`.
-#' @returns A data.frame
+#' @returns 
+#'   A data.frame containing one or two (if `pairwise = TRUE`) columns with the 
+#'   variable names, and K columns with the corresponding statistics for the K 
+#'   components of the predict function, usually K = 1.
 #' @references
-#'   Friedman J. H. (2001). Greedy function approximation: A gradient boosting machine.
-#'   The Annals of Statistics, 29:1189–1232.
+#'   Friedman, J. H. and Popescu, B. E. (2008). "Predictive learning via rule
+#'     ensembles." The Annals of Applied Statistics. JSTOR, 916–54.
 #' @export
 #' @examples
 #' # MODEL ONE: Linear regression
@@ -76,7 +94,7 @@ fx_friedmans_h.default <- function(object, v, X, pred_fun = stats::predict,
   pd1d <- stats::setNames(vector("list", length = length(v)), v)
   for (z in v) {
     g <- if (is.data.frame(X)) X[[z]] else X[, z]
-    pd1d[[z]] <- .scale(
+    pd1d[[z]] <- .center(
       pdp_raw(object = object, v = z, X = X, pred_fun = pred_fun, grid = g, w = w, ...)
     )
     if (verbose) {
@@ -87,11 +105,7 @@ fx_friedmans_h.default <- function(object, v, X, pred_fun = stats::predict,
 
   # Calculate predictions over X for non-pairwise case (very cheap)
   if (!pairwise) {
-    f <- check_pred(pred_fun(object, X, ...))
-    if (!is.matrix(f)) {
-      f <- as.matrix(f)
-    }
-    f <- .scale(f)
+    f <- .center(check_pred(pred_fun(object, X, ...)))
   }
   
   # Prepare loop index and corresponding output structure
@@ -107,7 +121,7 @@ fx_friedmans_h.default <- function(object, v, X, pred_fun = stats::predict,
   for (i in seq_len(m)) {
     if (pairwise) {
       z <- combs[[i]]
-      f <- .scale(
+      f <- .center(
         pdp_raw(object, v = z, X = X, pred_fun = pred_fun, grid = X[, z], w = w, ...)
       )
       pd_i <- pd1d[[z[1L]]]
@@ -115,7 +129,7 @@ fx_friedmans_h.default <- function(object, v, X, pred_fun = stats::predict,
     } else {
       z <- v[i]
       not_z <- setdiff(colnames(X), z) 
-      pd_j <- .scale(
+      pd_j <- .center(
         pdp_raw(
           object, v = not_z, X = X, pred_fun = pred_fun, grid = X[, not_z], w = w, ...
         )
@@ -148,7 +162,8 @@ fx_friedmans_h.default <- function(object, v, X, pred_fun = stats::predict,
 }
 
 
-#' @describeIn fx_friedmans_h Method for "ranger" models, see Readme for an example.
+#' @describeIn fx_friedmans_h Method for "ranger" models
+#' .
 #' @export
 fx_friedmans_h.ranger <- function(object, v, X,
                                   pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
@@ -171,7 +186,7 @@ fx_friedmans_h.ranger <- function(object, v, X,
   )
 }
 
-#' @describeIn fx_friedmans_h Method for "mlr3" models, see Readme for an example.
+#' @describeIn fx_friedmans_h Method for "mlr3" models.
 #' @export
 fx_friedmans_h.Learner <- function(object, v, X,
                                    pred_fun = function(m, X) m$predict_newdata(X)$response,
@@ -192,20 +207,4 @@ fx_friedmans_h.Learner <- function(object, v, X,
     verbose = verbose,
     ...
   )
-}
-
-
-# Helper
-
-# Helper function used to clip small values.
-.zap_small <- function(x, eps = 1e-8) {
-  zero <- abs(x) < eps | !is.finite(x)
-  if (any(zero)) {
-    x[zero] <- 0
-  }
-  x
-}
-
-.scale <- function(x) {
-  sweep(x, MARGIN = 2L, STATS = colMeans(x))
 }

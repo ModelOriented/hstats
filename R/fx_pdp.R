@@ -1,4 +1,11 @@
-#' Fast PDP
+#' Fast PD Function
+#' 
+#' @description
+#' Fast implementation of Friedman's partial dependence (PD) function. 
+#' 
+#' The function supports both 
+#' - multivariate predictions (e.g., multi-classification settings) and
+#' - multivariate grids.
 #' 
 #' @param object Fitted model object.
 #' @param v One or more variable names in `X` to calculate partial dependence profiles.
@@ -25,7 +32,7 @@
 #' @returns A dataframe with partial dependence per grid value.
 #' @references
 #'   Friedman J. H. (2001). Greedy function approximation: A gradient boosting machine.
-#'   The Annals of Statistics, 29:1189–1232.
+#'     The Annals of Statistics, 29:1189–1232.
 #' @export
 #' @examples
 #' # MODEL ONE: Linear regression
@@ -46,7 +53,7 @@
 #' # MODEL THREE: Gamma GLM with log link
 #' fit <- glm(Sepal.Length ~ Species + Petal.Width, data = iris, family = Gamma(link = log))
 #' fx_pdp(fit, v = "Petal.Width", X = iris, type = "response")
-#' 
+
 fx_pdp <- function(object, ...) {
   UseMethod("fx_pdp")
 }
@@ -96,7 +103,7 @@ fx_pdp.default <- function(object, v, X, pred_fun = stats::predict,
 }
 
 
-#' @describeIn fx_pdp Method for "ranger" models, see Readme for an example.
+#' @describeIn fx_pdp Method for "ranger" models.
 #' @export
 fx_pdp.ranger <- function(object, v, X, 
                           pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions, 
@@ -117,7 +124,7 @@ fx_pdp.ranger <- function(object, v, X,
   )
 }
 
-#' @describeIn fx_pdp Method for "mlr3" models, see Readme for an example.
+#' @describeIn fx_pdp Method for "mlr3" models.
 #' @export
 fx_pdp.Learner <- function(object, v, X, 
                            pred_fun = function(m, X) m$predict_newdata(X)$response, 
@@ -138,9 +145,33 @@ fx_pdp.Learner <- function(object, v, X,
   )
 }
 
-# Barebone function to calculate PD values. Arguments see fx_pdp()
-# If length(v) == 1, then grid must be a vector/factor.
-# Output is matrix of partial dependence values in the same order as grid
+#' Barebone PDP
+#' 
+#' @description
+#' Creates partial dependence values for a given model, data and grid. 
+#' This is the workhorse function behind [fx_pdp()] and [fx_friedmans_h()].
+#' 
+#' It is fast because:
+#' 1. Only one call to `pred_fun()`.
+#' 2. If more than 10% of grid values are duplicated, these are dropped and the result
+#'   mapped back to the original grid.
+#' 3. If more than 10% of non-grid columns are duplicated, these are dropped and
+#'   compensated by summing up the case weights `w`.
+#' 
+#' @noRd
+#' 
+#' @inheritParams fx_pdp
+#' @param grid A vector (if `length(v) == 1L`), or a matrix/data.frame otherwise.
+#' @returns 
+#'   A matrix of partial dependence values. The number of columns corresponds to the
+#'   number of predictions per observation.
+#' @references
+#'   Friedman J. H. (2001). Greedy function approximation: A gradient boosting machine.
+#'   The Annals of Statistics, 29:1189–1232.
+#' @export
+#' @examples
+#' fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
+#' pdp_raw(fit, v = "Petal.Width", X = iris, pred_fun = predict, grid = 1:2)
 pdp_raw <- function(object, v, X, pred_fun, grid, w = NULL, ...) {
   # Optimize case where X[, not v] is one-dimensional with >10% duplicates
   # This is useful in Friedman's H (overall interaction strength per feature)
@@ -193,7 +224,7 @@ pdp_raw <- function(object, v, X, pred_fun, grid, w = NULL, ...) {
   
   # Vary v
   if (D1 && is.data.frame(X_pred)) {
-    X_pred[[v]] <- grid_pred  #  [, v] <- much slower if df
+    X_pred[[v]] <- grid_pred  #  [, v] <- slower if df
   } else {
     X_pred[, v] <- grid_pred
   }
