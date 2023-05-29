@@ -23,6 +23,19 @@
 #' v <- c("Petal.Length", "Petal.Width", "Species")
 #' fx_friedmans_h(fit, v = v, X = iris)
 #' fx_friedmans_h(fit, v = v, X = iris, pairwise = TRUE)
+#' 
+#' # MODEL THREE: Gamma GLM with log link
+#' fit <- glm(
+#'   Sepal.Length ~ . + Petal.Width:Species, 
+#'   data = iris, 
+#'   family = Gamma(link = log)
+#' )
+#' 
+#' # No interactions for additive features, at least on link scale
+#' fx_friedmans_h(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
+#' 
+#' # On original scale, we have interactions everywhere...
+#' fx_friedmans_h(fit, v = names(iris[-1]), X = iris, verbose = FALSE, type = "response")
 fx_friedmans_h <- function(object, ...) {
   UseMethod("fx_friedmans_h")
 }

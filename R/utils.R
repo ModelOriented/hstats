@@ -1,6 +1,25 @@
 # Helper functions
 
-# Discretizes univariate vector z for most types of z
+#' Discretizes vector
+#' 
+#' Function to discretize any vector `z`. For discrete `z` (non-numeric, or numeric
+#' with at most `m` unique values), this is simply `sort(unique(z))`. Otherwise, 
+#' the values of `z` are first trimmed. Then, `m` quantiles are calculated using the
+#' inverse of the ECDF.
+#' 
+#' @noRd
+#' 
+#' @param z A vector to discretize.
+#' @param m Ideal grid size.
+#' @param trim If z is non-discrete, i.e., has more than `m` unique values, `z` is
+#'   trimmed first at these quantiles.
+#' @returns 
+#'   For discrete `z`, the result of `sort(unique(z))`. Otherwise, quantiles
+#'   of trimmed values of `z`.
+#' @examples
+#' fixed_grid_one(iris$Species)
+#' fixed_grid_one(rev(iris$Species))  # Same
+#' fixed_grid_one(iris$Sepal.Width, m = 2)
 fixed_grid_one <- function(z, m = 36L, trim = c(0.01, 0.99)) {
   uni <- unique(z)
   if (!is.numeric(z) || length(uni) <= m) {
@@ -12,8 +31,21 @@ fixed_grid_one <- function(z, m = 36L, trim = c(0.01, 0.99)) {
   unique(stats::quantile(z, probs = p, names = FALSE, type = 1L))
 }
 
-# Keeps type of vv (vector/factor/matrix/data.frame). Note: if vv is matrix/df,
-# it has at least two columns
+#' Creates one- or higher-dimensional grids
+#' 
+#' Calls [fixed_grid_one()] per column and then applies [expand.grid()].
+#' 
+#' @noRd
+#' 
+#' @inheritParams fixed_grid_one
+#' @param vv A vector, matrix, or data.frame to turn into a grid of values.
+#' @param m Ideal grid size. If `vv` has more than one column, the corresponding
+#'   root is taken from `m` to get the necessary number of grid points per dimension.
+#' @returns 
+#'   A vector, matrix, or data.frame with evaluation points.
+#' @examples
+#' fixed_grid(iris$Species)
+#' fixed_grid(iris[1:2], m = 4)
 fixed_grid <- function(vv, m = 36L, trim = c(0.01, 0.99)) {
   p <- NCOL(vv)
   if (p == 1L) {
@@ -31,7 +63,20 @@ fixed_grid <- function(vv, m = 36L, trim = c(0.01, 0.99)) {
   if (is_mat) as.matrix(out) else out
 }
 
-# Check consistency of grid and v
+#' Checks Consistency of Grid
+#' 
+#' Checks if a grid of values is consistent with `v`.
+#' 
+#' @noRd
+#' 
+#' @param g Grid of values (either a vector/factor, or a matrix or data.frame).
+#' @param v Vector of variable names to be represented by the grid `g`.
+#' @param X_is_matrix Logical flag indicating whether the background data is a matrix.
+#'   or a data.frame. `g` must be consistent with this.
+#' @returns 
+#'   An error message or `TRUE`.
+#' @examples
+#' fixed_grid(iris$Species)
 check_grid <- function(g, v, X_is_matrix) {
   p <- length(v)
   if (p != NCOL(g)) {
@@ -52,6 +97,17 @@ check_grid <- function(g, v, X_is_matrix) {
   TRUE
 }
 
+#' Checks/Converts Predictions
+#' 
+#' Checks if predictions are numeric, and are either a vector or can be converted
+#' to a matrix.
+#' 
+#' @noRd
+#' 
+#' @param x Object holding predictions.
+#' @returns A numeric vector or matrix with predictions.
+#' @examples
+#' check_pred(1:10)
 check_pred <- function(x) {
   if (!is.vector(x) && !is.matrix(x)) {
     x <- as.matrix(x)
@@ -62,7 +118,24 @@ check_pred <- function(x) {
   x
 }
 
-fix_names <- function(out, out_names, prefix = "pred") {
+#' Set Column Names
+#' 
+#' Workhorse to aggregate predictions per evaluation point in a PDP.
+#' 
+#' @noRd
+#' 
+#' @param out A matrix or `data.frame`.
+#' @param out_names Optional vector of column names.
+#' @param prefix If `out` has no column names or if `out_names = NULL`, the column names
+#'   are set to this value. If there is more than one column, the names are of the form
+#'   prefix_1, prefix_2, ...
+#' @returns Version of `out` with column names.
+#' @examples
+#' fix_names(cbind(1:3))
+#' fix_names(cbind(1:2, 3:4))
+#' fix_names(head(iris))
+#' fix_names(head(iris), out_names = paste("V", 1:5))
+fix_names <- function(out, out_names = NULL, prefix = "pred") {
   if (!is.null(out_names)) {
     colnames(out) <- out_names
   } else if (is.null(colnames(out))) {
@@ -72,6 +145,18 @@ fix_names <- function(out, out_names, prefix = "pred") {
   out
 }
 
+#' Fast Weighted Mean Grouped by Fixed Groups
+#' 
+#' Workhorse to aggregate predictions per evaluation point in a PDP.
+#' 
+#' @noRd
+#' 
+#' @param x Vector or matrix.
+#' @param ngroups Number of groups of fixed length NROW(x) %/% ngroups.
+#' @param w Optional vector with case weights.
+#' @returns A (gxK) matrix, where g is the grid size, and K = NCOL(x).
+#' @examples
+#' rowmean(rep(2:1, each = 10), ngroups = 2)
 rowmean <- function(x, ngroups, w = NULL) {
   p <- NCOL(x)
   n_bg <- NROW(x) %/% ngroups

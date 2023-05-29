@@ -29,7 +29,7 @@
 #' @export
 #' @examples
 #' # MODEL ONE: Linear regression
-#' fit <- lm(Sepal.Length ~ Species + Petal.Width, data = iris)
+#' fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
 #' pd <- fx_pdp(fit, v = "Petal.Width", X = iris)
 #' pd[1:4, ]
 #' 
@@ -42,6 +42,11 @@
 #' fx_pdp(fit, v = "Species", X = iris)
 #' pd <- fx_pdp(fit, v = c("Petal.Width", "Species"), X = iris)
 #' pd[1:4, ]
+#' 
+#' # MODEL THREE: Gamma GLM with log link
+#' fit <- glm(Sepal.Length ~ Species + Petal.Width, data = iris, family = Gamma(link = log))
+#' fx_pdp(fit, v = "Petal.Width", X = iris, type = "response")
+#' 
 fx_pdp <- function(object, ...) {
   UseMethod("fx_pdp")
 }
