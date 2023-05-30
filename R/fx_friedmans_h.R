@@ -51,7 +51,9 @@
 #' fx_friedmans_h(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
 #' 
 #' # On original scale, we have interactions everywhere...
-#' fx_friedmans_h(fit, v = names(iris[-1]), X = iris, verbose = FALSE, type = "response")
+#' fx_friedmans_h(
+#'   fit, v = names(iris[-1]), X = iris, verbose = FALSE, type = "response"
+#' )
 fx_friedmans_h <- function(object, ...) {
   UseMethod("fx_friedmans_h")
 }
@@ -135,8 +137,7 @@ fx_friedmans_h.default <- function(object, v, X, pred_fun = stats::predict,
           pred_fun = pred_fun, 
           grid = X[, not_z], 
           w = w,
-          compress_X = TRUE,      # Only one column taken from background data X
-          compress_grid = FALSE,  # grid has too many columns, so not many duplicates
+          compress_grid = FALSE,  # grid has too many columns
           ...
         )
       )

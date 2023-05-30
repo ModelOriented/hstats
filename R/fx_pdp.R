@@ -22,8 +22,9 @@
 #'   values is evaluated at `grid_size` quantiles. If `v` has length \eqn{p > 1},
 #'   the \eqn{p}th root of `grid_size` is used instead. 
 #' @param trim A vector with two probabilities used to trim non-discrete numeric `v` 
-#'   before applying quantile binning (only if `grid = NULL`). 
-#'   Set to `c(0, 1)` to avoid trimming.
+#'   before applying binning (only if `grid = NULL`). Set to `c(0, 1)` for no trimming.
+#' @param binner How should numeric non-discrete features be binned? 
+#'   Either "quantile" or pretty "uniform".
 #' @param n_max If `X` has more rows than `n_max`, a random sample of `n_max` rows is
 #'   selected. 
 #' @param out_names Names of the output columns.
@@ -47,12 +48,17 @@
 #' # MODEL TWO: Multi-response linear regression
 #' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width + Species, data = iris)
 #' fx_pdp(fit, v = "Species", X = iris)
-#' pd <- fx_pdp(fit, v = c("Petal.Width", "Species"), X = iris)
+#' pd <- fx_pdp(fit, v = c("Petal.Width", "Species"), X = iris, binner = "uniform")
 #' pd[1:4, ]
 #' 
 #' # MODEL THREE: Gamma GLM with log link
-#' fit <- glm(Sepal.Length ~ Species + Petal.Width, data = iris, family = Gamma(link = log))
+#' fit <- glm(
+#'   Sepal.Length ~ . + Petal.Width:Species, 
+#'   data = iris, 
+#'   family = Gamma(link = log)
+#' )
 #' fx_pdp(fit, v = "Petal.Width", X = iris, type = "response")
+#' fx_pdp(fit, v = "Petal.Width", X = iris, type = "response", binner = "uniform")
 
 fx_pdp <- function(object, ...) {
   UseMethod("fx_pdp")
@@ -62,7 +68,9 @@ fx_pdp <- function(object, ...) {
 #' @export
 fx_pdp.default <- function(object, v, X, pred_fun = stats::predict, 
                            grid = NULL, grid_size = 36L, trim = c(0.01, 0.99), 
+                           binner = c("quantile", "uniform"),
                            n_max = 1000L, out_names = NULL, w = NULL, ...) {
+  binner <- match.arg(binner)
   stopifnot(
     is.matrix(X) || is.data.frame(X),
     dim(X) >= 2:1,
@@ -82,11 +90,9 @@ fx_pdp.default <- function(object, v, X, pred_fun = stats::predict,
 
   # Make/check grid. If length(v) == 1, grid is always a vector/factor
   if (is.null(grid)) {
-    grid <- fixed_grid(X[, v], m = grid_size, trim = trim)
-    compress_grid <- FALSE
+    grid <- fixed_grid(X[, v], m = grid_size, trim = trim, binner = binner)
   } else {
     check_grid(grid, v = v, X_is_matrix = is.matrix(X))
-    compress_grid <- TRUE
   }
   
   # Calculations
@@ -97,7 +103,7 @@ fx_pdp.default <- function(object, v, X, pred_fun = stats::predict,
     pred_fun = pred_fun, 
     grid = grid, 
     w = w,
-    compress_grid = compress_grid,
+    compress_grid = FALSE,  # Almost always unique, so we save a check for uniqueness
     ...
   )
   
@@ -115,6 +121,7 @@ fx_pdp.default <- function(object, v, X, pred_fun = stats::predict,
 fx_pdp.ranger <- function(object, v, X, 
                           pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions, 
                           grid = NULL, grid_size = 36L, trim = c(0.01, 0.99), 
+                          binner = c("quantile", "uniform"),
                           n_max = 1000L, out_names = NULL, w = NULL, ...) {
   fx_pdp.default(
     object = object,
@@ -124,6 +131,7 @@ fx_pdp.ranger <- function(object, v, X,
     grid = grid,
     grid_size = grid_size,
     trim = trim,
+    binner = binner,
     n_max = n_max,
     out_names = out_names,
     w = w,
@@ -135,7 +143,8 @@ fx_pdp.ranger <- function(object, v, X,
 #' @export
 fx_pdp.Learner <- function(object, v, X, 
                            pred_fun = function(m, X) m$predict_newdata(X)$response, 
-                           grid = NULL, grid_size = 36L, trim = c(0.01, 0.99), 
+                           grid = NULL, grid_size = 36L, trim = c(0.01, 0.99),
+                           binner = c("quantile", "uniform"),
                            n_max = 1000L, out_names = NULL, w = NULL, ...) {
   fx_pdp.default(
     object = object,
@@ -145,6 +154,7 @@ fx_pdp.Learner <- function(object, v, X,
     grid = grid,
     grid_size = grid_size,
     trim = trim,
+    binner = binner,
     n_max = n_max,
     out_names = out_names,
     w = w,
@@ -169,6 +179,12 @@ fx_pdp.Learner <- function(object, v, X,
 #' 
 #' @inheritParams fx_pdp
 #' @param grid A vector (if `length(v) == 1L`), or a matrix/data.frame otherwise.
+#' @param compress_X If `X` has a single non-`v` column: should duplicates be removed
+#'   and compensated via case weights? (Applied only if >5% duplicates.)
+#'   Default is `TRUE` because the check that `X` has only one non-grid column is cheap.
+#' @param compress_grid Should duplicates in `grid` be removed, and resulting PDs 
+#'   mapped back to the original grid index? Default is `TRUE`. Applied only 
+#'   if >5% duplicates.
 #' @returns 
 #'   A matrix of partial dependence values. The number of columns corresponds to the
 #'   number of predictions per observation.
@@ -180,7 +196,7 @@ fx_pdp.Learner <- function(object, v, X,
 #' fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
 #' pdp_raw(fit, v = "Petal.Width", X = iris, pred_fun = predict, grid = 1:2)
 pdp_raw <- function(object, v, X, pred_fun, grid, w = NULL, 
-                    compress_X = FALSE, compress_grid = TRUE, ...) {
+                    compress_X = TRUE, compress_grid = TRUE, ...) {
   if (compress_X) {
     # Removes duplicates in X[, not_v] and compensates via w
     cmp_X <- .compress_X(X = X, v = v, w = w)

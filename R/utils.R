@@ -9,26 +9,29 @@
 #' 
 #' @noRd
 #' 
+#' @inheritParams fx_pdp
 #' @param z A vector to discretize.
-#' @param m Ideal grid size.
-#' @param trim If z is non-discrete, i.e., has more than `m` unique values, `z` is
-#'   trimmed first at these quantiles.
 #' @returns 
-#'   For discrete `z`, the result of `sort(unique(z))`. Otherwise, quantiles
-#'   of trimmed values of `z`.
+#'   For discrete `z`, the result of `sort(unique(z))`. 
+#'   Otherwise, a binned version of `z`.
 #' @examples
 #' fixed_grid_one(iris$Species)
 #' fixed_grid_one(rev(iris$Species))  # Same
 #' fixed_grid_one(iris$Sepal.Width, m = 2)
-fixed_grid_one <- function(z, m = 36L, trim = c(0.01, 0.99)) {
+fixed_grid_one <- function(z, m = 36L, trim = c(0.01, 0.99), 
+                           binner = c("quantile", "uniform")) {
+  binner <- match.arg(binner)
   uni <- unique(z)
   if (!is.numeric(z) || length(uni) <= m) {
     return(sort(uni))
   }
   
   # Non-discrete
-  p <- seq(trim[1L], trim[2L], length.out = m)
-  unique(stats::quantile(z, probs = p, names = FALSE, type = 1L))
+  if (binner == "quantile") {
+    p <- seq(trim[1L], trim[2L], length.out = m)
+    return(unique(stats::quantile(z, probs = p, names = FALSE, type = 1L)))
+  }
+  pretty(quantile(z, probs = trim, names = FALSE, type = 1L), n = m)
 }
 
 #' Creates one- or higher-dimensional grids
@@ -37,29 +40,30 @@ fixed_grid_one <- function(z, m = 36L, trim = c(0.01, 0.99)) {
 #' 
 #' @noRd
 #' 
-#' @inheritParams fixed_grid_one
+#' @inheritParams fx_pdp
 #' @param vv A vector, matrix, or data.frame to turn into a grid of values.
-#' @param m Ideal grid size. If `vv` has more than one column, the corresponding
-#'   root is taken from `m` to get the necessary number of grid points per dimension.
-#' @returns 
-#'   A vector, matrix, or data.frame with evaluation points.
+#' @returns A vector, matrix, or data.frame with evaluation points.
 #' @examples
 #' fixed_grid(iris$Species)
 #' fixed_grid(iris[1:2], m = 4)
-fixed_grid <- function(vv, m = 36L, trim = c(0.01, 0.99)) {
+fixed_grid <- function(vv, m = 36L, trim = c(0.01, 0.99),
+                       binner = c("quantile", "uniform")) {
+  binner <- match.arg(binner)
   p <- NCOL(vv)
   if (p == 1L) {
     if (is.data.frame(vv)) {
       vv <- vv[[1L]]
     }
-    return(fixed_grid_one(vv, m = m, trim = trim))
+    return(fixed_grid_one(vv, m = m, trim = trim, binner = binner))
   }
   m <- ceiling(m^(1/p))  # take p's root of m
   is_mat <- is.matrix(vv)
   if (is_mat) {
     vv <- as.data.frame(vv)
   }
-  out <- expand.grid(lapply(vv, FUN = fixed_grid_one, m = m, trim = trim))
+  out <- expand.grid(
+    lapply(vv, FUN = fixed_grid_one, m = m, trim = trim, binner = binner)
+  )
   if (is_mat) as.matrix(out) else out
 }
 
@@ -178,6 +182,8 @@ rowmean <- function(x, ngroups, w = NULL) {
 #' their case weights `w`. Currently implemented only for the case where there is
 #' a single non-`v` column in `X`. Can later be generalized via [paste()]. Note that
 #' this is an important speed-up for calculating Friedman's H of overall interaction.
+#' Note that compression is applied only when we can save more than 5% rows.
+#' Further note that the check for one non-`v` column is very cheap.
 #' 
 #' @noRd
 #' 
@@ -189,18 +195,23 @@ rowmean <- function(x, ngroups, w = NULL) {
 #' .compress_X(head(iris), v = "Species")  # no effect yet
 .compress_X <- function(X, v, w = NULL) {
   not_v <- setdiff(colnames(X), v)
-  if (length(not_v) == 1L) {
-    x_not_v <- if (is.data.frame(X)) X[[not_v]] else X[, not_v]
-    X_dup <- duplicated(x_not_v)
-    if (mean(X_dup) > 0.1) {
-      if (is.null(w)) {
-        w <- rep(1.0, times = nrow(X))
-      }
-      X <- X[!X_dup, , drop = FALSE]
-      w <- c(rowsum(w, g = x_not_v, reorder = FALSE))
-    }
+  if (length(not_v) > 1L) {
+    return(list(X = X, w = w))  # No optimization implemented
   }
-  return(list(X = X, w = w))
+  x_not_v <- if (is.data.frame(X)) X[[not_v]] else X[, not_v]
+  X_dup <- duplicated(x_not_v)
+  if (mean(X_dup) <= 0.05) {
+    return(list(X = X, w = w))  # No optimization done
+  }
+
+  # Here we compress
+  if (is.null(w)) {
+    w <- rep(1.0, times = nrow(X))
+  }
+  list(
+    X = X[!X_dup, , drop = FALSE], 
+    w = c(rowsum(w, g = x_not_v, reorder = FALSE))
+  )
 }
 
 #' Compresses grid
@@ -208,7 +219,8 @@ rowmean <- function(x, ngroups, w = NULL) {
 #' Removes duplicated X columns (except those in `v`) and compensates by summing up
 #' their case weights `w`. Currently implemented only for the case where there is
 #' a single non-`v` column in `X`. Can be generalized via [paste()].
-#' Note that this kicks in only if more than 5% of rows in `grid` are duplicated.
+#' Note that compression is applied only when we can save more than 5% rows.
+#' Further note that checking for uniqueness can be costly for higher-dimensional grids.
 #' 
 #' @noRd
 #' 
