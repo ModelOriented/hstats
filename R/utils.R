@@ -163,12 +163,82 @@ rowmean <- function(x, ngroups, w = NULL) {
   g <- rep(seq_len(ngroups), each = n_bg)
   # Faster: cbind(collapse::fmean(x, g = g, w = w))
   if (is.null(w)) {
-    return(rowsum(x, group = g, reorder = FALSE) / n_bg)
+    out <- rowsum(x, group = g, reorder = FALSE) / n_bg
+  } else {
+    # w is recycled over rows and columns
+    out <- rowsum(x * w, group = g, reorder = FALSE) / sum(w)
   }
-  # w is recycled over rows and columns
-  rowsum(x * w, group = g, reorder = FALSE) / sum(w)
+  rownames(out) <- NULL
+  out
 }
 
+#' Compresses X
+#' 
+#' Removes duplicated rows in x based on columns not in `v` and compensates by summing
+#' their case weights `w`. Currently implemented only for the case where there is
+#' a single non-`v` column in `X`. Can later be generalized via [paste()]. Note that
+#' this is an important speed-up for calculating Friedman's H of overall interaction.
+#' 
+#' @noRd
+#' 
+#' @inheritParams fx_pdp
+#' @returns A list with `X` and `w`, potentially compressed.
+#' @examples
+#' .compress_X(cbind(a = c(1, 1, 2), b = 1:3), v = "b")
+#' .compress_X(cbind(a = c(1, 1, 2), b = 1:3), v = "b", w = 1:3)
+#' .compress_X(head(iris), v = "Species")  # no effect yet
+.compress_X <- function(X, v, w = NULL) {
+  not_v <- setdiff(colnames(X), v)
+  if (length(not_v) == 1L) {
+    x_not_v <- if (is.data.frame(X)) X[[not_v]] else X[, not_v]
+    X_dup <- duplicated(x_not_v)
+    if (mean(X_dup) > 0.1) {
+      if (is.null(w)) {
+        w <- rep(1.0, times = nrow(X))
+      }
+      X <- X[!X_dup, , drop = FALSE]
+      w <- c(rowsum(w, g = x_not_v, reorder = FALSE))
+    }
+  }
+  return(list(X = X, w = w))
+}
+
+#' Compresses grid
+#' 
+#' Removes duplicated X columns (except those in `v`) and compensates by summing up
+#' their case weights `w`. Currently implemented only for the case where there is
+#' a single non-`v` column in `X`. Can be generalized via [paste()].
+#' Note that this kicks in only if more than 5% of rows in `grid` are duplicated.
+#' 
+#' @noRd
+#' 
+#' @inheritParams pdp_raw
+#' @returns 
+#'   A list with `grid` (possibly compressed) and the optional `reindex` vector
+#'   used to map PD values back to the original grid rows.
+#' @examples
+#' out <- .compress_grid(c(2, 1, 2, 2), v = "a")
+#' out$grid[out$reindex]  # equals grid
+#' 
+#' out <- .compress_grid(cbind(a = c(2, 1, 2, 2), b = c(1, 2, 3, 3)), v = c("a", "b"))
+#' out$grid[out$reindex, ]  # equals grid
+.compress_grid <- function(grid, v) {
+  ugrid <- unique(grid)
+  if (NROW(ugrid) >= 0.95 * NROW(grid)) {
+    # No optimization done
+    return(list(grid = grid))
+  }
+  out <- list(grid = ugrid)
+  if (length(v) >= 2L) {  # Non-vector case
+    grid <- apply(grid, MARGIN = 1L, FUN = paste, collapse = "_:_")
+    ugrid <- apply(ugrid, MARGIN = 1L, FUN = paste, collapse = "_:_")
+    if (anyDuplicated(ugrid)) {
+      stop("String '_:_' found in grid values at unlucky position.")
+    }
+  }
+  out[["reindex"]] <- match(grid, ugrid)
+  out
+}
 
 #' Zip Small Values
 #' 
@@ -200,11 +270,11 @@ rowmean <- function(x, ngroups, w = NULL) {
 #' @param x Matrix, data.frame, or vector.
 #' @returns Centered version of `x` (vectors are turned into single-column matrix).
 #' @examples
-#' .center(cbind(1:10))
+#' .center(1:10)
 #' .center(iris[1:3])
 .center <- function(x) {
   if (is.vector(x)) {
-    matrix(x)
+    x <- matrix(x)
   }
   sweep(x, MARGIN = 2L, STATS = colMeans(x))
 }

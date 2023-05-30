@@ -1,4 +1,4 @@
-#' Fast PD Function
+#' Fast Partial Dependence Function
 #' 
 #' @description
 #' Fast implementation of Friedman's partial dependence (PD) function. 
@@ -72,26 +72,33 @@ fx_pdp.default <- function(object, v, X, pred_fun = stats::predict,
   )
   
   # Reduce size of X (and w)
-  n <- nrow(X)
-  if (n > n_max) {
-    ix <- sample(n, n_max)
+  if (nrow(X) > n_max) {
+    ix <- sample(nrow(X), n_max)
     X <- X[ix, , drop = FALSE]
     if (!is.null(w)) {
       w <- w[ix]
     }
-    n <- n_max
   }
 
   # Make/check grid. If length(v) == 1, grid is always a vector/factor
   if (is.null(grid)) {
     grid <- fixed_grid(X[, v], m = grid_size, trim = trim)
-  } else{
+    compress_grid <- FALSE
+  } else {
     check_grid(grid, v = v, X_is_matrix = is.matrix(X))
+    compress_grid <- TRUE
   }
   
   # Calculations
   pd <- pdp_raw(
-    object = object, v = v, X = X, pred_fun = pred_fun, grid = grid, w = w, ...
+    object = object, 
+    v = v, 
+    X = X, 
+    pred_fun = pred_fun, 
+    grid = grid, 
+    w = w,
+    compress_grid = compress_grid,
+    ...
   )
   
   # Cleanup
@@ -172,46 +179,23 @@ fx_pdp.Learner <- function(object, v, X,
 #' @examples
 #' fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
 #' pdp_raw(fit, v = "Petal.Width", X = iris, pred_fun = predict, grid = 1:2)
-pdp_raw <- function(object, v, X, pred_fun, grid, w = NULL, ...) {
-  # Optimize case where X[, not v] is one-dimensional with >10% duplicates
-  # This is useful in Friedman's H (overall interaction strength per feature)
-  # Implemented by summing up w of duplicated X[, not v]
-  not_v <- setdiff(colnames(X), v)
-  if (length(not_v) == 1L) {
-    x_not_v <- if (is.data.frame(X)) X[[not_v]] else X[, not_v]
-    X_dup <- duplicated(x_not_v)
-    if (mean(X_dup) > 0.1) {
-      if (is.null(w)) {
-        w <- rep(1.0, times = nrow(X))
-      }
-      X <- X[!X_dup, , drop = FALSE]
-      w <- c(rowsum(w, g = x_not_v, reorder = FALSE))
-    }
+pdp_raw <- function(object, v, X, pred_fun, grid, w = NULL, 
+                    compress_X = FALSE, compress_grid = TRUE, ...) {
+  if (compress_X) {
+    # Removes duplicates in X[, not_v] and compensates via w
+    cmp_X <- .compress_X(X = X, v = v, w = w)
+    X <- cmp_X[["X"]]
+    w <- cmp_X[["w"]]
   }
   
-  n <- nrow(X)
+  if (compress_grid) {
+    # Removes duplicates in grid and returns reindex vector to match to original grid
+    cmp_grid <- .compress_grid(grid = grid, v = v)
+    grid <- cmp_grid[["grid"]]
+  }
+  
   D1 <- length(v) == 1L
-  
-  # Duplicated values of grid can be removed but, we need to map the PD values
-  # back to the original grid position
-  ugrid <- unique(grid)
-  if (NROW(ugrid) < 0.9 * NROW(grid)) {
-    is_dup <- TRUE
-    if (D1) {
-      orig <- grid  # always a vector/factor
-      final <- ugrid
-    } else {
-      orig <- apply(grid, MARGIN = 1L, FUN = paste, collapse = "_:_")
-      final <- apply(ugrid, MARGIN = 1L, FUN = paste, collapse = "_:_")
-      if (anyDuplicated(final)) {
-        stop("String '_:_' found in grid values at unlucky position.")
-      }
-    }
-    grid <- ugrid
-  } else{
-    is_dup <- FALSE
-  }
-  
+  n <- nrow(X)
   n_grid <- NROW(grid)
   
   # Explode everything to n * n_grid rows
@@ -231,9 +215,8 @@ pdp_raw <- function(object, v, X, pred_fun, grid, w = NULL, ...) {
   
   pred <- check_pred(pred_fun(object, X_pred, ...))
   pd <- rowmean(pred, ngroups = n_grid, w = w)
-  rownames(pd) <- NULL
-  if (is_dup) {
-    return(pd[match(orig, final), , drop = FALSE])
+  if (compress_grid && !is.null(reindex <- cmp_grid[["reindex"]])) {
+    return(pd[reindex, , drop = FALSE])
   }
   pd
 }

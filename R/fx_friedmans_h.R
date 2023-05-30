@@ -7,12 +7,10 @@
 #' - `normalize = TRUE`, and
 #' - `squared = FALSE`
 #' 
-#' in principle allows the calculation of eight different versions of Friedman's H. 
+#' allow the calculation of eight different versions of Friedman's H. 
 #' If all values are left to the default, Friedman's H overall interaction strength
 #' per feature is returned.
-#' 
-#' If `pairwise = TRUE`,
-#' 
+#'  
 #' @inheritParams fx_pdp
 #' @param v Vector of feature names for which interaction statistics are to be crunched.
 #' @param pairwise The default (`FALSE`) calculates overall interaction strength per 
@@ -120,7 +118,7 @@ fx_friedmans_h.default <- function(object, v, X, pred_fun = stats::predict,
   
   for (i in seq_len(m)) {
     if (pairwise) {
-      z <- combs[[i]]
+      z <- combs[[i]]  # The two variables for which we need two-dimensional PD
       f <- .center(
         pdp_raw(object, v = z, X = X, pred_fun = pred_fun, grid = X[, z], w = w, ...)
       )
@@ -131,7 +129,15 @@ fx_friedmans_h.default <- function(object, v, X, pred_fun = stats::predict,
       not_z <- setdiff(colnames(X), z) 
       pd_j <- .center(
         pdp_raw(
-          object, v = not_z, X = X, pred_fun = pred_fun, grid = X[, not_z], w = w, ...
+          object, 
+          v = not_z, 
+          X = X, 
+          pred_fun = pred_fun, 
+          grid = X[, not_z], 
+          w = w,
+          compress_X = TRUE,      # Only one column taken from background data X
+          compress_grid = FALSE,  # grid has too many columns, so not many duplicates
+          ...
         )
       )
       pd_i <- pd1d[[z]]
