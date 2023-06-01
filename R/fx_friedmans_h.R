@@ -144,7 +144,7 @@ fx_friedmans_h.default <- function(object, v, X, pred_fun = stats::predict,
       pd_i <- pd1d[[z]]
     }
     H_num[[i]] <- colMeans((f - pd_i - pd_j)^2)
-    H_denom[[i]] <- colMeans(f^2)
+    H_denom[[i]] <- colMeans(f^2)  # When pairwise = FALSE, only need to calculate once
     
     if (verbose) {
       utils::setTxtProgressBar(pb, j)

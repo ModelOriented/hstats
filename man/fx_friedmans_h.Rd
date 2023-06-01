@@ -5,7 +5,7 @@
 \alias{fx_friedmans_h.default}
 \alias{fx_friedmans_h.ranger}
 \alias{fx_friedmans_h.Learner}
-\title{Friedman's H}
+\title{Fast Friedman's H}
 \usage{
 fx_friedmans_h(object, ...)
 
@@ -14,10 +14,10 @@ fx_friedmans_h(object, ...)
   v,
   X,
   pred_fun = stats::predict,
+  pairwise = FALSE,
   normalize = TRUE,
-  take_sqrt = TRUE,
-  grid_size = 200L,
-  n_max = 500L,
+  squared = FALSE,
+  n_max = 200L,
   out_names = NULL,
   w = NULL,
   verbose = TRUE,
@@ -29,10 +29,10 @@ fx_friedmans_h(object, ...)
   v,
   X,
   pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
+  pairwise = FALSE,
   normalize = TRUE,
-  take_sqrt = TRUE,
-  grid_size = 200L,
-  n_max = 500L,
+  squared = FALSE,
+  n_max = 200L,
   out_names = NULL,
   w = NULL,
   verbose = TRUE,
@@ -44,10 +44,10 @@ fx_friedmans_h(object, ...)
   v,
   X,
   pred_fun = function(m, X) m$predict_newdata(X)$response,
+  pairwise = FALSE,
   normalize = TRUE,
-  take_sqrt = TRUE,
-  grid_size = 200L,
-  n_max = 500L,
+  squared = FALSE,
+  n_max = 200L,
   out_names = NULL,
   w = NULL,
   verbose = TRUE,
@@ -59,7 +59,7 @@ fx_friedmans_h(object, ...)
 
 \item{...}{Additional arguments passed to \code{pred_fun(object, X, ...)}.}
 
-\item{v}{Vector of variables names to calculate Friedman's H for.}
+\item{v}{Vector of feature names for which interaction statistics are to be crunched.}
 
 \item{X}{Dataframe or matrix serving as background dataset.}
 
@@ -69,17 +69,17 @@ represents the model \code{object}, its second argument a data structure like \c
 Additional (named) arguments are passed via \code{...}.
 The default, \code{\link[stats:predict]{stats::predict()}}, will work in most cases.}
 
-\item{normalize}{TODO}
+\item{pairwise}{The default (\code{FALSE}) calculates overall interaction strength per
+feature. Set to \code{TRUE} to get all pairwise statistics.}
 
-\item{take_sqrt}{TODO}
+\item{normalize}{Should explained variances be normalized? The default is \code{TRUE}.
+If \code{squared = FALSE}, this produces Friedman's H.}
 
-\item{grid_size}{Determines the grid When \code{grid = NULL}. Character/factor variables
-are evaluated at each unique value. A numeric \code{v} with more than \code{grid_size} unique
-values is evaluated at \code{grid_size} quantiles. If \code{v} has length \eqn{p > 1},
-the \eqn{p}th root of \code{grid_size} is used instead.}
+\item{squared}{Should squared statistics be returned? The default is \code{FALSE}.
+If \code{normalize = TRUE}, this produces Friedman's H.}
 
-\item{n_max}{If \code{X} has more rows than \code{n_max}, a random sample of \code{n_max} rows is
-selected.}
+\item{n_max}{If \code{X} has more than \code{n_max} rows, a random sample of \code{n_max} rows is
+selected for calculations.}
 
 \item{out_names}{Names of the output columns.}
 
@@ -88,32 +88,63 @@ selected.}
 \item{verbose}{Should a progress bar be shown? Default is \code{TRUE}.}
 }
 \value{
-A data.frame
+A data.frame containing one or two (if \code{pairwise = TRUE}) columns with the
+variable names, and K columns with the corresponding statistics for the K
+components of the predict function, usually K = 1.
 }
 \description{
-Friedman's H
+Fast implementation of Friedman's H statistic to measure interaction strength.
+}
+\details{
+The three binary flags
+\itemize{
+\item \code{pairwise = FALSE},
+\item \code{normalize = TRUE}, and
+\item \code{squared = FALSE}
+}
+
+allow the calculation of eight different versions of Friedman's H.
+If all values are left to the default, Friedman's H overall interaction strength
+per feature is returned.
 }
 \section{Methods (by class)}{
 \itemize{
 \item \code{fx_friedmans_h(default)}: Default method.
 
-\item \code{fx_friedmans_h(ranger)}: Method for "ranger" models, see Readme for an example.
+\item \code{fx_friedmans_h(ranger)}: Method for "ranger" models
+.
 
-\item \code{fx_friedmans_h(Learner)}: Method for "mlr3" models, see Readme for an example.
+\item \code{fx_friedmans_h(Learner)}: Method for "mlr3" models.
 
 }}
 \examples{
 # MODEL ONE: Linear regression
 fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
 fx_friedmans_h(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
+fx_friedmans_h(fit, v = names(iris[-1]), X = iris, verbose = FALSE, pairwise = TRUE)
 
 # MODEL TWO: Multi-response linear regression
 fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
-h <- fx_friedmans_h(fit, v = colnames(iris[3:5]), X = iris)
-h
-fx_friedmans_h(fit, v = c("Petal.Width", "Species"), X = iris)
+v <- c("Petal.Length", "Petal.Width", "Species")
+fx_friedmans_h(fit, v = v, X = iris)
+fx_friedmans_h(fit, v = v, X = iris, pairwise = TRUE)
+
+# MODEL THREE: Gamma GLM with log link
+fit <- glm(
+  Sepal.Length ~ . + Petal.Width:Species, 
+  data = iris, 
+  family = Gamma(link = log)
+)
+
+# No interactions for additive features, at least on link scale
+fx_friedmans_h(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
+
+# On original scale, we have interactions everywhere...
+fx_friedmans_h(
+  fit, v = names(iris[-1]), X = iris, verbose = FALSE, type = "response"
+)
 }
 \references{
-Friedman J. H. (2001). Greedy function approximation: A gradient boosting machine.
-The Annals of Statistics, 29:1189–1232.
+Friedman, J. H. and Popescu, B. E. (2008). "Predictive learning via rule
+ensembles." The Annals of Applied Statistics. JSTOR, 916–54.
 }

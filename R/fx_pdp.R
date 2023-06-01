@@ -25,8 +25,8 @@
 #'   before applying binning (only if `grid = NULL`). Set to `c(0, 1)` for no trimming.
 #' @param binner How should numeric non-discrete features be binned? 
 #'   Either "quantile" or pretty "uniform".
-#' @param n_max If `X` has more rows than `n_max`, a random sample of `n_max` rows is
-#'   selected. 
+#' @param n_max If `X` has more than `n_max` rows, a random sample of `n_max` rows is
+#'   selected for calculations. 
 #' @param out_names Names of the output columns.
 #' @param w Optional vector of case weights for each row of `X`.
 #' @param ... Additional arguments passed to `pred_fun(object, X, ...)`.

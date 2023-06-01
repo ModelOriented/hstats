@@ -31,7 +31,7 @@ fixed_grid_one <- function(z, m = 36L, trim = c(0.01, 0.99),
     p <- seq(trim[1L], trim[2L], length.out = m)
     return(unique(stats::quantile(z, probs = p, names = FALSE, type = 1L)))
   }
-  pretty(quantile(z, probs = trim, names = FALSE, type = 1L), n = m)
+  pretty(stats::quantile(z, probs = trim, names = FALSE, type = 1L), n = m)
 }
 
 #' Creates one- or higher-dimensional grids
@@ -210,7 +210,7 @@ rowmean <- function(x, ngroups, w = NULL) {
   }
   list(
     X = X[!X_dup, , drop = FALSE], 
-    w = c(rowsum(w, g = x_not_v, reorder = FALSE))
+    w = c(rowsum(w, group = x_not_v, reorder = FALSE))
   )
 }
 
@@ -290,4 +290,3 @@ rowmean <- function(x, ngroups, w = NULL) {
   }
   sweep(x, MARGIN = 2L, STATS = colMeans(x))
 }
-

@@ -5,7 +5,7 @@
 \alias{fx_pdp.default}
 \alias{fx_pdp.ranger}
 \alias{fx_pdp.Learner}
-\title{Fast PDP}
+\title{Fast Partial Dependence Function}
 \usage{
 fx_pdp(object, ...)
 
@@ -17,7 +17,8 @@ fx_pdp(object, ...)
   grid = NULL,
   grid_size = 36L,
   trim = c(0.01, 0.99),
-  n_max = 500L,
+  binner = c("quantile", "uniform"),
+  n_max = 1000L,
   out_names = NULL,
   w = NULL,
   ...
@@ -31,7 +32,8 @@ fx_pdp(object, ...)
   grid = NULL,
   grid_size = 36L,
   trim = c(0.01, 0.99),
-  n_max = 500L,
+  binner = c("quantile", "uniform"),
+  n_max = 1000L,
   out_names = NULL,
   w = NULL,
   ...
@@ -45,7 +47,8 @@ fx_pdp(object, ...)
   grid = NULL,
   grid_size = 36L,
   trim = c(0.01, 0.99),
-  n_max = 500L,
+  binner = c("quantile", "uniform"),
+  n_max = 1000L,
   out_names = NULL,
   w = NULL,
   ...
@@ -75,11 +78,13 @@ values is evaluated at \code{grid_size} quantiles. If \code{v} has length \eqn{p
 the \eqn{p}th root of \code{grid_size} is used instead.}
 
 \item{trim}{A vector with two probabilities used to trim non-discrete numeric \code{v}
-before applying quantile binning (only if \code{grid = NULL}).
-Set to \code{c(0, 1)} to avoid trimming.}
+before applying binning (only if \code{grid = NULL}). Set to \code{c(0, 1)} for no trimming.}
 
-\item{n_max}{If \code{X} has more rows than \code{n_max}, a random sample of \code{n_max} rows is
-selected.}
+\item{binner}{How should numeric non-discrete features be binned?
+Either "quantile" or pretty "uniform".}
+
+\item{n_max}{If \code{X} has more than \code{n_max} rows, a random sample of \code{n_max} rows is
+selected for calculations.}
 
 \item{out_names}{Names of the output columns.}
 
@@ -89,20 +94,26 @@ selected.}
 A dataframe with partial dependence per grid value.
 }
 \description{
-Fast PDP
+Fast implementation of Friedman's partial dependence (PD) function.
+
+The function supports both
+\itemize{
+\item multivariate predictions (e.g., multi-classification settings) and
+\item multivariate grids.
+}
 }
 \section{Methods (by class)}{
 \itemize{
 \item \code{fx_pdp(default)}: Default method.
 
-\item \code{fx_pdp(ranger)}: Method for "ranger" models, see Readme for an example.
+\item \code{fx_pdp(ranger)}: Method for "ranger" models.
 
-\item \code{fx_pdp(Learner)}: Method for "mlr3" models, see Readme for an example.
+\item \code{fx_pdp(Learner)}: Method for "mlr3" models.
 
 }}
 \examples{
 # MODEL ONE: Linear regression
-fit <- lm(Sepal.Length ~ Species + Petal.Width, data = iris)
+fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
 pd <- fx_pdp(fit, v = "Petal.Width", X = iris)
 pd[1:4, ]
 
@@ -113,8 +124,17 @@ fx_pdp(fit, v = "Species", X = iris)
 # MODEL TWO: Multi-response linear regression
 fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width + Species, data = iris)
 fx_pdp(fit, v = "Species", X = iris)
-pd <- fx_pdp(fit, v = c("Petal.Width", "Species"), X = iris)
+pd <- fx_pdp(fit, v = c("Petal.Width", "Species"), X = iris, binner = "uniform")
 pd[1:4, ]
+
+# MODEL THREE: Gamma GLM with log link
+fit <- glm(
+  Sepal.Length ~ . + Petal.Width:Species, 
+  data = iris, 
+  family = Gamma(link = log)
+)
+fx_pdp(fit, v = "Petal.Width", X = iris, type = "response")
+fx_pdp(fit, v = "Petal.Width", X = iris, type = "response", binner = "uniform")
 }
 \references{
 Friedman J. H. (2001). Greedy function approximation: A gradient boosting machine.
