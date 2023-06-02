@@ -5,7 +5,6 @@
 #'   calculated.
 #' @param pairwise The default (`FALSE`) calculates overall interaction strength per 
 #'   feature. Set to `TRUE` to get *pairwise* statistics (slower).
-#' @param verbose Should a progress bar be shown? The default is `TRUE`.
 #' @returns 
 #'   An object of class "fx_interaction", containing these elements:
 #'   - `numerator`: Matrix with squared numerator values. 
@@ -201,7 +200,7 @@ fx_interaction.Learner <- function(object, v, X,
 #' 
 #' Print function for result of [fx_interaction()].
 #' 
-#' @param x Object of class "fx_interaction".
+#' @param x Object to print.
 #' @param ... Currently unused.
 #' @returns Invisibly, `x` is returned.
 #' @export
@@ -216,7 +215,7 @@ print.fx_interaction <- function(x, ...) {
 #' Uses the results of [fx_interaction()] to calculate different versions of 
 #' Friedman's H, see [fx_interaction()].
 #' 
-#' @param object Object of class "fx_interaction".
+#' @param object Object to summarize.
 #' @param normalize Should explained variances be normalized? Default is `TRUE`.
 #' @param squared Should squared statistics be returned? Default is `FALSE`. 
 #' @param sort Should result be sorted? Default is `TRUE`.
@@ -225,7 +224,7 @@ print.fx_interaction <- function(x, ...) {
 #' @param eps Threshold below which numerator values are set to 0.
 #' @param verbose Should message be printed? Default is `TRUE`.
 #' @param ... Currently unused.
-#' @returns Matrix with desired statistics.
+#' @returns Matrix with statistics (one column per prediction dimension).
 #' @export
 #' @seealso [fx_interaction()]
 summary.fx_interaction <- function(object, normalize = TRUE, squared = FALSE, 

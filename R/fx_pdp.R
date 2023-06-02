@@ -16,7 +16,8 @@
 #' - multivariate grids.
 #' 
 #' @param object Fitted model object.
-#' @param v One or more variable names for which to calculate PD profiles.
+#' @param v Vector or list of feature names. If passed as list, *vectors* of feature 
+#' names are evaluted together. These vectors can be named.
 #' @param X Dataframe or matrix serving as background dataset.
 #' @param pred_fun Prediction function of the form `function(object, X, ...)`,
 #'   providing \eqn{K \ge 1} numeric predictions per row. Its first argument 
@@ -36,9 +37,10 @@
 #'   Either "quantile" or "uniform".
 #' @param n_max If `X` has more than `n_max` rows, a random sample of `n_max` rows is
 #'   selected for calculations. 
-#' @param out_names Names of the output columns corresponding to the \eqn{K}-dimensional
+#' @param out_names Names of the output columns corresponding to the K-dimensional
 #'   predictions.
 #' @param w Optional vector of case weights for each row of `X`.
+#' @param verbose Should a progress bar be shown? The default is `TRUE`.
 #' @param ... Additional arguments passed to `pred_fun(object, X, ...)`.
 #' @returns A dataframe with partial dependence per grid value.
 #' @references
@@ -82,8 +84,8 @@ fx_pdp <- function(object, ...) {
 #' @export
 fx_pdp.default <- function(object, v, X, pred_fun = stats::predict, 
                            grid = NULL, grid_size = 36L, trim = c(0.01, 0.99), 
-                           binner = c("quantile", "uniform"),
-                           n_max = 1000L, out_names = NULL, w = NULL, ...) {
+                           binner = c("quantile", "uniform"), n_max = 1000L, 
+                           out_names = NULL, w = NULL, verbose = TRUE, ...) {
   binner <- match.arg(binner)
   stopifnot(
     is.matrix(X) || is.data.frame(X),
@@ -129,14 +131,13 @@ fx_pdp.default <- function(object, v, X, pred_fun = stats::predict,
   cbind.data.frame(grid, pd)
 }
 
-
 #' @describeIn fx_pdp Method for "ranger" models.
 #' @export
 fx_pdp.ranger <- function(object, v, X, 
                           pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions, 
                           grid = NULL, grid_size = 36L, trim = c(0.01, 0.99), 
-                          binner = c("quantile", "uniform"),
-                          n_max = 1000L, out_names = NULL, w = NULL, ...) {
+                          binner = c("quantile", "uniform"), n_max = 1000L,
+                          out_names = NULL, w = NULL, verbose = TRUE, ...) {
   fx_pdp.default(
     object = object,
     v = v,
@@ -149,6 +150,7 @@ fx_pdp.ranger <- function(object, v, X,
     n_max = n_max,
     out_names = out_names,
     w = w,
+    verbose = verbose,
     ...
   )
 }
@@ -158,8 +160,8 @@ fx_pdp.ranger <- function(object, v, X,
 fx_pdp.Learner <- function(object, v, X, 
                            pred_fun = function(m, X) m$predict_newdata(X)$response, 
                            grid = NULL, grid_size = 36L, trim = c(0.01, 0.99),
-                           binner = c("quantile", "uniform"),
-                           n_max = 1000L, out_names = NULL, w = NULL, ...) {
+                           binner = c("quantile", "uniform"), n_max = 1000L, 
+                           out_names = NULL, w = NULL, verbose = TRUE, ...) {
   fx_pdp.default(
     object = object,
     v = v,
@@ -172,36 +174,38 @@ fx_pdp.Learner <- function(object, v, X,
     n_max = n_max,
     out_names = out_names,
     w = w,
+    verbose = verbose,
     ...
   )
 }
 
-#' Barebone PDP
+#' Barebone PD Function
 #' 
 #' @description
-#' Creates partial dependence values for a given model, data and grid. 
-#' This is the workhorse function behind [fx_pdp()] and [fx_friedmans_h()].
+#' Creates partial dependence values for a given model, data, and grid. 
+#' This is the workhorse function behind [fx_pdp()], [fx_interaction()], 
+#' and [fx_importance()].
 #' 
 #' It is fast because:
-#' 1. Only one call to `pred_fun()`.
-#' 2. If more than 10% of grid values are duplicated, these are dropped and the result
-#'   mapped back to the original grid.
-#' 3. If more than 10% of non-grid columns are duplicated, these are dropped and
-#'   compensated by summing up the case weights `w`.
-#' 
-#' @noRd
+#' 1. There is a single call to `pred_fun()`.
+#' 2. If more than 5% of grid rows are duplicated, they are dropped from the 
+#'   calculation. Resulting PD values are mapped back. This is important for 
+#'   [fx_interaction()] and [fx_importance()] that use sampled data as grid.
+#' 3. If more than 5% of non-grid rows are duplicated, these are dropped and
+#'   compensated by summing up their case weights.
 #' 
 #' @inheritParams fx_pdp
+#' @param v Vector of variable name(s) to calculate partial dependence for.
 #' @param grid A vector (if `length(v) == 1L`), or a matrix/data.frame otherwise.
 #' @param compress_X If `X` has a single non-`v` column: should duplicates be removed
 #'   and compensated via case weights? (Applied only if >5% duplicates.)
-#'   Default is `TRUE` because the check that `X` has only one non-grid column is cheap.
+#'   Default is `TRUE`.
 #' @param compress_grid Should duplicates in `grid` be removed, and resulting PDs 
-#'   mapped back to the original grid index? Default is `TRUE`. Applied only 
-#'   if >5% duplicates.
+#'   mapped back to the original grid index? (Applied only if >5% duplicates.)
+#'   Default is `TRUE`.
 #' @returns 
-#'   A matrix of partial dependence values. The number of columns corresponds to the
-#'   number of predictions per observation.
+#'   A matrix of partial dependence values (one column per prediction dimension, 
+#'   one row per grid row).
 #' @references
 #'   Friedman J. H. (2001). Greedy function approximation: A gradient boosting machine.
 #'   The Annals of Statistics, 29:1189–1232.

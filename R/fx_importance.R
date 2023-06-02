@@ -8,10 +8,6 @@
 #' measuring their joint effect (main effect plus interaction).
 #'  
 #' @inheritParams fx_pdp
-#' @param v Vector or list of feature names for which PD importance is to be calculated. 
-#'   If passed as list, *vectors* of feature names are evaluted together. These vectors
-#'   can be named.
-#' @param verbose Should a progress bar be shown? Default is `TRUE`.
 #' @returns
 #'   An object of class "fx_importance", containing these elements:
 #'   - `imp`: Matrix with importance values per element of `v`.
@@ -144,9 +140,8 @@ fx_importance.Learner <- function(object, v, X,
 #' 
 #' Print function for result of [fx_importance()].
 #' 
-#' @param x Object of class "fx_importance".
-#' @param ... Currently unused.
-#' @returns Invisibly, `x` is returned.
+#' @inheritParams print.fx_interaction
+#' @inherit print.fx_interaction
 #' @export
 #' @seealso [fx_importance()]
 print.fx_importance <- function(x, ...) {
@@ -159,25 +154,16 @@ print.fx_importance <- function(x, ...) {
 #' Extracts the results of [fx_importance()].
 #' 
 #' @inheritParams summary.fx_interaction
-#' @param object Object of class "fx_importance".
-#' @param squared If `TRUE` (default), variances are returned. Set to `FALSE` for 
-#'   standard deviations.
-#' @returns Matrix with importance statistics.
+#' @inherit summary.fx_interaction returns
 #' @export
 #' @seealso [fx_importance()]
-summary.fx_importance <- function(object, squared = TRUE, sort = TRUE, 
-                                  out_names = NULL, verbose = TRUE, ...) {
+summary.fx_importance <- function(object, sort = TRUE, out_names = NULL, 
+                                  verbose = TRUE, ...) {
   if (verbose) {
     cat("Partial dependence based variable importance\n")
   }
   imp <- fix_names(object[["imp"]], out_names = out_names, prefix = "Imp")
-  if (!squared) {
-    imp <- sqrt(imp)
-  }
-  if (!sort) {
-    return(imp) 
-  }
-  imp[order(-rowSums(imp)), , drop = FALSE]
+  if (sort) imp[order(-rowSums(imp)), , drop = FALSE] else imp
 }
 
 
