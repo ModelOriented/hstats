@@ -1,33 +1,43 @@
 #' Fast Partial Dependence Function
 #' 
 #' @description
-#' Fast implementation of Friedman's partial dependence (PD) function. 
+#' Fast implementation of Friedman's (empirical) partial dependence (PD) function 
+#' of feature subset \eqn{J}, given by
+#' \deqn{\textrm{PD}_J(v) = \frac{1}{|D|} \sum_{i \in D} \hat f(v, x_{i,\setminus J})},
+#' where
+#' - \eqn{D} is a reference data set,
+#' - \eqn{J} is a index set
+#' - \eqn{\hat f} is the fitted model, and
+#' - \eqn{x_{i,\setminus J}} is the feature vector of the i-th observation without 
+#'   components in \eqn{J} (which are replaced by the function argument(s) \eqn{v}).
 #' 
 #' The function supports both 
 #' - multivariate predictions (e.g., multi-classification settings) and
 #' - multivariate grids.
 #' 
 #' @param object Fitted model object.
-#' @param v One or more variable names in `X` to calculate partial dependence profiles.
+#' @param v One or more variable names for which to calculate PD profiles.
 #' @param X Dataframe or matrix serving as background dataset.
 #' @param pred_fun Prediction function of the form `function(object, X, ...)`,
 #'   providing \eqn{K \ge 1} numeric predictions per row. Its first argument 
 #'   represents the model `object`, its second argument a data structure like `X`. 
-#'   Additional (named) arguments are passed via `...`. 
+#'   Additional (named) arguments can be passed via `...`. 
 #'   The default, [stats::predict()], will work in most cases. 
 #' @param grid Optional evaluation grid. If `v` is a single column name, this is a 
 #'   vector/factor. Otherwise, a matrix or `data.frame` with `length(v)` columns.
-#' @param grid_size Determines the grid When `grid = NULL`. Character/factor variables
-#'   are evaluated at each unique value. A numeric `v` with more than `grid_size` unique
-#'   values is evaluated at `grid_size` quantiles. If `v` has length \eqn{p > 1},
-#'   the \eqn{p}th root of `grid_size` is used instead. 
-#' @param trim A vector with two probabilities used to trim non-discrete numeric `v` 
-#'   before applying binning (only if `grid = NULL`). Set to `c(0, 1)` for no trimming.
+#' @param grid_size Controls the grid size when `grid = NULL`. Character/factor 
+#'   variables are evaluated at each unique value. A numeric `v` with more than 
+#'   `grid_size` unique values is evaluated at `grid_size` quantiles. 
+#'   If `v` has length \eqn{p > 1}, the \eqn{p}th root of `grid_size` is used instead. 
+#' @param trim A vector with two probabilities. Non-discrete numeric features in `v` 
+#'   are trimmed at corresponding quantiles before applying binning (only if 
+#'   `grid = NULL`). Set to `c(0, 1)` for no trimming.
 #' @param binner How should numeric non-discrete features be binned? 
-#'   Either "quantile" or pretty "uniform".
+#'   Either "quantile" or "uniform".
 #' @param n_max If `X` has more than `n_max` rows, a random sample of `n_max` rows is
 #'   selected for calculations. 
-#' @param out_names Names of the output columns.
+#' @param out_names Names of the output columns corresponding to the \eqn{K}-dimensional
+#'   predictions.
 #' @param w Optional vector of case weights for each row of `X`.
 #' @param ... Additional arguments passed to `pred_fun(object, X, ...)`.
 #' @returns A dataframe with partial dependence per grid value.
@@ -37,7 +47,7 @@
 #' @export
 #' @examples
 #' # MODEL ONE: Linear regression
-#' fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
+#' fit <- lm(Sepal.Length ~ ., data = iris)
 #' pd <- fx_pdp(fit, v = "Petal.Width", X = iris)
 #' pd[1:4, ]
 #' 
@@ -58,8 +68,12 @@
 #'   family = Gamma(link = log)
 #' )
 #' fx_pdp(fit, v = "Petal.Width", X = iris, type = "response")
-#' fx_pdp(fit, v = "Petal.Width", X = iris, type = "response", binner = "uniform")
-
+#' 
+#' # MODEL FOUR: matrix interface
+#' X <- model.matrix(Sepal.Length ~ ., data = iris)
+#' fit <- lm.fit(x = X, y = iris$Sepal.Length)
+#' pred_fun <- function(m, x) c(tcrossprod(coef(m), x))
+#' fx_pdp(fit, v = "Petal.Width", X = X, pred_fun = pred_fun)
 fx_pdp <- function(object, ...) {
   UseMethod("fx_pdp")
 }
@@ -73,11 +87,18 @@ fx_pdp.default <- function(object, v, X, pred_fun = stats::predict,
   binner <- match.arg(binner)
   stopifnot(
     is.matrix(X) || is.data.frame(X),
-    dim(X) >= 2:1,
+    dim(X) >= c(1L, 1L),
     all(v %in% colnames(X)),
     is.function(pred_fun),
     is.null(w) || length(w) == nrow(X)
   )
+  
+  # Make/check grid. If length(v) == 1, grid is always a vector/factor
+  if (is.null(grid)) {
+    grid <- fixed_grid(X[, v], m = grid_size, trim = trim, binner = binner)
+  } else {
+    check_grid(grid, v = v, X_is_matrix = is.matrix(X))
+  }
   
   # Reduce size of X (and w)
   if (nrow(X) > n_max) {
@@ -86,13 +107,6 @@ fx_pdp.default <- function(object, v, X, pred_fun = stats::predict,
     if (!is.null(w)) {
       w <- w[ix]
     }
-  }
-
-  # Make/check grid. If length(v) == 1, grid is always a vector/factor
-  if (is.null(grid)) {
-    grid <- fixed_grid(X[, v], m = grid_size, trim = trim, binner = binner)
-  } else {
-    check_grid(grid, v = v, X_is_matrix = is.matrix(X))
   }
   
   # Calculations

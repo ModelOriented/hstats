@@ -3,39 +3,45 @@
 #' The sample variance of the partial dependence function \eqn{\textrm{PD}_{j}} of 
 #' feature \eqn{X^{(j)}} evaluated over a data set \eqn{D} can be used as measure 
 #' of **main effect importance**, defined as
-#' \eqn{\textrm{PDI}(j, D) = \textrm{Var}\left(\sum_{i \in D} \textrm{PD}_{j}(x_i^{(j)})\right)}.
+#' \deqn{\textrm{PDI}(j, D) = \textrm{Var}\left(\sum_{i \in D} \textrm{PD}_{j}(x_i^{(j)})\right)}.
 #' Similarly, we can define the PD importance of two or more features together,
 #' measuring their joint effect (main effect plus interaction).
 #'  
 #' @inheritParams fx_pdp
 #' @param v Vector or list of feature names for which PD importance is to be calculated. 
-#'   If passed as list, *vectors* of feature names are evaluted together.
-#' @param sort Should the result be sortedby importance? Default is `TRUE`.
+#'   If passed as list, *vectors* of feature names are evaluted together. These vectors
+#'   can be named.
 #' @param verbose Should a progress bar be shown? Default is `TRUE`.
-#' @returns 
-#'   A `data.frame` with one column holding the feature name(s), and K columns with the 
-#'   PD importance for the K components of the predict function.
+#' @returns
+#'   An object of class "fx_importance", containing these elements:
+#'   - `imp`: Matrix with importance values per element of `v`.
+#'   - `v`: Same as input `v`.
 #' @export
 #' @examples
 #' # MODEL ONE: Linear regression
 #' fit <- lm(Sepal.Length ~ ., data = iris)
-#' fx_importance(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
+#' imp <- fx_importance(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
+#' imp
+#' summary(imp)
 #' 
-#' v <- list("Sepal.Width", c("Petal.Width", "Petal.Length"), "Species")
-#' fx_importance(fit, v = v, X = iris, verbose = FALSE)
-#' 
+#' # With groups of variables
+#' v <- list("Sepal.Width", Petal = c("Petal.Width", "Petal.Length"), "Species")
+#' imp <- fx_importance(fit, v = v, X = iris, verbose = FALSE)
+#' summary(imp, sort = FALSE, out_names = "Importance")
+#'
 #' # MODEL TWO: Multi-response linear regression
 #' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width + Species, data = iris)
 #' v <- c("Petal.Length", "Petal.Width", "Species")
-#' fx_importance(fit, v = v, X = iris)
+#' summary(imp <- fx_importance(fit, v = v, X = iris))
 #' 
-#' # MODEL THREE: Gamma GLM with log link
-#' fit <- glm(Sepal.Length ~ ., data = iris, family = Gamma(link = log))
-#' 
-#' fx_importance(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
-#' 
-#' # On original scale
-#' fx_importance(fit, v = names(iris[-1]), X = iris, verbose = FALSE, type = "response")
+#' #' # MODEL THREE: matrix interface
+#' X <- model.matrix(Sepal.Length ~ ., data = iris)
+#' fit <- lm.fit(x = X, y = iris$Sepal.Length)
+#' v <- list("Sepal.Width", "Petal.Length", "Petal.Width", 
+#'           Species = c("Speciesversicolor", "Speciesvirginica"))
+#' pred_fun <- function(m, x) c(tcrossprod(coef(m), x))
+#' imp <- fx_importance(fit, v = v, X = X, pred_fun = pred_fun, verbose = FALSE)
+#' summary(imp)
 fx_importance <- function(object, ...) {
   UseMethod("fx_importance")
 }
@@ -43,12 +49,11 @@ fx_importance <- function(object, ...) {
 #' @describeIn fx_importance Default method.
 #' @export
 fx_importance.default <- function(object, v, X, pred_fun = stats::predict,
-                                  n_max = 300L, out_names = NULL, 
-                                  w = NULL, sort = TRUE, verbose = TRUE, ...) {
+                                  n_max = 300L, w = NULL, verbose = TRUE, ...) {
   p <- length(v)
   stopifnot(
     is.matrix(X) || is.data.frame(X),
-    dim(X) >= 2:1,
+    dim(X) >= c(1L, 1L),
     all(unique(unlist(v, use.names = FALSE)) %in% colnames(X)),
     is.function(pred_fun),
     is.null(w) || length(w) == nrow(X),
@@ -69,9 +74,21 @@ fx_importance.default <- function(object, v, X, pred_fun = stats::predict,
     pb <- utils::txtProgressBar(1L, p, style = 3)
   }
   
-  # Univariate PDs (required for both pairwise TRUE/FALSE)
-  imp <- vector("list", length(v))
-  for (i in seq_along(v)) {
+  # Initialize resulting list with good names (can be simplified)
+  imp <- vector("list", p)
+  if (is.null(names(v))) {
+    no_names <- rep(TRUE, times = p)
+  } else {
+    no_names <- names(v) == ""
+  }
+  if (any(no_names)) {
+    names(imp)[no_names] <- sapply(v[no_names], paste, collapse = "*")
+  } 
+  if (any(!no_names)) {
+    names(imp)[!no_names] <- names(v)[!no_names]
+  }
+  
+  for (i in seq_along(imp)) {
     z <- v[[i]]
     g <- if (is.data.frame(X) && length(z) == 1L) X[[z]] else X[, z]
     pd <- pdp_raw(
@@ -85,34 +102,22 @@ fx_importance.default <- function(object, v, X, pred_fun = stats::predict,
   if (verbose) {
     cat("\n")
   }
-  
-  imp <- do.call(rbind, imp)
-  imp <- fix_names(imp, out_names = out_names, prefix = "Imp")
-  V <- sapply(v, paste, collapse = ":", USE.NAMES = FALSE)
-  out <- data.frame(V, imp)
-  if (sort) {
-    out <- out[order(-rowSums(imp)), ]
-  }
-  out
+  structure(list(imp = do.call(rbind, imp), v = v), class = "fx_importance")
 }
-
 
 #' @describeIn fx_importance Method for "ranger" models
 #' .
 #' @export
 fx_importance.ranger <- function(object, v, X,
                                  pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
-                                 n_max = 300L, out_names = NULL, 
-                                 w = NULL, sort = TRUE, verbose = TRUE, ...) {
+                                 n_max = 300L, w = NULL, verbose = TRUE, ...) {
   fx_importance.default(
     object = object,
     v = v,
     X = X,
     pred_fun = pred_fun,
     n_max = n_max,
-    out_names = out_names,
     w = w,
-    sort = sort,
     verbose = verbose,
     ...
   )
@@ -122,18 +127,57 @@ fx_importance.ranger <- function(object, v, X,
 #' @export
 fx_importance.Learner <- function(object, v, X,
                                   pred_fun = function(m, X) m$predict_newdata(X)$response,
-                                  n_max = 300L, out_names = NULL, 
-                                  w = NULL, sort = TRUE, verbose = TRUE, ...) {
+                                  n_max = 300L, w = NULL, verbose = TRUE, ...) {
   fx_importance.default(
     object = object,
     v = v,
     X = X,
     pred_fun = pred_fun,
     n_max = n_max,
-    out_names = out_names,
     w = w,
-    sort = sort,
     verbose = verbose,
     ...
   )
 }
+
+#' Importance Print
+#' 
+#' Print function for result of [fx_importance()].
+#' 
+#' @param x Object of class "fx_importance".
+#' @param ... Currently unused.
+#' @returns Invisibly, `x` is returned.
+#' @export
+#' @seealso [fx_importance()]
+print.fx_importance <- function(x, ...) {
+  cat("Importance statistics. Use summary(...) to extract the results.")
+  invisible(x)
+}
+
+#' Importance Summary
+#' 
+#' Extracts the results of [fx_importance()].
+#' 
+#' @inheritParams summary.fx_interaction
+#' @param object Object of class "fx_importance".
+#' @param squared If `TRUE` (default), variances are returned. Set to `FALSE` for 
+#'   standard deviations.
+#' @returns Matrix with importance statistics.
+#' @export
+#' @seealso [fx_importance()]
+summary.fx_importance <- function(object, squared = TRUE, sort = TRUE, 
+                                  out_names = NULL, verbose = TRUE, ...) {
+  if (verbose) {
+    cat("Partial dependence based variable importance\n")
+  }
+  imp <- fix_names(object[["imp"]], out_names = out_names, prefix = "Imp")
+  if (!squared) {
+    imp <- sqrt(imp)
+  }
+  if (!sort) {
+    return(imp) 
+  }
+  imp[order(-rowSums(imp)), , drop = FALSE]
+}
+
+
