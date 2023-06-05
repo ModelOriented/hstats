@@ -7,8 +7,8 @@
 #'   feature. Set to `TRUE` to get *pairwise* statistics (slower).
 #' @returns 
 #'   An object of class "fx_interaction", containing these elements:
-#'   - `numerator`: Matrix with squared numerator values. 
-#'   - `denominator`: Matrix with squared denominator values.
+#'   - `num`: Matrix with squared num values. 
+#'   - `denom`: Matrix with squared denom values.
 #'   - `v`: Same as input `v`.
 #'   - `pairwise`: Same as input `pairwise`.
 #' @references
@@ -85,7 +85,7 @@ fx_interaction.default <- function(object, v, X, pred_fun = stats::predict,
   }
   
   # Univariate PDs (required for both pairwise TRUE/FALSE)
-  pd1d <- stats::setNames(vector("list", length = length(v)), v)
+  pd1d <- stats::setNames(vector("list", length = p), v)
   for (z in v) {
     g <- if (is.data.frame(X)) X[[z]] else X[, z]
     pd1d[[z]] <- .center(
@@ -100,19 +100,19 @@ fx_interaction.default <- function(object, v, X, pred_fun = stats::predict,
   # Preparations
   if (pairwise) {
     combs <- utils::combn(v, 2L, simplify = FALSE)
-    m <- length(combs)  # Loop over all pairwise combinations
+    m <- length(combs)  # Need to loop over all pairwise combinations
   } else {
-    m <- p              # Loop over v
+    m <- p              # Need to loop only over v
     f <- .center(check_pred(pred_fun(object, X, ...)))
     mean_f_squared <- colMeans(f^2)
   }
-  denominator <- numerator <- vector("list", length = m)
+  denom <- num <- vector("list", length = m)
   nms <- if (!pairwise) v else sapply(combs, paste, collapse = ":")
-  names(denominator) <- names(numerator) <- nms
+  names(denom) <- names(num) <- nms
   
   for (i in seq_len(m)) {
     if (pairwise) {
-      z <- combs[[i]]  # The two variables for which we need two-dimensional PD
+      z <- combs[[i]]  # The two variables for which we need two-dimensional PDs
       f <- .center(
         pdp_raw(object, v = z, X = X, pred_fun = pred_fun, grid = X[, z], w = w, ...)
       )
@@ -129,14 +129,14 @@ fx_interaction.default <- function(object, v, X, pred_fun = stats::predict,
           pred_fun = pred_fun, 
           grid = X[, not_z], 
           w = w,
-          compress_grid = FALSE,  # grid has too many columns
+          compress_grid = FALSE,  # grid has too many columns (saves a very quick check)
           ...
         )
       )
       pd_i <- pd1d[[z]]
     }
-    numerator[[i]] <- colMeans((f - pd_i - pd_j)^2)
-    denominator[[i]] <- if (pairwise) colMeans(f^2) else mean_f_squared
+    num[[i]] <- colMeans((f - pd_i - pd_j)^2)
+    denom[[i]] <- if (pairwise) colMeans(f^2) else mean_f_squared
     
     if (verbose) {
       utils::setTxtProgressBar(pb, j)
@@ -148,8 +148,8 @@ fx_interaction.default <- function(object, v, X, pred_fun = stats::predict,
   }
   structure(
     list(
-      numerator = do.call(rbind, numerator), 
-      denominator = do.call(rbind, denominator),
+      num = do.call(rbind, num), 
+      denom = do.call(rbind, denom),
       v = v,
       pairwise = pairwise
     ),
@@ -221,7 +221,7 @@ print.fx_interaction <- function(x, ...) {
 #' @param sort Should result be sorted? Default is `TRUE`.
 #' @param out_names Optional names of the output columns corresponding to the 
 #'   K-dimensional predictions.
-#' @param eps Threshold below which numerator values are set to 0.
+#' @param eps Threshold below which num values are set to 0.
 #' @param verbose Should message be printed? Default is `TRUE`.
 #' @param ... Currently unused.
 #' @returns Matrix with statistics (one column per prediction dimension).
@@ -240,11 +240,9 @@ summary.fx_interaction <- function(object, normalize = TRUE, squared = FALSE,
     )
   }
   
-  num <- .zap_small(object[["numerator"]], eps = eps)
+  num <- .zap_small(object[["num"]], eps = eps)
   num <- fix_names(num, out_names = out_names, prefix = "Stat")
-  
-  denom <- object[["denominator"]]
-  denom <- fix_names(denom, out_names = out_names, prefix = "Stat")
+  denom <- fix_names(object[["denom"]], out_names = out_names, prefix = "Stat")
   
   if (normalize) {
     num <- num / denom

@@ -16,14 +16,14 @@
 #' - multivariate grids.
 #' 
 #' @param object Fitted model object.
-#' @param v Vector or list of feature names. If passed as list, *vectors* of feature 
-#' names are evaluted together. These vectors can be named.
+#' @param v Vector of feature names.
 #' @param X Dataframe or matrix serving as background dataset.
 #' @param pred_fun Prediction function of the form `function(object, X, ...)`,
-#'   providing \eqn{K \ge 1} numeric predictions per row. Its first argument 
-#'   represents the model `object`, its second argument a data structure like `X`. 
-#'   Additional (named) arguments can be passed via `...`. 
-#'   The default, [stats::predict()], will work in most cases. 
+#'   providing K >= 1 numeric predictions per row. Its first argument represents the 
+#'   model `object`, its second argument a data structure like `X`. Additional arguments 
+#'   (such as `type = "response"` in a GLM) can be passed via `...`. The default, 
+#'   [stats::predict()], will work in most cases. Note that column names in a resulting
+#'   matrix of predictions will be used as default column names in the results.
 #' @param grid Optional evaluation grid. If `v` is a single column name, this is a 
 #'   vector/factor. Otherwise, a matrix or `data.frame` with `length(v)` columns.
 #' @param grid_size Controls the grid size when `grid = NULL`. Character/factor 

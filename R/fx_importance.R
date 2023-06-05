@@ -5,9 +5,13 @@
 #' of **main effect importance**, defined as
 #' \deqn{\textrm{PDI}(j, D) = \textrm{Var}\left(\sum_{i \in D} \textrm{PD}_{j}(x_i^{(j)})\right)}.
 #' Similarly, we can define the PD importance of two or more features together,
-#' measuring their joint effect (main effect plus interaction).
+#' measuring their joint effect (main effects plus interaction). Note that Friedman's H
+#' (see [fx_interaction()]) uses a similar construction, but there the focus is on pure
+#' interaction effects (combined effects minus main effects).
 #'  
 #' @inheritParams fx_pdp
+#' @param v Vector or list of feature names. If passed as list, *vectors* of feature 
+#' names are evaluted together. These vectors can be named.
 #' @returns
 #'   An object of class "fx_importance", containing these elements:
 #'   - `imp`: Matrix with importance values per element of `v`.
@@ -70,7 +74,7 @@ fx_importance.default <- function(object, v, X, pred_fun = stats::predict,
     pb <- utils::txtProgressBar(1L, p, style = 3)
   }
   
-  # Initialize resulting list with good names (can be simplified)
+  # Initialize resulting list with good names (move to function...)
   imp <- vector("list", p)
   if (is.null(names(v))) {
     no_names <- rep(TRUE, times = p)
