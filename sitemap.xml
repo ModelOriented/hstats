@@ -16,15 +16,36 @@
     <loc>/news/index.html</loc>
   </url>
   <url>
-    <loc>/reference/fx_friedmans_h.html</loc>
-  </url>
-  <url>
     <loc>/reference/fx_importance.html</loc>
   </url>
   <url>
-    <loc>/reference/fx_pdp.html</loc>
+    <loc>/reference/fx_interaction.html</loc>
+  </url>
+  <url>
+    <loc>/reference/fx_pd.html</loc>
   </url>
   <url>
     <loc>/reference/index.html</loc>
+  </url>
+  <url>
+    <loc>/reference/pdp_raw.html</loc>
+  </url>
+  <url>
+    <loc>/reference/print.fx_importance.html</loc>
+  </url>
+  <url>
+    <loc>/reference/print.fx_interaction.html</loc>
+  </url>
+  <url>
+    <loc>/reference/print.fx_pd.html</loc>
+  </url>
+  <url>
+    <loc>/reference/summary.fx_importance.html</loc>
+  </url>
+  <url>
+    <loc>/reference/summary.fx_interaction.html</loc>
+  </url>
+  <url>
+    <loc>/reference/summary.fx_pd.html</loc>
   </url>
 </urlset>
