@@ -1,14 +1,14 @@
 #' Fast Friedman's H
 #'  
-#' @inheritParams fx_pdp
+#' @inheritParams fx_pd
 #' @param v Vector of feature names for which interaction statistics are to be 
 #'   calculated.
 #' @param pairwise The default (`FALSE`) calculates overall interaction strength per 
 #'   feature. Set to `TRUE` to get *pairwise* statistics (slower).
 #' @returns 
 #'   An object of class "fx_interaction", containing these elements:
-#'   - `num`: Matrix with squared num values. 
-#'   - `denom`: Matrix with squared denom values.
+#'   - `num`: Matrix with squared numerator values. 
+#'   - `denom`: Matrix with squared denominator values.
 #'   - `v`: Same as input `v`.
 #'   - `pairwise`: Same as input `pairwise`.
 #' @references
@@ -200,9 +200,8 @@ fx_interaction.Learner <- function(object, v, X,
 #' 
 #' Print function for result of [fx_interaction()].
 #' 
-#' @param x Object to print.
-#' @param ... Currently unused.
-#' @returns Invisibly, `x` is returned.
+#' @inheritParams print.fx_pd
+#' @inherit print.fx_pd return
 #' @export
 #' @seealso [fx_interaction()]
 print.fx_interaction <- function(x, ...) {
@@ -215,20 +214,18 @@ print.fx_interaction <- function(x, ...) {
 #' Uses the results of [fx_interaction()] to calculate different versions of 
 #' Friedman's H, see [fx_interaction()].
 #' 
-#' @param object Object to summarize.
+#' @inheritParams summary.fx_pd
 #' @param normalize Should explained variances be normalized? Default is `TRUE`.
 #' @param squared Should squared statistics be returned? Default is `FALSE`. 
 #' @param sort Should result be sorted? Default is `TRUE`.
-#' @param out_names Optional names of the output columns corresponding to the 
-#'   K-dimensional predictions.
+#' @param top_m How many rows should be shown? By default `Inf` (show all).
 #' @param eps Threshold below which num values are set to 0.
-#' @param verbose Should message be printed? Default is `TRUE`.
-#' @param ... Currently unused.
+#' @param verbose Should description be printed or not? Default is `TRUE`.
 #' @returns Matrix with statistics (one column per prediction dimension).
 #' @export
 #' @seealso [fx_interaction()]
 summary.fx_interaction <- function(object, normalize = TRUE, squared = FALSE, 
-                                   sort = TRUE, out_names = NULL, 
+                                   sort = TRUE, top_m = Inf, out_names = NULL, 
                                    eps = 1e-8, verbose = TRUE, ...) {
   if (verbose) {
     cat(
@@ -250,8 +247,8 @@ summary.fx_interaction <- function(object, normalize = TRUE, squared = FALSE,
   if (!squared) {
     num <- sqrt(num)
   }
-  if (!sort) {
-    return(num) 
+  if (sort) {
+    num <- num[order(-rowSums(num)), , drop = FALSE]
   }
-  num[order(-rowSums(num)), , drop = FALSE]
+  utils::head(num, n = top_m)
 }

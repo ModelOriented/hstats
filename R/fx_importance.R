@@ -9,9 +9,10 @@
 #' (see [fx_interaction()]) uses a similar construction, but there the focus is on pure
 #' interaction effects (combined effects minus main effects).
 #'  
-#' @inheritParams fx_pdp
+#' @inheritParams fx_pd
 #' @param v Vector or list of feature names. If passed as list, *vectors* of feature 
-#' names are evaluted together. These vectors can be named.
+#' names are evaluted together. These vectors can be named for better readability of
+#' results.
 #' @returns
 #'   An object of class "fx_importance", containing these elements:
 #'   - `imp`: Matrix with importance values per element of `v`.
@@ -27,14 +28,14 @@
 #' # With groups of variables
 #' v <- list("Sepal.Width", Petal = c("Petal.Width", "Petal.Length"), "Species")
 #' imp <- fx_importance(fit, v = v, X = iris, verbose = FALSE)
-#' summary(imp, sort = FALSE, out_names = "Importance")
+#' summary(imp, out_names = "Importance", top_m = 1L)
 #'
 #' # MODEL TWO: Multi-response linear regression
 #' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width + Species, data = iris)
 #' v <- c("Petal.Length", "Petal.Width", "Species")
 #' summary(imp <- fx_importance(fit, v = v, X = iris))
 #' 
-#' #' # MODEL THREE: matrix interface
+#' # MODEL THREE: matrix interface
 #' X <- model.matrix(Sepal.Length ~ ., data = iris)
 #' fit <- lm.fit(x = X, y = iris$Sepal.Length)
 #' v <- list("Sepal.Width", "Petal.Length", "Petal.Width", 
@@ -70,7 +71,8 @@ fx_importance.default <- function(object, v, X, pred_fun = stats::predict,
   }
   
   # Initialize progress bar
-  if (verbose) {
+  show_bar <- verbose && p >= 2L
+  if (show_bar) {
     pb <- utils::txtProgressBar(1L, p, style = 3)
   }
   
@@ -95,11 +97,11 @@ fx_importance.default <- function(object, v, X, pred_fun = stats::predict,
       object = object, v = z, X = X, pred_fun = pred_fun, grid = g, w = w, ...
     )
     imp[[i]] <- apply(pd, 2L, FUN = stats::var)
-    if (verbose) {
+    if (show_bar) {
       utils::setTxtProgressBar(pb, i)
     }
   } 
-  if (verbose) {
+  if (show_bar) {
     cat("\n")
   }
   structure(list(imp = do.call(rbind, imp), v = v), class = "fx_importance")
@@ -144,8 +146,8 @@ fx_importance.Learner <- function(object, v, X,
 #' 
 #' Print function for result of [fx_importance()].
 #' 
-#' @inheritParams print.fx_interaction
-#' @inherit print.fx_interaction
+#' @inheritParams print.fx_pd
+#' @inherit print.fx_pd return
 #' @export
 #' @seealso [fx_importance()]
 print.fx_importance <- function(x, ...) {
@@ -157,17 +159,21 @@ print.fx_importance <- function(x, ...) {
 #' 
 #' Extracts the results of [fx_importance()].
 #' 
+#' @inheritParams summary.fx_pd
 #' @inheritParams summary.fx_interaction
-#' @inherit summary.fx_interaction returns
+#' @inherit summary.fx_interaction return
 #' @export
 #' @seealso [fx_importance()]
-summary.fx_importance <- function(object, sort = TRUE, out_names = NULL, 
-                                  verbose = TRUE, ...) {
+summary.fx_importance <- function(object, sort = TRUE, top_m = Inf,
+                                  out_names = NULL, verbose = TRUE, ...) {
   if (verbose) {
     cat("Partial dependence based variable importance\n")
   }
   imp <- fix_names(object[["imp"]], out_names = out_names, prefix = "Imp")
-  if (sort) imp[order(-rowSums(imp)), , drop = FALSE] else imp
+  if (sort) {
+    imp <- imp[order(-rowSums(imp)), , drop = FALSE] 
+  }
+  utils::head(imp, n = top_m)
 }
 
 

@@ -24,25 +24,24 @@
 #'   (such as `type = "response"` in a GLM) can be passed via `...`. The default, 
 #'   [stats::predict()], will work in most cases. Note that column names in a resulting
 #'   matrix of predictions will be used as default column names in the results.
-#' @param grid Optional evaluation grid. If `v` is a single column name, this is a 
-#'   vector/factor. Otherwise, a matrix or `data.frame` with `length(v)` columns.
-#' @param grid_size Controls the grid size when `grid = NULL`. Character/factor 
-#'   variables are evaluated at each unique value. A numeric `v` with more than 
-#'   `grid_size` unique values is evaluated at `grid_size` quantiles. 
-#'   If `v` has length \eqn{p > 1}, the \eqn{p}th root of `grid_size` is used instead. 
-#' @param trim A vector with two probabilities. Non-discrete numeric features in `v` 
-#'   are trimmed at corresponding quantiles before applying binning (only if 
-#'   `grid = NULL`). Set to `c(0, 1)` for no trimming.
-#' @param binner How should numeric non-discrete features be binned? 
+#' @param grid Named list. Each element specifies the evaluation grid for the
+#'   corresponding feature. Missing components are automatically added. If `v` has
+#'   length 1, then `grid` can also be a vector.
+#' @param grid_size Controls the grid size for variables not in `grid`.
+#' @param trim Variables not in `grid` are trimmed at those two quantiles.
+#'   Set to `c(0, 1)` for no trimming.
+#' @param strategy How should evaluation points of variables not in `grid` be found? 
 #'   Either "quantile" or "uniform".
 #' @param n_max If `X` has more than `n_max` rows, a random sample of `n_max` rows is
-#'   selected for calculations. 
-#' @param out_names Names of the output columns corresponding to the K-dimensional
-#'   predictions.
+#'   selected for calculations (after determining `grid`). 
 #' @param w Optional vector of case weights for each row of `X`.
 #' @param verbose Should a progress bar be shown? The default is `TRUE`.
 #' @param ... Additional arguments passed to `pred_fun(object, X, ...)`.
-#' @returns A dataframe with partial dependence per grid value.
+#' @returns 
+#'   An object of class "fx_pd", containing these elements:
+#'   - `grid`: Named list of evaluation points.
+#'   - `pd`: Named list of PD matrices.
+#'   - `v`: Same as input `v`.
 #' @references
 #'   Friedman J. H. (2001). Greedy function approximation: A gradient boosting machine.
 #'     The Annals of Statistics, 29:1189–1232.
@@ -50,18 +49,24 @@
 #' @examples
 #' # MODEL ONE: Linear regression
 #' fit <- lm(Sepal.Length ~ ., data = iris)
-#' pd <- fx_pdp(fit, v = "Petal.Width", X = iris)
-#' pd[1:4, ]
+#' pd <- fx_pd(fit, v = names(iris[-1]), X = iris)
+#' pd
+#' head(summary(pd))
+#' summary(pd, "Species")
 #' 
-#' fx_pdp(fit, v = "Petal.Width", X = iris, grid = seq(0, 1, by = 0.5), out_name = "P")
-#' fx_pdp(fit, v = "Petal.Width", X = iris, grid = seq(1, 0, by = -0.5))
-#' fx_pdp(fit, v = "Species", X = iris)
+#' pd <- fx_pd(fit, v = "Petal.Width", X = iris, grid = seq(0, 1, by = 0.5))
+#' summary(pd)
+#' summary(fx_pd(fit, v = "Petal.Width", X = iris, grid = seq(1, 0, by = -0.5)))
+#' summary(fx_pd(fit, v = "Species", X = iris))
 #' 
 #' # MODEL TWO: Multi-response linear regression
 #' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width + Species, data = iris)
-#' fx_pdp(fit, v = "Species", X = iris)
-#' pd <- fx_pdp(fit, v = c("Petal.Width", "Species"), X = iris, binner = "uniform")
-#' pd[1:4, ]
+#' v <- names(iris[3:5])
+#' partial_grid <- list(Petal.Width = seq(0, 1, by = 0.5))
+#' pd <- fx_pd(fit, v = v, X = iris, grid = partial_grid, verbose = FALSE)
+#' summary(pd, "Species")
+#' summary(pd, "Petal.Width")
+#' head(summary(pd, "Petal.Length"))
 #' 
 #' # MODEL THREE: Gamma GLM with log link
 #' fit <- glm(
@@ -69,24 +74,19 @@
 #'   data = iris, 
 #'   family = Gamma(link = log)
 #' )
-#' fx_pdp(fit, v = "Petal.Width", X = iris, type = "response")
-#' 
-#' # MODEL FOUR: matrix interface
-#' X <- model.matrix(Sepal.Length ~ ., data = iris)
-#' fit <- lm.fit(x = X, y = iris$Sepal.Length)
-#' pred_fun <- function(m, x) c(tcrossprod(coef(m), x))
-#' fx_pdp(fit, v = "Petal.Width", X = X, pred_fun = pred_fun)
-fx_pdp <- function(object, ...) {
-  UseMethod("fx_pdp")
+#' summary(fx_pd(fit, v = "Species", X = iris, type = "response"))
+fx_pd <- function(object, ...) {
+  UseMethod("fx_pd")
 }
 
-#' @describeIn fx_pdp Default method.
+#' @describeIn fx_pd Default method.
 #' @export
-fx_pdp.default <- function(object, v, X, pred_fun = stats::predict, 
+fx_pd.default <- function(object, v, X, pred_fun = stats::predict, 
                            grid = NULL, grid_size = 36L, trim = c(0.01, 0.99), 
-                           binner = c("quantile", "uniform"), n_max = 1000L, 
-                           out_names = NULL, w = NULL, verbose = TRUE, ...) {
-  binner <- match.arg(binner)
+                           strategy = c("quantile", "uniform"), n_max = 1000L, 
+                           w = NULL, verbose = TRUE, ...) {
+  strategy <- match.arg(strategy)
+  p <- length(v)
   stopifnot(
     is.matrix(X) || is.data.frame(X),
     dim(X) >= c(1L, 1L),
@@ -95,13 +95,18 @@ fx_pdp.default <- function(object, v, X, pred_fun = stats::predict,
     is.null(w) || length(w) == nrow(X)
   )
   
-  # Make/check grid. If length(v) == 1, grid is always a vector/factor
-  if (is.null(grid)) {
-    grid <- fixed_grid(X[, v], m = grid_size, trim = trim, binner = binner)
+  # Make list of grid values per v
+  if ((p == 1L) && (is.vector(grid) || is.factor(grid))) {
+    grid <- stats::setNames(list(grid), v)
   } else {
-    check_grid(grid, v = v, X_is_matrix = is.matrix(X))
+    for (z in v) {
+      if (is.null(grid[[z]])) {
+        zz <- if (is.data.frame(X)) X[[z]] else X[, z]
+        grid[[z]] <- make_grid_one(zz, m = grid_size, trim = trim, strategy = strategy)
+      }
+    }
   }
-  
+
   # Reduce size of X (and w)
   if (nrow(X) > n_max) {
     ix <- sample(nrow(X), n_max)
@@ -111,34 +116,45 @@ fx_pdp.default <- function(object, v, X, pred_fun = stats::predict,
     }
   }
   
-  # Calculations
-  pd <- pdp_raw(
-    object = object, 
-    v = v, 
-    X = X, 
-    pred_fun = pred_fun, 
-    grid = grid, 
-    w = w,
-    compress_grid = FALSE,  # Almost always unique, so we save a check for uniqueness
-    ...
-  )
-  
-  # Cleanup
-  pd <- fix_names(pd, out_names = out_names)
-  if (!is.data.frame(grid)) {
-    grid <- stats::setNames(as.data.frame(grid), v)
+  # Initialize progress bar
+  show_bar <- verbose && p >= 2L
+  if (show_bar) {
+    j <- 1L
+    pb <- utils::txtProgressBar(1L, p, style = 3)
   }
-  cbind.data.frame(grid, pd)
+  
+  # Calculations
+  pd <- stats::setNames(vector("list", length = p), v)
+  for (z in v) {
+    pd[[z]] <- pdp_raw(
+      object = object, 
+      v = z, 
+      X = X, 
+      pred_fun = pred_fun, 
+      grid = grid[[z]], 
+      w = w,
+      compress_grid = FALSE,  # Almost always unique, so we save a check for uniqueness
+      ...
+    )
+    if (show_bar) {
+      utils::setTxtProgressBar(pb, j)
+      j <- j + 1L
+    }
+  }
+  if (show_bar) {
+    cat("\n")
+  }
+  structure(list(grid = grid, pd = pd, v = v), class = "fx_pd")
 }
 
-#' @describeIn fx_pdp Method for "ranger" models.
+#' @describeIn fx_pd Method for "ranger" models.
 #' @export
-fx_pdp.ranger <- function(object, v, X, 
+fx_pd.ranger <- function(object, v, X, 
                           pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions, 
                           grid = NULL, grid_size = 36L, trim = c(0.01, 0.99), 
-                          binner = c("quantile", "uniform"), n_max = 1000L,
-                          out_names = NULL, w = NULL, verbose = TRUE, ...) {
-  fx_pdp.default(
+                          strategy = c("quantile", "uniform"), n_max = 1000L,
+                          w = NULL, verbose = TRUE, ...) {
+  fx_pd.default(
     object = object,
     v = v,
     X = X,
@@ -146,23 +162,22 @@ fx_pdp.ranger <- function(object, v, X,
     grid = grid,
     grid_size = grid_size,
     trim = trim,
-    binner = binner,
+    strategy = strategy,
     n_max = n_max,
-    out_names = out_names,
     w = w,
     verbose = verbose,
     ...
   )
 }
 
-#' @describeIn fx_pdp Method for "mlr3" models.
+#' @describeIn fx_pd Method for "mlr3" models.
 #' @export
-fx_pdp.Learner <- function(object, v, X, 
+fx_pd.Learner <- function(object, v, X, 
                            pred_fun = function(m, X) m$predict_newdata(X)$response, 
                            grid = NULL, grid_size = 36L, trim = c(0.01, 0.99),
-                           binner = c("quantile", "uniform"), n_max = 1000L, 
-                           out_names = NULL, w = NULL, verbose = TRUE, ...) {
-  fx_pdp.default(
+                           strategy = c("quantile", "uniform"), n_max = 1000L, 
+                           w = NULL, verbose = TRUE, ...) {
+  fx_pd.default(
     object = object,
     v = v,
     X = X,
@@ -170,20 +185,52 @@ fx_pdp.Learner <- function(object, v, X,
     grid = grid,
     grid_size = grid_size,
     trim = trim,
-    binner = binner,
+    strategy = strategy,
     n_max = n_max,
-    out_names = out_names,
     w = w,
     verbose = verbose,
     ...
   )
 }
 
-#' Barebone PD Function
+#' PD Print
+#' 
+#' Print function for result of [fx_pd()].
+#' 
+#' @param x Object to print.
+#' @param ... Currently unused.
+#' @returns Invisibly, `x` is returned.
+#' @export
+#' @seealso [fx_pd()]
+print.fx_pd <- function(x, ...) {
+  cat("PD values. Use summary(pd, variable) to extract the results.")
+  invisible(x)
+}
+
+#' PD Summary
+#' 
+#' Uses the results of [fx_pd()] to show PD values for a given variable.
+#' 
+#' @param object Object to summarize.
+#' @param which Name or position (within `v`) of feature to show partial dependence.
+#' @param out_names Optional names of the output columns corresponding to the 
+#'   K-dimensional predictions.
+#' @param ... Currently unused.
+#' @returns data.frame with evaluation grid and PD values (one column per prediction).
+#' @export
+#' @seealso [fx_pd()]
+summary.fx_pd <- function(object, which = 1L, out_names = NULL, ...) {
+  cbind.data.frame(
+    object[["grid"]][which], 
+    fix_names(object[["pd"]][[which]], out_names = out_names)
+  )
+}
+
+#' Barebone Partial Dependence Function
 #' 
 #' @description
 #' Creates partial dependence values for a given model, data, and grid. 
-#' This is the workhorse function behind [fx_pdp()], [fx_interaction()], 
+#' This is the workhorse function behind [fx_pd()], [fx_interaction()], 
 #' and [fx_importance()].
 #' 
 #' It is fast because:
@@ -194,7 +241,7 @@ fx_pdp.Learner <- function(object, v, X,
 #' 3. If more than 5% of non-grid rows are duplicated, these are dropped and
 #'   compensated by summing up their case weights.
 #' 
-#' @inheritParams fx_pdp
+#' @inheritParams fx_pd
 #' @param v Vector of variable name(s) to calculate partial dependence for.
 #' @param grid A vector (if `length(v) == 1L`), or a matrix/data.frame otherwise.
 #' @param compress_X If `X` has a single non-`v` column: should duplicates be removed
@@ -215,7 +262,9 @@ fx_pdp.Learner <- function(object, v, X,
 #' pdp_raw(fit, v = "Petal.Width", X = iris, pred_fun = predict, grid = 1:2)
 pdp_raw <- function(object, v, X, pred_fun, grid, w = NULL, 
                     compress_X = TRUE, compress_grid = TRUE, ...) {
-  if (compress_X) {
+  p <- length(v)
+  D1 <- p == 1L
+  if (compress_X && p >= ncol(X) - 1L) {
     # Removes duplicates in X[, not_v] and compensates via w
     cmp_X <- .compress_X(X = X, v = v, w = w)
     X <- cmp_X[["X"]]
@@ -228,7 +277,6 @@ pdp_raw <- function(object, v, X, pred_fun, grid, w = NULL,
     grid <- cmp_grid[["grid"]]
   }
   
-  D1 <- length(v) == 1L
   n <- nrow(X)
   n_grid <- NROW(grid)
   

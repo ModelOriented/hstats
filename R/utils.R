@@ -11,50 +11,48 @@
 #' 
 #' @inheritParams fx_pdp
 #' @param z A vector to discretize.
-#' @returns 
-#'   For discrete `z`, the result of `sort(unique(z))`. 
-#'   Otherwise, a binned version of `z`.
+#' @returns For discrete `z`, `sort(unique(z))`. Otherwise, a binned version of `z`.
 #' @examples
-#' fixed_grid_one(iris$Species)
-#' fixed_grid_one(rev(iris$Species))  # Same
-#' fixed_grid_one(iris$Sepal.Width, m = 2)
-fixed_grid_one <- function(z, m = 36L, trim = c(0.01, 0.99), 
-                           binner = c("quantile", "uniform")) {
-  binner <- match.arg(binner)
+#' make_grid_one(iris$Species)
+#' make_grid_one(rev(iris$Species))  # Same
+#' make_grid_one(iris$Sepal.Width, m = 2)
+make_grid_one <- function(z, m = 36L, trim = c(0.01, 0.99), 
+                          strategy = c("quantile", "uniform")) {
+  strategy <- match.arg(strategy)
   uni <- unique(z)
   if (!is.numeric(z) || length(uni) <= m) {
     return(sort(uni))
   }
   
   # Non-discrete
-  if (binner == "quantile") {
+  if (strategy == "quantile") {
     p <- seq(trim[1L], trim[2L], length.out = m)
     return(unique(stats::quantile(z, probs = p, names = FALSE, type = 1L)))
   }
   pretty(stats::quantile(z, probs = trim, names = FALSE, type = 1L), n = m)
 }
 
-#' Creates one- or higher-dimensional grids
-#' 
-#' Calls [fixed_grid_one()] per column and then applies [expand.grid()].
-#' 
+#' Creates one- or higher-dimensional grids (not used)
+#'
+#' Calls [make_grid_one()] per column and then applies [expand.grid()].
+#'
 #' @noRd
-#' 
+#'
 #' @inheritParams fx_pdp
 #' @param vv A vector, matrix, or data.frame to turn into a grid of values.
 #' @returns A vector, matrix, or data.frame with evaluation points.
 #' @examples
-#' fixed_grid(iris$Species)
-#' fixed_grid(iris[1:2], m = 4)
-fixed_grid <- function(vv, m = 36L, trim = c(0.01, 0.99),
-                       binner = c("quantile", "uniform")) {
-  binner <- match.arg(binner)
+#' make_grid(iris$Species)
+#' make_grid(iris[1:2], m = 4)
+make_grid <- function(vv, m = 36L, trim = c(0.01, 0.99),
+                      strategy = c("quantile", "uniform")) {
+  strategy <- match.arg(strategy)
   p <- NCOL(vv)
   if (p == 1L) {
     if (is.data.frame(vv)) {
       vv <- vv[[1L]]
     }
-    return(fixed_grid_one(vv, m = m, trim = trim, binner = binner))
+    return(make_grid_one(vv, m = m, trim = trim, strategy = strategy))
   }
   m <- ceiling(m^(1/p))  # take p's root of m
   is_mat <- is.matrix(vv)
@@ -62,12 +60,12 @@ fixed_grid <- function(vv, m = 36L, trim = c(0.01, 0.99),
     vv <- as.data.frame(vv)
   }
   out <- expand.grid(
-    lapply(vv, FUN = fixed_grid_one, m = m, trim = trim, binner = binner)
+    lapply(vv, FUN = make_grid_one, m = m, trim = trim, strategy = strategy)
   )
   if (is_mat) as.matrix(out) else out
 }
 
-#' Checks Consistency of Grid
+#' Checks Consistency of Grid (not used)
 #' 
 #' Checks if a grid of values is consistent with `v`.
 #' 
@@ -80,7 +78,7 @@ fixed_grid <- function(vv, m = 36L, trim = c(0.01, 0.99),
 #' @returns 
 #'   An error message or `TRUE`.
 #' @examples
-#' fixed_grid(iris$Species)
+#' make_grid(iris$Species)
 check_grid <- function(g, v, X_is_matrix) {
   p <- length(v)
   if (p != NCOL(g)) {
@@ -204,7 +202,7 @@ rowmean <- function(x, ngroups, w = NULL) {
     return(list(X = X, w = w))  # No optimization done
   }
 
-  # Here we compress
+  # Compress
   if (is.null(w)) {
     w <- rep(1.0, times = nrow(X))
   }
