@@ -4,14 +4,25 @@
 #' Furthermore, it can be used to calculate multi-dimensional partial dependencies.
 #' In this case, provide your own grid, for instance created via [make_grid()]. 
 #' 
-#' @inheritParams pd
-#' @param v Vector of variable name(s) to calculate multivariate PD.
+#' @param object Fitted model object.
+#' @param v Vector of feature names.
+#' @param X A data.frame or matrix serving as background dataset.
 #' @param grid A vector (if `length(v) == 1L`), or a matrix/data.frame otherwise.
+#' @param pred_fun Prediction function of the form `function(object, X, ...)`,
+#'   providing K >= 1 numeric predictions per row. Its first argument represents the 
+#'   model `object`, its second argument a data structure like `X`. Additional arguments 
+#'   (such as `type = "response"` in a GLM) can be passed via `...`. The default, 
+#'   [stats::predict()], will work in most cases. Note that column names in a resulting
+#'   matrix of predictions will be used as default column names in the results.
+#' @param n_max If `X` has more than `n_max` rows, a random sample of `n_max` rows is
+#'   selected for calculations (after determining `grid`). 
+#' @param w Optional vector of case weights for each row of `X`.
 #' @param compress_X If `X` has a single non-`v` column: should duplicates be removed
 #'   and compensated via case weights? Applied if >5% duplicates. Default is `TRUE`.
 #' @param compress_grid Should duplicates in `grid` be removed and PDs mapped back to 
 #'   the original grid index? Applied if >5% duplicates. Default is `TRUE`.
 #' @param check Should input checks be applied? Default is `TRUE`.
+#' @param ... Additional arguments passed to `pred_fun(object, X, ...)`.
 #' @returns 
 #'   A matrix of partial dependence values (one column per prediction dimension, 
 #'   one row per grid row).
@@ -46,6 +57,7 @@ pd_raw <- function(object, v, X, grid, pred_fun = stats::predict, n_max = 1000L,
     }
   }
   
+  # Try different compressions
   p <- length(v)
   D1 <- p == 1L
   if (compress_X && p >= ncol(X) - 1L) {
@@ -61,6 +73,7 @@ pd_raw <- function(object, v, X, grid, pred_fun = stats::predict, n_max = 1000L,
     grid <- cmp_grid[["grid"]]
   }
   
+  # Now, the real work starts
   n <- nrow(X)
   n_grid <- NROW(grid)
   
@@ -92,20 +105,20 @@ pd_raw <- function(object, v, X, grid, pred_fun = stats::predict, n_max = 1000L,
 
 #' Creates grid of any dimension
 #'
-#' Each column of `x` is turned into a vector of grid values. Then, all combinations 
-#' are created with [expand.grid()].
+#' Each column of `x` is turned independently into a vector of grid values. 
+#' Then, all combinations are created with [expand.grid()].
 #'
 #' @param x A vector, matrix, or data.frame to turn into a grid of values.
 #' @param grid_size Controls the approximate grid size. If `X` has p columns, then each
 #'   (non-discrete) column will be reduced to about the p-th root of `grid_size` values.
-#' @param trim Non-discrete columns are trimmed at those two quantiles.
+#' @param trim Non-discrete columns are trimmed at corresponding quantiles.
 #'   Set to `c(0, 1)` for no trimming.
 #' @param strategy How should evaluation points of non-discrete columns be found? 
 #'   Either "quantile" or "uniform".
 #' @returns A vector, matrix, or data.frame with evaluation points.
 #' @examples
 #' make_grid(iris$Species)
-#' make_grid(iris[1:2], m = 4)
+#' make_grid(iris[1:2], grid_size = 4)
 make_grid <- function(x, grid_size = 36L, trim = c(0.01, 0.99),
                       strategy = c("quantile", "uniform")) {
   strategy <- match.arg(strategy)

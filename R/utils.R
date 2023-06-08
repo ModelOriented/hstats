@@ -32,7 +32,7 @@ make_grid_one <- function(z, grid_size = 36L, trim = c(0.01, 0.99),
   pretty(stats::quantile(z, probs = trim, names = FALSE, type = 1L), n = grid_size)
 }
 
-#' Checks Consistency of Grid (not used)
+#' Checks Consistency of Grid
 #' 
 #' Checks if a grid of values is consistent with `v`.
 #' 
@@ -87,7 +87,7 @@ check_pred <- function(x) {
 
 #' Set Column Names
 #' 
-#' Workhorse to aggregate predictions per evaluation point in a PDP.
+#' Set names of prediction columns.
 #' 
 #' @noRd
 #' 
@@ -141,16 +141,19 @@ rowmean <- function(x, ngroups, w = NULL) {
 
 #' Compresses X
 #' 
-#' Removes duplicated rows in x based on columns not in `v` and compensates by summing
-#' their case weights `w`. Currently implemented only for the case where there is
-#' a single non-`v` column in `X`. Can later be generalized via [paste()]. Note that
-#' this is an important speed-up for calculating Friedman's H of overall interaction.
-#' Note that compression is applied only when we can save more than 5% rows.
-#' Further note that the check for one non-`v` column is very cheap.
+#' @description
+#' Removes duplicated rows in `X` based on columns not in `v`. Compensation is done
+#' by summing corresponding case weights `w`. Currently implemented only for the case 
+#' when there is a single non-`v` column in `X`. Can later be improved via [paste()]. 
+#' 
+#' Notes:
+#' - This is important for calculating Friedman's H of overall interaction strength.
+#' - Compression is applied only when more than 5% rows are saved.
+#' - The initial check for having a single non-`v` column is very cheap.
 #' 
 #' @noRd
 #' 
-#' @inheritParams fx_pdp
+#' @inheritParams pd_raw
 #' @returns A list with `X` and `w`, potentially compressed.
 #' @examples
 #' .compress_X(cbind(a = c(1, 1, 2), b = 1:3), v = "b")
@@ -159,7 +162,7 @@ rowmean <- function(x, ngroups, w = NULL) {
 .compress_X <- function(X, v, w = NULL) {
   not_v <- setdiff(colnames(X), v)
   if (length(not_v) > 1L) {
-    return(list(X = X, w = w))  # No optimization implemented
+    return(list(X = X, w = w))  # No optimization implemented for this case
   }
   x_not_v <- if (is.data.frame(X)) X[[not_v]] else X[, not_v]
   X_dup <- duplicated(x_not_v)
@@ -177,11 +180,10 @@ rowmean <- function(x, ngroups, w = NULL) {
   )
 }
 
-#' Compresses grid
+#' Compresses Grid
 #' 
-#' Removes duplicated X columns (except those in `v`) and compensates by summing up
-#' their case weights `w`. Currently implemented only for the case where there is
-#' a single non-`v` column in `X`. Can be generalized via [paste()].
+#' Removes duplicated grid rows. Re-indexing to original grid rows needs to be later,
+#' but this function provides the re-index vector.
 #' Note that compression is applied only when we can save more than 5% rows.
 #' Further note that checking for uniqueness can be costly for higher-dimensional grids.
 #' 
@@ -266,6 +268,7 @@ rowmean <- function(x, ngroups, w = NULL) {
     dim(X) >= c(1L, 1L),
     all(v %in% colnames(X)),
     is.function(pred_fun),
+    is.null(w) || length(w) == nrow(X)
   )
   TRUE
 }

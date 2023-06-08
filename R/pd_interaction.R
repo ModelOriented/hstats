@@ -1,10 +1,9 @@
 #' Fast Friedman's H
 #'  
-#' @inheritParams pd
-#' @param v Vector of feature names for which interaction statistics are to be 
-#'   calculated.
+#' @inheritParams pd_raw
 #' @param pairwise The default (`FALSE`) calculates overall interaction strength per 
 #'   feature. Set to `TRUE` to get *pairwise* statistics (slower).
+#' @param verbose Should a progress bar be shown? The default is `TRUE`.
 #' @returns 
 #'   An object of class "pd_interaction", containing these elements:
 #'   - `num`: Matrix with squared numerator values. 
@@ -60,15 +59,7 @@ pd_interaction <- function(object, ...) {
 pd_interaction.default <- function(object, v, X, pred_fun = stats::predict,
                                    pairwise = FALSE, n_max = 200L, w = NULL, 
                                    verbose = TRUE, ...) {
-  p <- length(v)
-  stopifnot(
-    is.matrix(X) || is.data.frame(X),
-    dim(X) >= c(1L, p),
-    all(v %in% colnames(X)),
-    is.function(pred_fun),
-    is.null(w) || length(w) == nrow(X),
-    p >= 1L + pairwise
-  )
+  .basic_check(X = X, v = v, pred_fun = pred_fun, w = w)
   
   # Reduce size of X (and w)
   if (nrow(X) > n_max) {
@@ -80,6 +71,7 @@ pd_interaction.default <- function(object, v, X, pred_fun = stats::predict,
   }
   
   # Initialize progress bar
+  p <- length(v)
   if (verbose) {
     J <- p + if (pairwise) p * (p - 1) / 2 else p
     j <- 1L
@@ -263,10 +255,9 @@ summary.pd_interaction <- function(object, normalize = TRUE, squared = FALSE,
   
   num <- .zap_small(object[["num"]], eps = eps)
   num <- fix_names(num, out_names = out_names, prefix = "Stat")
-  denom <- fix_names(object[["denom"]], out_names = out_names, prefix = "Stat")
-  
+
   if (normalize) {
-    num <- num / denom
+    num <- num / object[["denom"]]
   }
   if (!squared) {
     num <- sqrt(num)

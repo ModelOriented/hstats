@@ -15,28 +15,12 @@
 #' - multivariate predictions (e.g., multi-classification settings) and
 #' - multivariate grids.
 #' 
-#' @param object Fitted model object.
-#' @param v Vector of feature names.
-#' @param X Dataframe or matrix serving as background dataset.
-#' @param pred_fun Prediction function of the form `function(object, X, ...)`,
-#'   providing K >= 1 numeric predictions per row. Its first argument represents the 
-#'   model `object`, its second argument a data structure like `X`. Additional arguments 
-#'   (such as `type = "response"` in a GLM) can be passed via `...`. The default, 
-#'   [stats::predict()], will work in most cases. Note that column names in a resulting
-#'   matrix of predictions will be used as default column names in the results.
+#' @inheritParams pd_raw
+#' @inheritParams make_grid
 #' @param grid Named list. Each element specifies the evaluation grid for the
 #'   corresponding feature. Missing components are automatically added. If `v` has
 #'   length 1, then `grid` can also be a vector.
-#' @param grid_size Controls the grid size for variables not in `grid`.
-#' @param trim Variables not in `grid` are trimmed at those two quantiles.
-#'   Set to `c(0, 1)` for no trimming.
-#' @param strategy How should evaluation points of variables not in `grid` be found? 
-#'   Either "quantile" or "uniform".
-#' @param n_max If `X` has more than `n_max` rows, a random sample of `n_max` rows is
-#'   selected for calculations (after determining `grid`). 
-#' @param w Optional vector of case weights for each row of `X`.
 #' @param verbose Should a progress bar be shown? The default is `TRUE`.
-#' @param ... Additional arguments passed to `pred_fun(object, X, ...)`.
 #' @returns 
 #'   An object of class "pd", containing these elements:
 #'   - `grid`: Named list of evaluation points.

@@ -9,10 +9,11 @@
 #' (see [pd_interaction()]) uses a similar construction, but there the focus is on pure
 #' interaction effects (combined effects minus main effects).
 #'  
-#' @inheritParams pd
+#' @inheritParams pd_raw
 #' @param v Vector or list of feature names. If passed as list, *vectors* of feature 
-#' names are evaluted together. These vectors can be named for better readability of
-#' results.
+#'   names are evaluted together. These vectors can be named for better readability of
+#'   results.
+#' @param verbose Should a progress bar be shown? The default is `TRUE`.
 #' @returns
 #'   An object of class "pd_importance", containing these elements:
 #'   - `imp`: Matrix with importance values per element of `v`.
@@ -51,16 +52,10 @@ pd_importance <- function(object, ...) {
 #' @export
 pd_importance.default <- function(object, v, X, pred_fun = stats::predict,
                                   n_max = 300L, w = NULL, verbose = TRUE, ...) {
-  p <- length(v)
-  stopifnot(
-    is.matrix(X) || is.data.frame(X),
-    dim(X) >= c(1L, 1L),
-    all(unique(unlist(v, use.names = FALSE)) %in% colnames(X)),
-    is.function(pred_fun),
-    is.null(w) || length(w) == nrow(X),
-    p >= 1L
+  .basic_check(
+    X = X, v = unique(unlist(v, use.names = FALSE)), pred_fun = pred_fun, w = w
   )
-  
+ 
   # Reduce size of X (and w)
   if (nrow(X) > n_max) {
     ix <- sample(nrow(X), n_max)
@@ -71,23 +66,18 @@ pd_importance.default <- function(object, v, X, pred_fun = stats::predict,
   }
   
   # Initialize progress bar
+  p <- length(v)
   show_bar <- verbose && p >= 2L
   if (show_bar) {
     pb <- utils::txtProgressBar(1L, p, style = 3)
   }
   
-  # Initialize resulting list with good names (move to function...)
-  imp <- vector("list", p)
+  # Initialize resulting list with good names
+  imp <- vector("list", length = p)
   if (is.null(names(v))) {
-    no_names <- rep(TRUE, times = p)
+    names(imp) <- sapply(v, paste, collapse = "*")
   } else {
-    no_names <- names(v) == ""
-  }
-  if (any(no_names)) {
-    names(imp)[no_names] <- sapply(v[no_names], paste, collapse = "*")
-  } 
-  if (any(!no_names)) {
-    names(imp)[!no_names] <- names(v)[!no_names]
+    names(imp) <- ifelse(names(v) == "", sapply(v, paste, collapse = "*"), names(v))
   }
   
   for (i in seq_along(imp)) {
@@ -100,7 +90,8 @@ pd_importance.default <- function(object, v, X, pred_fun = stats::predict,
       grid = g,
       pred_fun = pred_fun,
       n_max = n_max, # No effect
-      w = w, 
+      w = w,
+      check = FALSE, # Already done
       ...
     )
     imp[[i]] <- apply(pd, 2L, FUN = stats::var)
