@@ -214,13 +214,13 @@ The Annals of Statistics, 29:1189–1232.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># MODEL ONE: Linear regression</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="va">Sepal.Length</span> <span class="op">~</span> <span class="va">.</span>, data <span class="op">=</span> <span class="va">iris</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">pd</span> <span class="op">&lt;-</span> <span class="fu">pd</span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">iris</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span>, X <span class="op">=</span> <span class="va">iris</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in stopifnot(is.matrix(X) || is.data.frame(X), dim(X) &gt;= c(1L, 1L),     all(v %in% colnames(X)), is.function(pred_fun), ):</span> argument is missing, with no default</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in make_grid_one(zz, m = grid_size, trim = trim, strategy = strategy):</span> unused argument (m = grid_size)</span>
 <span class="r-in"><span><span class="va">pd</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> function (object, ...) </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     UseMethod("pd")</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;bytecode: 0x55cdf4eba720&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;bytecode: 0x55c1de803ed0&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: namespace:fastpdp&gt;</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">pd</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in object[[i]]:</span> object of type 'closure' is not subsettable</span>
@@ -228,26 +228,34 @@ The Annals of Statistics, 29:1189–1232.</p>
 <span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in object[[i]]:</span> object of type 'closure' is not subsettable</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">pd</span> <span class="op">&lt;-</span> <span class="fu">pd</span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="st">"Petal.Width"</span>, X <span class="op">=</span> <span class="va">iris</span>, grid <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, by <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in stopifnot(is.matrix(X) || is.data.frame(X), dim(X) &gt;= c(1L, 1L),     all(v %in% colnames(X)), is.function(pred_fun), ):</span> argument is missing, with no default</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">pd</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in object[[i]]:</span> object of type 'closure' is not subsettable</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Petal.Width     pred</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1         0.0 6.221309</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2         0.5 6.063732</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3         1.0 5.906154</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="fu">pd</span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="st">"Petal.Width"</span>, X <span class="op">=</span> <span class="va">iris</span>, grid <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">0</span>, by <span class="op">=</span> <span class="op">-</span><span class="fl">0.5</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in stopifnot(is.matrix(X) || is.data.frame(X), dim(X) &gt;= c(1L, 1L),     all(v %in% colnames(X)), is.function(pred_fun), ):</span> argument is missing, with no default</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Petal.Width     pred</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1         1.0 5.906154</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2         0.5 6.063732</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3         0.0 6.221309</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="fu">pd</span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="st">"Species"</span>, X <span class="op">=</span> <span class="va">iris</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in stopifnot(is.matrix(X) || is.data.frame(X), dim(X) &gt;= c(1L, 1L),     all(v %in% colnames(X)), is.function(pred_fun), ):</span> argument is missing, with no default</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in make_grid_one(zz, m = grid_size, trim = trim, strategy = strategy):</span> unused argument (m = grid_size)</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># MODEL TWO: Multi-response linear regression</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">iris</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span> <span class="op">~</span> <span class="va">Petal.Length</span> <span class="op">+</span> <span class="va">Petal.Width</span> <span class="op">+</span> <span class="va">Species</span>, data <span class="op">=</span> <span class="va">iris</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">v</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">iris</span><span class="op">[</span><span class="fl">3</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">partial_grid</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>Petal.Width <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, by <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">pd</span> <span class="op">&lt;-</span> <span class="fu">pd</span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="va">v</span>, X <span class="op">=</span> <span class="va">iris</span>, grid <span class="op">=</span> <span class="va">partial_grid</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in stopifnot(is.matrix(X) || is.data.frame(X), dim(X) &gt;= c(1L, 1L),     all(v %in% colnames(X)), is.function(pred_fun), ):</span> argument is missing, with no default</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in make_grid_one(zz, m = grid_size, trim = trim, strategy = strategy):</span> unused argument (m = grid_size)</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">pd</span>, <span class="st">"Species"</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in object[[i]]:</span> object of type 'closure' is not subsettable</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in if (p == 1L) prefix else paste(prefix, seq_len(p), sep = "_"):</span> argument is of length zero</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">pd</span>, <span class="st">"Petal.Width"</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in object[[i]]:</span> object of type 'closure' is not subsettable</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Petal.Width     pred</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1         0.0 6.221309</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2         0.5 6.063732</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3         1.0 5.906154</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">pd</span>, <span class="st">"Petal.Length"</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in object[[i]]:</span> object of type 'closure' is not subsettable</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in if (p == 1L) prefix else paste(prefix, seq_len(p), sep = "_"):</span> argument is of length zero</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># MODEL THREE: Gamma GLM with log link</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm</a></span><span class="op">(</span></span></span>
@@ -256,7 +264,7 @@ The Annals of Statistics, 29:1189–1232.</p>
 <span class="r-in"><span>  family <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/family.html" class="external-link">Gamma</a></span><span class="op">(</span>link <span class="op">=</span> <span class="va">log</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="fu">pd</span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="st">"Species"</span>, X <span class="op">=</span> <span class="va">iris</span>, type <span class="op">=</span> <span class="st">"response"</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in stopifnot(is.matrix(X) || is.data.frame(X), dim(X) &gt;= c(1L, 1L),     all(v %in% colnames(X)), is.function(pred_fun), ):</span> argument is missing, with no default</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in make_grid_one(zz, m = grid_size, trim = trim, strategy = strategy):</span> unused argument (m = grid_size)</span>
 </code></pre></div>
     </div>
   </div>
