@@ -1,12 +1,12 @@
 #' Fast Friedman's H
 #'  
-#' @inheritParams fx_pd
+#' @inheritParams pd
 #' @param v Vector of feature names for which interaction statistics are to be 
 #'   calculated.
 #' @param pairwise The default (`FALSE`) calculates overall interaction strength per 
 #'   feature. Set to `TRUE` to get *pairwise* statistics (slower).
 #' @returns 
-#'   An object of class "fx_interaction", containing these elements:
+#'   An object of class "pd_interaction", containing these elements:
 #'   - `num`: Matrix with squared numerator values. 
 #'   - `denom`: Matrix with squared denominator values.
 #'   - `v`: Same as input `v`.
@@ -18,12 +18,12 @@
 #' @examples
 #' # MODEL ONE: Linear regression
 #' fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
-#' inter <- fx_interaction(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
+#' inter <- pd_interaction(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
 #' inter
 #' summary(inter)
 #' summary(inter, normalize = FALSE, squared = TRUE)
 #' 
-#' inter <- fx_interaction(
+#' inter <- pd_interaction(
 #'   fit, v = names(iris[-1]), X = iris, verbose = FALSE, pairwise = TRUE
 #' )
 #' summary(inter)
@@ -31,8 +31,8 @@
 #' # MODEL TWO: Multi-response linear regression
 #' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
 #' v <- c("Petal.Length", "Petal.Width", "Species")
-#' fx_interaction(fit, v = v, X = iris)
-#' fx_interaction(fit, v = v, X = iris, pairwise = TRUE)
+#' summary(pd_interaction(fit, v = v, X = iris))
+#' summary(pd_interaction(fit, v = v, X = iris, pairwise = TRUE))
 #' 
 #' # MODEL THREE: Gamma GLM with log link
 #' fit <- glm(
@@ -42,20 +42,22 @@
 #' )
 #' 
 #' # No interactions for additive features, at least on link scale
-#' fx_interaction(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
+#' inter <- pd_interaction(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
+#' summary(inter)
 #' 
 #' # On original scale, we have interactions everywhere...
-#' fx_interaction(
+#' inter <- pd_interaction(
 #'   fit, v = names(iris[-1]), X = iris, verbose = FALSE, type = "response"
 #' )
+#' summary(inter)
 #' 
-fx_interaction <- function(object, ...) {
-  UseMethod("fx_interaction")
+pd_interaction <- function(object, ...) {
+  UseMethod("pd_interaction")
 }
 
-#' @describeIn fx_interaction Default method.
+#' @describeIn pd_interaction Default method.
 #' @export
-fx_interaction.default <- function(object, v, X, pred_fun = stats::predict,
+pd_interaction.default <- function(object, v, X, pred_fun = stats::predict,
                                    pairwise = FALSE, n_max = 200L, w = NULL, 
                                    verbose = TRUE, ...) {
   p <- length(v)
@@ -89,7 +91,7 @@ fx_interaction.default <- function(object, v, X, pred_fun = stats::predict,
   for (z in v) {
     g <- if (is.data.frame(X)) X[[z]] else X[, z]
     pd1d[[z]] <- .center(
-      pdp_raw(object = object, v = z, X = X, pred_fun = pred_fun, grid = g, w = w, ...)
+      pd_raw(object = object, v = z, X = X, pred_fun = pred_fun, grid = g, w = w, ...)
     )
     if (verbose) {
       utils::setTxtProgressBar(pb, j)
@@ -114,7 +116,7 @@ fx_interaction.default <- function(object, v, X, pred_fun = stats::predict,
     if (pairwise) {
       z <- combs[[i]]  # The two variables for which we need two-dimensional PDs
       f <- .center(
-        pdp_raw(object, v = z, X = X, pred_fun = pred_fun, grid = X[, z], w = w, ...)
+        pd_raw(object, v = z, X = X, pred_fun = pred_fun, grid = X[, z], w = w, ...)
       )
       pd_i <- pd1d[[z[1L]]]
       pd_j <- pd1d[[z[2L]]]
@@ -122,7 +124,7 @@ fx_interaction.default <- function(object, v, X, pred_fun = stats::predict,
       z <- v[i]
       not_z <- setdiff(colnames(X), z) 
       pd_j <- .center(
-        pdp_raw(
+        pd_raw(
           object, 
           v = not_z, 
           X = X, 
@@ -153,18 +155,18 @@ fx_interaction.default <- function(object, v, X, pred_fun = stats::predict,
       v = v,
       pairwise = pairwise
     ),
-    class = "fx_interaction"
+    class = "pd_interaction"
   )
 }
 
-#' @describeIn fx_interaction Method for "ranger" models
+#' @describeIn pd_interaction Method for "ranger" models
 #' .
 #' @export
-fx_interaction.ranger <- function(object, v, X,
+pd_interaction.ranger <- function(object, v, X,
                                   pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
                                   pairwise = FALSE, n_max = 200L, 
                                   w = NULL, verbose = TRUE, ...) {
-  fx_interaction.default(
+  pd_interaction.default(
     object = object,
     v = v,
     X = X,
@@ -177,13 +179,13 @@ fx_interaction.ranger <- function(object, v, X,
   )
 }
 
-#' @describeIn fx_interaction Method for "mlr3" models.
+#' @describeIn pd_interaction Method for "mlr3" models.
 #' @export
-fx_interaction.Learner <- function(object, v, X,
+pd_interaction.Learner <- function(object, v, X,
                                    pred_fun = function(m, X) m$predict_newdata(X)$response,
                                    pairwise = FALSE, n_max = 200L,
                                    w = NULL, verbose = TRUE, ...) {
-  fx_interaction.default(
+  pd_interaction.default(
     object = object,
     v = v,
     X = X,
@@ -198,23 +200,23 @@ fx_interaction.Learner <- function(object, v, X,
 
 #' Interaction Print
 #' 
-#' Print function for result of [fx_interaction()].
+#' Print function for result of [pd_interaction()].
 #' 
-#' @inheritParams print.fx_pd
-#' @inherit print.fx_pd return
+#' @inheritParams print.pd
+#' @inherit print.pd return
 #' @export
-#' @seealso [fx_interaction()]
-print.fx_interaction <- function(x, ...) {
+#' @seealso [pd_interaction()]
+print.pd_interaction <- function(x, ...) {
   cat("Interaction statistics. Use summary(...) to extract the results.")
   invisible(x)
 }
 
 #' Interaction Summary
 #' 
-#' Uses the results of [fx_interaction()] to calculate different versions of 
-#' Friedman's H, see [fx_interaction()].
+#' Uses the results of [pd_interaction()] to calculate different versions of 
+#' Friedman's H, see [pd_interaction()].
 #' 
-#' @inheritParams summary.fx_pd
+#' @inheritParams summary.pd
 #' @param normalize Should explained variances be normalized? Default is `TRUE`.
 #' @param squared Should squared statistics be returned? Default is `FALSE`. 
 #' @param sort Should result be sorted? Default is `TRUE`.
@@ -223,8 +225,8 @@ print.fx_interaction <- function(x, ...) {
 #' @param verbose Should description be printed or not? Default is `TRUE`.
 #' @returns Matrix with statistics (one column per prediction dimension).
 #' @export
-#' @seealso [fx_interaction()]
-summary.fx_interaction <- function(object, normalize = TRUE, squared = FALSE, 
+#' @seealso [pd_interaction()]
+summary.pd_interaction <- function(object, normalize = TRUE, squared = FALSE, 
                                    sort = TRUE, top_m = Inf, out_names = NULL, 
                                    eps = 1e-8, verbose = TRUE, ...) {
   if (verbose) {

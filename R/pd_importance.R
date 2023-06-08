@@ -6,34 +6,34 @@
 #' \deqn{\textrm{PDI}(j, D) = \textrm{Var}\left(\sum_{i \in D} \textrm{PD}_{j}(x_i^{(j)})\right)}.
 #' Similarly, we can define the PD importance of two or more features together,
 #' measuring their joint effect (main effects plus interaction). Note that Friedman's H
-#' (see [fx_interaction()]) uses a similar construction, but there the focus is on pure
+#' (see [pd_interaction()]) uses a similar construction, but there the focus is on pure
 #' interaction effects (combined effects minus main effects).
 #'  
-#' @inheritParams fx_pd
+#' @inheritParams pd
 #' @param v Vector or list of feature names. If passed as list, *vectors* of feature 
 #' names are evaluted together. These vectors can be named for better readability of
 #' results.
 #' @returns
-#'   An object of class "fx_importance", containing these elements:
+#'   An object of class "pd_importance", containing these elements:
 #'   - `imp`: Matrix with importance values per element of `v`.
 #'   - `v`: Same as input `v`.
 #' @export
 #' @examples
 #' # MODEL ONE: Linear regression
 #' fit <- lm(Sepal.Length ~ ., data = iris)
-#' imp <- fx_importance(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
+#' imp <- pd_importance(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
 #' imp
 #' summary(imp)
 #' 
 #' # With groups of variables
 #' v <- list("Sepal.Width", Petal = c("Petal.Width", "Petal.Length"), "Species")
-#' imp <- fx_importance(fit, v = v, X = iris, verbose = FALSE)
-#' summary(imp, out_names = "Importance", top_m = 1L)
+#' imp <- pd_importance(fit, v = v, X = iris, verbose = FALSE)
+#' summary(imp, out_names = "Importance")
 #'
 #' # MODEL TWO: Multi-response linear regression
 #' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width + Species, data = iris)
 #' v <- c("Petal.Length", "Petal.Width", "Species")
-#' summary(imp <- fx_importance(fit, v = v, X = iris))
+#' summary(imp <- pd_importance(fit, v = v, X = iris))
 #' 
 #' # MODEL THREE: matrix interface
 #' X <- model.matrix(Sepal.Length ~ ., data = iris)
@@ -41,15 +41,15 @@
 #' v <- list("Sepal.Width", "Petal.Length", "Petal.Width", 
 #'           Species = c("Speciesversicolor", "Speciesvirginica"))
 #' pred_fun <- function(m, x) c(tcrossprod(coef(m), x))
-#' imp <- fx_importance(fit, v = v, X = X, pred_fun = pred_fun, verbose = FALSE)
+#' imp <- pd_importance(fit, v = v, X = X, pred_fun = pred_fun, verbose = FALSE)
 #' summary(imp)
-fx_importance <- function(object, ...) {
-  UseMethod("fx_importance")
+pd_importance <- function(object, ...) {
+  UseMethod("pd_importance")
 }
 
-#' @describeIn fx_importance Default method.
+#' @describeIn pd_importance Default method.
 #' @export
-fx_importance.default <- function(object, v, X, pred_fun = stats::predict,
+pd_importance.default <- function(object, v, X, pred_fun = stats::predict,
                                   n_max = 300L, w = NULL, verbose = TRUE, ...) {
   p <- length(v)
   stopifnot(
@@ -93,7 +93,7 @@ fx_importance.default <- function(object, v, X, pred_fun = stats::predict,
   for (i in seq_along(imp)) {
     z <- v[[i]]
     g <- if (is.data.frame(X) && length(z) == 1L) X[[z]] else X[, z]
-    pd <- pdp_raw(
+    pd <- pd_raw(
       object = object, v = z, X = X, pred_fun = pred_fun, grid = g, w = w, ...
     )
     imp[[i]] <- apply(pd, 2L, FUN = stats::var)
@@ -104,16 +104,16 @@ fx_importance.default <- function(object, v, X, pred_fun = stats::predict,
   if (show_bar) {
     cat("\n")
   }
-  structure(list(imp = do.call(rbind, imp), v = v), class = "fx_importance")
+  structure(list(imp = do.call(rbind, imp), v = v), class = "pd_importance")
 }
 
-#' @describeIn fx_importance Method for "ranger" models
+#' @describeIn pd_importance Method for "ranger" models
 #' .
 #' @export
-fx_importance.ranger <- function(object, v, X,
+pd_importance.ranger <- function(object, v, X,
                                  pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
                                  n_max = 300L, w = NULL, verbose = TRUE, ...) {
-  fx_importance.default(
+  pd_importance.default(
     object = object,
     v = v,
     X = X,
@@ -125,12 +125,12 @@ fx_importance.ranger <- function(object, v, X,
   )
 }
 
-#' @describeIn fx_importance Method for "mlr3" models.
+#' @describeIn pd_importance Method for "mlr3" models.
 #' @export
-fx_importance.Learner <- function(object, v, X,
+pd_importance.Learner <- function(object, v, X,
                                   pred_fun = function(m, X) m$predict_newdata(X)$response,
                                   n_max = 300L, w = NULL, verbose = TRUE, ...) {
-  fx_importance.default(
+  pd_importance.default(
     object = object,
     v = v,
     X = X,
@@ -144,27 +144,27 @@ fx_importance.Learner <- function(object, v, X,
 
 #' Importance Print
 #' 
-#' Print function for result of [fx_importance()].
+#' Print function for result of [pd_importance()].
 #' 
-#' @inheritParams print.fx_pd
-#' @inherit print.fx_pd return
+#' @inheritParams print.pd
+#' @inherit print.pd return
 #' @export
-#' @seealso [fx_importance()]
-print.fx_importance <- function(x, ...) {
+#' @seealso [pd_importance()]
+print.pd_importance <- function(x, ...) {
   cat("Importance statistics. Use summary(...) to extract the results.")
   invisible(x)
 }
 
 #' Importance Summary
 #' 
-#' Extracts the results of [fx_importance()].
+#' Extracts the results of [pd_importance()].
 #' 
-#' @inheritParams summary.fx_pd
-#' @inheritParams summary.fx_interaction
-#' @inherit summary.fx_interaction return
+#' @inheritParams summary.pd
+#' @inheritParams summary.pd_interaction
+#' @inherit summary.pd_interaction return
 #' @export
-#' @seealso [fx_importance()]
-summary.fx_importance <- function(object, sort = TRUE, top_m = Inf,
+#' @seealso [pd_importance()]
+summary.pd_importance <- function(object, sort = TRUE, top_m = Inf,
                                   out_names = NULL, verbose = TRUE, ...) {
   if (verbose) {
     cat("Partial dependence based variable importance\n")
