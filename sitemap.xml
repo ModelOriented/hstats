@@ -16,36 +16,36 @@
     <loc>/news/index.html</loc>
   </url>
   <url>
-    <loc>/reference/fx_importance.html</loc>
-  </url>
-  <url>
-    <loc>/reference/fx_interaction.html</loc>
-  </url>
-  <url>
-    <loc>/reference/fx_pd.html</loc>
-  </url>
-  <url>
     <loc>/reference/index.html</loc>
   </url>
   <url>
-    <loc>/reference/pdp_raw.html</loc>
+    <loc>/reference/pd.html</loc>
   </url>
   <url>
-    <loc>/reference/print.fx_importance.html</loc>
+    <loc>/reference/pd_importance.html</loc>
   </url>
   <url>
-    <loc>/reference/print.fx_interaction.html</loc>
+    <loc>/reference/pd_interaction.html</loc>
   </url>
   <url>
-    <loc>/reference/print.fx_pd.html</loc>
+    <loc>/reference/pd_raw.html</loc>
   </url>
   <url>
-    <loc>/reference/summary.fx_importance.html</loc>
+    <loc>/reference/print.pd.html</loc>
   </url>
   <url>
-    <loc>/reference/summary.fx_interaction.html</loc>
+    <loc>/reference/print.pd_importance.html</loc>
   </url>
   <url>
-    <loc>/reference/summary.fx_pd.html</loc>
+    <loc>/reference/print.pd_interaction.html</loc>
+  </url>
+  <url>
+    <loc>/reference/summary.pd.html</loc>
+  </url>
+  <url>
+    <loc>/reference/summary.pd_importance.html</loc>
+  </url>
+  <url>
+    <loc>/reference/summary.pd_interaction.html</loc>
   </url>
 </urlset>
