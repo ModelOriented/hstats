@@ -3,66 +3,33 @@
 #' Discretizes vector
 #' 
 #' Function to discretize any vector `z`. For discrete `z` (non-numeric, or numeric
-#' with at most `m` unique values), this is simply `sort(unique(z))`. Otherwise, 
-#' the values of `z` are first trimmed. Then, `m` quantiles are calculated using the
-#' inverse of the ECDF.
+#' with at most `grid_size` unique values), this is simply `sort(unique(z))`. Otherwise, 
+#' the values of `z` are first trimmed. Then, `grid_size` quantiles are calculated 
+#' using the inverse of the ECDF.
 #' 
 #' @noRd
 #' 
-#' @inheritParams fx_pdp
+#' @inheritParams make_grid
 #' @param z A vector to discretize.
 #' @returns For discrete `z`, `sort(unique(z))`. Otherwise, a binned version of `z`.
 #' @examples
 #' make_grid_one(iris$Species)
 #' make_grid_one(rev(iris$Species))  # Same
-#' make_grid_one(iris$Sepal.Width, m = 2)
-make_grid_one <- function(z, m = 36L, trim = c(0.01, 0.99), 
+#' make_grid_one(iris$Sepal.Width, grid_size = 2)
+make_grid_one <- function(z, grid_size = 36L, trim = c(0.01, 0.99), 
                           strategy = c("quantile", "uniform")) {
   strategy <- match.arg(strategy)
   uni <- unique(z)
-  if (!is.numeric(z) || length(uni) <= m) {
+  if (!is.numeric(z) || length(uni) <= grid_size) {
     return(sort(uni))
   }
   
   # Non-discrete
   if (strategy == "quantile") {
-    p <- seq(trim[1L], trim[2L], length.out = m)
+    p <- seq(trim[1L], trim[2L], length.out = grid_size)
     return(unique(stats::quantile(z, probs = p, names = FALSE, type = 1L)))
   }
-  pretty(stats::quantile(z, probs = trim, names = FALSE, type = 1L), n = m)
-}
-
-#' Creates one- or higher-dimensional grids (not used)
-#'
-#' Calls [make_grid_one()] per column and then applies [expand.grid()].
-#'
-#' @noRd
-#'
-#' @inheritParams fx_pdp
-#' @param vv A vector, matrix, or data.frame to turn into a grid of values.
-#' @returns A vector, matrix, or data.frame with evaluation points.
-#' @examples
-#' make_grid(iris$Species)
-#' make_grid(iris[1:2], m = 4)
-make_grid <- function(vv, m = 36L, trim = c(0.01, 0.99),
-                      strategy = c("quantile", "uniform")) {
-  strategy <- match.arg(strategy)
-  p <- NCOL(vv)
-  if (p == 1L) {
-    if (is.data.frame(vv)) {
-      vv <- vv[[1L]]
-    }
-    return(make_grid_one(vv, m = m, trim = trim, strategy = strategy))
-  }
-  m <- ceiling(m^(1/p))  # take p's root of m
-  is_mat <- is.matrix(vv)
-  if (is_mat) {
-    vv <- as.data.frame(vv)
-  }
-  out <- expand.grid(
-    lapply(vv, FUN = make_grid_one, m = m, trim = trim, strategy = strategy)
-  )
-  if (is_mat) as.matrix(out) else out
+  pretty(stats::quantile(z, probs = trim, names = FALSE, type = 1L), n = grid_size)
 }
 
 #' Checks Consistency of Grid (not used)
@@ -77,16 +44,14 @@ make_grid <- function(vv, m = 36L, trim = c(0.01, 0.99),
 #'   or a data.frame. `g` must be consistent with this.
 #' @returns 
 #'   An error message or `TRUE`.
-#' @examples
-#' make_grid(iris$Species)
-check_grid <- function(g, v, X_is_matrix) {
+.check_grid <- function(g, v, X_is_matrix) {
   p <- length(v)
   if (p != NCOL(g)) {
     stop("NCOL(grid) must equal length(v)")
   }
   if (p == 1L) {
     if (!is.vector(g) && !is.factor(g)) {
-      stop("'grid' should be a vector of values")
+      stop("'grid' should be a vector/factor")
     }
   } else {
     stopifnot(
@@ -154,9 +119,9 @@ fix_names <- function(out, out_names = NULL, prefix = "pred") {
 #' @noRd
 #' 
 #' @param x Vector or matrix.
-#' @param ngroups Number of groups of fixed length NROW(x) %/% ngroups.
+#' @param ngroups Number of groups of fixed length `NROW(x) %/% ngroups`.
 #' @param w Optional vector with case weights.
-#' @returns A (gxK) matrix, where g is the grid size, and K = NCOL(x).
+#' @returns A (g x K) matrix, where g is the grid size, and K = NCOL(x).
 #' @examples
 #' rowmean(rep(2:1, each = 10), ngroups = 2)
 rowmean <- function(x, ngroups, w = NULL) {
@@ -222,7 +187,7 @@ rowmean <- function(x, ngroups, w = NULL) {
 #' 
 #' @noRd
 #' 
-#' @inheritParams pdp_raw
+#' @inheritParams pd_raw
 #' @returns 
 #'   A list with `grid` (possibly compressed) and the optional `reindex` vector
 #'   used to map PD values back to the original grid rows.
@@ -287,4 +252,20 @@ rowmean <- function(x, ngroups, w = NULL) {
     x <- matrix(x)
   }
   sweep(x, MARGIN = 2L, STATS = colMeans(x))
+}
+
+#' Basic Checks
+#' 
+#' @noRd
+#' 
+#' @inheritParams pd
+#' @returns Error or TRUE
+.basic_check <- function(X, v, pred_fun, w) {
+  stopifnot(
+    is.matrix(X) || is.data.frame(X),
+    dim(X) >= c(1L, 1L),
+    all(v %in% colnames(X)),
+    is.function(pred_fun),
+  )
+  TRUE
 }

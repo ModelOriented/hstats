@@ -1,0 +1,131 @@
+#' Barebone Partial Dependence (PD) Function
+#' 
+#' Used internally by [pd()], [pd_interaction()], and [pd_importance()]. 
+#' Furthermore, it can be used to calculate multi-dimensional partial dependencies.
+#' In this case, provide your own grid, for instance created via [make_grid()]. 
+#' 
+#' @inheritParams pd
+#' @param v Vector of variable name(s) to calculate multivariate PD.
+#' @param grid A vector (if `length(v) == 1L`), or a matrix/data.frame otherwise.
+#' @param compress_X If `X` has a single non-`v` column: should duplicates be removed
+#'   and compensated via case weights? Applied if >5% duplicates. Default is `TRUE`.
+#' @param compress_grid Should duplicates in `grid` be removed and PDs mapped back to 
+#'   the original grid index? Applied if >5% duplicates. Default is `TRUE`.
+#' @param check Should input checks be applied? Default is `TRUE`.
+#' @returns 
+#'   A matrix of partial dependence values (one column per prediction dimension, 
+#'   one row per grid row).
+#' @references
+#'   Friedman J. H. (2001). Greedy function approximation: A gradient boosting machine.
+#'   The Annals of Statistics, 29:1189–1232.
+#' @export
+#' @examples
+#' fit <- lm(Sepal.Length ~ ., data = iris)
+#' pd_raw(fit, v = "Petal.Width", X = iris, pred_fun = predict, grid = 1:2)
+#' 
+#' # 2D PD
+#' grid <- make_grid(iris[4:5])
+#' grid
+#' values <- pd_raw(fit, X = iris, v = colnames(iris)[4:5], grid = grid)
+#' result <- data.frame(grid, values)
+#' head(result)
+pd_raw <- function(object, v, X, grid, pred_fun = stats::predict, n_max = 1000L, 
+                   w = NULL, compress_X = TRUE, compress_grid = TRUE, check = TRUE, 
+                   ...) {
+  if (check) {
+    .basic_check(X = X, v = v, pred_fun = pred_fun, w = w)
+    .check_grid(g = grid, v = v, X_is_matrix = is.matrix(X))
+  }
+  
+  # Reduce size of X (and w)
+  if (nrow(X) > n_max) {
+    ix <- sample(nrow(X), n_max)
+    X <- X[ix, , drop = FALSE]
+    if (!is.null(w)) {
+      w <- w[ix]
+    }
+  }
+  
+  p <- length(v)
+  D1 <- p == 1L
+  if (compress_X && p >= ncol(X) - 1L) {
+    # Removes duplicates in X[, not_v] and compensates via w
+    cmp_X <- .compress_X(X = X, v = v, w = w)
+    X <- cmp_X[["X"]]
+    w <- cmp_X[["w"]]
+  }
+  
+  if (compress_grid) {
+    # Removes duplicates in grid and returns reindex vector to match to original grid
+    cmp_grid <- .compress_grid(grid = grid, v = v)
+    grid <- cmp_grid[["grid"]]
+  }
+  
+  n <- nrow(X)
+  n_grid <- NROW(grid)
+  
+  # Explode everything to n * n_grid rows
+  X_pred <- X[rep(seq_len(n), times = n_grid), , drop = FALSE]
+  if (D1) {
+    grid_pred <- rep(grid, each = n)
+  } else {
+    grid_pred <- grid[rep(seq_len(n_grid), each = n), ]
+  }
+  
+  # Vary v
+  if (D1 && is.data.frame(X_pred)) {
+    X_pred[[v]] <- grid_pred  #  [, v] <- slower if df
+  } else {
+    X_pred[, v] <- grid_pred
+  }
+  
+  # Calculate predictions and aggregate results
+  pred <- check_pred(pred_fun(object, X_pred, ...))
+  pd <- rowmean(pred, ngroups = n_grid, w = w)
+  
+  # Map back to grid order
+  if (compress_grid && !is.null(reindex <- cmp_grid[["reindex"]])) {
+    return(pd[reindex, , drop = FALSE])
+  }
+  pd
+}
+
+#' Creates grid of any dimension
+#'
+#' Each column of `x` is turned into a vector of grid values. Then, all combinations 
+#' are created with [expand.grid()].
+#'
+#' @param x A vector, matrix, or data.frame to turn into a grid of values.
+#' @param grid_size Controls the approximate grid size. If `X` has p columns, then each
+#'   (non-discrete) column will be reduced to about the p-th root of `grid_size` values.
+#' @param trim Non-discrete columns are trimmed at those two quantiles.
+#'   Set to `c(0, 1)` for no trimming.
+#' @param strategy How should evaluation points of non-discrete columns be found? 
+#'   Either "quantile" or "uniform".
+#' @returns A vector, matrix, or data.frame with evaluation points.
+#' @examples
+#' make_grid(iris$Species)
+#' make_grid(iris[1:2], m = 4)
+make_grid <- function(x, grid_size = 36L, trim = c(0.01, 0.99),
+                      strategy = c("quantile", "uniform")) {
+  strategy <- match.arg(strategy)
+  p <- NCOL(x)
+  if (p == 1L) {
+    if (is.data.frame(x)) {
+      x <- x[[1L]]
+    }
+    return(make_grid_one(x, grid_size = grid_size, trim = trim, strategy = strategy))
+  }
+  grid_size <- ceiling(grid_size^(1/p))  # take p's root of grid_size
+  is_mat <- is.matrix(x)
+  if (is_mat) {
+    x <- as.data.frame(x)
+  }
+  out <- expand.grid(
+    lapply(
+      x, 
+      FUN = make_grid_one, grid_size = grid_size, trim = trim, strategy = strategy
+    )
+  )
+  if (is_mat) as.matrix(out) else out
+}

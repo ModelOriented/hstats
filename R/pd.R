@@ -87,13 +87,7 @@ pd.default <- function(object, v, X, pred_fun = stats::predict,
                            w = NULL, verbose = TRUE, ...) {
   strategy <- match.arg(strategy)
   p <- length(v)
-  stopifnot(
-    is.matrix(X) || is.data.frame(X),
-    dim(X) >= c(1L, 1L),
-    all(v %in% colnames(X)),
-    is.function(pred_fun),
-    is.null(w) || length(w) == nrow(X)
-  )
+  .basic_check(X = X, v = v, pred_fun = pred_fun, w = w)
   
   # Make list of grid values per v
   if ((p == 1L) && (is.vector(grid) || is.factor(grid))) {
@@ -126,14 +120,16 @@ pd.default <- function(object, v, X, pred_fun = stats::predict,
   # Calculations
   pd <- stats::setNames(vector("list", length = p), v)
   for (z in v) {
-    pd[[z]] <- pdp_raw(
+    pd[[z]] <- pd_raw(
       object = object, 
       v = z, 
       X = X, 
-      pred_fun = pred_fun, 
-      grid = grid[[z]], 
+      grid = grid[[z]],
+      pred_fun = pred_fun,
+      n_max = n_max, # No effect
       w = w,
       compress_grid = FALSE,  # Almost always unique, so we save a check for uniqueness
+      check = FALSE, # Already done
       ...
     )
     if (show_bar) {
@@ -224,82 +220,5 @@ summary.pd <- function(object, which = 1L, out_names = NULL, ...) {
     object[["grid"]][which], 
     fix_names(object[["pd"]][[which]], out_names = out_names)
   )
-}
-
-#' Barebone Partial Dependence Function
-#' 
-#' @description
-#' Creates partial dependence values for a given model, data, and grid. 
-#' This is the workhorse function behind [pd()], [fx_interaction()], 
-#' and [fx_importance()].
-#' 
-#' It is fast because:
-#' 1. There is a single call to `pred_fun()`.
-#' 2. If more than 5% of grid rows are duplicated, they are dropped from the 
-#'   calculation. Resulting PD values are mapped back. This is important for 
-#'   [fx_interaction()] and [fx_importance()] that use sampled data as grid.
-#' 3. If more than 5% of non-grid rows are duplicated, these are dropped and
-#'   compensated by summing up their case weights.
-#' 
-#' @inheritParams pd
-#' @param v Vector of variable name(s) to calculate partial dependence for.
-#' @param grid A vector (if `length(v) == 1L`), or a matrix/data.frame otherwise.
-#' @param compress_X If `X` has a single non-`v` column: should duplicates be removed
-#'   and compensated via case weights? (Applied only if >5% duplicates.)
-#'   Default is `TRUE`.
-#' @param compress_grid Should duplicates in `grid` be removed, and resulting PDs 
-#'   mapped back to the original grid index? (Applied only if >5% duplicates.)
-#'   Default is `TRUE`.
-#' @returns 
-#'   A matrix of partial dependence values (one column per prediction dimension, 
-#'   one row per grid row).
-#' @references
-#'   Friedman J. H. (2001). Greedy function approximation: A gradient boosting machine.
-#'   The Annals of Statistics, 29:1189–1232.
-#' @export
-#' @examples
-#' fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
-#' pdp_raw(fit, v = "Petal.Width", X = iris, pred_fun = predict, grid = 1:2)
-pd_raw <- function(object, v, X, pred_fun, grid, w = NULL, 
-                   compress_X = TRUE, compress_grid = TRUE, ...) {
-  p <- length(v)
-  D1 <- p == 1L
-  if (compress_X && p >= ncol(X) - 1L) {
-    # Removes duplicates in X[, not_v] and compensates via w
-    cmp_X <- .compress_X(X = X, v = v, w = w)
-    X <- cmp_X[["X"]]
-    w <- cmp_X[["w"]]
-  }
-  
-  if (compress_grid) {
-    # Removes duplicates in grid and returns reindex vector to match to original grid
-    cmp_grid <- .compress_grid(grid = grid, v = v)
-    grid <- cmp_grid[["grid"]]
-  }
-  
-  n <- nrow(X)
-  n_grid <- NROW(grid)
-  
-  # Explode everything to n * n_grid rows
-  X_pred <- X[rep(seq_len(n), times = n_grid), , drop = FALSE]
-  if (D1) {
-    grid_pred <- rep(grid, each = n)
-  } else {
-    grid_pred <- grid[rep(seq_len(n_grid), each = n), ]
-  }
-  
-  # Vary v
-  if (D1 && is.data.frame(X_pred)) {
-    X_pred[[v]] <- grid_pred  #  [, v] <- slower if df
-  } else {
-    X_pred[, v] <- grid_pred
-  }
-  
-  pred <- check_pred(pred_fun(object, X_pred, ...))
-  pd <- rowmean(pred, ngroups = n_grid, w = w)
-  if (compress_grid && !is.null(reindex <- cmp_grid[["reindex"]])) {
-    return(pd[reindex, , drop = FALSE])
-  }
-  pd
 }
 

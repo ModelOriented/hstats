@@ -91,7 +91,17 @@ pd_interaction.default <- function(object, v, X, pred_fun = stats::predict,
   for (z in v) {
     g <- if (is.data.frame(X)) X[[z]] else X[, z]
     pd1d[[z]] <- .center(
-      pd_raw(object = object, v = z, X = X, pred_fun = pred_fun, grid = g, w = w, ...)
+      pd_raw(
+        object = object, 
+        v = z, 
+        X = X, 
+        grid = g,
+        pred_fun = pred_fun, 
+        n_max = n_max, # No effect
+        w = w,
+        check = FALSE, # Already done
+        ...
+      )
     )
     if (verbose) {
       utils::setTxtProgressBar(pb, j)
@@ -116,7 +126,17 @@ pd_interaction.default <- function(object, v, X, pred_fun = stats::predict,
     if (pairwise) {
       z <- combs[[i]]  # The two variables for which we need two-dimensional PDs
       f <- .center(
-        pd_raw(object, v = z, X = X, pred_fun = pred_fun, grid = X[, z], w = w, ...)
+        pd_raw(
+          object, 
+          v = z, 
+          X = X, 
+          grid = X[, z],
+          pred_fun = pred_fun,
+          n_max = n_max, # No effect
+          w = w,
+          check = FALSE, # Already done
+          ...
+        )
       )
       pd_i <- pd1d[[z[1L]]]
       pd_j <- pd1d[[z[2L]]]
@@ -128,10 +148,12 @@ pd_interaction.default <- function(object, v, X, pred_fun = stats::predict,
           object, 
           v = not_z, 
           X = X, 
-          pred_fun = pred_fun, 
-          grid = X[, not_z], 
+          grid = X[, not_z],
+          pred_fun = pred_fun,
+          n_max = n_max, # No effect
           w = w,
           compress_grid = FALSE,  # grid has too many columns (saves a very quick check)
+          check = FALSE, # Already done
           ...
         )
       )

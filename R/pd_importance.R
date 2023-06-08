@@ -94,7 +94,14 @@ pd_importance.default <- function(object, v, X, pred_fun = stats::predict,
     z <- v[[i]]
     g <- if (is.data.frame(X) && length(z) == 1L) X[[z]] else X[, z]
     pd <- pd_raw(
-      object = object, v = z, X = X, pred_fun = pred_fun, grid = g, w = w, ...
+      object = object, 
+      v = z, 
+      X = X, 
+      grid = g,
+      pred_fun = pred_fun,
+      n_max = n_max, # No effect
+      w = w, 
+      ...
     )
     imp[[i]] <- apply(pd, 2L, FUN = stats::var)
     if (show_bar) {
