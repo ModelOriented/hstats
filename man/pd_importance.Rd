@@ -51,7 +51,7 @@ pd_importance(object, ...)
 names are evaluted together. These vectors can be named for better readability of
 results.}
 
-\item{X}{Dataframe or matrix serving as background dataset.}
+\item{X}{A data.frame or matrix serving as background dataset.}
 
 \item{pred_fun}{Prediction function of the form \verb{function(object, X, ...)},
 providing K >= 1 numeric predictions per row. Its first argument represents the
@@ -104,7 +104,7 @@ summary(imp)
 # With groups of variables
 v <- list("Sepal.Width", Petal = c("Petal.Width", "Petal.Length"), "Species")
 imp <- pd_importance(fit, v = v, X = iris, verbose = FALSE)
-summary(imp, out_names = "Importance", top_m = 1L)
+summary(imp, out_names = "Importance")
 
 # MODEL TWO: Multi-response linear regression
 fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width + Species, data = iris)

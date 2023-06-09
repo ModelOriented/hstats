@@ -1,8 +1,8 @@
 #' Barebone Partial Dependence (PD) Function
 #' 
-#' Used internally by [pd()], [pd_interaction()], and [pd_importance()]. 
+#' Workhorse of [pd_profiles()], [pd_interaction()], and [pd_importance()]. 
 #' Furthermore, it can be used to calculate multi-dimensional partial dependencies.
-#' In this case, provide your own grid, for instance created via [make_grid()]. 
+#' In this case, provide your own evaluation grid, for instance via [make_grid()]. 
 #' 
 #' @param object Fitted model object.
 #' @param v Vector of feature names.
@@ -15,20 +15,21 @@
 #'   [stats::predict()], will work in most cases. Note that column names in a resulting
 #'   matrix of predictions will be used as default column names in the results.
 #' @param n_max If `X` has more than `n_max` rows, a random sample of `n_max` rows is
-#'   selected for calculations (after determining `grid`). 
+#'   selected from `X`. 
 #' @param w Optional vector of case weights for each row of `X`.
 #' @param compress_X If `X` has a single non-`v` column: should duplicates be removed
 #'   and compensated via case weights? Applied if >5% duplicates. Default is `TRUE`.
 #' @param compress_grid Should duplicates in `grid` be removed and PDs mapped back to 
 #'   the original grid index? Applied if >5% duplicates. Default is `TRUE`.
 #' @param check Should input checks be applied? Default is `TRUE`.
-#' @param ... Additional arguments passed to `pred_fun(object, X, ...)`.
+#' @param ... Additional arguments passed to `pred_fun(object, X, ...)`, for instance
+#'   `type = "response"` in a [glm()] model.
 #' @returns 
 #'   A matrix of partial dependence values (one column per prediction dimension, 
 #'   one row per grid row).
 #' @references
-#'   Friedman J. H. (2001). Greedy function approximation: A gradient boosting machine.
-#'   The Annals of Statistics, 29:1189–1232.
+#'   Friedman, Jerome H. "Greedy Function Approximation: A Gradient Boosting Machine." 
+#'     Annals of Statistics 29 (2000): 1189-1232.
 #' @export
 #' @examples
 #' fit <- lm(Sepal.Length ~ ., data = iris)
@@ -101,44 +102,4 @@ pd_raw <- function(object, v, X, grid, pred_fun = stats::predict, n_max = 1000L,
     return(pd[reindex, , drop = FALSE])
   }
   pd
-}
-
-#' Creates grid of any dimension
-#'
-#' Each column of `x` is turned independently into a vector of grid values. 
-#' Then, all combinations are created with [expand.grid()].
-#'
-#' @param x A vector, matrix, or data.frame to turn into a grid of values.
-#' @param grid_size Controls the approximate grid size. If `X` has p columns, then each
-#'   (non-discrete) column will be reduced to about the p-th root of `grid_size` values.
-#' @param trim Non-discrete columns are trimmed at corresponding quantiles.
-#'   Set to `c(0, 1)` for no trimming.
-#' @param strategy How should evaluation points of non-discrete columns be found? 
-#'   Either "quantile" or "uniform".
-#' @returns A vector, matrix, or data.frame with evaluation points.
-#' @examples
-#' make_grid(iris$Species)
-#' make_grid(iris[1:2], grid_size = 4)
-make_grid <- function(x, grid_size = 36L, trim = c(0.01, 0.99),
-                      strategy = c("quantile", "uniform")) {
-  strategy <- match.arg(strategy)
-  p <- NCOL(x)
-  if (p == 1L) {
-    if (is.data.frame(x)) {
-      x <- x[[1L]]
-    }
-    return(make_grid_one(x, grid_size = grid_size, trim = trim, strategy = strategy))
-  }
-  grid_size <- ceiling(grid_size^(1/p))  # take p's root of grid_size
-  is_mat <- is.matrix(x)
-  if (is_mat) {
-    x <- as.data.frame(x)
-  }
-  out <- expand.grid(
-    lapply(
-      x, 
-      FUN = make_grid_one, grid_size = grid_size, trim = trim, strategy = strategy
-    )
-  )
-  if (is_mat) as.matrix(out) else out
 }

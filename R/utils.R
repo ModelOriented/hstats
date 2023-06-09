@@ -32,6 +32,46 @@ make_grid_one <- function(z, grid_size = 36L, trim = c(0.01, 0.99),
   pretty(stats::quantile(z, probs = trim, names = FALSE, type = 1L), n = grid_size)
 }
 
+#' Creates grid of any dimension
+#'
+#' Each column of `x` is turned independently into a vector of grid values. 
+#' Then, all combinations are created with [expand.grid()].
+#'
+#' @param x A vector, matrix, or data.frame to turn into a grid of values.
+#' @param grid_size Controls the approximate grid size. If `X` has p columns, then each
+#'   (non-discrete) column will be reduced to about the p-th root of `grid_size` values.
+#' @param trim Non-discrete columns are trimmed at corresponding quantiles.
+#'   Set to `c(0, 1)` for no trimming.
+#' @param strategy How should evaluation points of non-discrete columns be found? 
+#'   Either "quantile" or "uniform".
+#' @returns A vector, matrix, or data.frame with evaluation points.
+#' @examples
+#' make_grid(iris$Species)
+#' make_grid(iris[1:2], grid_size = 4)
+make_grid <- function(x, grid_size = 36L, trim = c(0.01, 0.99),
+                      strategy = c("quantile", "uniform")) {
+  strategy <- match.arg(strategy)
+  p <- NCOL(x)
+  if (p == 1L) {
+    if (is.data.frame(x)) {
+      x <- x[[1L]]
+    }
+    return(make_grid_one(x, grid_size = grid_size, trim = trim, strategy = strategy))
+  }
+  grid_size <- ceiling(grid_size^(1/p))  # take p's root of grid_size
+  is_mat <- is.matrix(x)
+  if (is_mat) {
+    x <- as.data.frame(x)
+  }
+  out <- expand.grid(
+    lapply(
+      x, 
+      FUN = make_grid_one, grid_size = grid_size, trim = trim, strategy = strategy
+    )
+  )
+  if (is_mat) as.matrix(out) else out
+}
+
 #' Checks Consistency of Grid
 #' 
 #' Checks if a grid of values is consistent with `v`.
@@ -114,7 +154,7 @@ fix_names <- function(out, out_names = NULL, prefix = "pred") {
 
 #' Fast Weighted Mean Grouped by Fixed Groups
 #' 
-#' Workhorse to aggregate predictions per evaluation point in a PDP.
+#' Workhorse to aggregate predictions per evaluation point of a PD.
 #' 
 #' @noRd
 #' 
@@ -260,7 +300,7 @@ rowmean <- function(x, ngroups, w = NULL) {
 #' 
 #' @noRd
 #' 
-#' @inheritParams pd
+#' @inheritParams pd_raw
 #' @returns Error or TRUE
 .basic_check <- function(X, v, pred_fun, w) {
   stopifnot(

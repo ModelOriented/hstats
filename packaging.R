@@ -62,7 +62,6 @@ use_github_action("check-standard")
 use_github_action("test-coverage")
 use_github_action("pkgdown")
 
-
 #=============================================================================
 # Finish package building (can use fresh session)
 #=============================================================================

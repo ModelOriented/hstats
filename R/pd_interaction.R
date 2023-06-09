@@ -11,8 +11,8 @@
 #'   - `v`: Same as input `v`.
 #'   - `pairwise`: Same as input `pairwise`.
 #' @references
-#'   Friedman, J. H. and Popescu, B. E. (2008). "Predictive learning via rule
-#'     ensembles." The Annals of Applied Statistics. JSTOR, 916–54.
+#'   Friedman, Jerome H., and Bogdan E. Popescu. "Predictive Learning via Rule Ensembles."
+#'     The Annals of Applied Statistics 2, no. 3 (2008): 916-54.
 #' @export
 #' @examples
 #' # MODEL ONE: Linear regression
@@ -216,8 +216,8 @@ pd_interaction.Learner <- function(object, v, X,
 #' 
 #' Print function for result of [pd_interaction()].
 #' 
-#' @inheritParams print.pd
-#' @inherit print.pd return
+#' @inheritParams print.pd_profiles
+#' @inherit print.pd_profiles return
 #' @export
 #' @seealso [pd_interaction()]
 print.pd_interaction <- function(x, ...) {
@@ -230,7 +230,7 @@ print.pd_interaction <- function(x, ...) {
 #' Uses the results of [pd_interaction()] to calculate different versions of 
 #' Friedman's H, see [pd_interaction()].
 #' 
-#' @inheritParams summary.pd
+#' @inheritParams summary.pd_profiles
 #' @param normalize Should explained variances be normalized? Default is `TRUE`.
 #' @param squared Should squared statistics be returned? Default is `FALSE`. 
 #' @param sort Should result be sorted? Default is `TRUE`.

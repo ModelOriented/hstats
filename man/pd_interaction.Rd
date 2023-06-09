@@ -50,10 +50,9 @@ pd_interaction(object, ...)
 
 \item{...}{Additional arguments passed to \code{pred_fun(object, X, ...)}.}
 
-\item{v}{Vector of feature names for which interaction statistics are to be
-calculated.}
+\item{v}{Vector of feature names.}
 
-\item{X}{Dataframe or matrix serving as background dataset.}
+\item{X}{A data.frame or matrix serving as background dataset.}
 
 \item{pred_fun}{Prediction function of the form \verb{function(object, X, ...)},
 providing K >= 1 numeric predictions per row. Its first argument represents the
@@ -110,8 +109,8 @@ summary(inter)
 # MODEL TWO: Multi-response linear regression
 fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
 v <- c("Petal.Length", "Petal.Width", "Species")
-pd_interaction(fit, v = v, X = iris)
-pd_interaction(fit, v = v, X = iris, pairwise = TRUE)
+summary(pd_interaction(fit, v = v, X = iris))
+summary(pd_interaction(fit, v = v, X = iris, pairwise = TRUE))
 
 # MODEL THREE: Gamma GLM with log link
 fit <- glm(
@@ -121,12 +120,14 @@ fit <- glm(
 )
 
 # No interactions for additive features, at least on link scale
-pd_interaction(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
+inter <- pd_interaction(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
+summary(inter)
 
 # On original scale, we have interactions everywhere...
-pd_interaction(
+inter <- pd_interaction(
   fit, v = names(iris[-1]), X = iris, verbose = FALSE, type = "response"
 )
+summary(inter)
 
 }
 \references{

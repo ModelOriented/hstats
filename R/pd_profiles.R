@@ -22,32 +22,32 @@
 #'   length 1, then `grid` can also be a vector.
 #' @param verbose Should a progress bar be shown? The default is `TRUE`.
 #' @returns 
-#'   An object of class "pd", containing these elements:
+#'   An object of class "pd_profiles", containing these elements:
 #'   - `grid`: Named list of evaluation points.
 #'   - `pd`: Named list of PD matrices.
 #'   - `v`: Same as input `v`.
 #' @references
-#'   Friedman J. H. (2001). Greedy function approximation: A gradient boosting machine.
-#'     The Annals of Statistics, 29:1189–1232.
+#'   Friedman, Jerome H. "Greedy Function Approximation: A Gradient Boosting Machine." 
+#'     Annals of Statistics 29 (2000): 1189-1232.
 #' @export
 #' @examples
 #' # MODEL ONE: Linear regression
 #' fit <- lm(Sepal.Length ~ ., data = iris)
-#' pd <- pd(fit, v = names(iris[-1]), X = iris)
+#' pd <- pd_profiles(fit, v = names(iris[-1]), X = iris)
 #' pd
 #' head(summary(pd))
 #' summary(pd, "Species")
 #' 
-#' pd <- pd(fit, v = "Petal.Width", X = iris, grid = seq(0, 1, by = 0.5))
+#' pd <- pd_profiles(fit, v = "Petal.Width", X = iris, grid = seq(0, 1, by = 0.5))
 #' summary(pd)
-#' summary(pd(fit, v = "Petal.Width", X = iris, grid = seq(1, 0, by = -0.5)))
-#' summary(pd(fit, v = "Species", X = iris))
+#' summary(pd_profiles(fit, v = "Petal.Width", X = iris, grid = seq(1, 0, by = -0.5)))
+#' summary(pd_profiles(fit, v = "Species", X = iris))
 #' 
 #' # MODEL TWO: Multi-response linear regression
 #' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width + Species, data = iris)
 #' v <- names(iris[3:5])
 #' partial_grid <- list(Petal.Width = seq(0, 1, by = 0.5))
-#' pd <- pd(fit, v = v, X = iris, grid = partial_grid, verbose = FALSE)
+#' pd <- pd_profiles(fit, v = v, X = iris, grid = partial_grid, verbose = FALSE)
 #' summary(pd, "Species")
 #' summary(pd, "Petal.Width")
 #' head(summary(pd, "Petal.Length"))
@@ -58,17 +58,17 @@
 #'   data = iris, 
 #'   family = Gamma(link = log)
 #' )
-#' summary(pd(fit, v = "Species", X = iris, type = "response"))
-pd <- function(object, ...) {
-  UseMethod("pd")
+#' summary(pd_profiles(fit, v = "Species", X = iris, type = "response"))
+pd_profiles <- function(object, ...) {
+  UseMethod("pd_profiles")
 }
 
-#' @describeIn pd Default method.
+#' @describeIn pd_profiles Default method.
 #' @export
-pd.default <- function(object, v, X, pred_fun = stats::predict, 
-                           grid = NULL, grid_size = 36L, trim = c(0.01, 0.99), 
-                           strategy = c("quantile", "uniform"), n_max = 1000L, 
-                           w = NULL, verbose = TRUE, ...) {
+pd_profiles.default <- function(object, v, X, pred_fun = stats::predict, 
+                                grid = NULL, grid_size = 36L, trim = c(0.01, 0.99), 
+                                strategy = c("quantile", "uniform"), n_max = 1000L, 
+                                w = NULL, verbose = TRUE, ...) {
   strategy <- match.arg(strategy)
   p <- length(v)
   .basic_check(X = X, v = v, pred_fun = pred_fun, w = w)
@@ -80,7 +80,9 @@ pd.default <- function(object, v, X, pred_fun = stats::predict,
     for (z in v) {
       if (is.null(grid[[z]])) {
         zz <- if (is.data.frame(X)) X[[z]] else X[, z]
-        grid[[z]] <- make_grid_one(zz, m = grid_size, trim = trim, strategy = strategy)
+        grid[[z]] <- make_grid_one(
+          zz, grid_size = grid_size, trim = trim, strategy = strategy
+        )
       }
     }
   }
@@ -124,17 +126,17 @@ pd.default <- function(object, v, X, pred_fun = stats::predict,
   if (show_bar) {
     cat("\n")
   }
-  structure(list(grid = grid, pd = pd, v = v), class = "pd")
+  structure(list(grid = grid, pd = pd, v = v), class = "pd_profiles")
 }
 
-#' @describeIn pd Method for "ranger" models.
+#' @describeIn pd_profiles Method for "ranger" models.
 #' @export
-pd.ranger <- function(object, v, X, 
-                          pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions, 
-                          grid = NULL, grid_size = 36L, trim = c(0.01, 0.99), 
-                          strategy = c("quantile", "uniform"), n_max = 1000L,
-                          w = NULL, verbose = TRUE, ...) {
-  pd.default(
+pd_profiles.ranger <- function(object, v, X, 
+                               pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions, 
+                               grid = NULL, grid_size = 36L, trim = c(0.01, 0.99), 
+                               strategy = c("quantile", "uniform"), n_max = 1000L,
+                               w = NULL, verbose = TRUE, ...) {
+  pd_profiles.default(
     object = object,
     v = v,
     X = X,
@@ -150,14 +152,14 @@ pd.ranger <- function(object, v, X,
   )
 }
 
-#' @describeIn pd Method for "mlr3" models.
+#' @describeIn pd_profiles Method for "mlr3" models.
 #' @export
-pd.Learner <- function(object, v, X, 
-                           pred_fun = function(m, X) m$predict_newdata(X)$response, 
-                           grid = NULL, grid_size = 36L, trim = c(0.01, 0.99),
-                           strategy = c("quantile", "uniform"), n_max = 1000L, 
-                           w = NULL, verbose = TRUE, ...) {
-  pd.default(
+pd_profiles.Learner <- function(object, v, X, 
+                                pred_fun = function(m, X) m$predict_newdata(X)$response, 
+                                grid = NULL, grid_size = 36L, trim = c(0.01, 0.99),
+                                strategy = c("quantile", "uniform"), n_max = 1000L, 
+                                w = NULL, verbose = TRUE, ...) {
+  pd_profiles.default(
     object = object,
     v = v,
     X = X,
@@ -173,23 +175,23 @@ pd.Learner <- function(object, v, X,
   )
 }
 
-#' PD Print
+#' pd_profiles Print
 #' 
-#' Print function for result of [pd()].
+#' Print function for result of [pd_profiles()].
 #' 
 #' @param x Object to print.
 #' @param ... Currently unused.
 #' @returns Invisibly, `x` is returned.
 #' @export
-#' @seealso [pd()]
-print.pd <- function(x, ...) {
+#' @seealso [pd_profiles()]
+print.pd_profiles <- function(x, ...) {
   cat("PD values. Use summary(pd, variable) to extract the results.")
   invisible(x)
 }
 
-#' PD Summary
+#' pd_profiles Summary
 #' 
-#' Uses the results of [pd()] to show PD values for a given variable.
+#' Uses the results of [pd_profiles()] to show PD values for a given variable.
 #' 
 #' @param object Object to summarize.
 #' @param which Name or position (within `v`) of feature to show partial dependence.
@@ -198,8 +200,8 @@ print.pd <- function(x, ...) {
 #' @param ... Currently unused.
 #' @returns data.frame with evaluation grid and PD values (one column per prediction).
 #' @export
-#' @seealso [pd()]
-summary.pd <- function(object, which = 1L, out_names = NULL, ...) {
+#' @seealso [pd_profiles()]
+summary.pd_profiles <- function(object, which = 1L, out_names = NULL, ...) {
   cbind.data.frame(
     object[["grid"]][which], 
     fix_names(object[["pd"]][[which]], out_names = out_names)

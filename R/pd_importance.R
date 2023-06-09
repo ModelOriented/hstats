@@ -1,5 +1,6 @@
 #' PD Importance
 #' 
+#' Let \eqn{f \mapsto} denote the model
 #' The sample variance of the partial dependence function \eqn{\textrm{PD}_{j}} of 
 #' feature \eqn{X^{(j)}} evaluated over a data set \eqn{D} can be used as measure 
 #' of **main effect importance**, defined as
@@ -44,6 +45,9 @@
 #' pred_fun <- function(m, x) c(tcrossprod(coef(m), x))
 #' imp <- pd_importance(fit, v = v, X = X, pred_fun = pred_fun, verbose = FALSE)
 #' summary(imp)
+#' @references 
+#'   Greenwell, Brandon M., Bradley C. Boehmke and Andrew J. McCarthy. "A Simple and 
+#'     Effective Model-Based Variable Importance Measure." ArXiv abs/1805.04755 (2018)
 pd_importance <- function(object, ...) {
   UseMethod("pd_importance")
 }
@@ -144,8 +148,8 @@ pd_importance.Learner <- function(object, v, X,
 #' 
 #' Print function for result of [pd_importance()].
 #' 
-#' @inheritParams print.pd
-#' @inherit print.pd return
+#' @inheritParams print.pd_profiles
+#' @inherit print.pd_profiles return
 #' @export
 #' @seealso [pd_importance()]
 print.pd_importance <- function(x, ...) {
@@ -157,7 +161,7 @@ print.pd_importance <- function(x, ...) {
 #' 
 #' Extracts the results of [pd_importance()].
 #' 
-#' @inheritParams summary.pd
+#' @inheritParams summary.pd_profiles
 #' @inheritParams summary.pd_interaction
 #' @inherit summary.pd_interaction return
 #' @export
