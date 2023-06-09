@@ -19,7 +19,7 @@
     <loc>/reference/index.html</loc>
   </url>
   <url>
-    <loc>/reference/pd.html</loc>
+    <loc>/reference/make_grid.html</loc>
   </url>
   <url>
     <loc>/reference/pd_importance.html</loc>
@@ -28,10 +28,10 @@
     <loc>/reference/pd_interaction.html</loc>
   </url>
   <url>
-    <loc>/reference/pd_raw.html</loc>
+    <loc>/reference/pd_profiles.html</loc>
   </url>
   <url>
-    <loc>/reference/print.pd.html</loc>
+    <loc>/reference/pd_raw.html</loc>
   </url>
   <url>
     <loc>/reference/print.pd_importance.html</loc>
@@ -40,12 +40,15 @@
     <loc>/reference/print.pd_interaction.html</loc>
   </url>
   <url>
-    <loc>/reference/summary.pd.html</loc>
+    <loc>/reference/print.pd_profiles.html</loc>
   </url>
   <url>
     <loc>/reference/summary.pd_importance.html</loc>
   </url>
   <url>
     <loc>/reference/summary.pd_interaction.html</loc>
+  </url>
+  <url>
+    <loc>/reference/summary.pd_profiles.html</loc>
   </url>
 </urlset>

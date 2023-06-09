@@ -106,12 +106,11 @@
 
 
 <dt>v</dt>
-<dd><p>Vector of feature names for which interaction statistics are to be
-calculated.</p></dd>
+<dd><p>Vector of feature names.</p></dd>
 
 
 <dt>X</dt>
-<dd><p>Dataframe or matrix serving as background dataset.</p></dd>
+<dd><p>A data.frame or matrix serving as background dataset.</p></dd>
 
 
 <dt>pred_fun</dt>
@@ -202,12 +201,20 @@ ensembles." The Annals of Applied Statistics. JSTOR, 916–54.</p>
 <span class="r-in"><span><span class="co"># MODEL TWO: Multi-response linear regression</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">iris</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span> <span class="op">~</span> <span class="va">Petal.Length</span> <span class="op">+</span> <span class="va">Petal.Width</span> <span class="op">*</span> <span class="va">Species</span>, data <span class="op">=</span> <span class="va">iris</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">v</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Petal.Length"</span>, <span class="st">"Petal.Width"</span>, <span class="st">"Species"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">pd_interaction</span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="va">v</span>, X <span class="op">=</span> <span class="va">iris</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="fu">pd_interaction</span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="va">v</span>, X <span class="op">=</span> <span class="va">iris</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                              |                                                                      |   0%  |                                                                              |==============                                                        |  20%  |                                                                              |============================                                          |  40%  |                                                                              |==========================================                            |  60%  |                                                                              |========================================================              |  80%  |                                                                              |======================================================================| 100%</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Interaction statistics. Use summary(...) to extract the results.</span>
-<span class="r-in"><span><span class="fu">pd_interaction</span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="va">v</span>, X <span class="op">=</span> <span class="va">iris</span>, pairwise <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Normalized Friedman's H (sorted) </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>              Sepal.Length Sepal.Width</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Species         0.2181502   0.1990873</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Width     0.2181502   0.1990873</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Length    0.0000000   0.0000000</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="fu">pd_interaction</span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="va">v</span>, X <span class="op">=</span> <span class="va">iris</span>, pairwise <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                              |                                                                      |   0%  |                                                                              |==============                                                        |  20%  |                                                                              |============================                                          |  40%  |                                                                              |==========================================                            |  60%  |                                                                              |========================================================              |  80%  |                                                                              |======================================================================| 100%</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Interaction statistics. Use summary(...) to extract the results.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Normalized Friedman's H (sorted) </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                          Sepal.Length Sepal.Width</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Width:Species         0.1713878   0.1279518</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Length:Petal.Width    0.0000000   0.0000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Length:Species        0.0000000   0.0000000</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># MODEL THREE: Gamma GLM with log link</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm</a></span><span class="op">(</span></span></span>
@@ -217,14 +224,26 @@ ensembles." The Annals of Applied Statistics. JSTOR, 916–54.</p>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># No interactions for additive features, at least on link scale</span></span></span>
-<span class="r-in"><span><span class="fu">pd_interaction</span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">iris</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span>, X <span class="op">=</span> <span class="va">iris</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Interaction statistics. Use summary(...) to extract the results.</span>
+<span class="r-in"><span><span class="va">inter</span> <span class="op">&lt;-</span> <span class="fu">pd_interaction</span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">iris</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span>, X <span class="op">=</span> <span class="va">iris</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">inter</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Normalized Friedman's H (sorted) </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                   Stat</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Width  0.2331827</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Species      0.2331827</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Sepal.Width  0.0000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Length 0.0000000</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># On original scale, we have interactions everywhere...</span></span></span>
-<span class="r-in"><span><span class="fu">pd_interaction</span><span class="op">(</span></span></span>
+<span class="r-in"><span><span class="va">inter</span> <span class="op">&lt;-</span> <span class="fu">pd_interaction</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="va">fit</span>, v <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">iris</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span>, X <span class="op">=</span> <span class="va">iris</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span>, type <span class="op">=</span> <span class="st">"response"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Interaction statistics. Use summary(...) to extract the results.</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">inter</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Normalized Friedman's H (sorted) </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                    Stat</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Species      0.33507825</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Width  0.22830051</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Length 0.16095347</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Sepal.Width  0.04378363</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

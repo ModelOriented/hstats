@@ -84,6 +84,21 @@
 <div class="section level2">
 <h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
 </h2>
+<p>This package is about Friedman’s partial dependence (PD) [1]. The main functions are as follows:</p>
+<ul>
+<li>
+<code><a href="reference/pd_profiles.html">pd_profiles()</a></code>: PD profiles for multiple features.</li>
+<li>
+<code><a href="reference/pd_interaction.html">pd_interaction()</a></code>: PD-based interaction statistics (Friedman’s H [2] and variants).</li>
+<li>
+<code><a href="reference/pd_importance.html">pd_importance()</a></code>: PD-based variable importance.</li>
+</ul>
+<p>They are</p>
+<ul>
+<li>fast,</li>
+<li>support <strong>multivariate predictions</strong> (classification and multi-target models),</li>
+<li>and most importantly, they show progress bars :-).</li>
+</ul>
 </div>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
@@ -98,14 +113,14 @@
 <div class="section level2">
 <h2 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a>
 </h2>
-<p>Let’s model iris flowers, as usual :-).</p>
+<p>Let’s model iris flowers… :-)</p>
 <div class="section level3">
-<h3 id="linear-regression">Linear regression<a class="anchor" aria-label="anchor" href="#linear-regression"></a>
+<h3 id="profiles">Profiles<a class="anchor" aria-label="anchor" href="#profiles"></a>
 </h3>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/mayer79/fastpdp" class="external-link">fastpdp</a></span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">fit_lm</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="va">Sepal.Width</span> <span class="op">~</span> <span class="va">.</span>, data <span class="op">=</span> <span class="va">iris</span><span class="op">)</span></span>
+<span><span class="va">fit_lm</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="va">Sepal.Width</span> <span class="op">~</span> <span class="va">.</span> <span class="op">+</span> <span class="va">Species</span><span class="op">:</span><span class="va">Sepal.Length</span>, data <span class="op">=</span> <span class="va">iris</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Quantile grid with trimmed outliers</span></span>
 <span><span class="fu">fastpdp</span><span class="op">(</span><span class="va">fit_lm</span>, v <span class="op">=</span> <span class="st">"Petal.Width"</span>, X <span class="op">=</span> <span class="va">iris</span><span class="op">)</span></span>
@@ -117,116 +132,26 @@
 <span><span class="fu">fastpdp</span><span class="op">(</span><span class="va">fit_lm</span>, v <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Species"</span>, <span class="st">"Petal.Width"</span><span class="op">)</span>, X <span class="op">=</span> <span class="va">iris</span>, grid_type <span class="op">=</span> <span class="st">"random"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="random-forest">Random forest<a class="anchor" aria-label="anchor" href="#random-forest"></a>
+<h3 id="interaction">Interaction<a class="anchor" aria-label="anchor" href="#interaction"></a>
 </h3>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/imbs-hl/ranger" class="external-link">ranger</a></span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">fit_rf</span> <span class="op">&lt;-</span> <span class="fu">ranger</span><span class="op">(</span><span class="va">Species</span> <span class="op">~</span> <span class="va">.</span>, data <span class="op">=</span> <span class="va">iris</span>, probability <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu">fastpdp</span><span class="op">(</span><span class="va">fit_rf</span>, v <span class="op">=</span> <span class="st">"Sepal.Width"</span>, X <span class="op">=</span> <span class="va">iris</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="deep-neural-net">Deep neural net<a class="anchor" aria-label="anchor" href="#deep-neural-net"></a>
+<h3 id="importance">Importance<a class="anchor" aria-label="anchor" href="#importance"></a>
 </h3>
-<p>Or a deep neural net (results not fully reproducible):</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tensorflow.rstudio.com/" class="external-link">keras</a></span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">y</span> <span class="op">&lt;-</span> <span class="va">iris</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span></span>
-<span><span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.matrix.html" class="external-link">data.matrix</a></span><span class="op">(</span><span class="va">iris</span><span class="op">[</span><span class="fl">2</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">nn</span> <span class="op">&lt;-</span> <span class="fu">keras_model_sequential</span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="va">nn</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">layer_dense</span><span class="op">(</span>units <span class="op">=</span> <span class="fl">30</span>, activation <span class="op">=</span> <span class="st">"relu"</span>, input_shape <span class="op">=</span> <span class="fl">4</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">layer_dense</span><span class="op">(</span>units <span class="op">=</span> <span class="fl">15</span>, activation <span class="op">=</span> <span class="st">"relu"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">layer_dense</span><span class="op">(</span>units <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">nn</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">compile</span><span class="op">(</span>optimizer <span class="op">=</span> <span class="fu">optimizer_adam</span><span class="op">(</span><span class="fl">0.05</span><span class="op">)</span>, loss <span class="op">=</span> <span class="st">"mse"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">cb</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>  <span class="fu">callback_early_stopping</span><span class="op">(</span>patience <span class="op">=</span> <span class="fl">20</span><span class="op">)</span>,</span>
-<span>  <span class="fu">callback_reduce_lr_on_plateau</span><span class="op">(</span>patience <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span>       </span>
-<span><span class="va">nn</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">fit</span><span class="op">(</span></span>
-<span>    x <span class="op">=</span> <span class="va">X</span>,</span>
-<span>    y <span class="op">=</span> <span class="va">y</span>,</span>
-<span>    epochs <span class="op">=</span> <span class="fl">100</span>,</span>
-<span>    batch_size <span class="op">=</span> <span class="fl">10</span>, </span>
-<span>    validation_split <span class="op">=</span> <span class="fl">0.2</span>,</span>
-<span>    callbacks <span class="op">=</span> <span class="va">cb</span></span>
-<span>  <span class="op">)</span></span>
-<span></span>
-<span><span class="fu">fastpdp</span><span class="op">(</span><span class="va">nn</span>, v <span class="op">=</span> <span class="st">"Species"</span>, X <span class="op">=</span> <span class="va">X</span>, batch_size <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
-<h2 id="meta-learning-packages">Meta-learning packages<a class="anchor" aria-label="anchor" href="#meta-learning-packages"></a>
+<h2 id="background">Background<a class="anchor" aria-label="anchor" href="#background"></a>
 </h2>
-<p>Here, we provide some working examples for “tidymodels”, “caret”, and “mlr3”.</p>
-<div class="section level3">
-<h3 id="tidymodels">tidymodels<a class="anchor" aria-label="anchor" href="#tidymodels"></a>
-</h3>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidymodels.tidymodels.org" class="external-link">tidymodels</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/mayer79/fastpdp" class="external-link">fastpdp</a></span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">iris_recipe</span> <span class="op">&lt;-</span> <span class="va">iris</span> <span class="op">%&gt;%</span></span>
-<span>  <span class="fu">recipe</span><span class="op">(</span><span class="va">Sepal.Length</span> <span class="op">~</span> <span class="va">.</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">reg</span> <span class="op">&lt;-</span> <span class="fu">linear_reg</span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
-<span>  <span class="fu">set_engine</span><span class="op">(</span><span class="st">"lm"</span><span class="op">)</span></span>
-<span>  </span>
-<span><span class="va">iris_wf</span> <span class="op">&lt;-</span> <span class="fu">workflow</span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
-<span>  <span class="fu">add_recipe</span><span class="op">(</span><span class="va">iris_recipe</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
-<span>  <span class="fu">add_model</span><span class="op">(</span><span class="va">reg</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="va">iris_wf</span> <span class="op">%&gt;%</span></span>
-<span>  <span class="fu">fit</span><span class="op">(</span><span class="va">iris</span><span class="op">)</span></span>
-<span>  </span>
-<span><span class="fu">fastpdp</span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="st">"Species"</span>, X <span class="op">=</span> <span class="va">iris</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="caret">caret<a class="anchor" aria-label="anchor" href="#caret"></a>
-</h3>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/topepo/caret/" class="external-link">caret</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/mayer79/fastpdp" class="external-link">fastpdp</a></span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">train</span><span class="op">(</span></span>
-<span>  <span class="va">Sepal.Length</span> <span class="op">~</span> <span class="va">.</span>, </span>
-<span>  data <span class="op">=</span> <span class="va">iris</span>, </span>
-<span>  method <span class="op">=</span> <span class="st">"lm"</span>, </span>
-<span>  tuneGrid <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>intercept <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
-<span>  trControl <span class="op">=</span> <span class="fu">trainControl</span><span class="op">(</span>method <span class="op">=</span> <span class="st">"none"</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu">fastpdp</span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="st">"Species"</span>, X <span class="op">=</span> <span class="va">iris</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="mlr3">mlr3<a class="anchor" aria-label="anchor" href="#mlr3"></a>
-</h3>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://mlr3.mlr-org.com" class="external-link">mlr3</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://mlr3learners.mlr-org.com" class="external-link">mlr3learners</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/mayer79/fastpdp" class="external-link">fastpdp</a></span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">mlr_tasks</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"iris"</span><span class="op">)</span></span>
-<span><span class="fu">tsk</span><span class="op">(</span><span class="st">"iris"</span><span class="op">)</span></span>
-<span><span class="va">task_iris</span> <span class="op">&lt;-</span> <span class="va">TaskRegr</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span>id <span class="op">=</span> <span class="st">"iris"</span>, backend <span class="op">=</span> <span class="va">iris</span>, target <span class="op">=</span> <span class="st">"Sepal.Length"</span><span class="op">)</span></span>
-<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">lrn</span><span class="op">(</span><span class="st">"regr.lm"</span><span class="op">)</span></span>
-<span><span class="va">fit</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span><span class="va">task_iris</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu">fastpdp</span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="st">"Species"</span>, X <span class="op">=</span> <span class="va">iris</span><span class="op">)</span></span></code></pre></div>
-</div>
 </div>
 <div class="section level2">
 <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
-<p>[1] Friedman, Jerome H. 2001. “Greedy Function Approximation: A Gradient Boosting Machine.” Ann. Statist. 29 (5): 1189–1232. <a href="https://doi.org/10.1214/aos/1013203451" class="external-link uri">https://doi.org/10.1214/aos/1013203451</a>.</p>
+<ol style="list-style-type: decimal">
+<li>Friedman, Jerome H. “Greedy Function Approximation: A Gradient Boosting Machine.” Annals of Statistics 29 (2000): 1189-1232.</li>
+<li>Friedman, Jerome H., and Bogdan E. Popescu. “Predictive Learning via Rule Ensembles.” The Annals of Applied Statistics 2, no. 3 (2008): 916-54.</li>
+<li>Greenwell, Brandon M., Bradley C. Boehmke and Andrew J. McCarthy. “A Simple and Effective Model-Based Variable Importance Measure.” ArXiv abs/1805.04755 (2018)</li>
+</ol>
 </div>
 </div>
   </div>
@@ -269,6 +194,7 @@
 <li><a href="https://cran.r-project.org/package=fastpdp" class="external-link"><img src="http://www.r-pkg.org/badges/version/fastpdp" alt="CRAN status"></a></li>
 <li><a href="https://github.com/mayer79/fastpdp/actions" class="external-link"><img src="https://github.com/mayer79/fastpdp/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R-CMD-check"></a></li>
 <li><a href="https://app.codecov.io/gh/mayer79/fastpdp?branch=main" class="external-link"><img src="https://codecov.io/gh/mayer79/fastpdp/branch/main/graph/badge.svg" alt="Codecov test coverage"></a></li>
+<li><a href="https://www.tidyverse.org/lifecycle/#experimental" class="external-link"><img src="https://img.shields.io/badge/lifecycle-experimental-orange.svg" alt="Lifecycle: experimental"></a></li>
 <li><a href="https://cran.r-project.org/package=fastpdp" class="external-link"><img src="https://cranlogs.r-pkg.org/badges/fastpdp"></a></li>
 <li><a href="https://cran.r-project.org/package=fastpdp" class="external-link"><img src="https://cranlogs.r-pkg.org/badges/grand-total/fastpdp?color=orange"></a></li>
 </ul>
