@@ -20,10 +20,12 @@ This package is about Friedman's partial dependence (PD) [1]. The main functions
 - `pd_interaction()`: PD-based interaction statistics (Friedman's H [2] and variants).
 - `pd_importance()`: PD-based variable importance.
 
-They are 
+The functions are 
 
 - fast,
-- support **multivariate predictions** (classification and multi-target models),
+- support **multivariate predictions**,
+- respect case weights,
+- can act on matrix or data.frame data,
 - and most importantly, they show progress bars :-).
 
 ## Installation
@@ -62,6 +64,9 @@ fastpdp(fit_lm, v = c("Species", "Petal.Width"), X = iris, grid_type = "random")
 ### Importance
 
 ## Background
+
+We will first introduce some notation, partly borrowed from Friedman and Popescu [2]:
+
 
 ## References
 

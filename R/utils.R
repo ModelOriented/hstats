@@ -277,6 +277,25 @@ rowmean <- function(x, ngroups, w = NULL) {
   x
 }
 
+#' Weighted Version of colMeans()
+#' 
+#' @noRd
+#' 
+#' @param x A matrix.
+#' @param w Optional case weights.
+#' @returns A vector of column means.
+#' @examples
+#' x <- cbind(a = 1:2, b = 3:4)
+#' wcolMeans(x)
+#' wcolMeans(x, w = c(2, 2))
+#' wcolMeans(x, w = 1:2)
+wcolMeans <- function(x, w = NULL) {
+  if (!is.matrix(x)) {
+    stop("x must be a matrix")
+  }
+  if (is.null(w)) colMeans(x) else colSums(x * w) / sum(w) 
+}
+
 #' Mean Centering of Columns
 #' 
 #' Centers each column of an object by subtracting its mean. If `x` is a vector,
@@ -285,15 +304,18 @@ rowmean <- function(x, ngroups, w = NULL) {
 #' @noRd
 #' 
 #' @param x Matrix, data.frame, or vector.
+#' @param w Optional vector of case weights.
 #' @returns Centered version of `x` (vectors are turned into single-column matrix).
 #' @examples
-#' .center(1:10)
-#' .center(iris[1:3])
-.center <- function(x) {
+#' .center(1:4)
+#' x <- cbind(a = c(1, 1:4), b = c(2, 2, 4, 6, 8))
+#' .center(x)
+#' .center(x[2:5, ], w = c(2, 1, 1, 1))
+.center <- function(x, w = NULL) {
   if (is.vector(x)) {
     x <- matrix(x)
   }
-  sweep(x, MARGIN = 2L, STATS = colMeans(x))
+  sweep(x, MARGIN = 2L, STATS = wcolMeans(x, w = w))
 }
 
 #' Basic Checks
@@ -311,4 +333,23 @@ rowmean <- function(x, ngroups, w = NULL) {
     is.null(w) || length(w) == nrow(X)
   )
   TRUE
+}
+
+#' Overall Interaction Strength
+#' 
+#' Friedman and Popescu's H^2_j of overall interaction strength.
+#' 
+#' @param v Vector of column names.
+#' @param f Matrix of predictions.
+#' @param F_j List of univariate PD.
+#' @param F_not_j List of PDs of all variables != j.
+#' @param w Optional case weights.
+#' @param eps Threshold below which to set numerator values to 0.
+#' @returns Statistic
+get_H2_j <- function(v, f, F_j, F_not_j, w = NULL, eps = 1e-8) {
+  out <- stats::setNames(vector("list", length = length(v)), v)
+  for (z in v) {
+    out[[z]] <- wcolMeans((f - F_j[[z]] - F_not_j[[z]])^2, w = w)
+  }
+  .zap_small(do.call(rbind, out), eps = eps) / wcolMeans(f^2, w = w)
 }

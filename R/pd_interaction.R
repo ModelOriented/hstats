@@ -1,8 +1,8 @@
-#' Fast Friedman's H
+#' Interaction Statistics
 #'  
 #' @inheritParams pd_raw
-#' @param pairwise The default (`FALSE`) calculates overall interaction strength per 
-#'   feature. Set to `TRUE` to get *pairwise* statistics (slower).
+#' @param pairwise Should overall interaction strength per `v` be calculated (default)?
+#'   Set to `TRUE` to get *pairwise* statistics (slower).
 #' @param verbose Should a progress bar be shown? The default is `TRUE`.
 #' @returns 
 #'   An object of class "pd_interaction", containing these elements:
@@ -17,19 +17,24 @@
 #' @examples
 #' # MODEL ONE: Linear regression
 #' fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
-#' inter <- pd_interaction(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
-#' inter
-#' summary(inter)
-#' summary(inter, normalize = FALSE, squared = TRUE)
 #' 
+#' # Overall interaction strength per feature
+#' inter <- pd_interaction(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
+#' summary(inter)  # Relative interaction strength (H^2)
+#' summary(inter, normalize = FALSE, squared = FALSE)  # Absolute measure
+#' 
+#' # Pairwise statistics
 #' inter <- pd_interaction(
 #'   fit, v = names(iris[-1]), X = iris, verbose = FALSE, pairwise = TRUE
 #' )
-#' summary(inter)
+#' summary(inter)  # Relative interaction strength
+#' summary(inter, normalize = FALSE, squared = FALSE)  # Absolute
 #' 
 #' # MODEL TWO: Multi-response linear regression
 #' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
 #' v <- c("Petal.Length", "Petal.Width", "Species")
+#' 
+#' # Relative statistics
 #' summary(pd_interaction(fit, v = v, X = iris))
 #' summary(pd_interaction(fit, v = v, X = iris, pairwise = TRUE))
 #' 
@@ -93,7 +98,8 @@ pd_interaction.default <- function(object, v, X, pred_fun = stats::predict,
         w = w,
         check = FALSE, # Already done
         ...
-      )
+      ),
+      w = w
     )
     if (verbose) {
       utils::setTxtProgressBar(pb, j)
@@ -107,8 +113,8 @@ pd_interaction.default <- function(object, v, X, pred_fun = stats::predict,
     m <- length(combs)  # Need to loop over all pairwise combinations
   } else {
     m <- p              # Need to loop only over v
-    f <- .center(check_pred(pred_fun(object, X, ...)))
-    mean_f_squared <- colMeans(f^2)
+    f <- .center(check_pred(pred_fun(object, X, ...)), w = w)
+    mean_f_squared <- wcolMeans(f^2, w = w)
   }
   denom <- num <- vector("list", length = m)
   nms <- if (!pairwise) v else sapply(combs, paste, collapse = ":")
@@ -128,7 +134,8 @@ pd_interaction.default <- function(object, v, X, pred_fun = stats::predict,
           w = w,
           check = FALSE, # Already done
           ...
-        )
+        ),
+        w = w
       )
       pd_i <- pd1d[[z[1L]]]
       pd_j <- pd1d[[z[2L]]]
@@ -147,12 +154,13 @@ pd_interaction.default <- function(object, v, X, pred_fun = stats::predict,
           compress_grid = FALSE,  # grid has too many columns (saves a very quick check)
           check = FALSE, # Already done
           ...
-        )
+        ),
+        w = w
       )
       pd_i <- pd1d[[z]]
     }
-    num[[i]] <- colMeans((f - pd_i - pd_j)^2)
-    denom[[i]] <- if (pairwise) colMeans(f^2) else mean_f_squared
+    num[[i]] <- wcolMeans((f - pd_i - pd_j)^2, w = w)
+    denom[[i]] <- if (pairwise) wcolMeans(f^2, w = w) else mean_f_squared
     
     if (verbose) {
       utils::setTxtProgressBar(pb, j)
@@ -228,19 +236,19 @@ print.pd_interaction <- function(x, ...) {
 #' Interaction Summary
 #' 
 #' Uses the results of [pd_interaction()] to calculate different versions of 
-#' Friedman's H, see [pd_interaction()].
+#' Friedman and Popescu's \eqn{H^2}-statistic, see [pd_interaction()].
 #' 
 #' @inheritParams summary.pd_profiles
 #' @param normalize Should explained variances be normalized? Default is `TRUE`.
-#' @param squared Should squared statistics be returned? Default is `FALSE`. 
-#' @param sort Should result be sorted? Default is `TRUE`.
-#' @param top_m How many rows should be shown? By default `Inf` (show all).
-#' @param eps Threshold below which num values are set to 0.
+#' @param squared Should squared statistics be returned? Default is `TRUE`. 
+#' @param sort Should results be sorted by the size of the statistic? Default is `TRUE`.
+#' @param top_m How many statistics should be shown? By default `Inf` (show all).
+#' @param eps Threshold below which numerator values are set to 0.
 #' @param verbose Should description be printed or not? Default is `TRUE`.
 #' @returns Matrix with statistics (one column per prediction dimension).
 #' @export
 #' @seealso [pd_interaction()]
-summary.pd_interaction <- function(object, normalize = TRUE, squared = FALSE, 
+summary.pd_interaction <- function(object, normalize = TRUE, squared = TRUE, 
                                    sort = TRUE, top_m = Inf, out_names = NULL, 
                                    eps = 1e-8, verbose = TRUE, ...) {
   if (verbose) {
