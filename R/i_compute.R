@@ -62,7 +62,7 @@ i_compute <- function(object, ...) {
 #' @describeIn i_compute Default method.
 #' @export
 i_compute.default <- function(object, v, X, pred_fun = stats::predict,
-                              pairwise_limit = 0.001, n_max = 200L, w = NULL, 
+                              pairwise_limit = 0.005, n_max = 300L, w = NULL, 
                               verbose = TRUE, ...) {
   .basic_check(X = X, v = v, pred_fun = pred_fun, w = w)
   
@@ -82,7 +82,7 @@ i_compute.default <- function(object, v, X, pred_fun = stats::predict,
   p <- length(v)
   show_bar <- verbose && p >= 2L
   if (show_bar) {
-    cat("Univariate calculations...\n")
+    cat("Univariable calculations...\n")
     pb <- utils::txtProgressBar(1L, max = p, style = 3)
   }
   
@@ -146,7 +146,7 @@ i_compute.default <- function(object, v, X, pred_fun = stats::predict,
     
     show_bar <- verbose && n_combs >= 2L
     if (show_bar) {
-      cat("Bivariate calculations...\n")
+      cat("Pairwise calculations...\n")
       pb <- utils::txtProgressBar(1L, max = n_combs, style = 3)
     }
   
@@ -198,7 +198,7 @@ i_compute.default <- function(object, v, X, pred_fun = stats::predict,
 #' @export
 i_compute.ranger <- function(object, v, X,
                              pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
-                             pairwise_limit = 0.001, n_max = 200L, 
+                             pairwise_limit = 0.005, n_max = 300L, 
                              w = NULL, verbose = TRUE, ...) {
   i_compute.default(
     object = object,
@@ -217,7 +217,7 @@ i_compute.ranger <- function(object, v, X,
 #' @export
 i_compute.Learner <- function(object, v, X,
                               pred_fun = function(m, X) m$predict_newdata(X)$response,
-                              pairwise_limit = 0.001, n_max = 200L,
+                              pairwise_limit = 0.005, n_max = 300L,
                               w = NULL, verbose = TRUE, ...) {
   i_compute.default(
     object = object,
