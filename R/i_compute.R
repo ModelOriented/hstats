@@ -7,24 +7,26 @@
 #' - ...
 #'  
 #' @inheritParams pd_raw
-#' @param pairwise_limit Pairwise evaluation of \eqn{p} features require \eqn{p(p-1)/2}
-#'   expensive calculations. Therefore, we limit them to features with minimal relative
-#'   overall interaction strength (Friedman and Popescu's \eqn{H^2_j}) of more than this
-#'   value. Set to 0 to not miss any pairwise interaction. Set to 1 to not calculate
-#'   any pairwise interactions.
+#' @param pairwise_m Number of features for which pairwise statistics are calculated.
+#'   The features are selected based on overall interaction strength \eqn{H^2_j}. 
+#'   For multivariate prediction functions, the maximal \eqn{H^2_j} over dimensions
+#'   is considered.
+#'   Set to `length(v)` to not miss any pairwise interaction. 
+#'   Set to 0 to not calculate any pairwise interaction.
 #' @param verbose Should a progress bar be shown? The default is `TRUE`.
 #' @returns 
 #'   An object of class "i_compute", containing these elements:
 #'   - `f`: Matrix with predictions.
+#'   - `mean_f_squared`: (Weighted) mean f^2. Often used to normalize statistics.
 #'   - `F_j`: List of matrices, each representing univariable PDs.
 #'   - `F_not_j`: List of matrices, each representing the PDs of all variables != j.
 #'   - `F_jk`: List of matrices, each representing bivariate PDs.
 #'   - `w`: Same as input w.
 #'   - `H2_j`: Matrix of Friedman and Popescu's \eqn{H^2_j} (one row per variable pair).
+#'   - `K`: Dimensionality of predictions.
+#'   - `pred_names`: Names of the predictions.
 #'   - `v`: Same as input `v`.
-#'   - `v_pairwise`: Subset of `v` with `H2_j` larger than `pairwise_limit`. Pairwise
-#'     PDs are calculated only for this subset.
-#'   - `pairwise_limit`: Same as input `pairwise_limit`.
+#'   - `v_pairwise`: Subset of `v` with largest `H2_j` used for pairwise calculations.
 #'   - `combs`: List of variable pairs for which pairwise PDs are available.
 #' @references
 #'   Friedman, Jerome H., and Bogdan E. Popescu. "Predictive Learning via Rule Ensembles."
@@ -62,7 +64,7 @@ i_compute <- function(object, ...) {
 #' @describeIn i_compute Default method.
 #' @export
 i_compute.default <- function(object, v, X, pred_fun = stats::predict,
-                              pairwise_limit = 0.005, n_max = 300L, w = NULL, 
+                              pairwise_m = 5L, n_max = 300L, w = NULL, 
                               verbose = TRUE, ...) {
   .basic_check(X = X, v = v, pred_fun = pred_fun, w = w)
   
@@ -77,6 +79,7 @@ i_compute.default <- function(object, v, X, pred_fun = stats::predict,
   
   # Predictions ("F" in Friedman and Popescu) always calculated (cheap)
   f <- .center(check_pred(pred_fun(object, X, ...)), w = w)
+  mean_f_squared <- wcolMeans(f^2, w = w)
   
   # Initialize first progress bar
   p <- length(v)
@@ -132,13 +135,12 @@ i_compute.default <- function(object, v, X, pred_fun = stats::predict,
     cat("\n")
   }
   
-  # Pairwise stats are calculated only for variables with minimal overall interactions
-  # For multivariate predictions, we take their maximum in order to not miss anything
+  # Pairwise stats are calculated only for subset of features with large interactions
   H2_j <- get_H2_j(v = v, f = f, F_j = F_j, F_not_j = F_not_j, w = w)
   rowwise_max <- apply(H2_j, MARGIN = 1L, FUN = max)
-  v_pairwise <- names(which(rowwise_max > pairwise_limit))
-
-  if (length(v_pairwise) >= 2L) {
+  rowwise_max <- rowwise_max[rowwise_max > 0]
+  if (length(rowwise_max) >= 2L) {
+    v_pairwise <- names(utils::head(sort(-rowwise_max), pairwise_m))
     combs <- utils::combn(v_pairwise, 2L, simplify = FALSE)
     n_combs <- length(combs)
     F_jk <- vector("list", length = n_combs)
@@ -175,21 +177,24 @@ i_compute.default <- function(object, v, X, pred_fun = stats::predict,
     }
   } else {
     F_jk <- combs <- list()
+    v_pairwise <- character(0L)
   }
   structure(
     list(
-      f = f, 
+      f = f,
+      mean_f_squared = mean_f_squared,
       F_j = F_j, 
       F_not_j = F_not_j, 
       F_jk = F_jk,
       w = w,
       H2_j = H2_j,
+      K = ncol(f),
+      pred_names = colnames(f),
       v = v,
       v_pairwise = v_pairwise,
-      pairwise_limit = pairwise_limit,
       combs = combs
     ), 
-    class = "interactions"
+    class = "interaction"
   )
 }
 
@@ -198,14 +203,14 @@ i_compute.default <- function(object, v, X, pred_fun = stats::predict,
 #' @export
 i_compute.ranger <- function(object, v, X,
                              pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
-                             pairwise_limit = 0.005, n_max = 300L, 
+                             pairwise_m = 0.005, n_max = 300L, 
                              w = NULL, verbose = TRUE, ...) {
   i_compute.default(
     object = object,
     v = v,
     X = X,
     pred_fun = pred_fun,
-    pairwise_limit = pairwise_limit,
+    pairwise_m = pairwise_m,
     n_max = n_max,
     w = w,
     verbose = verbose,
@@ -217,14 +222,14 @@ i_compute.ranger <- function(object, v, X,
 #' @export
 i_compute.Learner <- function(object, v, X,
                               pred_fun = function(m, X) m$predict_newdata(X)$response,
-                              pairwise_limit = 0.005, n_max = 300L,
+                              pairwise_m = 0.005, n_max = 300L,
                               w = NULL, verbose = TRUE, ...) {
   i_compute.default(
     object = object,
     v = v,
     X = X,
     pred_fun = pred_fun,
-    pairwise_limit = pairwise_limit,
+    pairwise_m = pairwise_m,
     n_max = n_max,
     w = w,
     verbose = verbose,

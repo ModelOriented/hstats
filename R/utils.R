@@ -147,7 +147,7 @@ fix_names <- function(out, out_names = NULL, prefix = "pred") {
     colnames(out) <- out_names
   } else if (is.null(colnames(out))) {
     p <- ncol(out)
-    colnames(out) <- if (p == 1L) prefix else paste(prefix, seq_len(p), sep = "_")
+    colnames(out) <- if (p == 1L) prefix else paste0(prefix, seq_len(p))
   }
   out
 }
@@ -335,21 +335,18 @@ wcolMeans <- function(x, w = NULL) {
   TRUE
 }
 
-#' Overall Interaction Strength
-#' 
-#' Friedman and Popescu's H^2_j of overall interaction strength.
-#' 
-#' @param v Vector of column names.
-#' @param f Matrix of predictions.
-#' @param F_j List of univariate PD.
-#' @param F_not_j List of PDs of all variables != j.
-#' @param w Optional case weights.
-#' @param eps Threshold below which to set numerator values to 0.
-#' @returns Statistic
-get_H2_j <- function(v, f, F_j, F_not_j, w = NULL, eps = 1e-8) {
-  out <- stats::setNames(vector("list", length = length(v)), v)
-  for (z in v) {
-    out[[z]] <- wcolMeans((f - F_j[[z]] - F_not_j[[z]])^2, w = w)
+postprocess <- function(S, normalize = TRUE, squared = TRUE, sort = TRUE, 
+                        top_m = Inf, out_names = NULL, eps = 1e-8) {
+  out <- .zap_small(S[["num"]], eps = eps)
+  if (normalize) {
+    out <- out / S[["denom"]]
   }
-  .zap_small(do.call(rbind, out), eps = eps) / wcolMeans(f^2, w = w)
+  if (!squared) {
+    out <- sqrt(out)
+  }
+  if (sort) {
+    out <- out[order(-rowSums(out)), , drop = FALSE]
+  }
+  out <- fix_names(out, out_names = out_names, prefix = "Y")
+  utils::head(out, n = top_m)
 }
