@@ -18,9 +18,9 @@
 #'   selected from `X`. 
 #' @param w Optional vector of case weights for each row of `X`.
 #' @param compress_X If `X` has a single non-`v` column: should duplicates be removed
-#'   and compensated via case weights? Applied if >5% duplicates. Default is `TRUE`.
+#'   and compensated via case weights? Default is `TRUE`.
 #' @param compress_grid Should duplicates in `grid` be removed and PDs mapped back to 
-#'   the original grid index? Applied if >5% duplicates. Default is `TRUE`.
+#'   the original grid index? Default is `TRUE`.
 #' @param check Should input checks be applied? Default is `TRUE`.
 #' @param ... Additional arguments passed to `pred_fun(object, X, ...)`, for instance
 #'   `type = "response"` in a [glm()] model.

@@ -142,7 +142,7 @@ check_pred <- function(x) {
 #' fix_names(cbind(1:2, 3:4))
 #' fix_names(head(iris))
 #' fix_names(head(iris), out_names = paste("V", 1:5))
-fix_names <- function(out, out_names = NULL, prefix = "pred") {
+fix_names <- function(out, out_names = NULL, prefix = "y") {
   if (!is.null(out_names)) {
     colnames(out) <- out_names
   } else if (is.null(colnames(out))) {
@@ -188,7 +188,6 @@ rowmean <- function(x, ngroups, w = NULL) {
 #' 
 #' Notes:
 #' - This is important for calculating Friedman's H of overall interaction strength.
-#' - Compression is applied only when more than 5% rows are saved.
 #' - The initial check for having a single non-`v` column is very cheap.
 #' 
 #' @noRd
@@ -201,12 +200,12 @@ rowmean <- function(x, ngroups, w = NULL) {
 #' .compress_X(head(iris), v = "Species")  # no effect yet
 .compress_X <- function(X, v, w = NULL) {
   not_v <- setdiff(colnames(X), v)
-  if (length(not_v) > 1L) {
+  if (length(not_v) != 1L) {
     return(list(X = X, w = w))  # No optimization implemented for this case
   }
   x_not_v <- if (is.data.frame(X)) X[[not_v]] else X[, not_v]
   X_dup <- duplicated(x_not_v)
-  if (mean(X_dup) <= 0.05) {
+  if (!any(X_dup)) {
     return(list(X = X, w = w))  # No optimization done
   }
 
@@ -224,7 +223,6 @@ rowmean <- function(x, ngroups, w = NULL) {
 #' 
 #' Removes duplicated grid rows. Re-indexing to original grid rows needs to be later,
 #' but this function provides the re-index vector.
-#' Note that compression is applied only when we can save more than 5% rows.
 #' Further note that checking for uniqueness can be costly for higher-dimensional grids.
 #' 
 #' @noRd
@@ -241,7 +239,7 @@ rowmean <- function(x, ngroups, w = NULL) {
 #' out$grid[out$reindex, ]  # equals grid
 .compress_grid <- function(grid, v) {
   ugrid <- unique(grid)
-  if (NROW(ugrid) >= 0.95 * NROW(grid)) {
+  if (NROW(ugrid) == NROW(grid)) {
     # No optimization done
     return(list(grid = grid))
   }
@@ -347,6 +345,6 @@ postprocess <- function(S, normalize = TRUE, squared = TRUE, sort = TRUE,
   if (sort) {
     out <- out[order(-rowSums(out)), , drop = FALSE]
   }
-  out <- fix_names(out, out_names = out_names, prefix = "Y")
+  out <- fix_names(out, out_names = out_names)
   utils::head(out, n = top_m)
 }
