@@ -140,7 +140,7 @@ i_compute.default <- function(object, v, X, pred_fun = stats::predict,
   rowwise_max <- apply(H2_j, MARGIN = 1L, FUN = max)
   rowwise_max <- rowwise_max[rowwise_max > 0]
   if (length(rowwise_max) >= 2L) {
-    v_pairwise <- names(utils::head(sort(-rowwise_max), pairwise_m))
+    v_pairwise <- v[v %in% names(utils::head(sort(-rowwise_max), pairwise_m))]
     combs <- utils::combn(v_pairwise, 2L, simplify = FALSE)
     n_combs <- length(combs)
     F_jk <- vector("list", length = n_combs)
