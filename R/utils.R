@@ -1,62 +1,77 @@
-# Helper functions
-
-#' Discretizes vector
+#' Univariate Grid
 #' 
-#' Function to discretize any vector `z`. For discrete `z` (non-numeric, or numeric
-#' with at most `grid_size` unique values), this is simply `sort(unique(z))`. Otherwise, 
-#' the values of `z` are first trimmed. Then, `grid_size` quantiles are calculated 
-#' using the inverse of the ECDF.
+#' @description
+#' Finds evaluation grid for any numeric or non-numeric vector `z`. 
 #' 
-#' @noRd
+#' For discrete `z` (non-numeric, or numeric with at most `grid_size` unique values), 
+#' this is simply `sort(unique(z))`.
 #' 
-#' @inheritParams make_grid
-#' @param z A vector to discretize.
-#' @returns For discrete `z`, `sort(unique(z))`. Otherwise, a binned version of `z`.
+#' Otherwise, if `strategy = "quantile"` (default), the evaluation points are computed
+#' as quantiles over a regular grid of probabilities from `trim[1]` to `trim[2]`. 
+#' If `strategy = "uniform"`, the evaluation points are the result of [pretty()] over
+#' the trimmed range of `z`. Set `trim = c(0, 1)` for no trimming.
+#' 
+#' Quantiles are calculated based on the inverse of the ECDF, i.e., with
+#' `stats::quantile(..., type = 1`).
+#' 
+#' @param z A vector/factor.
+#' @param grid_size Approximate grid size.
+#' @param trim A non-discrete numeric `z` is trimmed at these quantile probabilities
+#'   before calculations. Set to `c(0, 1)` for no trimming.
+#' @param strategy How to find evaluation points of non-discrete numeric columns? 
+#'   Either "quantile" or "uniform" (via [pretty()]), see description of 
+#'   [univariate_grid()].
+#' @returns A vector/factor of evaluation points.
 #' @examples
-#' make_grid_one(iris$Species)
-#' make_grid_one(rev(iris$Species))  # Same
-#' make_grid_one(iris$Sepal.Width, grid_size = 2)
-make_grid_one <- function(z, grid_size = 36L, trim = c(0.01, 0.99), 
-                          strategy = c("quantile", "uniform")) {
+#' univariate_grid(iris$Species)
+#' univariate_grid(rev(iris$Species))                       # Same
+#' 
+#' x <- iris$Sepal.Width
+#' univariate_grid(x, grid_size = 5)                        # Quantile binning
+#' univariate_grid(x, grid_size = 3, strategy = "uniform")  # Uniform pretty
+univariate_grid <- function(z, grid_size = 36L, trim = c(0.01, 0.99), 
+                            strategy = c("quantile", "uniform")) {
   strategy <- match.arg(strategy)
   uni <- unique(z)
   if (!is.numeric(z) || length(uni) <= grid_size) {
     return(sort(uni))
   }
   
-  # Non-discrete
+  # Non-discrete numeric
   if (strategy == "quantile") {
     p <- seq(trim[1L], trim[2L], length.out = grid_size)
-    return(unique(stats::quantile(z, probs = p, names = FALSE, type = 1L)))
+    g <- stats::quantile(z, probs = p, names = FALSE, type = 1L, na.rm = TRUE)
+    return(unique(g))
   }
-  pretty(stats::quantile(z, probs = trim, names = FALSE, type = 1L), n = grid_size)
+  
+  # strategy = "uniform" (should use range() if trim = c(0, 1)?)
+  r <- stats::quantile(z, probs = trim, names = FALSE, type = 1L, na.rm = TRUE)
+  pretty(r, n = grid_size)
 }
 
-#' Creates grid of any dimension
+#' Multivariate Grid
 #'
-#' Each column of `x` is turned independently into a vector of grid values. 
-#' Then, all combinations are created with [expand.grid()].
+#' This function creates a multivariate grid. Each column of the input `x` is turned 
+#' (independently) into a vector of grid values via [univariate_grid()]. 
+#' Combinations are then formed by calling [expand.grid()].
 #'
+#' @inheritParams univariate_grid
 #' @param x A vector, matrix, or data.frame to turn into a grid of values.
-#' @param grid_size Controls the approximate grid size. If `X` has p columns, then each
+#' @param grid_size Controls the approximate grid size. If `x` has p columns, then each
 #'   (non-discrete) column will be reduced to about the p-th root of `grid_size` values.
-#' @param trim Non-discrete columns are trimmed at corresponding quantiles.
-#'   Set to `c(0, 1)` for no trimming.
-#' @param strategy How should evaluation points of non-discrete columns be found? 
-#'   Either "quantile" or "uniform".
 #' @returns A vector, matrix, or data.frame with evaluation points.
 #' @examples
-#' make_grid(iris$Species)
-#' make_grid(iris[1:2], grid_size = 4)
-make_grid <- function(x, grid_size = 36L, trim = c(0.01, 0.99),
-                      strategy = c("quantile", "uniform")) {
+#' multivariate_grid(iris[1:2], grid_size = 4)
+#' multivariate_grid(iris$Species)  # Works also in the univariate case
+multivariate_grid <- function(x, grid_size = 36L, trim = c(0.01, 0.99),
+                              strategy = c("quantile", "uniform")) {
   strategy <- match.arg(strategy)
   p <- NCOL(x)
   if (p == 1L) {
     if (is.data.frame(x)) {
       x <- x[[1L]]
     }
-    return(make_grid_one(x, grid_size = grid_size, trim = trim, strategy = strategy))
+    return(univariate_grid(x, grid_size = grid_size, trim = trim, strategy = strategy))
   }
   grid_size <- ceiling(grid_size^(1/p))  # take p's root of grid_size
   is_mat <- is.matrix(x)
@@ -66,7 +81,7 @@ make_grid <- function(x, grid_size = 36L, trim = c(0.01, 0.99),
   out <- expand.grid(
     lapply(
       x, 
-      FUN = make_grid_one, grid_size = grid_size, trim = trim, strategy = strategy
+      FUN = univariate_grid, grid_size = grid_size, trim = trim, strategy = strategy
     )
   )
   if (is_mat) as.matrix(out) else out
@@ -74,17 +89,17 @@ make_grid <- function(x, grid_size = 36L, trim = c(0.01, 0.99),
 
 #' Checks Consistency of Grid
 #' 
-#' Checks if a grid of values is consistent with `v`.
+#' Internal function used to check if a grid of values is consistent with `v` and data.
 #' 
 #' @noRd
+#' @keywords internal
 #' 
-#' @param g Grid of values (either a vector/factor, or a matrix or data.frame).
+#' @param g Grid of values (either a vector/factor, a matrix, or data.frame).
 #' @param v Vector of variable names to be represented by the grid `g`.
 #' @param X_is_matrix Logical flag indicating whether the background data is a matrix.
 #'   or a data.frame. `g` must be consistent with this.
-#' @returns 
-#'   An error message or `TRUE`.
-.check_grid <- function(g, v, X_is_matrix) {
+#' @returns An error message or `TRUE`.
+check_grid <- function(g, v, X_is_matrix) {
   p <- length(v)
   if (p != NCOL(g)) {
     stop("NCOL(grid) must equal length(v)")
@@ -106,15 +121,14 @@ make_grid <- function(x, grid_size = 36L, trim = c(0.01, 0.99),
 
 #' Checks/Converts Predictions
 #' 
-#' Checks if predictions are numeric, and are either a vector or can be converted
+#' Checks if predictions are numeric. Furthermore converts non-vector, non-matrices
 #' to a matrix.
 #' 
 #' @noRd
+#' @keywords internal
 #' 
-#' @param x Object holding predictions.
-#' @returns A numeric vector or matrix with predictions.
-#' @examples
-#' check_pred(1:10)
+#' @param x Object representing model predictions.
+#' @returns Like `x`, but converted to matrix.
 check_pred <- function(x) {
   if (!is.vector(x) && !is.matrix(x)) {
     x <- as.matrix(x)
@@ -127,48 +141,38 @@ check_pred <- function(x) {
 
 #' Set Column Names
 #' 
-#' Set names of prediction columns.
+#' Internal function. If `x` does not have column names, they are set to "y" 
+#' (case p = 1) or "y1", "y2", ...
 #' 
 #' @noRd
+#' @keywords internal
 #' 
-#' @param out A matrix or `data.frame`.
-#' @param out_names Optional vector of column names.
-#' @param prefix If `out` has no column names or if `out_names = NULL`, the column names
-#'   are set to this value. If there is more than one column, the names are of the form
-#'   prefix_1, prefix_2, ...
-#' @returns Version of `out` with column names.
-#' @examples
-#' fix_names(cbind(1:3))
-#' fix_names(cbind(1:2, 3:4))
-#' fix_names(head(iris))
-#' fix_names(head(iris), out_names = paste("V", 1:5))
-fix_names <- function(out, out_names = NULL, prefix = "y") {
-  if (!is.null(out_names)) {
-    colnames(out) <- out_names
-  } else if (is.null(colnames(out))) {
-    p <- ncol(out)
-    colnames(out) <- if (p == 1L) prefix else paste0(prefix, seq_len(p))
+#' @param x A matrix or `data.frame`.
+#' @returns `x` with column names.
+fix_names <- function(x) {
+  if (is.null(colnames(x))) {
+    p <- ncol(x)
+    colnames(x) <- if (p == 1L) "y" else paste0("y", seq_len(p))
   }
-  out
+  x
 }
 
 #' Fast Weighted Mean Grouped by Fixed Groups
 #' 
-#' Workhorse to aggregate predictions per evaluation point of a PD.
+#' Internal workhorse to aggregate predictions per evaluation point of a PD.
 #' 
 #' @noRd
+#' @keywords internal
 #' 
 #' @param x Vector or matrix.
 #' @param ngroups Number of groups of fixed length `NROW(x) %/% ngroups`.
 #' @param w Optional vector with case weights.
 #' @returns A (g x K) matrix, where g is the grid size, and K = NCOL(x).
-#' @examples
-#' rowmean(rep(2:1, each = 10), ngroups = 2)
 rowmean <- function(x, ngroups, w = NULL) {
   p <- NCOL(x)
   n_bg <- NROW(x) %/% ngroups
   g <- rep(seq_len(ngroups), each = n_bg)
-  # Faster: cbind(collapse::fmean(x, g = g, w = w))
+  # Even faster: cbind(collapse::fmean(x, g = g, w = w))
   if (is.null(w)) {
     out <- rowsum(x, group = g, reorder = FALSE) / n_bg
   } else {
@@ -182,22 +186,20 @@ rowmean <- function(x, ngroups, w = NULL) {
 #' Compresses X
 #' 
 #' @description
-#' Removes duplicated rows in `X` based on columns not in `v`. Compensation is done
-#' by summing corresponding case weights `w`. Currently implemented only for the case 
-#' when there is a single non-`v` column in `X`. Can later be improved via [paste()]. 
+#' Internal function to remove duplicated rows in `X` based on columns not in `v`. 
+#' Compensation is done by summing corresponding case weights `w`. 
+#' Currently implemented only for the case when there is a single non-`v` column in `X`.
+#' Can later be generalized to multiple columns via [paste()]. 
 #' 
 #' Notes:
-#' - This is important for calculating Friedman's H of overall interaction strength.
+#' - This function is important for interaction calculations.
 #' - The initial check for having a single non-`v` column is very cheap.
 #' 
 #' @noRd
+#' @keywords internal
 #' 
 #' @inheritParams pd_raw
 #' @returns A list with `X` and `w`, potentially compressed.
-#' @examples
-#' .compress_X(cbind(a = c(1, 1, 2), b = 1:3), v = "b")
-#' .compress_X(cbind(a = c(1, 1, 2), b = 1:3), v = "b", w = 1:3)
-#' .compress_X(head(iris), v = "Species")  # no effect yet
 .compress_X <- function(X, v, w = NULL) {
   not_v <- setdiff(colnames(X), v)
   if (length(not_v) != 1L) {
@@ -221,22 +223,17 @@ rowmean <- function(x, ngroups, w = NULL) {
 
 #' Compresses Grid
 #' 
-#' Removes duplicated grid rows. Re-indexing to original grid rows needs to be later,
-#' but this function provides the re-index vector.
+#' Internal function used to remove duplicated grid rows. Re-indexing to original grid 
+#' rows needs to be later, but this function provides the re-index vector to do so.
 #' Further note that checking for uniqueness can be costly for higher-dimensional grids.
 #' 
 #' @noRd
+#' @keywords internal
 #' 
 #' @inheritParams pd_raw
 #' @returns 
 #'   A list with `grid` (possibly compressed) and the optional `reindex` vector
 #'   used to map PD values back to the original grid rows.
-#' @examples
-#' out <- .compress_grid(c(2, 1, 2, 2), v = "a")
-#' out$grid[out$reindex]  # equals grid
-#' 
-#' out <- .compress_grid(cbind(a = c(2, 1, 2, 2), b = c(1, 2, 3, 3)), v = c("a", "b"))
-#' out$grid[out$reindex, ]  # equals grid
 .compress_grid <- function(grid, v) {
   ugrid <- unique(grid)
   if (NROW(ugrid) == NROW(grid)) {
@@ -257,16 +254,15 @@ rowmean <- function(x, ngroups, w = NULL) {
 
 #' Zip Small Values
 #' 
-#' Sets very small or non-finite (NA, ...) values in vector, matrix or data.frame to 0.
+#' Internal function. Sets very small or non-finite (NA, ...) values in vector, 
+#' matrix or data.frame to 0.
 #' 
 #' @noRd
+#' @keywords internal
 #' 
 #' @param x Vector, matrix, or data.frame.
-#' @param eps Threshold below which absolute values are set to 0.
-#' @returns x with values below `eps` be replaced by 0.
-#' @examples
-#' .zap_small(1:4)
-#' .zap_small(cbind(c(0, 1e-10, 1)))
+#' @param eps Threshold, below which absolute values are set to 0.
+#' @returns Same as `x` but with values below `eps` replaced by 0.
 .zap_small <- function(x, eps = 1e-8) {
   zero <- abs(x) < eps | !is.finite(x)
   if (any(zero)) {
@@ -277,16 +273,14 @@ rowmean <- function(x, ngroups, w = NULL) {
 
 #' Weighted Version of colMeans()
 #' 
+#' Internal function used to calculate column-wise weighted means.
+#' 
 #' @noRd
+#' @keywords internal
 #' 
 #' @param x A matrix.
 #' @param w Optional case weights.
 #' @returns A vector of column means.
-#' @examples
-#' x <- cbind(a = 1:2, b = 3:4)
-#' wcolMeans(x)
-#' wcolMeans(x, w = c(2, 2))
-#' wcolMeans(x, w = 1:2)
 wcolMeans <- function(x, w = NULL) {
   if (!is.matrix(x)) {
     stop("x must be a matrix")
@@ -296,19 +290,15 @@ wcolMeans <- function(x, w = NULL) {
 
 #' Mean Centering of Columns
 #' 
-#' Centers each column of an object by subtracting its mean. If `x` is a vector,
-#' it is mean-centered as well and returned as matrix with a single column.
+#' Internal function used to center each column of an object by subtracting its 
+#' possibly weighted mean. Vector input is turned into a matrix with one column.
 #' 
 #' @noRd
+#' @keywords internal
 #' 
 #' @param x Matrix, data.frame, or vector.
 #' @param w Optional vector of case weights.
 #' @returns Centered version of `x` (vectors are turned into single-column matrix).
-#' @examples
-#' .center(1:4)
-#' x <- cbind(a = c(1, 1:4), b = c(2, 2, 4, 6, 8))
-#' .center(x)
-#' .center(x[2:5, ], w = c(2, 1, 1, 1))
 .center <- function(x, w = NULL) {
   if (is.vector(x)) {
     x <- matrix(x)
@@ -318,11 +308,14 @@ wcolMeans <- function(x, w = NULL) {
 
 #' Basic Checks
 #' 
+#' Internal function used to check some basic things.
+#' 
 #' @noRd
+#' @keywords internal
 #' 
 #' @inheritParams pd_raw
 #' @returns Error or TRUE
-.basic_check <- function(X, v, pred_fun, w) {
+basic_check <- function(X, v, pred_fun, w) {
   stopifnot(
     is.matrix(X) || is.data.frame(X),
     dim(X) >= c(1L, 1L),
@@ -331,20 +324,4 @@ wcolMeans <- function(x, w = NULL) {
     is.null(w) || length(w) == nrow(X)
   )
   TRUE
-}
-
-postprocess <- function(S, normalize = TRUE, squared = TRUE, sort = TRUE, 
-                        top_m = Inf, out_names = NULL, eps = 1e-8) {
-  out <- .zap_small(S[["num"]], eps = eps)
-  if (normalize) {
-    out <- out / S[["denom"]]
-  }
-  if (!squared) {
-    out <- sqrt(out)
-  }
-  if (sort) {
-    out <- out[order(-rowSums(out)), , drop = FALSE]
-  }
-  out <- fix_names(out, out_names = out_names)
-  utils::head(out, n = top_m)
 }

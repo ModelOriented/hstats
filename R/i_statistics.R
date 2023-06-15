@@ -25,16 +25,13 @@ get_H2_j <- function(v, f, F_j, F_not_j, w = NULL, eps = 1e-8) {
 #' @param sort Should results be sorted by the size of the statistic? Default is `TRUE`.
 #'   Multioutput predictions are sorted by row means.
 #' @param top_m How many statistics should be shown? By default `Inf` (show all).
-#' @param out_names Optional names of the output columns corresponding to the 
-#'   K-dimensional predictions.
-#' @param eps Threshold below which numerator values are set to 0.
-#' @return Matrix with statistics.
+#' @param eps Threshold below which numerator values are set to 0.#' @return Matrix with statistics.
 #' @references
 #'   Friedman, Jerome H., and Bogdan E. Popescu. "Predictive Learning via Rule Ensembles."
 #'     The Annals of Applied Statistics 2, no. 3 (2008): 916-54.
 #' @export
 H2_jk <- function(object, normalize = TRUE, squared = TRUE, sort = TRUE, 
-                  top_m = Inf, out_names = NULL, eps = 1e-8) {
+                  top_m = Inf, eps = 1e-8) {
   stopifnot(
     inherits(object, "interaction"),
     length(object[["F_jk"]]) >= 1L
@@ -45,7 +42,6 @@ H2_jk <- function(object, normalize = TRUE, squared = TRUE, sort = TRUE,
     squared = squared, 
     sort = sort, 
     top_m = top_m, 
-    out_names = out_names,
     eps = eps
   )
 }
@@ -55,7 +51,7 @@ H2_jk <- function(object, normalize = TRUE, squared = TRUE, sort = TRUE,
 #' @inheritParams H2_jk
 #' @inherit H2_jk references return
 H2_j <- function(object, normalize = TRUE, squared = TRUE, sort = TRUE, 
-                 top_m = Inf, out_names = NULL, eps = 1e-8) {
+                 top_m = Inf, eps = 1e-8) {
   stopifnot(
     inherits(object, "interaction"),
     length(object[["F_j"]]) >= 1L
@@ -66,7 +62,6 @@ H2_j <- function(object, normalize = TRUE, squared = TRUE, sort = TRUE,
     squared = squared, 
     sort = sort, 
     top_m = top_m, 
-    out_names = out_names,
     eps = eps
   )
 }
@@ -116,4 +111,18 @@ H2_j_raw <- function(object) {
   list(num = num, denom = object[["mean_f_squared"]])
 }
 
-  
+# Internal function (not sure where to document arguments)
+postprocess <- function(S, normalize = TRUE, squared = TRUE, sort = TRUE, 
+                        top_m = Inf, eps = 1e-8) {
+  out <- .zap_small(S[["num"]], eps = eps)
+  if (normalize) {
+    out <- out / S[["denom"]]
+  }
+  if (!squared) {
+    out <- sqrt(out)
+  }
+  if (sort) {
+    out <- out[order(-rowSums(out)), , drop = FALSE]
+  }
+  utils::head(fix_names(out), n = top_m)
+}

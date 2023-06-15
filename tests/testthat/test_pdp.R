@@ -21,8 +21,8 @@ test_that("pd give same answer on example as iml 0.11.1", {
   
   prof_res <- pd_profiles(fit, v = c("Species", "Sepal.Width"), X = iris, 
                           grid = list(Sepal.Width = 2:4), verbose = FALSE)
-  expect_equal(summary(prof_res, "Species")$y, raw_species)
-  expect_equal(summary(prof_res, "Sepal.Width")$y, raw_sw)
+  expect_equal(prof_res$Species$y, raw_species)
+  expect_equal(prof_res$Sepal.Width$y, raw_sw)
 })
 # 
 # library(gbm)
