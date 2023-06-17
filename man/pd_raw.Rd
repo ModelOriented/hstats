@@ -35,41 +35,42 @@ model \code{object}, its second argument a data structure like \code{X}. Additio
 matrix of predictions will be used as default column names in the results.}
 
 \item{n_max}{If \code{X} has more than \code{n_max} rows, a random sample of \code{n_max} rows is
-selected for calculations (after determining \code{grid}).}
+selected from \code{X}. In this case, set a random seed for reproducibility.}
 
 \item{w}{Optional vector of case weights for each row of \code{X}.}
 
 \item{compress_X}{If \code{X} has a single non-\code{v} column: should duplicates be removed
-and compensated via case weights? Applied if >5\% duplicates. Default is \code{TRUE}.}
+and compensated via case weights? Default is \code{TRUE}.}
 
 \item{compress_grid}{Should duplicates in \code{grid} be removed and PDs mapped back to
-the original grid index? Applied if >5\% duplicates. Default is \code{TRUE}.}
+the original grid index? Default is \code{TRUE}.}
 
 \item{check}{Should input checks be applied? Default is \code{TRUE}.}
 
-\item{...}{Additional arguments passed to \code{pred_fun(object, X, ...)}.}
+\item{...}{Additional arguments passed to \code{pred_fun(object, X, ...)}, for instance
+\code{type = "response"} in a \code{\link[=glm]{glm()}} model.}
 }
 \value{
 A matrix of partial dependence values (one column per prediction dimension,
-one row per grid row).
+one row per grid row, in the same order as \code{grid}).
 }
 \description{
-Used internally by \code{\link[=pd_profiles]{pd_profiles()}}, \code{\link[=pd_interaction]{pd_interaction()}}, and \code{\link[=pd_importance]{pd_importance()}}.
+Workhorse of \code{\link[=pd_profiles]{pd_profiles()}} and \code{\link[=interaction_statistics]{interaction_statistics()}}.
 Furthermore, it can be used to calculate multi-dimensional partial dependencies.
-In this case, provide your own grid, for instance created via \code{\link[=make_grid]{make_grid()}}.
+In this case, provide your own evaluation grid, for instance via \code{\link[=multivariate_grid]{multivariate_grid()}}.
 }
 \examples{
 fit <- lm(Sepal.Length ~ ., data = iris)
 pd_raw(fit, v = "Petal.Width", X = iris, pred_fun = predict, grid = 1:2)
 
 # 2D PD
-grid <- make_grid(iris[4:5])
+grid <- multivariate_grid(iris[4:5])
 grid
 values <- pd_raw(fit, X = iris, v = colnames(iris)[4:5], grid = grid)
 result <- data.frame(grid, values)
-head(result)
+head(result, 2)
 }
 \references{
-Friedman J. H. (2001). Greedy function approximation: A gradient boosting machine.
-The Annals of Statistics, 29:1189–1232.
+Friedman, Jerome H. "Greedy Function Approximation: A Gradient Boosting Machine."
+Annals of Statistics 29 (2000): 1189-1232.
 }

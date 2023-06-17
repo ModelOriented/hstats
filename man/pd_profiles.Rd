@@ -5,7 +5,7 @@
 \alias{pd_profiles.default}
 \alias{pd_profiles.ranger}
 \alias{pd_profiles.Learner}
-\title{Fast Partial Dependence Function}
+\title{Partial Dependence Profiles}
 \usage{
 pd_profiles(object, ...)
 
@@ -20,7 +20,6 @@ pd_profiles(object, ...)
   strategy = c("quantile", "uniform"),
   n_max = 1000L,
   w = NULL,
-  verbose = TRUE,
   ...
 )
 
@@ -35,7 +34,6 @@ pd_profiles(object, ...)
   strategy = c("quantile", "uniform"),
   n_max = 1000L,
   w = NULL,
-  verbose = TRUE,
   ...
 )
 
@@ -50,14 +48,14 @@ pd_profiles(object, ...)
   strategy = c("quantile", "uniform"),
   n_max = 1000L,
   w = NULL,
-  verbose = TRUE,
   ...
 )
 }
 \arguments{
 \item{object}{Fitted model object.}
 
-\item{...}{Additional arguments passed to \code{pred_fun(object, X, ...)}.}
+\item{...}{Additional arguments passed to \code{pred_fun(object, X, ...)}, for instance
+\code{type = "response"} in a \code{\link[=glm]{glm()}} model.}
 
 \item{v}{Vector of feature names.}
 
@@ -71,51 +69,31 @@ model \code{object}, its second argument a data structure like \code{X}. Additio
 matrix of predictions will be used as default column names in the results.}
 
 \item{grid}{Named list. Each element specifies the evaluation grid for the
-corresponding feature. Missing components are automatically added. If \code{v} has
-length 1, then \code{grid} can also be a vector.}
+corresponding feature. Missing components are automatically generated via
+\code{\link[=univariate_grid]{univariate_grid()}}. If \code{v} has length 1, then \code{grid} can also be a vector.}
 
-\item{grid_size}{Controls the approximate grid size. If \code{X} has p columns, then each
-(non-discrete) column will be reduced to about the p-th root of \code{grid_size} values.}
+\item{grid_size}{Approximate grid size.}
 
-\item{trim}{Non-discrete columns are trimmed at corresponding quantiles.
-Set to \code{c(0, 1)} for no trimming.}
+\item{trim}{A non-discrete numeric \code{z} is trimmed at these quantile probabilities
+before calculations. Set to \code{c(0, 1)} for no trimming.}
 
-\item{strategy}{How should evaluation points of non-discrete columns be found?
-Either "quantile" or "uniform".}
+\item{strategy}{How to find evaluation points of non-discrete numeric columns?
+Either "quantile" or "uniform" (via \code{\link[=pretty]{pretty()}}), see description of
+\code{\link[=univariate_grid]{univariate_grid()}}.}
 
 \item{n_max}{If \code{X} has more than \code{n_max} rows, a random sample of \code{n_max} rows is
-selected for calculations (after determining \code{grid}).}
+selected from \code{X}. In this case, set a random seed for reproducibility.}
 
 \item{w}{Optional vector of case weights for each row of \code{X}.}
-
-\item{verbose}{Should a progress bar be shown? The default is \code{TRUE}.}
 }
 \value{
-An object of class "pd_profiles", containing these elements:
-\itemize{
-\item \code{grid}: Named list of evaluation points.
-\item \code{pd}: Named list of PD matrices.
-\item \code{v}: Same as input \code{v}.
-}
+A list of PD profiles per variable in \code{v}. Has additional class "pd_profiles".
 }
 \description{
-Fast implementation of Friedman's (empirical) partial dependence (PD) function
-of feature subset \eqn{J}, given by
-\deqn{\textrm{PD}_J(v) = \frac{1}{|D|} \sum_{i \in D} \hat f(v, x_{i,\setminus J})},
-where
-\itemize{
-\item \eqn{D} is a reference data set,
-\item \eqn{J} is a index set
-\item \eqn{\hat f} is the fitted model, and
-\item \eqn{x_{i,\setminus J}} is the feature vector of the i-th observation without
-components in \eqn{J} (which are replaced by the function argument(s) \eqn{v}).
-}
-
-The function supports both
-\itemize{
-\item multivariate predictions (e.g., multi-classification settings) and
-\item multivariate grids.
-}
+For a set \code{v} of features, their individual partial dependence is evaluated over
+evaluation grids. The grids can be prespecified for any subset of the features.
+The function calls the prediction function m times, where m is the number of
+features. Multivariate predictions are supported.
 }
 \section{Methods (by class)}{
 \itemize{
@@ -130,33 +108,28 @@ The function supports both
 # MODEL ONE: Linear regression
 fit <- lm(Sepal.Length ~ ., data = iris)
 pd <- pd_profiles(fit, v = names(iris[-1]), X = iris)
-pd
-head(summary(pd))
-summary(pd, "Species")
+pd$Species
+head(pd$Sepal.Width)
 
-pd <- pd_profiles(fit, v = "Petal.Width", X = iris, grid = seq(0, 1, by = 0.5))
-summary(pd)
-summary(pd_profiles(fit, v = "Petal.Width", X = iris, grid = seq(1, 0, by = -0.5)))
-summary(pd_profiles(fit, v = "Species", X = iris))
+pd <- pd_profiles(fit, v = "Petal.Width", X = iris, grid = seq(1, 0, by = -0.5))
+pd$Petal.Width 
 
 # MODEL TWO: Multi-response linear regression
 fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width + Species, data = iris)
 v <- names(iris[3:5])
 partial_grid <- list(Petal.Width = seq(0, 1, by = 0.5))
 pd <- pd_profiles(fit, v = v, X = iris, grid = partial_grid, verbose = FALSE)
-summary(pd, "Species")
-summary(pd, "Petal.Width")
-head(summary(pd, "Petal.Length"))
-
-# MODEL THREE: Gamma GLM with log link
+pd$Species
+ 
+# MODEL THREE: Gamma GLM -> pass options to predict() via ...
 fit <- glm(
   Sepal.Length ~ . + Petal.Width:Species, 
   data = iris, 
   family = Gamma(link = log)
 )
-summary(pd_profiles(fit, v = "Species", X = iris, type = "response"))
+pd_profiles(fit, v = "Species", X = iris, type = "response")$Species
 }
 \references{
-Friedman J. H. (2001). Greedy function approximation: A gradient boosting machine.
-The Annals of Statistics, 29:1189–1232.
+Friedman, Jerome H. "Greedy Function Approximation: A Gradient Boosting Machine."
+Annals of Statistics 29 (2000): 1189-1232.
 }

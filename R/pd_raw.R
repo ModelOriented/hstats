@@ -1,6 +1,6 @@
 #' Barebone Partial Dependence (PD) Function
 #' 
-#' Workhorse of [pd_profiles()] and [i_compute()]. 
+#' Workhorse of [pd_profiles()] and [interaction_statistics()]. 
 #' Furthermore, it can be used to calculate multi-dimensional partial dependencies.
 #' In this case, provide your own evaluation grid, for instance via [multivariate_grid()]. 
 #' 
@@ -40,7 +40,7 @@
 #' grid
 #' values <- pd_raw(fit, X = iris, v = colnames(iris)[4:5], grid = grid)
 #' result <- data.frame(grid, values)
-#' head(result)
+#' head(result, 2)
 pd_raw <- function(object, v, X, grid, pred_fun = stats::predict, n_max = 1000L, 
                    w = NULL, compress_X = TRUE, compress_grid = TRUE, check = TRUE, 
                    ...) {
@@ -94,7 +94,7 @@ pd_raw <- function(object, v, X, grid, pred_fun = stats::predict, n_max = 1000L,
   }
   
   # Calculate predictions and aggregate results
-  pred <- check_pred(pred_fun(object, X_pred, ...))
+  pred <- align_pred(pred_fun(object, X_pred, ...))
   pd <- rowmean(pred, ngroups = n_grid, w = w)
   
   # Map back to grid order

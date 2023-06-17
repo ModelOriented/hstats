@@ -1,4 +1,4 @@
-#' Calculations behind Interaction Statistics
+#' Calculate Interaction Statistics
 #' 
 #' Expensive crunching behind interaction statistics such as:
 #' - Friedman and Popescu's \eqn{H^2_j} of overall interaction strength per feature.
@@ -15,16 +15,14 @@
 #'   Set to 0 to not calculate any pairwise interaction.
 #' @param verbose Should a progress bar be shown? The default is `TRUE`.
 #' @returns 
-#'   An object of class "i_compute", containing these elements:
+#'   An object of class "interaction_statistics", containing these elements:
 #'   - `f`: Matrix with predictions.
-#'   - `mean_f_squared`: (Weighted) mean f^2. Often used to normalize statistics.
+#'   - `mean_f2`: (Weighted) mean f^2. Often used to normalize statistics.
 #'   - `F_j`: List of matrices, each representing univariable PDs.
 #'   - `F_not_j`: List of matrices, each representing the PDs of all variables != j.
 #'   - `F_jk`: List of matrices, each representing bivariate PDs.
 #'   - `w`: Same as input w.
-#'   - `H2_j`: Matrix of Friedman and Popescu's \eqn{H^2_j} (one row per variable pair).
-#'   - `K`: Dimensionality of predictions.
-#'   - `pred_names`: Names of the predictions.
+#'   - `H2_j`: Matrix of Friedman and Popescu's \eqn{H^2_j}.
 #'   - `v`: Same as input `v`.
 #'   - `v_pairwise`: Subset of `v` with largest `H2_j` used for pairwise calculations.
 #'   - `combs`: List of variable pairs for which pairwise PDs are available.
@@ -35,38 +33,38 @@
 #' @examples
 #' # MODEL ONE: Linear regression
 #' fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
-#' inter <- i_compute(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
+#' inter <- interaction_statistics(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
 #' inter
 #' 
 #' # MODEL TWO: Multi-response linear regression
 #' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
 #' v <- c("Petal.Length", "Petal.Width", "Species")
-#' inter <- i_compute(fit, v = v, X = iris, verbose = FALSE)
+#' inter <- interaction_statistics(fit, v = v, X = iris, verbose = FALSE)
 #' inter
 
 #' # MODEL THREE: Gamma GLM with log link
 #' fit <- glm(Sepal.Length ~ ., data = iris, family = Gamma(link = log))
 #' 
 #' # No interactions for additive features, at least on link scale
-#' inter <- i_compute(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
+#' inter <- interaction_statistics(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
 #' inter
 #' 
 #' # On original scale, we have interactions everywhere...
-#' inter <- i_compute(
+#' inter <- interaction_statistics(
 #'   fit, v = names(iris[-1]), X = iris, type = "response", verbose = FALSE
 #' )
 #' inter
 #' 
-i_compute <- function(object, ...) {
-  UseMethod("i_compute")
+interaction_statistics <- function(object, ...) {
+  UseMethod("interaction_statistics")
 }
 
-#' @describeIn i_compute Default method.
+#' @describeIn interaction_statistics Default method.
 #' @export
-i_compute.default <- function(object, v, X, pred_fun = stats::predict,
-                              pairwise_m = 5L, n_max = 300L, w = NULL, 
-                              verbose = TRUE, ...) {
-  .basic_check(X = X, v = v, pred_fun = pred_fun, w = w)
+interaction_statistics.default <- function(object, v, X, pred_fun = stats::predict,
+                                           pairwise_m = 5L, n_max = 300L, w = NULL, 
+                                           verbose = TRUE, ...) {
+  basic_check(X = X, v = v, pred_fun = pred_fun, w = w)
   
   # Reduce size of X (and w)
   if (nrow(X) > n_max) {
@@ -78,8 +76,8 @@ i_compute.default <- function(object, v, X, pred_fun = stats::predict,
   }
   
   # Predictions ("F" in Friedman and Popescu) always calculated (cheap)
-  f <- .center(check_pred(pred_fun(object, X, ...)), w = w)
-  mean_f_squared <- wcolMeans(f^2, w = w)
+  f <- wcenter(align_pred(pred_fun(object, X, ...)), w = w)
+  mean_f2 <- wcolMeans(f^2, w = w)
   
   # Initialize first progress bar
   p <- length(v)
@@ -93,7 +91,7 @@ i_compute.default <- function(object, v, X, pred_fun = stats::predict,
   for (j in seq_len(p)) {
     # Main effect of x_j
     z <- v[j]
-    F_j[[z]] <- .center(
+    F_j[[z]] <- wcenter(
       pd_raw(
         object = object, 
         v = z, 
@@ -110,7 +108,7 @@ i_compute.default <- function(object, v, X, pred_fun = stats::predict,
     
     # Total effect of all other features
     not_z <- setdiff(colnames(X), z)
-    F_not_j[[z]] <- .center(
+    F_not_j[[z]] <- wcenter(
       pd_raw(
         object, 
         v = not_z, 
@@ -130,13 +128,20 @@ i_compute.default <- function(object, v, X, pred_fun = stats::predict,
       utils::setTxtProgressBar(pb, j)
     }
   }
-  
   if (show_bar) {
     cat("\n")
   }
   
   # Pairwise stats are calculated only for subset of features with large interactions
-  H2_j <- get_H2_j(v = v, f = f, F_j = F_j, F_not_j = F_not_j, w = w)
+  H2_j <- H2_overall(
+    object = F_j, 
+    F_not_j = F_not_j, 
+    f = f, 
+    mean_f2 = mean_f2, 
+    w = w, 
+    normalize = TRUE, 
+    sort = FALSE
+  )
   rowwise_max <- apply(H2_j, MARGIN = 1L, FUN = max)
   rowwise_max <- rowwise_max[rowwise_max > 0]
   if (length(rowwise_max) >= 2L) {
@@ -154,7 +159,7 @@ i_compute.default <- function(object, v, X, pred_fun = stats::predict,
   
     for (i in seq_len(n_combs)) {
       z <- combs[[i]]
-      F_jk[[i]] <- .center(
+      F_jk[[i]] <- wcenter(
         pd_raw(
           object, 
           v = z, 
@@ -182,30 +187,28 @@ i_compute.default <- function(object, v, X, pred_fun = stats::predict,
   structure(
     list(
       f = f,
-      mean_f_squared = mean_f_squared,
+      mean_f2 = mean_f2,
       F_j = F_j, 
       F_not_j = F_not_j, 
       F_jk = F_jk,
       w = w,
       H2_j = H2_j,
-      K = ncol(f),
-      pred_names = colnames(f),
       v = v,
       v_pairwise = v_pairwise,
       combs = combs
     ), 
-    class = "interaction"
+    class = "interaction_statistics"
   )
 }
 
-#' @describeIn i_compute Method for "ranger" models
+#' @describeIn interaction_statistics Method for "ranger" models
 #' .
 #' @export
-i_compute.ranger <- function(object, v, X,
-                             pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
-                             pairwise_m = 0.005, n_max = 300L, 
-                             w = NULL, verbose = TRUE, ...) {
-  i_compute.default(
+interaction_statistics.ranger <- function(object, v, X,
+                                          pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
+                                          pairwise_m = 0.005, n_max = 300L, 
+                                          w = NULL, verbose = TRUE, ...) {
+  interaction_statistics.default(
     object = object,
     v = v,
     X = X,
@@ -218,13 +221,13 @@ i_compute.ranger <- function(object, v, X,
   )
 }
 
-#' @describeIn i_compute Method for "mlr3" models.
+#' @describeIn interaction_statistics Method for "mlr3" models.
 #' @export
-i_compute.Learner <- function(object, v, X,
-                              pred_fun = function(m, X) m$predict_newdata(X)$response,
-                              pairwise_m = 0.005, n_max = 300L,
-                              w = NULL, verbose = TRUE, ...) {
-  i_compute.default(
+interaction_statistics.Learner <- function(object, v, X,
+                                           pred_fun = function(m, X) m$predict_newdata(X)$response,
+                                           pairwise_m = 0.005, n_max = 300L,
+                                           w = NULL, verbose = TRUE, ...) {
+  interaction_statistics.default(
     object = object,
     v = v,
     X = X,

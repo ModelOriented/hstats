@@ -46,16 +46,16 @@ pd_profiles <- function(object, ...) {
 
 #' @describeIn pd_profiles Default method.
 #' @export
-pd_profiles.default <- function(object, v, X, pred_fun = stats::predict, 
+pd_profiles.default <- function(object, v, X, pred_fun = stats::predict,
                                 grid = NULL, grid_size = 36L, trim = c(0.01, 0.99), 
                                 strategy = c("quantile", "uniform"), n_max = 1000L, 
                                 w = NULL, ...) {
   strategy <- match.arg(strategy)
   p <- length(v)
-  .basic_check(X = X, v = v, pred_fun = pred_fun, w = w)
+  basic_check(X = X, v = v, pred_fun = pred_fun, w = w)
   
   # Make list of grid values per v before subsetting
-  if ((p == 1L) && (is.vector(grid) || is.factor(grid))) {
+  if ((p == 1L) && !is.null(grid) && !is.list(grid)) {
     grid <- stats::setNames(list(grid), v)
   } else {
     for (z in v) {
@@ -67,7 +67,7 @@ pd_profiles.default <- function(object, v, X, pred_fun = stats::predict,
       }
     }
   }
-
+  
   # Reduce size of X (and w)
   if (nrow(X) > n_max) {
     ix <- sample(nrow(X), n_max)
@@ -92,7 +92,7 @@ pd_profiles.default <- function(object, v, X, pred_fun = stats::predict,
       check = FALSE, # Already done
       ...
     )
-    pd[[z]] <- cbind.data.frame(grid[z], fix_names(temp))
+    pd[[z]] <- cbind.data.frame(grid[z], temp)
   }
   structure(pd, class = "pd_profiles")
 }
