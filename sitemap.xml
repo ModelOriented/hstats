@@ -16,16 +16,19 @@
     <loc>/news/index.html</loc>
   </url>
   <url>
+    <loc>/reference/H2_overall.html</loc>
+  </url>
+  <url>
+    <loc>/reference/H2_pairwise.html</loc>
+  </url>
+  <url>
     <loc>/reference/index.html</loc>
   </url>
   <url>
-    <loc>/reference/make_grid.html</loc>
+    <loc>/reference/interaction_statistics.html</loc>
   </url>
   <url>
-    <loc>/reference/pd_importance.html</loc>
-  </url>
-  <url>
-    <loc>/reference/pd_interaction.html</loc>
+    <loc>/reference/multivariate_grid.html</loc>
   </url>
   <url>
     <loc>/reference/pd_profiles.html</loc>
@@ -34,21 +37,6 @@
     <loc>/reference/pd_raw.html</loc>
   </url>
   <url>
-    <loc>/reference/print.pd_importance.html</loc>
-  </url>
-  <url>
-    <loc>/reference/print.pd_interaction.html</loc>
-  </url>
-  <url>
-    <loc>/reference/print.pd_profiles.html</loc>
-  </url>
-  <url>
-    <loc>/reference/summary.pd_importance.html</loc>
-  </url>
-  <url>
-    <loc>/reference/summary.pd_interaction.html</loc>
-  </url>
-  <url>
-    <loc>/reference/summary.pd_profiles.html</loc>
+    <loc>/reference/univariate_grid.html</loc>
   </url>
 </urlset>
