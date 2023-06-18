@@ -231,7 +231,7 @@ $$
 To measure the relative amount of variability explained by all interactions, we can therefore study the test statistic of total interaction strength
 
 $$
-  H = \frac{{\frac{1}{n} \sum_{i = 1}^n \left[F(\boldsymbol x_i) - \sum_{j = 1}^p\hat F_j(x_{ij})\right]^2}}{{\frac{1}{n} \sum_{i = 1}^n\left[F(\boldsymbol x_i)\right]^2}}.
+  H = \frac{\frac{1}{n} \sum_{i = 1}^n \left[F(\boldsymbol x_i) - \sum_{j = 1}^p\hat F_j(x_{ij})\right]^2}{\frac{1}{n} \sum_{i = 1}^n\left[F(\boldsymbol x_i)\right]^2}.
 $$
 
 It equals the variability of the predictions unexplained by the main effects. A value of 0 would mean there are no interaction effects at all.
