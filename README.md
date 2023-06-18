@@ -213,7 +213,7 @@ and
 To be able to compare pairwise interaction strength across variable pairs, and to overcome the problem mentioned in the last remark, we suggest as alternative a different denominator, namely the same as used for $H_j$:
 
 ```math
-  \tilde H^2_{jk} = \frac{\text{Numerator}_{jk}}{{\frac{1}{n} \sum_{i = 1}^n\big[F(\boldsymbol x_i)\big]^2}}.
+  \tilde H^2_{jk} = \frac{\text{Numerator}_{jk}}{{1/n \sum_{i = 1}^n\big[F(\boldsymbol x_i)\big]^2}}.
 ```
 
 This statistic would tell us how much of the total variance of the predictions comes from the pairwise interaction of $x_j$ and $x_k$.
