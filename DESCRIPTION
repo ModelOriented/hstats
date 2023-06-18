@@ -1,4 +1,4 @@
-Package: interact
+Package: interactML
 Title: Model-Agnostic Interaction Statistics
 Version: 0.0.1
 Authors@R: 

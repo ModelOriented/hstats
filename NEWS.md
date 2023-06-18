@@ -1,3 +1,3 @@
-# interact 0.1.0
+# interactML 0.1.0
 
 This is the initial release.

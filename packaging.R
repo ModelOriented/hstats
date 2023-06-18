@@ -41,11 +41,11 @@ use_build_ignore(c("^packaging.R$", "[.]Rproj$", "^logo.png$",
 use_readme_md()
 
 # Longer docu in RMarkdown (with running R code). Often quite similar to readme.
-# use_vignette("interact")
+# use_vignette("interactML")
 
 # If you want to add unit tests
 use_testthat()
-# use_test("interact.R")
+# use_test("interactML.R")
 # use_test("methods.R")
 
 # On top of NEWS.md, describe changes made to the package

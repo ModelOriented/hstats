@@ -1,14 +1,14 @@
-# fastpdp <a href='https://github.com/mayer79/fastpdp'><img src='man/figures/logo.png' align="right" height="139"/></a>
+# interactML <a href='https://github.com/mayer79/interactML'><img src='man/figures/logo.png' align="right" height="139"/></a>
 
 <!-- badges: start -->
 
-[![CRAN status](http://www.r-pkg.org/badges/version/fastpdp)](https://cran.r-project.org/package=fastpdp)
-[![R-CMD-check](https://github.com/mayer79/fastpdp/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/mayer79/fastpdp/actions)
-[![Codecov test coverage](https://codecov.io/gh/mayer79/fastpdp/branch/main/graph/badge.svg)](https://app.codecov.io/gh/mayer79/fastpdp?branch=main)
+[![CRAN status](http://www.r-pkg.org/badges/version/interactML)](https://cran.r-project.org/package=interactML)
+[![R-CMD-check](https://github.com/mayer79/interactML/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/mayer79/interactML/actions)
+[![Codecov test coverage](https://codecov.io/gh/mayer79/interactML/branch/main/graph/badge.svg)](https://app.codecov.io/gh/mayer79/interactML?branch=main)
 [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
 
-[![](https://cranlogs.r-pkg.org/badges/fastpdp)](https://cran.r-project.org/package=fastpdp) 
-[![](https://cranlogs.r-pkg.org/badges/grand-total/fastpdp?color=orange)](https://cran.r-project.org/package=fastpdp)
+[![](https://cranlogs.r-pkg.org/badges/interactML)](https://cran.r-project.org/package=interactML) 
+[![](https://cranlogs.r-pkg.org/badges/grand-total/interactML?color=orange)](https://cran.r-project.org/package=interactML)
 
 <!-- badges: end -->
 
@@ -32,10 +32,10 @@ The functions are
 
 ```r
 # From CRAN
-install.packages("fastpdp")
+install.packages("interactML")
 
 # Or the development version:
-devtools::install_github("mayer79/fastpdp")
+devtools::install_github("mayer79/interactML")
 ```
 
 ## Usage
@@ -45,18 +45,18 @@ Let's model iris flowers... :-)
 ### Profiles
 
 ```r
-library(fastpdp)
+library(interactML)
 
 fit_lm <- lm(Sepal.Width ~ . + Species:Sepal.Length, data = iris)
 
 # Quantile grid with trimmed outliers
-fastpdp(fit_lm, v = "Petal.Width", X = iris)
+interactML(fit_lm, v = "Petal.Width", X = iris)
 
 # Own grid
-fastpdp(fit_lm, v = "Petal.Width", X = iris, grid = seq(0.1, 2.5, by = 0.1))
+interactML(fit_lm, v = "Petal.Width", X = iris, grid = seq(0.1, 2.5, by = 0.1))
 
 # Randomly selected 2D grid_
-fastpdp(fit_lm, v = c("Species", "Petal.Width"), X = iris, grid_type = "random")
+interactML(fit_lm, v = c("Species", "Petal.Width"), X = iris, grid_type = "random")
 ```
 
 ### Interaction

@@ -46,4 +46,7 @@ stuff.R
 docs
 
 # References
-*.pdf
+docu/*.pdf
+docu/*.aux
+docu/*.log
+docu/*.synctex.gz
