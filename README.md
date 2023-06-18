@@ -179,15 +179,15 @@ $$
 $$
 Correspondingly, Friedman and Popescu's $H_{jk}^2$ statistic of pairwise interaction strength can be written as
 $$
-	H_{jk}^2 = \frac{\textrm{Numerator}_{jk}}{\textrm{Denominator}_{jk}},
+	H_{jk}^2 = \frac{\text{Numerator}_{jk}}{\text{Denominator}_{jk}},
 $$
 where 
 $$
-  \textrm{Numerator}_{jk} = \frac{1}{n} \sum_{i = 1}^n\big[\hat F_{jk}(x_{ij}, x_{ik}) - \hat F_j(x_{ij}) - \hat F_k(x_{ik})\big]^2
+  \text{Numerator}_{jk} = \frac{1}{n} \sum_{i = 1}^n\big[\hat F_{jk}(x_{ij}, x_{ik}) - \hat F_j(x_{ij}) - \hat F_k(x_{ik})\big]^2
 $$
 and
 $$
-  \textrm{Denominator}_{jk} = \frac{1}{n} \sum_{i = 1}^n\big[\hat F_{jk}(x_{ij}, x_{ik})\big]^2.
+  \text{Denominator}_{jk} = \frac{1}{n} \sum_{i = 1}^n\big[\hat F_{jk}(x_{ij}, x_{ik})\big]^2.
 $$
 
 **Remarks**
