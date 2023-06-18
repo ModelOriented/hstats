@@ -1,6 +1,6 @@
 #' Aligns Predictions
 #' 
-#' Aligns predictions to a numeric matrix with column names.
+#' Turns predictions into matrix with column names.
 #' 
 #' @noRd
 #' @keywords internal
@@ -29,8 +29,8 @@ align_pred <- function(x) {
 #' @keywords internal
 #' 
 #' @param x Vector or matrix.
-#' @param ngroups Number of groups of fixed length `NROW(x) %/% ngroups`.
-#' @param w Optional vector with case weights.
+#' @param ngroups Number of groups of fixed length `NROW(x) / ngroups`.
+#' @param w Optional vector with case weights of length `NROW(x) / ngroups`.
 #' @returns A (g x K) matrix, where g is the grid size, and K = NCOL(x).
 rowmean <- function(x, ngroups, w = NULL) {
   p <- NCOL(x)
@@ -40,6 +40,9 @@ rowmean <- function(x, ngroups, w = NULL) {
   if (is.null(w)) {
     out <- rowsum(x, group = g, reorder = FALSE) / n_bg
   } else {
+    if (length(w) != n_bg) {
+      stop("w must be of length NROW(x) / ngroups.")
+    }
     # w is recycled over rows and columns
     out <- rowsum(x * w, group = g, reorder = FALSE) / sum(w)
   }
@@ -142,12 +145,12 @@ rowmean <- function(x, ngroups, w = NULL) {
 #' @noRd
 #' @keywords internal
 #' 
-#' @param x A matrix.
+#' @param x A matrix-like object.
 #' @param w Optional case weights.
 #' @returns A vector of column means.
 wcolMeans <- function(x, w = NULL) {
   if (!is.matrix(x)) {
-    stop("x must be a matrix")
+    x <- as.matrix(x)
   }
   if (is.null(w)) colMeans(x) else colSums(x * w) / sum(w) 
 }
@@ -164,8 +167,8 @@ wcolMeans <- function(x, w = NULL) {
 #' @param w Optional vector of case weights.
 #' @returns Centered version of `x` (vectors are turned into single-column matrix).
 wcenter <- function(x, w = NULL) {
-  if (is.vector(x)) {
-    x <- matrix(x)
+  if (!is.matrix(x)) {
+    x <- as.matrix(x)
   }
   sweep(x, MARGIN = 2L, STATS = wcolMeans(x, w = w))
 }
@@ -188,6 +191,66 @@ basic_check <- function(X, v, pred_fun, w) {
     is.null(w) || length(w) == nrow(X)
   )
   TRUE
+}
+
+#' Raw H2 Overall
+#' 
+#' Function used to calculate Friedman and Popescu's overall H-squared. It is separated
+#' from the main H2_overall function because it is used within interaction_statistics
+#' to select the variables for pairwise calculations.
+#' 
+#' @noRd
+#' @keywords internal
+#' 
+#' @param F_j List of empirical PD values per feature.
+#' @param F_not_j List of empirical PD values of all features except j.
+#' @param f Predictions.
+#' @param mean_f2 Weighted average of f^2.
+#' @param w Optional case weights.
+#' @inheritParams H2_overall
+H2_overall_raw <- function(F_j, F_not_j, f, mean_f2, w = NULL, 
+                           normalize = TRUE, squared = TRUE, sort = TRUE, 
+                           top_m = Inf, eps = 1e-8, ...) {
+  v <- names(F_j)
+  num <- matrix(nrow = length(v), ncol = ncol(f), dimnames = list(v, colnames(f)))
+  for (z in v) {
+    num[z, ] <- wcolMeans((f - F_j[[z]] - F_not_j[[z]])^2, w = w)
+  }
+  postprocess(
+    num = num,
+    denom = mean_f2,
+    normalize = normalize, 
+    squared = squared, 
+    sort = sort, 
+    top_m = top_m, 
+    eps = eps
+  )
+}
+
+#' Postprocessing of Statistics
+#' 
+#' Function to apply typical postprocessing steps to a Friedman-Popescu type statistic.
+#' 
+#' @noRd
+#' @keywords internal
+#' 
+#' @inheritParams H2_overall
+#' @param num Numerator of statistic.
+#' @param denom Denominator of statistic.
+#' @returns Matrix of statistics.
+postprocess <- function(num, denom = 1, normalize = TRUE, squared = TRUE, 
+                        sort = TRUE, top_m = Inf, eps = 1e-8) {
+  out <- .zap_small(num, eps = eps)
+  if (normalize) {
+    out <- out / denom
+  }
+  if (!squared) {
+    out <- sqrt(out)
+  }
+  if (sort) {
+    out <- out[order(-rowSums(out)), , drop = FALSE]
+  }
+  utils::head(out, n = top_m)
 }
 
 # combine_by <- function(x, to_numeric) {

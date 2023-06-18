@@ -33,7 +33,8 @@ use_package("utils", "Imports")
 use_gpl_license(2)
 
 # Your files that do not belong to the package itself (others are added by "use_* function")
-use_build_ignore(c("^packaging.R$", "[.]Rproj$", "^logo.png$"), escape = FALSE)
+use_build_ignore(c("^packaging.R$", "[.]Rproj$", "^logo.png$",
+                   "^docu$", "^backlog$"), escape = FALSE)
 
 # Add short docu in Markdown (without running R code)
 use_readme_md()

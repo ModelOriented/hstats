@@ -3,16 +3,71 @@
 \name{H2_pairwise}
 \alias{H2_pairwise}
 \alias{H2_pairwise.default}
+\alias{H2_pairwise.ranger}
+\alias{H2_pairwise.Learner}
 \alias{H2_pairwise.interaction_statistics}
 \title{Pairwise Interaction Strength}
 \usage{
 H2_pairwise(object, ...)
 
-\method{H2_pairwise}{default}(object, ...)
+\method{H2_pairwise}{default}(
+  object,
+  v,
+  X,
+  pred_fun = stats::predict,
+  pairwise_m = 5L,
+  n_max = 300L,
+  w = NULL,
+  verbose = TRUE,
+  normalize = TRUE,
+  denominator = c("F_jk", "f"),
+  squared = TRUE,
+  sort = TRUE,
+  top_m = Inf,
+  eps = 1e-08,
+  ...
+)
+
+\method{H2_pairwise}{ranger}(
+  object,
+  v,
+  X,
+  pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
+  pairwise_m = 5L,
+  n_max = 300L,
+  w = NULL,
+  verbose = TRUE,
+  normalize = TRUE,
+  denominator = c("F_jk", "f"),
+  squared = TRUE,
+  sort = TRUE,
+  top_m = Inf,
+  eps = 1e-08,
+  ...
+)
+
+\method{H2_pairwise}{Learner}(
+  object,
+  v,
+  X,
+  pred_fun = function(m, X) m$predict_newdata(X)$response,
+  pairwise_m = 5L,
+  n_max = 300L,
+  w = NULL,
+  verbose = TRUE,
+  normalize = TRUE,
+  denominator = c("F_jk", "f"),
+  squared = TRUE,
+  sort = TRUE,
+  top_m = Inf,
+  eps = 1e-08,
+  ...
+)
 
 \method{H2_pairwise}{interaction_statistics}(
   object,
   normalize = TRUE,
+  denominator = c("F_jk", "f"),
   squared = TRUE,
   sort = TRUE,
   top_m = Inf,
@@ -21,11 +76,40 @@ H2_pairwise(object, ...)
 )
 }
 \arguments{
-\item{object}{Object of class "interaction_statistics".}
+\item{object}{Object of class "interaction_statistics" (or a model).}
 
-\item{...}{Not used.}
+\item{...}{Further parameters passed to predict function (only for default method).}
+
+\item{v}{Vector of feature names.}
+
+\item{X}{A data.frame or matrix serving as background dataset.}
+
+\item{pred_fun}{Prediction function of the form \verb{function(object, X, ...)},
+providing K >= 1 numeric predictions per row. Its first argument represents the
+model \code{object}, its second argument a data structure like \code{X}. Additional arguments
+(such as \code{type = "response"} in a GLM) can be passed via \code{...}. The default,
+\code{\link[stats:predict]{stats::predict()}}, will work in most cases. Note that column names in a resulting
+matrix of predictions will be used as default column names in the results.}
+
+\item{pairwise_m}{Number of features for which pairwise statistics are calculated.
+The features are selected based on Friedman and Popescu's overall interaction
+strength \eqn{H^2_j} (rowwise maximum in the multivariate case).
+Set to \code{length(v)} to not miss any pairwise interaction.
+Set to 0 to not calculate any pairwise interaction.}
+
+\item{n_max}{If \code{X} has more than \code{n_max} rows, a random sample of \code{n_max} rows is
+selected from \code{X}. In this case, set a random seed for reproducibility.}
+
+\item{w}{Optional vector of case weights for each row of \code{X}.}
+
+\item{verbose}{Should a progress bar be shown? The default is \code{TRUE}.}
 
 \item{normalize}{Should statistic be normalized? Default is \code{TRUE}.}
+
+\item{denominator}{Should the denominator be based on the variation of the combined
+effect \eqn{F_{jk}} (in line with Friedman and Popescu's H statistic) or of the
+variation of the predictions. The latter can be directly compared across variable
+pairs. This option is relevant only if \code{normalize = TRUE}.}
 
 \item{squared}{Should \emph{squared} statistics be returned? Default is \code{TRUE}.}
 
@@ -41,11 +125,33 @@ Friedman and Popescu's Pairwise Interaction Strength.
 }
 \section{Methods (by class)}{
 \itemize{
-\item \code{H2_pairwise(default)}: Default pairwise interaction strength (not implemented).
+\item \code{H2_pairwise(default)}: Default pairwise interaction strength.
+
+\item \code{H2_pairwise(ranger)}: Pairwise interaction strength from "ranger" models.
+
+\item \code{H2_pairwise(Learner)}: Pairwise interaction strength from "mlr3" models.
 
 \item \code{H2_pairwise(interaction_statistics)}: Pairwise interaction strength from "interaction_statistics".
 
 }}
+\examples{
+# MODEL ONE: Linear regression
+fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
+inter <- interaction_statistics(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
+H2_pairwise(inter)                     # Proportion of pairwise effect variability
+H2_pairwise(inter, denominator = "f")  # Proportion of prediction variability
+
+\dontrun{
+H2_pairwise(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
+
+# MODEL TWO: Multi-response linear regression
+fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
+v <- c("Petal.Length", "Petal.Width", "Species")
+inter <- interaction_statistics(fit, v = v, X = iris, verbose = FALSE)
+H2_pairwise(inter)
+H2_pairwise(fit, v = v, X = iris, verbose = FALSE)
+}
+}
 \references{
 Friedman, Jerome H., and Bogdan E. Popescu. "Predictive Learning via Rule Ensembles."
 The Annals of Applied Statistics 2, no. 3 (2008): 916-54.

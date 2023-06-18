@@ -107,7 +107,7 @@ check_grid <- function(g, v, X_is_matrix) {
     stop("NCOL(grid) must equal length(v)")
   }
   if (p == 1L) {
-    if (!is.vector(g) && !is.factor(g)) {
+    if (is.list(g)) {
       stop("'grid' should be a vector/factor")
     }
   } else {

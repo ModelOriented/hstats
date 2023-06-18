@@ -26,7 +26,7 @@ interaction_statistics(object, ...)
   v,
   X,
   pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
-  pairwise_m = 0.005,
+  pairwise_m = 5L,
   n_max = 300L,
   w = NULL,
   verbose = TRUE,
@@ -38,7 +38,7 @@ interaction_statistics(object, ...)
   v,
   X,
   pred_fun = function(m, X) m$predict_newdata(X)$response,
-  pairwise_m = 0.005,
+  pairwise_m = 5L,
   n_max = 300L,
   w = NULL,
   verbose = TRUE,
@@ -63,9 +63,8 @@ model \code{object}, its second argument a data structure like \code{X}. Additio
 matrix of predictions will be used as default column names in the results.}
 
 \item{pairwise_m}{Number of features for which pairwise statistics are calculated.
-The features are selected based on overall interaction strength \eqn{H^2_j}.
-For multivariate prediction functions, the maximal \eqn{H^2_j} over dimensions
-is considered.
+The features are selected based on Friedman and Popescu's overall interaction
+strength \eqn{H^2_j} (rowwise maximum in the multivariate case).
 Set to \code{length(v)} to not miss any pairwise interaction.
 Set to 0 to not calculate any pairwise interaction.}
 
@@ -80,7 +79,7 @@ selected from \code{X}. In this case, set a random seed for reproducibility.}
 An object of class "interaction_statistics", containing these elements:
 \itemize{
 \item \code{f}: Matrix with predictions.
-\item \code{mean_f2}: (Weighted) mean f^2. Often used to normalize statistics.
+\item \code{mean_f2}: (Weighted) mean f^2. Used to normalize most statistics.
 \item \code{F_j}: List of matrices, each representing univariable PDs.
 \item \code{F_not_j}: List of matrices, each representing the PDs of all variables != j.
 \item \code{F_jk}: List of matrices, each representing bivariate PDs.
@@ -104,8 +103,7 @@ Expensive crunching behind interaction statistics such as:
 \itemize{
 \item \code{interaction_statistics(default)}: Default method.
 
-\item \code{interaction_statistics(ranger)}: Method for "ranger" models
-.
+\item \code{interaction_statistics(ranger)}: Method for "ranger" models.
 
 \item \code{interaction_statistics(Learner)}: Method for "mlr3" models.
 

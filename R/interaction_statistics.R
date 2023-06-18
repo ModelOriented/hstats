@@ -8,16 +8,15 @@
 #'  
 #' @inheritParams pd_raw
 #' @param pairwise_m Number of features for which pairwise statistics are calculated.
-#'   The features are selected based on overall interaction strength \eqn{H^2_j}. 
-#'   For multivariate prediction functions, the maximal \eqn{H^2_j} over dimensions
-#'   is considered.
+#'   The features are selected based on Friedman and Popescu's overall interaction 
+#'   strength \eqn{H^2_j} (rowwise maximum in the multivariate case). 
 #'   Set to `length(v)` to not miss any pairwise interaction. 
 #'   Set to 0 to not calculate any pairwise interaction.
 #' @param verbose Should a progress bar be shown? The default is `TRUE`.
 #' @returns 
 #'   An object of class "interaction_statistics", containing these elements:
 #'   - `f`: Matrix with predictions.
-#'   - `mean_f2`: (Weighted) mean f^2. Often used to normalize statistics.
+#'   - `mean_f2`: (Weighted) mean f^2. Used to normalize most statistics.
 #'   - `F_j`: List of matrices, each representing univariable PDs.
 #'   - `F_not_j`: List of matrices, each representing the PDs of all variables != j.
 #'   - `F_jk`: List of matrices, each representing bivariate PDs.
@@ -133,8 +132,8 @@ interaction_statistics.default <- function(object, v, X, pred_fun = stats::predi
   }
   
   # Pairwise stats are calculated only for subset of features with large interactions
-  H2_j <- H2_overall(
-    object = F_j, 
+  H2_j <- H2_overall_raw(
+    F_j = F_j, 
     F_not_j = F_not_j, 
     f = f, 
     mean_f2 = mean_f2, 
@@ -144,7 +143,7 @@ interaction_statistics.default <- function(object, v, X, pred_fun = stats::predi
   )
   rowwise_max <- apply(H2_j, MARGIN = 1L, FUN = max)
   rowwise_max <- rowwise_max[rowwise_max > 0]
-  if (length(rowwise_max) >= 2L) {
+  if (min(pairwise_m, length(rowwise_max)) >= 2L) {
     v_pairwise <- v[v %in% names(utils::head(sort(-rowwise_max), pairwise_m))]
     combs <- utils::combn(v_pairwise, 2L, simplify = FALSE)
     n_combs <- length(combs)
@@ -201,12 +200,11 @@ interaction_statistics.default <- function(object, v, X, pred_fun = stats::predi
   )
 }
 
-#' @describeIn interaction_statistics Method for "ranger" models
-#' .
+#' @describeIn interaction_statistics Method for "ranger" models.
 #' @export
 interaction_statistics.ranger <- function(object, v, X,
                                           pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
-                                          pairwise_m = 0.005, n_max = 300L, 
+                                          pairwise_m = 5L, n_max = 300L, 
                                           w = NULL, verbose = TRUE, ...) {
   interaction_statistics.default(
     object = object,
@@ -225,7 +223,7 @@ interaction_statistics.ranger <- function(object, v, X,
 #' @export
 interaction_statistics.Learner <- function(object, v, X,
                                            pred_fun = function(m, X) m$predict_newdata(X)$response,
-                                           pairwise_m = 0.005, n_max = 300L,
+                                           pairwise_m = 5L, n_max = 300L,
                                            w = NULL, verbose = TRUE, ...) {
   interaction_statistics.default(
     object = object,

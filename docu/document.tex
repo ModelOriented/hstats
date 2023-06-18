@@ -1,0 +1,87 @@
+\documentclass[]{article}
+
+%opening
+\title{}
+\author{}
+
+\begin{document}
+
+\section{Background}
+Let $F: R^p \to R$ denote the function that maps the $p$-dimensional feature vector $\mathbf{x} = (x_1, \dots, x_p)$ to its prediction.
+Furthermore, let $F_s(\mathbf{x}_s) = E_{\mathbf{x}_{\setminus s}}(F(\mathbf{x}_s, \mathbf{x}_{\setminus s}))$ be the partial dependence function of $F$ on the feature subset $\mathbf{x}_s$, where $s \subseteq \{1, \dots, p\}$. Here, the expectation runs over the joint marginal distribution of features $\mathbf{x}_{\setminus s}$ not in $\mathbf{x}_s$.
+
+Given data, $F_s(\mathbf{x}_s)$ can be estimated by
+$$
+  \hat F_s(\mathbf{x}_s) = \frac{1}{n} \sum_{i = 1}^n F(\mathbf{x}_s, \mathbf{x}_{i\setminus s}),
+$$
+where $\mathbf{x}_{i\setminus s}$, $i = 1, \dots, n$ are the observed values of $\mathbf{x}_{\setminus s}$. If observations are to be weighted by case weights, this arithmetic mean is replaced by a corresponding weighted mean.
+
+\subsection{Partial dependence profiles}
+
+To study the main effect of a feature $x_j$, we can evaluate $\hat F_j$ over a fixed grid of values $v_1, \dots, v_m$ and visualize the graph $\{(v_1, \hat F_j(v_1)), \dots, (v_m, \hat F_j(v_m))\}$. Such a {\em partial dependence plot} shows the average effect of feature $x_j$, keeping everything else fixed (Ceteris Paribus). 
+
+Similarly, partial dependence profiles of two or more variables can be studied.
+
+\subsection{Interactions}
+
+In [2], Friedman and Popescu introduced different statistics to measure interaction strength. Here, we focus on measures of interaction strength between any two features, and overall interaction strength per feature.
+
+\subsubsection{Pairwise interaction strength}
+Following [2], the pairwise interaction strength between two features $x_j$ and $x_k$ can be written as
+$$
+	H_{jk}^2 = \frac{\textrm{Numerator}_{jk}}{\textrm{Denominator}_{jk}},
+$$
+where 
+$$
+  {\textrm{Numerator}_{jk}} = \frac{1}{n} \sum_{i = 1}^n\big[\hat F_{jk}(x_{ij}, x_{ik}) - \hat F_j(x_{ij}) - \hat F_k(x_{ik})\big]^2
+$$
+and
+$$
+  {\textrm{Denominator}_{jk}} = \frac{1}{n} \sum_{i = 1}^n\big[\hat F_{jk}(x_{ij}, x_{ik})\big]^2.
+$$
+
+\paragraph{Remarks}
+\begin{enumerate}
+	\item Partial dependence functions appearing in $H^2_{ij}$ are centered to mean 0. The same applies to the prediction function $F$.
+	\item Partial dependence functions are evaluated over the data distribution of the feature values, unlike with partial dependence profiles, where one uses a fixed grid.
+	\item Weighted versions follow by replacing arithmetic means by weighted means.
+	\item $H_{jk}^2$ is interpreted as the proportion of variability of the joint effect of $x_j$ and $x_k$ unexplained by the two individual main effects. Up to numeric instability, the values are between 0 (no interaction) and 1 (only interaction).
+	\item The statistic is a relative measure. Thus, a high value does not necessarily mean a strong interaction. [2] suggest to calculate $H_{jk}$ only for {\em important} variables, such that a strong relative interaction automatically means a strong absolute interaction
+\end{enumerate}
+
+\paragraph{Proposal:}
+As an {\em absolute measure} of pairwise interaction strength, we suggest to consider the statistic
+$$
+  \tilde H_{jk} = \sqrt{\mathrm{Numerator}_{jk}}
+$$
+whose value can be judged on the scale of the predictions. It indicates the ``typical'' impact of the interaction effect on the prediction.
+
+\subsubsection{Overall interaction strength}
+Similarly, [2] propose the following statistic to measure {\em overall} interaction strength of a feature $x_j$:
+$$
+	H_{j}^2 = \frac{\textrm{Numerator}_j}{\textrm{Denominator}_j},
+$$
+where
+$$
+  {\textrm{Numerator}_j} = \frac{1}{n} \sum_{i = 1}^n\big[F(\mathbf{x}_i) - \hat F_j(x_{ij}) - \hat F_{\setminus j}(\mathbf{x}_{i\setminus k})\big]^2
+$$
+and
+$$
+  {\textrm{Denominator}_j} = \frac{1}{n} \sum_{i = 1}^n\big[F(\mathbf{x}_i)\big]^2.
+$$
+
+\paragraph{Remarks}
+\begin{enumerate}
+	\item Remarks 1--3 of $H^2_{jk}$ also apply here.
+	\item $H^2_j$ is interpreted as the proportion of overall prediction variability that solely comes from interactions with $x_j$. If there are no such interactions, $H^2_j = 0$. If the model consists of pure interaction effects involving $x_j$ (and no main effects), then the value would be 1.
+	\item As such, $H^2_j$ is a relative measure as well.
+\end{enumerate}
+
+\paragraph{Proposal:}
+Again, we propose as absolute variant the statistic
+$$
+  \tilde H_{j} = \sqrt{\mathrm{Numerator}_{j}}
+$$
+whose value can also be judged on the scale of the predictions. It indicates the ``typical''size of the interaction effects of $x_j$.
+
+\end{document}
