@@ -58,10 +58,46 @@
 <span><span class="co"># S3 method for default</span></span>
 <span><span class="fu">H2_overall</span><span class="op">(</span></span>
 <span>  <span class="va">object</span>,</span>
-<span>  <span class="va">F_not_j</span>,</span>
-<span>  <span class="va">f</span>,</span>
-<span>  <span class="va">mean_f2</span>,</span>
+<span>  <span class="va">v</span>,</span>
+<span>  <span class="va">X</span>,</span>
+<span>  pred_fun <span class="op">=</span> <span class="fu">stats</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span>,</span>
+<span>  n_max <span class="op">=</span> <span class="fl">300L</span>,</span>
 <span>  w <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  normalize <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  squared <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  sort <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  top_m <span class="op">=</span> <span class="cn">Inf</span>,</span>
+<span>  eps <span class="op">=</span> <span class="fl">1e-08</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for ranger</span></span>
+<span><span class="fu">H2_overall</span><span class="op">(</span></span>
+<span>  <span class="va">object</span>,</span>
+<span>  <span class="va">v</span>,</span>
+<span>  <span class="va">X</span>,</span>
+<span>  pred_fun <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">m</span>, <span class="va">X</span>, <span class="va">...</span><span class="op">)</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">m</span>, <span class="va">X</span>, <span class="va">...</span><span class="op">)</span><span class="op">$</span><span class="va">predictions</span>,</span>
+<span>  n_max <span class="op">=</span> <span class="fl">300L</span>,</span>
+<span>  w <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  normalize <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  squared <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  sort <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  top_m <span class="op">=</span> <span class="cn">Inf</span>,</span>
+<span>  eps <span class="op">=</span> <span class="fl">1e-08</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for Learner</span></span>
+<span><span class="fu">H2_overall</span><span class="op">(</span></span>
+<span>  <span class="va">object</span>,</span>
+<span>  <span class="va">v</span>,</span>
+<span>  <span class="va">X</span>,</span>
+<span>  pred_fun <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">m</span>, <span class="va">X</span><span class="op">)</span> <span class="va">m</span><span class="op">$</span><span class="fu">predict_newdata</span><span class="op">(</span><span class="va">X</span><span class="op">)</span><span class="op">$</span><span class="va">response</span>,</span>
+<span>  n_max <span class="op">=</span> <span class="fl">300L</span>,</span>
+<span>  w <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  normalize <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  squared <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  sort <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -85,28 +121,41 @@
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>object</dt>
-<dd><p>Object of class "interaction_statistics" (or a list of matrices for).</p></dd>
+<dd><p>Object of class "interaction_statistics", or a model object.</p></dd>
 
 
 <dt>...</dt>
-<dd><p>Not used.</p></dd>
+<dd><p>Further parameters passed to predict function (only for default method).</p></dd>
 
 
-<dt>F_not_j</dt>
-<dd><p>List with matrices containing partial dependence of all variables
-except j.</p></dd>
+<dt>v</dt>
+<dd><p>Vector of feature names.</p></dd>
 
 
-<dt>f</dt>
-<dd><p>Matrix of predictions.</p></dd>
+<dt>X</dt>
+<dd><p>A data.frame or matrix serving as background dataset.</p></dd>
 
 
-<dt>mean_f2</dt>
-<dd><p>Weighted average of f^2 values.</p></dd>
+<dt>pred_fun</dt>
+<dd><p>Prediction function of the form <code>function(object, X, ...)</code>,
+providing K &gt;= 1 numeric predictions per row. Its first argument represents the
+model <code>object</code>, its second argument a data structure like <code>X</code>. Additional arguments
+(such as <code>type = "response"</code> in a GLM) can be passed via <code>...</code>. The default,
+<code><a href="https://rdrr.io/r/stats/predict.html" class="external-link">stats::predict()</a></code>, will work in most cases. Note that column names in a resulting
+matrix of predictions will be used as default column names in the results.</p></dd>
+
+
+<dt>n_max</dt>
+<dd><p>If <code>X</code> has more than <code>n_max</code> rows, a random sample of <code>n_max</code> rows is
+selected from <code>X</code>. In this case, set a random seed for reproducibility.</p></dd>
 
 
 <dt>w</dt>
-<dd><p>Optional vector of case weights.</p></dd>
+<dd><p>Optional vector of case weights for each row of <code>X</code>.</p></dd>
+
+
+<dt>verbose</dt>
+<dd><p>Should a progress bar be shown? The default is <code>TRUE</code>.</p></dd>
 
 
 <dt>normalize</dt>
@@ -134,6 +183,8 @@ Multioutput predictions are sorted by row means.</p></dd>
     <h2>Methods (by class)</h2>
     
 <ul><li><p><code>H2_overall(default)</code>: Default method of overall interaction strength.</p></li>
+<li><p><code>H2_overall(ranger)</code>: Overall interaction strength from "ranger" models.</p></li>
+<li><p><code>H2_overall(Learner)</code>: Overall interaction strength from "mlr3" models.</p></li>
 <li><p><code>H2_overall(interaction_statistics)</code>: Overall interaction strength from "interaction_statistics".</p></li>
 </ul></div>
     <div id="references">
@@ -142,6 +193,30 @@ Multioutput predictions are sorted by row means.</p></dd>
 The Annals of Applied Statistics 2, no. 3 (2008): 916-54.</p>
     </div>
 
+    <div id="ref-examples">
+    <h2>Examples</h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># MODEL ONE: Linear regression</span></span></span>
+<span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="va">Sepal.Length</span> <span class="op">~</span> <span class="va">.</span> <span class="op">+</span> <span class="va">Petal.Width</span><span class="op">:</span><span class="va">Species</span>, data <span class="op">=</span> <span class="va">iris</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">inter</span> <span class="op">&lt;-</span> <span class="fu"><a href="interaction_statistics.html">interaction_statistics</a></span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">iris</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span>, X <span class="op">=</span> <span class="va">iris</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">H2_overall</span><span class="op">(</span><span class="va">inter</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                      y</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Species      0.0502364</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Width  0.0502364</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Sepal.Width  0.0000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Length 0.0000000</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span><span class="fu">H2_overall</span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">iris</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span>, X <span class="op">=</span> <span class="va">iris</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># MODEL TWO: Multi-response linear regression</span></span></span>
+<span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">iris</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span> <span class="op">~</span> <span class="va">Petal.Length</span> <span class="op">+</span> <span class="va">Petal.Width</span> <span class="op">*</span> <span class="va">Species</span>, data <span class="op">=</span> <span class="va">iris</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">v</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Petal.Length"</span>, <span class="st">"Petal.Width"</span>, <span class="st">"Species"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">inter</span> <span class="op">&lt;-</span> <span class="fu"><a href="interaction_statistics.html">interaction_statistics</a></span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="va">v</span>, X <span class="op">=</span> <span class="va">iris</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">H2_overall</span><span class="op">(</span><span class="va">inter</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">H2_overall</span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="va">v</span>, X <span class="op">=</span> <span class="va">iris</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+</code></pre></div>
+    </div>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top"><h2 data-toc-skip>Contents</h2>

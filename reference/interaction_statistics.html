@@ -83,7 +83,7 @@ Unnormalized pairwise statistic \(H_{jk}\).
 <span>  <span class="va">v</span>,</span>
 <span>  <span class="va">X</span>,</span>
 <span>  pred_fun <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">m</span>, <span class="va">X</span>, <span class="va">...</span><span class="op">)</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">m</span>, <span class="va">X</span>, <span class="va">...</span><span class="op">)</span><span class="op">$</span><span class="va">predictions</span>,</span>
-<span>  pairwise_m <span class="op">=</span> <span class="fl">0.005</span>,</span>
+<span>  pairwise_m <span class="op">=</span> <span class="fl">5L</span>,</span>
 <span>  n_max <span class="op">=</span> <span class="fl">300L</span>,</span>
 <span>  w <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -96,7 +96,7 @@ Unnormalized pairwise statistic \(H_{jk}\).
 <span>  <span class="va">v</span>,</span>
 <span>  <span class="va">X</span>,</span>
 <span>  pred_fun <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">m</span>, <span class="va">X</span><span class="op">)</span> <span class="va">m</span><span class="op">$</span><span class="fu">predict_newdata</span><span class="op">(</span><span class="va">X</span><span class="op">)</span><span class="op">$</span><span class="va">response</span>,</span>
-<span>  pairwise_m <span class="op">=</span> <span class="fl">0.005</span>,</span>
+<span>  pairwise_m <span class="op">=</span> <span class="fl">5L</span>,</span>
 <span>  n_max <span class="op">=</span> <span class="fl">300L</span>,</span>
 <span>  w <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -134,9 +134,8 @@ matrix of predictions will be used as default column names in the results.</p></
 
 <dt>pairwise_m</dt>
 <dd><p>Number of features for which pairwise statistics are calculated.
-The features are selected based on overall interaction strength \(H^2_j\).
-For multivariate prediction functions, the maximal \(H^2_j\) over dimensions
-is considered.
+The features are selected based on Friedman and Popescu's overall interaction
+strength \(H^2_j\) (rowwise maximum in the multivariate case).
 Set to <code>length(v)</code> to not miss any pairwise interaction.
 Set to 0 to not calculate any pairwise interaction.</p></dd>
 
@@ -159,7 +158,7 @@ selected from <code>X</code>. In this case, set a random seed for reproducibilit
     
 
 <p>An object of class "interaction_statistics", containing these elements:</p><ul><li><p><code>f</code>: Matrix with predictions.</p></li>
-<li><p><code>mean_f2</code>: (Weighted) mean f^2. Often used to normalize statistics.</p></li>
+<li><p><code>mean_f2</code>: (Weighted) mean f^2. Used to normalize most statistics.</p></li>
 <li><p><code>F_j</code>: List of matrices, each representing univariable PDs.</p></li>
 <li><p><code>F_not_j</code>: List of matrices, each representing the PDs of all variables != j.</p></li>
 <li><p><code>F_jk</code>: List of matrices, each representing bivariate PDs.</p></li>
@@ -173,8 +172,7 @@ selected from <code>X</code>. In this case, set a random seed for reproducibilit
     <h2>Methods (by class)</h2>
     
 <ul><li><p><code>interaction_statistics(default)</code>: Default method.</p></li>
-<li><p><code>interaction_statistics(ranger)</code>: Method for "ranger" models
-.</p></li>
+<li><p><code>interaction_statistics(ranger)</code>: Method for "ranger" models.</p></li>
 <li><p><code>interaction_statistics(Learner)</code>: Method for "mlr3" models.</p></li>
 </ul></div>
     <div id="references">
