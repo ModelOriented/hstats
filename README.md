@@ -140,7 +140,7 @@ total_interaction(inter)  # 0.1036339
 
 ### Partial dependence
 
-Let $F: R^p \to R$ denote the prediction function that maps the $p$-dimensional feature vector $\boldsymbol{x} = (x_1, \dots, x_p)$ to its prediction.
+Let $F: R^p \to R$ denote the prediction function that maps the $p$-dimensional feature vector ${\boldsymbol x} = (x_1, \dots, x_p)$ to its prediction.
 Furthermore, let $F_s(\boldsymbol{x}_s) = E_{\boldsymbol{x}_{\setminus s}}(F(\boldsymbol{x}_s, \boldsymbol{x}_{\setminus s}))$ be the partial dependence function of $F$ on the feature subset $\boldsymbol{x}_s$, where $s \subseteq \{1, \dots, p\}$, as introduced in [1]. Here, the expectation runs over the joint marginal distribution of features $\boldsymbol{x}_{\setminus s}$ not in $\boldsymbol{x}_s$.
 
 Given data, $F_s(\boldsymbol{x}_s)$ can be estimated by the empirical partial dependence function
@@ -155,7 +155,7 @@ In [2], Friedman and Popescu introduced different statistics to measure interact
 
 If there are no interactions involving $x_j$, we can decompose the prediction function $F$ as the sum of the partial dependence $F_j$ on $x_j$ and the partial dependence $F_{\setminus j}$ on all other features $\boldsymbol{x}_{\setminus j}$, i.e.,
 $$
-	F(\boldsymbol{x}) = F_j(x_j) + F_{\setminus j}(\boldsymbol{x}_{\setminus j}).
+	F({\boldsymbol x}) = F_j(x_j) + F_{\setminus j}(\boldsymbol{x}_{\setminus j}).
 $$
 Correspondingly, Friedman and Popescu's $H^2_j$ statistic of overall interaction strength is given by
 $$
