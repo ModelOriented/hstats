@@ -25,11 +25,10 @@
 #' total_interaction(inter)
 #' total_interaction(fit, v = v, X = iris, verbose = FALSE)
 #' 
-#' # MODEL THREE: Linear regression
+#' # MODEL THREE: No interactions
 #' fit <- lm(Sepal.Length ~ ., data = iris)
 #' inter <- interact(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
 #' total_interaction(inter)
-#' total_interaction(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
 #' }
 total_interaction <- function(object, ...) {
   UseMethod("total_interaction")
