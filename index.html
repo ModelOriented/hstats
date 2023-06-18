@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Model-Agnostic Interaction Statistics • interact</title>
+<title>Model-Agnostic Interaction Statistics • interactML</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
 <link rel="apple-touch-icon" type="image/png" sizes="180x180" href="apple-touch-icon.png">
@@ -43,7 +43,7 @@
         <span class="icon-bar"></span>
       </button>
       <span class="navbar-brand">
-        <a class="navbar-link" href="index.html">interact</a>
+        <a class="navbar-link" href="index.html">interactML</a>
         <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.1</span>
       </span>
     </div>
@@ -77,8 +77,8 @@
       </header><div class="row">
   <div class="contents col-md-9">
 <div class="section level1">
-<div class="page-header"><h1 id="fastpdp-">fastpdp <a href="https://github.com/mayer79/fastpdp" class="external-link"><img src="reference/figures/logo.png" align="right" height="139"></a>
-<a class="anchor" aria-label="anchor" href="#fastpdp-"></a>
+<div class="page-header"><h1 id="interactml-">interactML <a href="https://github.com/mayer79/interactML" class="external-link"><img src="reference/figures/logo.png" align="right" height="139"></a>
+<a class="anchor" aria-label="anchor" href="#interactml-"></a>
 </h1></div>
 <!-- badges: start -->
 
@@ -110,10 +110,10 @@
 </h2>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># From CRAN</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"fastpdp"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"interactML"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Or the development version:</span></span>
-<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"mayer79/fastpdp"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"mayer79/interactML"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a>
@@ -123,18 +123,18 @@
 <h3 id="profiles">Profiles<a class="anchor" aria-label="anchor" href="#profiles"></a>
 </h3>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/mayer79/interact" class="external-link">fastpdp</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/mayer79/interact" class="external-link">interactML</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">fit_lm</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="va">Sepal.Width</span> <span class="op">~</span> <span class="va">.</span> <span class="op">+</span> <span class="va">Species</span><span class="op">:</span><span class="va">Sepal.Length</span>, data <span class="op">=</span> <span class="va">iris</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Quantile grid with trimmed outliers</span></span>
-<span><span class="fu">fastpdp</span><span class="op">(</span><span class="va">fit_lm</span>, v <span class="op">=</span> <span class="st">"Petal.Width"</span>, X <span class="op">=</span> <span class="va">iris</span><span class="op">)</span></span>
+<span><span class="fu">interactML</span><span class="op">(</span><span class="va">fit_lm</span>, v <span class="op">=</span> <span class="st">"Petal.Width"</span>, X <span class="op">=</span> <span class="va">iris</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Own grid</span></span>
-<span><span class="fu">fastpdp</span><span class="op">(</span><span class="va">fit_lm</span>, v <span class="op">=</span> <span class="st">"Petal.Width"</span>, X <span class="op">=</span> <span class="va">iris</span>, grid <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">2.5</span>, by <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu">interactML</span><span class="op">(</span><span class="va">fit_lm</span>, v <span class="op">=</span> <span class="st">"Petal.Width"</span>, X <span class="op">=</span> <span class="va">iris</span>, grid <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">2.5</span>, by <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Randomly selected 2D grid_</span></span>
-<span><span class="fu">fastpdp</span><span class="op">(</span><span class="va">fit_lm</span>, v <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Species"</span>, <span class="st">"Petal.Width"</span><span class="op">)</span>, X <span class="op">=</span> <span class="va">iris</span>, grid_type <span class="op">=</span> <span class="st">"random"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">interactML</span><span class="op">(</span><span class="va">fit_lm</span>, v <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Species"</span>, <span class="st">"Petal.Width"</span><span class="op">)</span>, X <span class="op">=</span> <span class="va">iris</span>, grid_type <span class="op">=</span> <span class="st">"random"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="interaction">Interaction<a class="anchor" aria-label="anchor" href="#interaction"></a>
@@ -182,7 +182,7 @@
 <div class="citation">
 <h2 data-toc-skip>Citation</h2>
 <ul class="list-unstyled">
-<li><a href="authors.html#citation">Citing interact</a></li>
+<li><a href="authors.html#citation">Citing interactML</a></li>
 </ul>
 </div>
 
@@ -196,12 +196,12 @@
 <div class="dev-status">
 <h2 data-toc-skip>Dev status</h2>
 <ul class="list-unstyled">
-<li><a href="https://cran.r-project.org/package=fastpdp" class="external-link"><img src="http://www.r-pkg.org/badges/version/fastpdp" alt="CRAN status"></a></li>
-<li><a href="https://github.com/mayer79/fastpdp/actions" class="external-link"><img src="https://github.com/mayer79/fastpdp/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R-CMD-check"></a></li>
-<li><a href="https://app.codecov.io/gh/mayer79/fastpdp?branch=main" class="external-link"><img src="https://codecov.io/gh/mayer79/fastpdp/branch/main/graph/badge.svg" alt="Codecov test coverage"></a></li>
+<li><a href="https://cran.r-project.org/package=interactML" class="external-link"><img src="http://www.r-pkg.org/badges/version/interactML" alt="CRAN status"></a></li>
+<li><a href="https://github.com/mayer79/interactML/actions" class="external-link"><img src="https://github.com/mayer79/interactML/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R-CMD-check"></a></li>
+<li><a href="https://app.codecov.io/gh/mayer79/interactML?branch=main" class="external-link"><img src="https://codecov.io/gh/mayer79/interactML/branch/main/graph/badge.svg" alt="Codecov test coverage"></a></li>
 <li><a href="https://www.tidyverse.org/lifecycle/#experimental" class="external-link"><img src="https://img.shields.io/badge/lifecycle-experimental-orange.svg" alt="Lifecycle: experimental"></a></li>
-<li><a href="https://cran.r-project.org/package=fastpdp" class="external-link"><img src="https://cranlogs.r-pkg.org/badges/fastpdp"></a></li>
-<li><a href="https://cran.r-project.org/package=fastpdp" class="external-link"><img src="https://cranlogs.r-pkg.org/badges/grand-total/fastpdp?color=orange"></a></li>
+<li><a href="https://cran.r-project.org/package=interactML" class="external-link"><img src="https://cranlogs.r-pkg.org/badges/interactML"></a></li>
+<li><a href="https://cran.r-project.org/package=interactML" class="external-link"><img src="https://cranlogs.r-pkg.org/badges/grand-total/interactML?color=orange"></a></li>
 </ul>
 </div>
 
