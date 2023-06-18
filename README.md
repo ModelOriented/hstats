@@ -141,7 +141,7 @@ total_interaction(inter)  # 0.1036339
 ### Partial dependence
 
 Let $F: R^p \to R$ denote the prediction function that maps the $p$-dimensional feature vector ${\boldsymbol x} = (x_1, \dots, x_p)$ to its prediction.
-Furthermore, let $F_s({\boldsymbol x}_s) = E_{{\boldsymbol x}_{\setminus s}}(F({\boldsymbol x}_s, {\boldsymbol x}_{\setminus s}))$ be the partial dependence function of $F$ on the feature subset ${\boldsymbol x}_s$, where $s \subseteq \{1, \dots, p\}$, as introduced in [1]. Here, the expectation runs over the joint marginal distribution of features ${\boldsymbol x}_{\setminus s}$ not in ${\boldsymbol x}_s$.
+Furthermore, let $F_s({\boldsymbol x}_s) = E_{{\boldsymbol x}_{\setminus s}}(F({\boldsymbol x}_s, {\boldsymbol x}_{\setminus s}))$ be the partial dependence function of $F$ on the feature subset $\boldsymbol x_s$, where $s \subseteq \{1, \dots, p\}$, as introduced in [1]. Here, the expectation runs over the joint marginal distribution of features ${\boldsymbol x}_{\setminus s}$ not in ${\boldsymbol x}_s$.
 
 Given data, $F_s({\boldsymbol x}_s)$ can be estimated by the empirical partial dependence function
 $$
