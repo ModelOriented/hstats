@@ -134,6 +134,8 @@ H2_pairwise(inter)
 total_interaction(inter)  # 0.1036339
 ```
 
+**Comments:** The model indeed seems additive in non-geographic features. Furthermore, we see that about 10% of prediction variation comes from interaction effects. The strongest interactions are associated with distance to the ocean and the longitude.
+
 ## Background
 
 ### Partial dependence
