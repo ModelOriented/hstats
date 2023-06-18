@@ -8,7 +8,7 @@
 #' @examples
 #' # MODEL ONE: Linear regression
 #' fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
-#' inter <- interaction_statistics(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
+#' inter <- interact(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
 #' total_interaction_strength(inter)
 #' 
 #' \dontrun{
@@ -17,13 +17,13 @@
 #' # MODEL TWO: Multi-response linear regression
 #' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
 #' v <- c("Petal.Length", "Petal.Width", "Species")
-#' inter <- interaction_statistics(fit, v = v, X = iris, verbose = FALSE)
+#' inter <- interact(fit, v = v, X = iris, verbose = FALSE)
 #' total_interaction_strength(inter)
 #' total_interaction_strength(fit, v = v, X = iris, verbose = FALSE)
 #' 
 #' # MODEL THREE: Linear regression
 #' fit <- lm(Sepal.Length ~ ., data = iris)
-#' inter <- interaction_statistics(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
+#' inter <- interact(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
 #' total_interaction_strength(inter)
 #' total_interaction_strength(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
 #' }
@@ -38,7 +38,7 @@ total_interaction_strength.default <- function(object, v, X, pred_fun = stats::p
                                                verbose = TRUE, normalize = TRUE, 
                                                squared = TRUE, eps = 1e-8, ...) {
   
-  istat <- interaction_statistics(
+  istat <- interact(
     object = object,
     v = v,
     X = X,
@@ -101,9 +101,9 @@ total_interaction_strength.Learner <- function(object, v, X,
 }
 
 #' @describeIn total_interaction_strength Total interaction strength from 
-#'   "interaction_statistics".
+#'   "interact".
 #' @export
-total_interaction_strength.interaction_statistics <- function(object, normalize = TRUE, 
+total_interaction_strength.interact <- function(object, normalize = TRUE, 
                                                               squared = TRUE, 
                                                               eps = 1e-8, ...) {
   postprocess(

@@ -1,6 +1,6 @@
 #' Barebone Partial Dependence (PD) Function
 #' 
-#' Workhorse of [pd_profiles()] and [interaction_statistics()]. 
+#' Workhorse of [pd_profiles()] and [interact()]. 
 #' Furthermore, it can be used to calculate multi-dimensional partial dependencies.
 #' In this case, provide your own evaluation grid, for instance via [multivariate_grid()]. 
 #' 

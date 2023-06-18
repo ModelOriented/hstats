@@ -14,11 +14,12 @@ library(usethis)
 # Sketch of description file
 use_description(
   fields = list(
-    Title = "Fast Partial Dependence Profiles",
-    Version = "0.1.0",
-    Description = "Fast implementation of Partial Dependence Profiles (PDP) and 
-    Friedman's H statistic of interaction. 
-    The package supports multivariate predictions and working with case weights.",
+    Title = "Model Agnostic Interaction Statistics",
+    Version = "0.0.1",
+    Description = "Fast implementation of model-agnostic interaction statistics
+    introduced in Friedman, J.H. and Popescu, B.E. (2008) <doi:10.1214/07-AOAS148>.
+    The package supports multivariate predictions as well as case weights. 
+    Furthermore, different variants of the statistics are provided.",
     `Authors@R` = 
     "person('Michael', family='Mayer', role=c('aut', 'cre'), email='mayermichael79@gmail.com')",
     Depends = "R (>= 3.2.0)",
@@ -26,7 +27,7 @@ use_description(
   ),
   roxygen = TRUE
 )
-
+  
 use_package("stats", "Imports")
 use_package("utils", "Imports")
 
@@ -40,11 +41,11 @@ use_build_ignore(c("^packaging.R$", "[.]Rproj$", "^logo.png$",
 use_readme_md()
 
 # Longer docu in RMarkdown (with running R code). Often quite similar to readme.
-# use_vignette("fastpdp")
+# use_vignette("interact")
 
 # If you want to add unit tests
 use_testthat()
-# use_test("fastpdp.R")
+# use_test("interact.R")
 # use_test("methods.R")
 
 # On top of NEWS.md, describe changes made to the package

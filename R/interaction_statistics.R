@@ -14,7 +14,7 @@
 #'   Set to 0 to not calculate any pairwise interaction.
 #' @param verbose Should a progress bar be shown? The default is `TRUE`.
 #' @returns 
-#'   An object of class "interaction_statistics", containing these elements:
+#'   An object of class "interact", containing these elements:
 #'   - `f`: Matrix with predictions.
 #'   - `mean_f2`: (Weighted) mean f^2. Used to normalize most statistics.
 #'   - `F_j`: List of matrices, each representing univariable PDs.
@@ -32,35 +32,35 @@
 #' @examples
 #' # MODEL ONE: Linear regression
 #' fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
-#' inter <- interaction_statistics(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
+#' inter <- interact(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
 #' inter
 #' 
 #' # MODEL TWO: Multi-response linear regression
 #' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
 #' v <- c("Petal.Length", "Petal.Width", "Species")
-#' inter <- interaction_statistics(fit, v = v, X = iris, verbose = FALSE)
+#' inter <- interact(fit, v = v, X = iris, verbose = FALSE)
 #' inter
 
 #' # MODEL THREE: Gamma GLM with log link
 #' fit <- glm(Sepal.Length ~ ., data = iris, family = Gamma(link = log))
 #' 
 #' # No interactions for additive features, at least on link scale
-#' inter <- interaction_statistics(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
+#' inter <- interact(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
 #' inter
 #' 
 #' # On original scale, we have interactions everywhere...
-#' inter <- interaction_statistics(
+#' inter <- interact(
 #'   fit, v = names(iris[-1]), X = iris, type = "response", verbose = FALSE
 #' )
 #' inter
 #' 
-interaction_statistics <- function(object, ...) {
-  UseMethod("interaction_statistics")
+interact <- function(object, ...) {
+  UseMethod("interact")
 }
 
-#' @describeIn interaction_statistics Default method.
+#' @describeIn interact Default method.
 #' @export
-interaction_statistics.default <- function(object, v, X, pred_fun = stats::predict,
+interact.default <- function(object, v, X, pred_fun = stats::predict,
                                            pairwise_m = 5L, n_max = 300L, w = NULL, 
                                            verbose = TRUE, ...) {
   basic_check(X = X, v = v, pred_fun = pred_fun, w = w)
@@ -196,17 +196,17 @@ interaction_statistics.default <- function(object, v, X, pred_fun = stats::predi
       v_pairwise = v_pairwise,
       combs = combs
     ), 
-    class = "interaction_statistics"
+    class = "interact"
   )
 }
 
-#' @describeIn interaction_statistics Method for "ranger" models.
+#' @describeIn interact Method for "ranger" models.
 #' @export
-interaction_statistics.ranger <- function(object, v, X,
+interact.ranger <- function(object, v, X,
                                           pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
                                           pairwise_m = 5L, n_max = 300L, 
                                           w = NULL, verbose = TRUE, ...) {
-  interaction_statistics.default(
+  interact.default(
     object = object,
     v = v,
     X = X,
@@ -219,13 +219,13 @@ interaction_statistics.ranger <- function(object, v, X,
   )
 }
 
-#' @describeIn interaction_statistics Method for "mlr3" models.
+#' @describeIn interact Method for "mlr3" models.
 #' @export
-interaction_statistics.Learner <- function(object, v, X,
+interact.Learner <- function(object, v, X,
                                            pred_fun = function(m, X) m$predict_newdata(X)$response,
                                            pairwise_m = 5L, n_max = 300L,
                                            w = NULL, verbose = TRUE, ...) {
-  interaction_statistics.default(
+  interact.default(
     object = object,
     v = v,
     X = X,

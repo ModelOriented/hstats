@@ -2,8 +2,8 @@
 #' 
 #' Friedman and Popescu's H^2_j of overall interaction strength.
 #' 
-#' @inheritParams interaction_statistics
-#' @param object Object of class "interaction_statistics", or a model object.
+#' @inheritParams interact
+#' @param object Object of class "interact", or a model object.
 #' @param normalize Should statistic be normalized? Default is `TRUE`.
 #' @param squared Should *squared* statistics be returned? Default is `TRUE`. 
 #' @param sort Should results be sorted by the size of the statistic? Default is `TRUE`.
@@ -11,12 +11,12 @@
 #' @param top_m How many statistics should be shown? By default `Inf` (show all).
 #' @param eps Threshold below which numerator values are set to 0.
 #' @param ... Further parameters passed to predict function (only for default method).
-#' @inherit interaction_statistics references
+#' @inherit interact references
 #' @export
 #' @examples
 #' # MODEL ONE: Linear regression
 #' fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
-#' inter <- interaction_statistics(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
+#' inter <- interact(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
 #' H2_overall(inter)
 #' 
 #' \dontrun{
@@ -25,7 +25,7 @@
 #' # MODEL TWO: Multi-response linear regression
 #' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
 #' v <- c("Petal.Length", "Petal.Width", "Species")
-#' inter <- interaction_statistics(fit, v = v, X = iris, verbose = FALSE)
+#' inter <- interact(fit, v = v, X = iris, verbose = FALSE)
 #' H2_overall(inter)
 #' H2_overall(fit, v = v, X = iris, verbose = FALSE)
 #' }
@@ -40,7 +40,7 @@ H2_overall.default <- function(object, v, X, pred_fun = stats::predict,
                                normalize = TRUE, squared = TRUE, sort = TRUE, 
                                top_m = Inf, eps = 1e-8, ...) {
   
-  istat <- interaction_statistics(
+  istat <- interact(
     object = object,
     v = v,
     X = X,
@@ -111,9 +111,9 @@ H2_overall.Learner <- function(object, v, X,
   )
 }
 
-#' @describeIn H2_overall Overall interaction strength from "interaction_statistics".
+#' @describeIn H2_overall Overall interaction strength from "interact".
 #' @export
-H2_overall.interaction_statistics <- function(object, normalize = TRUE, squared = TRUE, 
+H2_overall.interact <- function(object, normalize = TRUE, squared = TRUE, 
                                               sort = TRUE, top_m = Inf, 
                                               eps = 1e-8, ...) {
   H2_overall_raw(
@@ -134,19 +134,19 @@ H2_overall.interaction_statistics <- function(object, normalize = TRUE, squared 
 #' 
 #' Friedman and Popescu's Pairwise Interaction Strength.
 #' 
-#' @param object Object of class "interaction_statistics" (or a model).
+#' @param object Object of class "interact" (or a model).
 #' @param denominator Should the denominator be based on the variation of the combined 
 #'   effect \eqn{F_{jk}} (in line with Friedman and Popescu's H statistic) or of the
 #'   variation of the predictions. The latter can be directly compared across variable
 #'   pairs. This option is relevant only if `normalize = TRUE`.
 #' @inheritParams H2_overall
-#' @inheritParams interaction_statistics
+#' @inheritParams interact
 #' @inherit H2_overall return references
 #' @export
 #' @examples
 #' # MODEL ONE: Linear regression
 #' fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
-#' inter <- interaction_statistics(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
+#' inter <- interact(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
 #' H2_pairwise(inter)                     # Proportion of pairwise effect variability
 #' H2_pairwise(inter, denominator = "f")  # Proportion of prediction variability
 #' 
@@ -156,7 +156,7 @@ H2_overall.interaction_statistics <- function(object, normalize = TRUE, squared 
 #' # MODEL TWO: Multi-response linear regression
 #' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
 #' v <- c("Petal.Length", "Petal.Width", "Species")
-#' inter <- interaction_statistics(fit, v = v, X = iris, verbose = FALSE)
+#' inter <- interact(fit, v = v, X = iris, verbose = FALSE)
 #' H2_pairwise(inter)
 #' H2_pairwise(fit, v = v, X = iris, verbose = FALSE)
 #' }
@@ -171,7 +171,7 @@ H2_pairwise.default <- function(object, v, X, pred_fun = stats::predict,
                                 normalize = TRUE, denominator = c("F_jk", "f"),
                                 squared = TRUE, sort = TRUE, 
                                 top_m = Inf, eps = 1e-8, ...) {
-  istat <- interaction_statistics(
+  istat <- interact(
     object = object,
     v = v,
     X = X,
@@ -247,9 +247,9 @@ H2_pairwise.Learner <- function(object, v, X,
   )
 }
 
-#' @describeIn H2_pairwise Pairwise interaction strength from "interaction_statistics".
+#' @describeIn H2_pairwise Pairwise interaction strength from "interact".
 #' @export
-H2_pairwise.interaction_statistics <- function(object, normalize = TRUE, 
+H2_pairwise.interact <- function(object, normalize = TRUE, 
                                                denominator = c("F_jk", "f"),
                                                squared = TRUE, sort = TRUE, 
                                                top_m = Inf, eps = 1e-8, ...) {

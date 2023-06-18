@@ -5,7 +5,7 @@
 \alias{total_interaction_strength.default}
 \alias{total_interaction_strength.ranger}
 \alias{total_interaction_strength.Learner}
-\alias{total_interaction_strength.interaction_statistics}
+\alias{total_interaction_strength.interact}
 \title{Total Interaction Strength}
 \usage{
 total_interaction_strength(object, ...)
@@ -52,7 +52,7 @@ total_interaction_strength(object, ...)
   ...
 )
 
-\method{total_interaction_strength}{interaction_statistics}(
+\method{total_interaction_strength}{interact}(
   object,
   normalize = TRUE,
   squared = TRUE,
@@ -61,7 +61,7 @@ total_interaction_strength(object, ...)
 )
 }
 \arguments{
-\item{object}{Object of class "interaction_statistics", or a model object.}
+\item{object}{Object of class "interact", or a model object.}
 
 \item{...}{Further parameters passed to predict function (only for default method).}
 
@@ -103,14 +103,14 @@ Total Interaction Strength
 
 \item \code{total_interaction_strength(Learner)}: Total interaction strength from "mlr3" models.
 
-\item \code{total_interaction_strength(interaction_statistics)}: Total interaction strength from
-"interaction_statistics".
+\item \code{total_interaction_strength(interact)}: Total interaction strength from
+"interact".
 
 }}
 \examples{
 # MODEL ONE: Linear regression
 fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
-inter <- interaction_statistics(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
+inter <- interact(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
 total_interaction_strength(inter)
 
 \dontrun{
@@ -119,13 +119,13 @@ total_interaction_strength(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
 # MODEL TWO: Multi-response linear regression
 fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
 v <- c("Petal.Length", "Petal.Width", "Species")
-inter <- interaction_statistics(fit, v = v, X = iris, verbose = FALSE)
+inter <- interact(fit, v = v, X = iris, verbose = FALSE)
 total_interaction_strength(inter)
 total_interaction_strength(fit, v = v, X = iris, verbose = FALSE)
 
 # MODEL THREE: Linear regression
 fit <- lm(Sepal.Length ~ ., data = iris)
-inter <- interaction_statistics(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
+inter <- interact(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
 total_interaction_strength(inter)
 total_interaction_strength(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
 }

@@ -5,7 +5,7 @@
 \alias{H2_pairwise.default}
 \alias{H2_pairwise.ranger}
 \alias{H2_pairwise.Learner}
-\alias{H2_pairwise.interaction_statistics}
+\alias{H2_pairwise.interact}
 \title{Pairwise Interaction Strength}
 \usage{
 H2_pairwise(object, ...)
@@ -64,7 +64,7 @@ H2_pairwise(object, ...)
   ...
 )
 
-\method{H2_pairwise}{interaction_statistics}(
+\method{H2_pairwise}{interact}(
   object,
   normalize = TRUE,
   denominator = c("F_jk", "f"),
@@ -76,7 +76,7 @@ H2_pairwise(object, ...)
 )
 }
 \arguments{
-\item{object}{Object of class "interaction_statistics" (or a model).}
+\item{object}{Object of class "interact" (or a model).}
 
 \item{...}{Further parameters passed to predict function (only for default method).}
 
@@ -131,13 +131,13 @@ Friedman and Popescu's Pairwise Interaction Strength.
 
 \item \code{H2_pairwise(Learner)}: Pairwise interaction strength from "mlr3" models.
 
-\item \code{H2_pairwise(interaction_statistics)}: Pairwise interaction strength from "interaction_statistics".
+\item \code{H2_pairwise(interact)}: Pairwise interaction strength from "interact".
 
 }}
 \examples{
 # MODEL ONE: Linear regression
 fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
-inter <- interaction_statistics(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
+inter <- interact(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
 H2_pairwise(inter)                     # Proportion of pairwise effect variability
 H2_pairwise(inter, denominator = "f")  # Proportion of prediction variability
 
@@ -147,7 +147,7 @@ H2_pairwise(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
 # MODEL TWO: Multi-response linear regression
 fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
 v <- c("Petal.Length", "Petal.Width", "Species")
-inter <- interaction_statistics(fit, v = v, X = iris, verbose = FALSE)
+inter <- interact(fit, v = v, X = iris, verbose = FALSE)
 H2_pairwise(inter)
 H2_pairwise(fit, v = v, X = iris, verbose = FALSE)
 }

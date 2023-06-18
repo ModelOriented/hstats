@@ -5,7 +5,7 @@
 \alias{H2_overall.default}
 \alias{H2_overall.ranger}
 \alias{H2_overall.Learner}
-\alias{H2_overall.interaction_statistics}
+\alias{H2_overall.interact}
 \title{Overall Interaction Strength}
 \usage{
 H2_overall(object, ...)
@@ -58,7 +58,7 @@ H2_overall(object, ...)
   ...
 )
 
-\method{H2_overall}{interaction_statistics}(
+\method{H2_overall}{interact}(
   object,
   normalize = TRUE,
   squared = TRUE,
@@ -69,7 +69,7 @@ H2_overall(object, ...)
 )
 }
 \arguments{
-\item{object}{Object of class "interaction_statistics", or a model object.}
+\item{object}{Object of class "interact", or a model object.}
 
 \item{...}{Further parameters passed to predict function (only for default method).}
 
@@ -113,13 +113,13 @@ Friedman and Popescu's H^2_j of overall interaction strength.
 
 \item \code{H2_overall(Learner)}: Overall interaction strength from "mlr3" models.
 
-\item \code{H2_overall(interaction_statistics)}: Overall interaction strength from "interaction_statistics".
+\item \code{H2_overall(interact)}: Overall interaction strength from "interact".
 
 }}
 \examples{
 # MODEL ONE: Linear regression
 fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
-inter <- interaction_statistics(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
+inter <- interact(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
 H2_overall(inter)
 
 \dontrun{
@@ -128,7 +128,7 @@ H2_overall(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
 # MODEL TWO: Multi-response linear regression
 fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
 v <- c("Petal.Length", "Petal.Width", "Species")
-inter <- interaction_statistics(fit, v = v, X = iris, verbose = FALSE)
+inter <- interact(fit, v = v, X = iris, verbose = FALSE)
 H2_overall(inter)
 H2_overall(fit, v = v, X = iris, verbose = FALSE)
 }
