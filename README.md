@@ -186,9 +186,10 @@ $$
 
 Correspondingly, Friedman and Popescu's $H_{jk}^2$ statistic of pairwise interaction strength can be written as
 
-$$
-	H_{jk}^2 = \frac{{\text Numerator}_{jk}}{{\text Denominator}_{jk}},
-$$
+
+```math
+H_{jk}^2 = \frac{\text{Numerator}_{jk}}{\text{Denominator}_{jk}},
+```
 
 where 
 
