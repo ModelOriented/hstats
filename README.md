@@ -145,21 +145,21 @@ Furthermore, let $F_s(\boldsymbol x_s) = E_{\boldsymbol x_{\setminus s}}(F(\bold
 
 Given data, $F_s(\boldsymbol x_s)$ can be estimated by the empirical partial dependence function
 $$
-  \hat F_s({\boldsymbol x}_s) = \frac{1}{n} \sum_{i = 1}^n F({\boldsymbol x}_s, {\boldsymbol x}_{i\setminus s}),
+  \hat F_s(\boldsymbol x_s) = \frac{1}{n} \sum_{i = 1}^n F(\boldsymbol x_s, \boldsymbol x_{i\setminus s}),
 $$
-where ${\boldsymbol x}_{i\setminus s}$, $i = 1, \dots, n$, are the observed values of ${\boldsymbol x}_{\setminus s}$.
+where $\boldsymbol x_{i\setminus s}$, $i = 1, \dots, n$, are the observed values of $\boldsymbol x_{\setminus s}$.
 
 ### Overall interaction strength
 
 In [2], Friedman and Popescu introduced different statistics to measure interaction strength. Closely following their notation, we will summarize the main ideas. 
 
-If there are no interactions involving $x_j$, we can decompose the prediction function $F$ as the sum of the partial dependence $F_j$ on $x_j$ and the partial dependence $F_{\setminus j}$ on all other features ${\boldsymbol x}_{\setminus j}$, i.e.,
+If there are no interactions involving $x_j$, we can decompose the prediction function $F$ as the sum of the partial dependence $F_j$ on $x_j$ and the partial dependence $F_{\setminus j}$ on all other features $\boldsymbol x_{\setminus j}$, i.e.,
 $$
-	F({\boldsymbol x}) = F_j(x_j) + F_{\setminus j}({\boldsymbol x}_{\setminus j}).
+	F(\boldsymbol x) = F_j(x_j) + F_{\setminus j}(\boldsymbol x_{\setminus j}).
 $$
 Correspondingly, Friedman and Popescu's $H^2_j$ statistic of overall interaction strength is given by
 $$
-	H_{j}^2 = \frac{\frac{1}{n} \sum_{i = 1}^n\big[F({\boldsymbol x}_i) - \hat F_j(x_{ij}) - \hat F_{\setminus j}({\boldsymbol x}_{i\setminus k})\big]^2}{\frac{1}{n} \sum_{i = 1}^n\big[F({\boldsymbol x}_i)\big]^2}.
+	H_{j}^2 = \frac{\frac{1}{n} \sum_{i = 1}^n\big[F(\boldsymbol x_i) - \hat F_j(x_{ij}) - \hat F_{\setminus j}(\boldsymbol x_{i\setminus k})\big]^2}{\frac{1}{n} \sum_{i = 1}^n\big[F(\boldsymbol x_i)\big]^2}.
 $$
 
 **Remarks**
@@ -201,7 +201,7 @@ $$
 
 To be able to compare pairwise interaction strength across variable pairs, and to overcome the problem mentioned in the last remark, we suggest as alternative a different denominator, namely the same as used for $H_j$:
 $$
-  \tilde H^2_{jk} = \frac{\mathrm{Numerator}_{jk}}{{\frac{1}{n} \sum_{i = 1}^n\big[F({\boldsymbol x}_i)\big]^2}}.
+  \tilde H^2_{jk} = \frac{\mathrm{Numerator}_{jk}}{{\frac{1}{n} \sum_{i = 1}^n\big[F(\boldsymbol x_i)\big]^2}}.
 $$
 This statistic would tell us how much of the total variance of the predictions comes from the pairwise interaction of $x_j$ and $x_k$.
 
@@ -211,11 +211,11 @@ Another possibility would be to use the unnormalized test statistic on the scale
 
 In the same spirit of [2], we can say: if the model is additive in all features (there are no interactions at all), then
 $$
-	F({\boldsymbol x}) = \sum_{j}^{p} F_j(x_j).
+	F(\boldsymbol x) = \sum_{j}^{p} F_j(x_j).
 $$
 To measure the relative amount of variability explained by all interactions, we can therefore study the test statistic of total interaction strength
 $$
-  H = \frac{ {\frac{1}{n} \sum_{i = 1}^n \big[F({\boldsymbol x}_i) - \sum_{j = 1}^p\hat F_j(x_{ij})\big]^2}}{{\frac{1}{n} \sum_{i = 1}^n\big[F({\boldsymbol x}_i)\big]^2}}.
+  H = \frac{ {\frac{1}{n} \sum_{i = 1}^n \big[F(\boldsymbol x_i) - \sum_{j = 1}^p\hat F_j(x_{ij})\big]^2}}{{\frac{1}{n} \sum_{i = 1}^n\big[F(\boldsymbol x_i)\big]^2}}.
 $$
 It equals the variability of the predictions unexplained by the main effects. A value of 0 would mean there are no interaction effects at all.
 
