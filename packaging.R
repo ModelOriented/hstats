@@ -16,10 +16,10 @@ use_description(
   fields = list(
     Title = "Model-Agnostic Interaction Statistics",
     Version = "0.0.1",
-    Description = "Fast implementation of model-agnostic interaction statistics
+    Description = "Fast implementation of model-agnostic interaction strength statistics
     introduced in Friedman, J.H. and Popescu, B.E. (2008) <doi:10.1214/07-AOAS148>.
-    The package supports multivariate predictions as well as case weights. 
-    Furthermore, different variants of the statistics are provided.",
+    The package supports multivariate predictions and deals with case weights. 
+    Furthermore, different variants of the original statistics are provided.",
     `Authors@R` = 
     "person('Michael', family='Mayer', role=c('aut', 'cre'), email='mayermichael79@gmail.com')",
     Depends = "R (>= 3.2.0)",

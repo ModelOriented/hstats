@@ -9,7 +9,7 @@
 \section{Background}
 \subsection{Partial dependence}
 Let $F: R^p \to R$ denote the prediction function that maps the $p$-dimensional feature vector $\mathbf{x} = (x_1, \dots, x_p)$ to its prediction.
-Furthermore, let $F_s(\mathbf{x}_s) = E_{\mathbf{x}_{\setminus s}}(F(\mathbf{x}_s, \mathbf{x}_{\setminus s}))$ be the partial dependence function of $F$ on the feature subset $\mathbf{x}_s$, where $s \subseteq \{1, \dots, p\}$, as introduced by Friedman (2000) [1]. Here, the expectation runs over the joint marginal distribution of features $\mathbf{x}_{\setminus s}$ not in $\mathbf{x}_s$.
+Furthermore, let $F_s(\mathbf{x}_s) = E_{\mathbf{x}_{\setminus s}}(F(\mathbf{x}_s, \mathbf{x}_{\setminus s}))$ be the partial dependence function of $F$ on the feature subset $\mathbf{x}_s$, where $s \subseteq \{1, \dots, p\}$, as introduced in [1]. Here, the expectation runs over the joint marginal distribution of features $\mathbf{x}_{\setminus s}$ not in $\mathbf{x}_s$.
 
 Given data, $F_s(\mathbf{x}_s)$ can be estimated by the empirical partial dependence function
 $$
@@ -59,7 +59,7 @@ $$
 \begin{enumerate}
 	\item Remarks 1--4 of $H^2_{j}$ also apply here.
 	\item $H_{jk} = 0$ means there are no interaction effects between $x_j$ and $x_k$. The larger the value, the more of the joint effect of the two features comes from the interaction.
-	\item Since the denominator differs between variable pairs, unlike $H_j$, this test statistic is difficult to be compared across variable pairs. If both main effects are very weak, a similarly weak interaction can get a high value in $H-{jk}$. Therefore, [2] suggests to calculate $H_{jk}$ only for {\em important} variables.
+	\item Since the denominator differs between variable pairs, unlike $H_j$, this test statistic is difficult to be compared across variable pairs. If both main effects are very weak, a similarly weak interaction can get a high value in $H_{jk}$. Therefore, [2] suggests to calculate $H_{jk}$ only for {\em important} variables.
 \end{enumerate}
 
 \paragraph{Alternatives:} To be able to compare pairwise interaction strength across variable pairs, and to overcome the problem mentioned in the last remark, we suggest as alternative a different denominator, namely the same as used for $H_j$:

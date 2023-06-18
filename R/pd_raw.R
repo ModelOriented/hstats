@@ -28,8 +28,8 @@
 #'   A matrix of partial dependence values (one column per prediction dimension, 
 #'   one row per grid row, in the same order as `grid`).
 #' @references
-#'   Friedman, Jerome H. "Greedy Function Approximation: A Gradient Boosting Machine." 
-#'     Annals of Statistics 29 (2000): 1189-1232.
+#'   Friedman, Jerome H. *"Greedy Function Approximation: A Gradient Boosting Machine."* 
+#'     Annals of Statistics 29, no. 5 (2001): 1189-1232.
 #' @export
 #' @examples
 #' fit <- lm(Sepal.Length ~ ., data = iris)

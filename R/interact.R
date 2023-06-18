@@ -26,8 +26,8 @@
 #'   - `v_pairwise`: Subset of `v` with largest `H2_j` used for pairwise calculations.
 #'   - `combs`: List of variable pairs for which pairwise PDs are available.
 #' @references
-#'   Friedman, Jerome H., and Bogdan E. Popescu. "Predictive Learning via Rule Ensembles."
-#'     The Annals of Applied Statistics 2, no. 3 (2008): 916-54.
+#' Friedman, Jerome H., and Bogdan E. Popescu. *"Predictive Learning via Rule Ensembles."*
+#'   The Annals of Applied Statistics 2, no. 3 (2008): 916-54.
 #' @export
 #' @examples
 #' # MODEL ONE: Linear regression

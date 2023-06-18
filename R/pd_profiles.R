@@ -12,9 +12,7 @@
 #'   [univariate_grid()]. If `v` has length 1, then `grid` can also be a vector.
 #' @returns 
 #'   A list of PD profiles per variable in `v`. Has additional class "pd_profiles".
-#' @references
-#'   Friedman, Jerome H. "Greedy Function Approximation: A Gradient Boosting Machine." 
-#'     Annals of Statistics 29 (2000): 1189-1232.
+#' @inherit pd_raw references
 #' @export
 #' @examples
 #' # MODEL ONE: Linear regression
