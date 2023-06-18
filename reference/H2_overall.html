@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">fastpdp</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.1</span>
       </span>
     </div>
 
@@ -29,7 +29,7 @@
   <a href="../news/index.html">Changelog</a>
 </li>
       </ul><ul class="nav navbar-nav navbar-right"><li>
-  <a href="https://github.com/mayer79/fastpdp/" class="external-link">
+  <a href="https://github.com/mayer79/interact/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
      
   </a>
@@ -44,7 +44,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Overall Interaction Strength</h1>
-    <small class="dont-index">Source: <a href="https://github.com/mayer79/fastpdp/blob/HEAD/R/Friedmans_H.R" class="external-link"><code>R/Friedmans_H.R</code></a></small>
+    <small class="dont-index">Source: <a href="https://github.com/mayer79/interact/blob/HEAD/R/Friedmans_H.R" class="external-link"><code>R/Friedmans_H.R</code></a></small>
     <div class="hidden name"><code>H2_overall.Rd</code></div>
     </div>
 
@@ -106,7 +106,7 @@
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># S3 method for interaction_statistics</span></span>
+<span><span class="co"># S3 method for interact</span></span>
 <span><span class="fu">H2_overall</span><span class="op">(</span></span>
 <span>  <span class="va">object</span>,</span>
 <span>  normalize <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -121,7 +121,7 @@
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>object</dt>
-<dd><p>Object of class "interaction_statistics", or a model object.</p></dd>
+<dd><p>Object of class "interact", or a model object.</p></dd>
 
 
 <dt>...</dt>
@@ -185,7 +185,7 @@ Multioutput predictions are sorted by row means.</p></dd>
 <ul><li><p><code>H2_overall(default)</code>: Default method of overall interaction strength.</p></li>
 <li><p><code>H2_overall(ranger)</code>: Overall interaction strength from "ranger" models.</p></li>
 <li><p><code>H2_overall(Learner)</code>: Overall interaction strength from "mlr3" models.</p></li>
-<li><p><code>H2_overall(interaction_statistics)</code>: Overall interaction strength from "interaction_statistics".</p></li>
+<li><p><code>H2_overall(interact)</code>: Overall interaction strength from "interact".</p></li>
 </ul></div>
     <div id="references">
     <h2>References</h2>
@@ -197,7 +197,7 @@ The Annals of Applied Statistics 2, no. 3 (2008): 916-54.</p>
     <h2>Examples</h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># MODEL ONE: Linear regression</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="va">Sepal.Length</span> <span class="op">~</span> <span class="va">.</span> <span class="op">+</span> <span class="va">Petal.Width</span><span class="op">:</span><span class="va">Species</span>, data <span class="op">=</span> <span class="va">iris</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">inter</span> <span class="op">&lt;-</span> <span class="fu"><a href="interaction_statistics.html">interaction_statistics</a></span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">iris</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span>, X <span class="op">=</span> <span class="va">iris</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">inter</span> <span class="op">&lt;-</span> <span class="fu"><a href="interact.html">interact</a></span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">iris</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span>, X <span class="op">=</span> <span class="va">iris</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">H2_overall</span><span class="op">(</span><span class="va">inter</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                      y</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Species      0.0502364</span>
@@ -211,7 +211,7 @@ The Annals of Applied Statistics 2, no. 3 (2008): 916-54.</p>
 <span class="r-in"><span><span class="co"># MODEL TWO: Multi-response linear regression</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">iris</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span> <span class="op">~</span> <span class="va">Petal.Length</span> <span class="op">+</span> <span class="va">Petal.Width</span> <span class="op">*</span> <span class="va">Species</span>, data <span class="op">=</span> <span class="va">iris</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">v</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Petal.Length"</span>, <span class="st">"Petal.Width"</span>, <span class="st">"Species"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">inter</span> <span class="op">&lt;-</span> <span class="fu"><a href="interaction_statistics.html">interaction_statistics</a></span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="va">v</span>, X <span class="op">=</span> <span class="va">iris</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">inter</span> <span class="op">&lt;-</span> <span class="fu"><a href="interact.html">interact</a></span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="va">v</span>, X <span class="op">=</span> <span class="va">iris</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">H2_overall</span><span class="op">(</span><span class="va">inter</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">H2_overall</span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="va">v</span>, X <span class="op">=</span> <span class="va">iris</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span></span></span>
