@@ -14,7 +14,7 @@
 #'   Set to 0 to not calculate any pairwise interaction.
 #' @param verbose Should a progress bar be shown? The default is `TRUE`.
 #' @returns 
-#'   An object of class "interact", containing these elements:
+#'   An object of class "interact" containing these elements:
 #'   - `f`: Matrix with predictions.
 #'   - `mean_f2`: (Weighted) mean f^2. Used to normalize most statistics.
 #'   - `F_j`: List of matrices, each representing univariable PDs.
@@ -58,11 +58,10 @@ interact <- function(object, ...) {
   UseMethod("interact")
 }
 
-#' @describeIn interact Default method.
+#' @describeIn interact Default interact method.
 #' @export
-interact.default <- function(object, v, X, pred_fun = stats::predict,
-                                           pairwise_m = 5L, n_max = 300L, w = NULL, 
-                                           verbose = TRUE, ...) {
+interact.default <- function(object, v, X, pred_fun = stats::predict, pairwise_m = 5L, 
+                             n_max = 300L, w = NULL, verbose = TRUE, ...) {
   basic_check(X = X, v = v, pred_fun = pred_fun, w = w)
   
   # Reduce size of X (and w)
@@ -203,9 +202,9 @@ interact.default <- function(object, v, X, pred_fun = stats::predict,
 #' @describeIn interact Method for "ranger" models.
 #' @export
 interact.ranger <- function(object, v, X,
-                                          pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
-                                          pairwise_m = 5L, n_max = 300L, 
-                                          w = NULL, verbose = TRUE, ...) {
+                            pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
+                            pairwise_m = 5L, n_max = 300L, w = NULL, 
+                            verbose = TRUE, ...) {
   interact.default(
     object = object,
     v = v,
@@ -222,9 +221,9 @@ interact.ranger <- function(object, v, X,
 #' @describeIn interact Method for "mlr3" models.
 #' @export
 interact.Learner <- function(object, v, X,
-                                           pred_fun = function(m, X) m$predict_newdata(X)$response,
-                                           pairwise_m = 5L, n_max = 300L,
-                                           w = NULL, verbose = TRUE, ...) {
+                             pred_fun = function(m, X) m$predict_newdata(X)$response,
+                             pairwise_m = 5L, n_max = 300L, w = NULL, 
+                             verbose = TRUE, ...) {
   interact.default(
     object = object,
     v = v,

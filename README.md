@@ -70,11 +70,7 @@ We will first introduce some notation, partly borrowed from Friedman and Popescu
 
 ## References
 
-1. Friedman, Jerome H. "Greedy Function Approximation: A Gradient Boosting Machine." 
-  Annals of Statistics 29 (2000): 1189-1232.
-2. Friedman, Jerome H., and Bogdan E. Popescu. "Predictive Learning via Rule Ensembles."
+1. Friedman, Jerome H., and Bogdan E. Popescu. "Predictive Learning via Rule Ensembles."
   The Annals of Applied Statistics 2, no. 3 (2008): 916-54.
-3. Greenwell, Brandon M., Bradley C. Boehmke and Andrew J. McCarthy. 
-  "A Simple and Effective Model-Based Variable Importance Measure." 
-  ArXiv abs/1805.04755 (2018)
-  
+2. Friedman, Jerome H. "Greedy Function Approximation: A Gradient Boosting Machine." 
+  Annals of Statistics 29 (2000): 1189-1232.

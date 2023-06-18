@@ -55,7 +55,7 @@ A matrix of partial dependence values (one column per prediction dimension,
 one row per grid row, in the same order as \code{grid}).
 }
 \description{
-Workhorse of \code{\link[=pd_profiles]{pd_profiles()}} and \code{\link[=interaction_statistics]{interaction_statistics()}}.
+Workhorse of \code{\link[=pd_profiles]{pd_profiles()}} and \code{\link[=interact]{interact()}}.
 Furthermore, it can be used to calculate multi-dimensional partial dependencies.
 In this case, provide your own evaluation grid, for instance via \code{\link[=multivariate_grid]{multivariate_grid()}}.
 }

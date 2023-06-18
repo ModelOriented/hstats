@@ -1,5 +1,5 @@
-Package: fastpdp
-Title: Model Agnostic Interaction Statistics
+Package: interact
+Title: Model-Agnostic Interaction Statistics
 Version: 0.0.1
 Authors@R: 
     person("Michael", "Mayer", , "mayermichael79@gmail.com", role = c("aut", "cre"))

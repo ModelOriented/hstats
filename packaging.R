@@ -14,7 +14,7 @@ library(usethis)
 # Sketch of description file
 use_description(
   fields = list(
-    Title = "Model Agnostic Interaction Statistics",
+    Title = "Model-Agnostic Interaction Statistics",
     Version = "0.0.1",
     Description = "Fast implementation of model-agnostic interaction statistics
     introduced in Friedman, J.H. and Popescu, B.E. (2008) <doi:10.1214/07-AOAS148>.
