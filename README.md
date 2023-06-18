@@ -140,10 +140,10 @@ total_interaction(inter)  # 0.1036339
 
 ### Partial dependence
 
-Let $F: R^p \to R$ denote the prediction function that maps the $p$-dimensional feature vector ${\boldsymbol x} = (x_1, \dots, x_p)$ to its prediction.
-Furthermore, let $F_s({\boldsymbol x}_s) = E_{{\boldsymbol x}_{\setminus s}}(F({\boldsymbol x}_s, {\boldsymbol x}_{\setminus s}))$ be the partial dependence function of $F$ on the feature subset $\boldsymbol x_s$, where $s \subseteq \{1, \dots, p\}$, as introduced in [1]. Here, the expectation runs over the joint marginal distribution of features ${\boldsymbol x}_{\setminus s}$ not in ${\boldsymbol x}_s$.
+Let $F: R^p \to R$ denote the prediction function that maps the $p$-dimensional feature vector $\boldsymbol x = (x_1, \dots, x_p)$ to its prediction.
+Furthermore, let $F_s(\boldsymbol x_s) = E_{\boldsymbol x_{\setminus s}}(F(\boldsymbol x_s, \boldsymbol x_{\setminus s}))$ be the partial dependence function of $F$ on the feature subset $\boldsymbol x_s$, where $s \subseteq \{1, \dots, p\}$, as introduced in [1]. Here, the expectation runs over the joint marginal distribution of features $\boldsymbol x_{\setminus s}$ not in $\boldsymbol x_s$.
 
-Given data, $F_s({\boldsymbol x}_s)$ can be estimated by the empirical partial dependence function
+Given data, $F_s(\boldsymbol x_s)$ can be estimated by the empirical partial dependence function
 $$
   \hat F_s({\boldsymbol x}_s) = \frac{1}{n} \sum_{i = 1}^n F({\boldsymbol x}_s, {\boldsymbol x}_{i\setminus s}),
 $$
