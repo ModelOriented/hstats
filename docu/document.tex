@@ -85,7 +85,7 @@ It equals the variability of the predictions unexplained by the main effects. A 
 Calculation of all $H_j^2$ statistics requires $O(n^2p)$ predictions, while calculating of all pairwise $H_{jk}$ requires $O(n^2 p^2)$ predictions. Therefore, we suggest to reduce the workflow in two important ways:
 \begin{itemize}
 \item Evaluate the statistics only on a subset of the data, e.g., on $n' = 400$ observations.
-\item Calculate $H_j^2$ for all features. Then, select a small number $m = o(\sqrt{p})$ of features with highest $H^2_j$ and do pairwise calculations only on this subset.
+\item Calculate $H_j^2$ for all features. Then, select a small number $m = O(\sqrt{p})$ of features with highest $H^2_j$ and do pairwise calculations only on this subset.
 \end{itemize}
 This leads to a total number of $O(n'^2 p))$ predictions.
 \end{document}
