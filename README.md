@@ -145,9 +145,9 @@ Furthermore, let $F_s(\boldsymbol x_s) = E_{\boldsymbol x_{\setminus s}}(F(\bold
 
 Given data, $F_s(\boldsymbol x_s)$ can be estimated by the empirical partial dependence function
 
-```math
+$$
   \hat F_s(\boldsymbol x_s) = \frac{1}{n} \sum_{i = 1}^n F(\boldsymbol x_s, \boldsymbol x_{i \setminus s}),
-```
+$$
 
 where $\boldsymbol x_{i\setminus s}$, $i = 1, \dots, n$, are the observed values of $\boldsymbol x_{\setminus s}$.
 
@@ -157,23 +157,23 @@ In [2], Friedman and Popescu introduced different statistics to measure interact
 
 If there are no interactions involving $x_j$, we can decompose the prediction function $F$ as the sum of the partial dependence $F_j$ on $x_j$ and the partial dependence $F_{\setminus j}$ on all other features $\boldsymbol x_{\setminus j}$, i.e.,
 
-```math
+$$
 	F(\boldsymbol x) = F_j(x_j) + F_{\setminus j}(\boldsymbol x_{\setminus j}).
-```
+$$
 
 Correspondingly, Friedman and Popescu's $H^2_j$ statistic of overall interaction strength is given by
 
-```math
+$$
 	H_{j}^2 = \frac{\frac{1}{n} \sum_{i = 1}^n\big[F(\boldsymbol x_i) - \hat F_j(x_{ij}) - \hat F_{\setminus j}(\boldsymbol x_{i\setminus k})\big]^2}{\frac{1}{n} \sum_{i = 1}^n\big[F(\boldsymbol x_i)\big]^2}.
-```
+$$
 
 **Remarks**
 
 1. Partial dependence functions are all centered to mean 0.
-2. Partial dependence functions are evaluated over the data distribution of the feature values, unlike with partial dependence plots, where one uses a fixed grid.
+2. Partial dependence functions are evaluated over the data distribution. This is different to partial dependence plots, where one uses a fixed grid.
 3. Weighted versions follow by replacing all arithmetic means by corresponding weighted means.
 4. Multivariate predictions can be treated in a component-wise manner.
-5. $H_j = 0$ means there are no interactions associated with $x_j$. The higher the value, the more prediction variability comes from interactions with $x_j$.
+5. $H^2_j = 0$ means there are no interactions associated with $x_j$. The higher the value, the more prediction variability comes from interactions with $x_j$.
 6. Since the denominator is the same for all features, the values of the test statistics can be compared across features.
 
 ### Pairwise interaction strength
@@ -184,37 +184,37 @@ $$
   F_{jk}(x_j, x_k) = F_j(x_j)+ F_k(x_k).
 $$
 
-Correspondingly, Friedman and Popescu's $H_{jk}^2$ statistic of pairwise interaction strength can be written as
+Correspondingly, Friedman and Popescu's $H_{jk}^2$ statistic of pairwise interaction strength is defined as
 
-```math
+$$
 H_{jk}^2 = \frac{\text{Numerator}_{jk}}{\text{Denominator}_{jk}},
-```
+$$
 
 where 
 
-```math
+$$
   \text{Numerator}_{jk} = \frac{1}{n} \sum_{i = 1}^n\big[\hat F_{jk}(x_{ij}, x_{ik}) - \hat F_j(x_{ij}) - \hat F_k(x_{ik})\big]^2
-```
+$$
 
 and
 
-```math
+$$
   \text{Denominator}_{jk} = \frac{1}{n} \sum_{i = 1}^n\big[\hat F_{jk}(x_{ij}, x_{ik})\big]^2.
-``` 
+$$ 
 
 **Remarks**
 
 1. Remarks 1 to 4 of $H^2_{j}$ also apply here.
-2. $H_{jk} = 0$ means there are no interaction effects between $x_j$ and $x_k$. The larger the value, the more of the joint effect of the two features comes from the interaction.
-3. Since the denominator differs between variable pairs, unlike $H_j$, this test statistic is difficult to be compared across variable pairs. If both main effects are very weak, a similarly weak interaction can get a high value in $H_{jk}$. Therefore, [2] suggests to calculate $H_{jk}$ only for *important* variables.
+2. $H^2_{jk} = 0$ means there are no interaction effects between $x_j$ and $x_k$. The larger the value, the more of the joint effect of the two features comes from the interaction.
+3.  Since the denominator differs between variable pairs, unlike $H_j$, this test statistic is difficult to compare between variable pairs. If both main effects are very weak, a negligible interaction can get a high $H^2_{jk}$.
 
 **Alternatives**
 
-To be able to compare pairwise interaction strength across variable pairs, and to overcome the problem mentioned in the last remark, we suggest as alternative a different denominator, namely the same as used for $H_j$:
+To be able to compare pairwise interaction strength across variable pairs, and to overcome the problem mentioned in the last remark, we suggest as alternative a different denominator, namely the same as used for $H^2_j$:
 
-```math
+$$
   \tilde H^2_{jk} = \frac{\text{Numerator}_{jk}}{\frac{1}{n} \sum_{i = 1}^n \left[F(\boldsymbol x_i)\right]^2}.
-```
+$$
 
 This statistic would tell us how much of the total variance of the predictions comes from the pairwise interaction of $x_j$ and $x_k$.
 
@@ -222,28 +222,28 @@ Another possibility would be to use the unnormalized test statistic on the scale
 
 ### Total interaction strength of all variables together
 
-In the same spirit of [2], we can say: if the model is additive in all features (there are no interactions at all), then
+In the spirit of [2], we can say: if the model is additive in all features (no interactions), then
 
-```math
+$$
 	F(\boldsymbol x) = \sum_{j}^{p} F_j(x_j).
-```
+$$
 
 To measure the relative amount of variability explained by all interactions, we can therefore study the test statistic of total interaction strength
 
-```math
-  H = \frac{\frac{1}{n} \sum_{i = 1}^n \left[F(\boldsymbol x_i) - \sum_{j = 1}^p\hat F_j(x_{ij})\right]^2}{\frac{1}{n} \sum_{i = 1}^n\left[F(\boldsymbol x_i)\right]^2}.
-```
+$$
+  H^2 = \frac{\frac{1}{n} \sum_{i = 1}^n \left[F(\boldsymbol x_i) - \sum_{j = 1}^p\hat F_j(x_{ij})\right]^2}{\frac{1}{n} \sum_{i = 1}^n\left[F(\boldsymbol x_i)\right]^2}.
+$$
 
 It equals the variability of the predictions unexplained by the main effects. A value of 0 would mean there are no interaction effects at all.
 
 ### Workflow
 
-Calculation of all $H_j^2$ statistics requires $O(2n^2p)$ predictions, while calculating of all pairwise $H_{jk}$ requires $O(n^2(p(p-1)/2)$ predictions. Therefore, we suggest to reduce the workflow in two important ways:
+Calculation of all $H_j^2$ statistics requires $O(n^2 p)$ predictions, while calculating of all pairwise $H_{jk}$ requires $O(n^2 p^2$ predictions. Therefore, we suggest to reduce the workflow in two important ways:
 
-1. Evaluate the statistics only on a subset of the data, e.g., on $n' = 300$ observations.
-2. Calculate $H_j^2$ for all features. Then, select a small number $m$ of features with highest $H_j$ and limit pairwise calculations to this subset.
+1. Evaluate the statistics only on a subset of the data, e.g., on $n' = 400$ observations.
+2. Calculate $H_j^2$ for all features. Then, select a small number $m = o(\sqrt{p})$ of features with highest $H^2_j$ and do pairwise calculations only on this subset.
 
-In this way, we need $O(2n'^2p)$ predictions to calculate all $H_j^2$, and then $O(n'^2(m(m-1)/2)$ predictions for the pairwise considerations.
+This leads to a total number of $O(n'^2 p)$ predictions.
 
 ## References
 

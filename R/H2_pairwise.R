@@ -39,7 +39,7 @@ H2_pairwise <- function(object, ...) {
 #' @describeIn H2_pairwise Default pairwise interaction strength.
 #' @export
 H2_pairwise.default <- function(object, v, X, pred_fun = stats::predict,
-                                pairwise_m = 5L, n_max = 300L, w = NULL, verbose = TRUE,
+                                pairwise_m = 5L, n_max = 400L, w = NULL, verbose = TRUE,
                                 normalize = TRUE, denominator = c("F_jk", "f"),
                                 squared = TRUE, sort = TRUE, 
                                 top_m = Inf, eps = 1e-8, ...) {
@@ -69,7 +69,7 @@ H2_pairwise.default <- function(object, v, X, pred_fun = stats::predict,
 #' @export
 H2_pairwise.ranger <- function(object, v, X, 
                                pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
-                               pairwise_m = 5L, n_max = 300L, w = NULL, verbose = TRUE,
+                               pairwise_m = 5L, n_max = 400L, w = NULL, verbose = TRUE,
                                normalize = TRUE, denominator = c("F_jk", "f"),
                                squared = TRUE, sort = TRUE, top_m = Inf, eps = 1e-8, 
                                ...) {
@@ -96,7 +96,7 @@ H2_pairwise.ranger <- function(object, v, X,
 #' @export
 H2_pairwise.Learner <- function(object, v, X, 
                                 pred_fun = function(m, X) m$predict_newdata(X)$response,
-                                pairwise_m = 5L, n_max = 300L, w = NULL, verbose = TRUE,
+                                pairwise_m = 5L, n_max = 400L, w = NULL, verbose = TRUE,
                                 normalize = TRUE, denominator = c("F_jk", "f"), 
                                 squared = TRUE, sort = TRUE, top_m = Inf, eps = 1e-8, 
                                 ...) {

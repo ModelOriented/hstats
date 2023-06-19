@@ -40,7 +40,7 @@ H2_overall <- function(object, ...) {
 #' @describeIn H2_overall Default method of overall interaction strength.
 #' @export
 H2_overall.default <- function(object, v, X, pred_fun = stats::predict,
-                               n_max = 300L, w = NULL, verbose = TRUE,
+                               n_max = 400L, w = NULL, verbose = TRUE,
                                normalize = TRUE, squared = TRUE, sort = TRUE, 
                                top_m = Inf, eps = 1e-8, ...) {
   
@@ -69,7 +69,7 @@ H2_overall.default <- function(object, v, X, pred_fun = stats::predict,
 #' @export
 H2_overall.ranger <- function(object, v, X, 
                               pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
-                              n_max = 300L, w = NULL, verbose = TRUE,
+                              n_max = 400L, w = NULL, verbose = TRUE,
                               normalize = TRUE, squared = TRUE, sort = TRUE, 
                               top_m = Inf, eps = 1e-8, ...) {
   H2_overall.default(
@@ -94,7 +94,7 @@ H2_overall.ranger <- function(object, v, X,
 #' @export
 H2_overall.Learner <- function(object, v, X, 
                                pred_fun = function(m, X) m$predict_newdata(X)$response,
-                               n_max = 300L, w = NULL, verbose = TRUE,
+                               n_max = 400L, w = NULL, verbose = TRUE,
                                normalize = TRUE, squared = TRUE, sort = TRUE, 
                                top_m = Inf, eps = 1e-8, ...) {
   H2_overall.default(
