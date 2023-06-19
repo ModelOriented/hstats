@@ -253,29 +253,10 @@ postprocess <- function(num, denom = 1, normalize = TRUE, squared = TRUE,
   utils::head(out, n = top_m)
 }
 
-# combine_by <- function(x, to_numeric) {
-#   x <- lapply(names(x), function(nm) data.frame(by = nm, x[[nm]]))
-#   
-# }
-# 
-# if (!is.null(by)) {
-#   X_split <- split(X, by)
-#   w_split <- if (!is.null(w)) split(w, by) else replicate(length(X_split), NULL)
-#   pd_list <- mapply(
-#     FUN = pd_profiles,
-#     X = X_split,
-#     w = w_split,
-#     MoreArgs = list(
-#       object = object,
-#       v = v,
-#       pred_fun = pred_fun,
-#       by = NULL,
-#       grid = grid,
-#       n_max = n_max,
-#       ...
-#     ),
-#     SIMPLIFY = FALSE
-#   )
-#   pd_list <- lapply(pd_list, combine_by, is_numeric = is.numeric(by))
-#   return(structure(pd_list, class = "pd_profiles"))
-# }
+combine_by <- function(x, to_numeric) {
+  x <- lapply(names(x), function(nm) data.frame(by = nm, x[[nm]]))
+  if (to_numeric) {
+    x[["by"]] <- as.numeric(x[["by"]])
+  }
+  do.call(rbind, x)
+}

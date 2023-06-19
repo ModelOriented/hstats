@@ -44,7 +44,7 @@ pd_profiles <- function(object, ...) {
 
 #' @describeIn pd_profiles Default method.
 #' @export
-pd_profiles.default <- function(object, v, X, pred_fun = stats::predict,
+pd_profiles.default <- function(object, v, X, pred_fun = stats::predict, .by = NULL,
                                 grid = NULL, grid_size = 36L, trim = c(0.01, 0.99), 
                                 strategy = c("quantile", "uniform"), n_max = 1000L, 
                                 w = NULL, ...) {
@@ -64,6 +64,31 @@ pd_profiles.default <- function(object, v, X, pred_fun = stats::predict,
         )
       }
     }
+  }
+  
+  if (!is.null(.by)) {
+    X_split <- split(X, .by)
+    w_split <- if (!is.null(w)) split(w, .by) else replicate(length(X_split), NULL)
+    out <- stats::setNames(vector("list", length = p), v)
+    for (z in v) {
+      pd_list <- mapply(
+        FUN = pd_profiles,
+        X = X_split,
+        w = w_split,
+        MoreArgs = list(
+          object = object,
+          v = z,
+          pred_fun = pred_fun,
+          .by = NULL,
+          grid = grid,
+          n_max = n_max,
+          ...
+        ),
+        SIMPLIFY = FALSE
+      )
+      out[[z]] <- lapply(pd_list, combine_by, to_numeric = is.numeric(.by))
+    }
+    return(structure(out, class = "profiles"))
   }
   
   # Reduce size of X (and w)

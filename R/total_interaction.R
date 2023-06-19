@@ -37,7 +37,7 @@ total_interaction <- function(object, ...) {
 #' @describeIn total_interaction Default method of total interaction strength.
 #' @export
 total_interaction.default <- function(object, v, X, pred_fun = stats::predict,
-                                      n_max = 400L, w = NULL, verbose = TRUE, 
+                                      n_max = 300L, w = NULL, verbose = TRUE, 
                                       normalize = TRUE, squared = TRUE, eps = 1e-8, 
                                       ...) {
   istat <- interact(
@@ -60,7 +60,7 @@ total_interaction.default <- function(object, v, X, pred_fun = stats::predict,
 #' @export
 total_interaction.ranger <- function(object, v, X, 
                                      pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
-                                     n_max = 400L, w = NULL, verbose = TRUE,
+                                     n_max = 300L, w = NULL, verbose = TRUE,
                                      normalize = TRUE, squared = TRUE, 
                                      eps = 1e-8, ...) {
   total_interaction.default(
@@ -82,7 +82,7 @@ total_interaction.ranger <- function(object, v, X,
 #' @export
 total_interaction.Learner <- function(object, v, X, 
                                       pred_fun = function(m, X) m$predict_newdata(X)$response,
-                                      n_max = 400L, w = NULL, verbose = TRUE,
+                                      n_max = 300L, w = NULL, verbose = TRUE,
                                       normalize = TRUE, squared = TRUE, 
                                       eps = 1e-8, ...) {
   total_interaction.default(

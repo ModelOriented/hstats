@@ -16,7 +16,7 @@
 
 **What makes a ML model black-box? It is the complex interactions!**
 
-This package offers a fast model-agnostic implementation of Friedman and Popescu's statistics of interaction strength [2]. As such, it helps to unveil the darkness of the black-box.
+This package offers a fast, model-agnostic implementation of Friedman and Popescu's statistics of interaction strength [2]. As such, it helps to unveil the darkness of the black-box.
 
 The package
 
@@ -92,13 +92,13 @@ Now, we will go through two main steps:
 1. Calculate interaction strength per feature.
 2. Calculate pairwise interactions, but only for those features with strongest interactions in Step 1.
 
-By default, {interactML} subsamples 400 rows to do the calculations of all statistics. Predictions are done on cross-products, i.e., on datasets with 1'600'000 rows.
+By default, {interactML} subsamples 300 rows to do the calculations of all statistics. Predictions are done on cross-products, i.e., on datasets with 900'000 rows.
 
 ```r
 # Crunch
 set.seed(1)
 
-system.time(  # 4 seconds on simple laptop
+system.time(  # 2 seconds on simple laptop
   inter <- interact(fit, v = x, X = X_train)
 )
 
@@ -108,12 +108,12 @@ system.time(  # 4 seconds on simple laptop
 H2_overall(inter)
 
 # Output
-# OCEAN_DIST        0.064581466
-# LONGITUDE         0.047399654
-# CNTR_DIST         0.029462043
-# LATITUDE          0.029256430
-# RAIL_DIST         0.003820832
-# HWY_DIST          0.002992241
+# OCEAN_DIST        0.062639450
+# LONGITUDE         0.045194768
+# LATITUDE          0.029151873
+# CNTR_DIST         0.027695769
+# RAIL_DIST         0.003805603
+# HWY_DIST          0.003484982
 # TOT_LVG_AREA      0.000000000
 # LND_SQFOOT        0.000000000
 # structure_quality 0.000000000
@@ -123,33 +123,33 @@ H2_overall(inter)
 H2_pairwise(inter)
 
 # Output
-# LONGITUDE:OCEAN_DIST 0.152528992
-# LONGITUDE:CNTR_DIST  0.123840925
-# LATITUDE:LONGITUDE   0.078635069
-# LATITUDE:OCEAN_DIST  0.053268299
-# CNTR_DIST:OCEAN_DIST 0.041599895
-# LATITUDE:RAIL_DIST   0.028792788
-# LATITUDE:CNTR_DIST   0.027796538
-# CNTR_DIST:RAIL_DIST  0.012492165
-# LONGITUDE:RAIL_DIST  0.007827756
-# OCEAN_DIST:RAIL_DIST 0.006477485
+# LONGITUDE:OCEAN_DIST 0.156475264
+# LONGITUDE:CNTR_DIST  0.122113602
+# LATITUDE:LONGITUDE   0.076213847
+# LATITUDE:OCEAN_DIST  0.061130256
+# CNTR_DIST:OCEAN_DIST 0.040675335
+# LATITUDE:RAIL_DIST   0.030786973
+# LATITUDE:CNTR_DIST   0.029474763
+# CNTR_DIST:RAIL_DIST  0.012886536
+# LONGITUDE:RAIL_DIST  0.008402545
+# OCEAN_DIST:RAIL_DIST 0.007081773
 
 # Variant that uses a common denominator for fair comparison of interactions
 H2_pairwise(inter, denominator = "f")
                                 y
-# LONGITUDE:OCEAN_DIST 0.0255737064
-# CNTR_DIST:OCEAN_DIST 0.0085670987
-# LONGITUDE:CNTR_DIST  0.0085552233
-# LATITUDE:OCEAN_DIST  0.0076632078
-# LATITUDE:LONGITUDE   0.0052859289
-# LATITUDE:CNTR_DIST   0.0037626874
-# OCEAN_DIST:RAIL_DIST 0.0006404859
-# CNTR_DIST:RAIL_DIST  0.0006234004
-# LATITUDE:RAIL_DIST   0.0005841129
-# LONGITUDE:RAIL_DIST  0.0001973087
+# LONGITUDE:OCEAN_DIST 0.0240273521
+# LATITUDE:OCEAN_DIST  0.0080679657
+# LONGITUDE:CNTR_DIST  0.0080630917
+# CNTR_DIST:OCEAN_DIST 0.0078054639
+# LATITUDE:LONGITUDE   0.0050811281
+# LATITUDE:CNTR_DIST   0.0038791387
+# CNTR_DIST:RAIL_DIST  0.0006329998
+# OCEAN_DIST:RAIL_DIST 0.0006321939
+# LATITUDE:RAIL_DIST   0.0006285874
+# LONGITUDE:RAIL_DIST  0.0002083208
 
 # Overall proportion of variability explained by interactions
-total_interaction(inter)  # 0.095
+total_interaction(inter)  # 0.096
 ```
 
 **Comments:** The model indeed is additive in non-geographic features, i.e., the interaction constraints are respected. Furthermore, we see that about 10% of prediction variation comes from interaction effects. The clearly strongest interaction happens between longitude and distance to the ocean.
@@ -258,7 +258,7 @@ It equals the variability of the predictions unexplained by the main effects. A 
 
 Calculation of all $H_j^2$ statistics requires $O(n^2 p)$ predictions, while calculating of all pairwise $H_{jk}$ requires $O(n^2 p^2$ predictions. Therefore, we suggest to reduce the workflow in two important ways:
 
-1. Evaluate the statistics only on a subset of the data, e.g., on $n' = 400$ observations.
+1. Evaluate the statistics only on a subset of the data, e.g., on $n' = 300$ observations.
 2. Calculate $H_j^2$ for all features. Then, select a small number $m = O(\sqrt{p})$ of features with highest $H^2_j$ and do pairwise calculations only on this subset.
 
 This leads to a total number of $O(n'^2 p)$ predictions.

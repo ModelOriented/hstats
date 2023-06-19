@@ -61,7 +61,7 @@ interact <- function(object, ...) {
 #' @describeIn interact Default interact method.
 #' @export
 interact.default <- function(object, v, X, pred_fun = stats::predict, pairwise_m = 5L, 
-                             n_max = 400L, w = NULL, verbose = TRUE, ...) {
+                             n_max = 300L, w = NULL, verbose = TRUE, ...) {
   basic_check(X = X, v = v, pred_fun = pred_fun, w = w)
   
   # Reduce size of X (and w)
@@ -203,7 +203,7 @@ interact.default <- function(object, v, X, pred_fun = stats::predict, pairwise_m
 #' @export
 interact.ranger <- function(object, v, X,
                             pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
-                            pairwise_m = 5L, n_max = 400L, w = NULL, 
+                            pairwise_m = 5L, n_max = 300L, w = NULL, 
                             verbose = TRUE, ...) {
   interact.default(
     object = object,
@@ -222,7 +222,7 @@ interact.ranger <- function(object, v, X,
 #' @export
 interact.Learner <- function(object, v, X,
                              pred_fun = function(m, X) m$predict_newdata(X)$response,
-                             pairwise_m = 5L, n_max = 400L, w = NULL, 
+                             pairwise_m = 5L, n_max = 300L, w = NULL, 
                              verbose = TRUE, ...) {
   interact.default(
     object = object,
