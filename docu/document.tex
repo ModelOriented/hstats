@@ -45,15 +45,15 @@ $$
 $$
 Correspondingly, Friedman and Popescu's $H_{jk}^2$ statistic of pairwise interaction strength is defined as
 $$
-  H_{jk}^2 = \frac{\textrm{Numerator}_{jk}}{\textrm{Denominator}_{jk}},
+  H_{jk}^2 = \frac{A_{jk}}{B_{jk}},
 $$
 where 
 $$
-  \textrm{Numerator}_{jk} = \frac{1}{n} \sum_{i = 1}^n\big[\hat F_{jk}(x_{ij}, x_{ik}) - \hat F_j(x_{ij}) - \hat F_k(x_{ik})\big]^2
+  A_{jk} = \frac{1}{n} \sum_{i = 1}^n\big[\hat F_{jk}(x_{ij}, x_{ik}) - \hat F_j(x_{ij}) - \hat F_k(x_{ik})\big]^2
 $$
 and
 $$
-  \textrm{Denominator}_{jk} = \frac{1}{n} \sum_{i = 1}^n\big[\hat F_{jk}(x_{ij}, x_{ik})\big]^2.
+  B_{jk} = \frac{1}{n} \sum_{i = 1}^n\big[\hat F_{jk}(x_{ij}, x_{ik})\big]^2.
 $$
 \paragraph{Remarks}
 \begin{enumerate}
@@ -64,11 +64,11 @@ $$
 
 \paragraph{Alternatives:} To be able to compare pairwise interaction strength across variable pairs, and to overcome the problem mentioned in the last remark, we suggest as alternative a different denominator, namely the same as used for $H^2_j$:
 $$
-  \tilde H^2_{jk} = \frac{\mathrm{Numerator}_{jk}}{\frac{1}{n} \sum_{i = 1}^n\big[F(\mathbf{x}_i)\big]^2}.
+  \tilde H^2_{jk} = \frac{A_{jk}}{\frac{1}{n} \sum_{i = 1}^n\big[F(\mathbf{x}_i)\big]^2}.
 $$
 This statistic would tell us how much of the total variance of the predictions comes from the pairwise interaction of $x_j$ and $x_k$.
 
-Another possibility would be to use the unnormalized test statistic on the scale of the predictions, i.e., $\sqrt{\mathrm{Numerator}_{jk}}$.
+Another possibility would be to use the unnormalized test statistic on the scale of the predictions, i.e., $\sqrt{A_{jk}}$.
 
 \subsection{Total interaction strength of all variables together}
 In the spirit of [2], we can say: if the model is additive in all features (no interactions), then
