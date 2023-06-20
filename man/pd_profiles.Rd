@@ -130,6 +130,6 @@ fit <- glm(
 pd_profiles(fit, v = "Species", X = iris, type = "response")$Species
 }
 \references{
-Friedman, Jerome H. "Greedy Function Approximation: A Gradient Boosting Machine."
-Annals of Statistics 29 (2000): 1189-1232.
+Friedman, Jerome H. \emph{"Greedy Function Approximation: A Gradient Boosting Machine."}
+Annals of Statistics 29, no. 5 (2001): 1189-1232.
 }

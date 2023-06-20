@@ -1,6 +1,33 @@
 #' Overall Interaction Strength
 #' 
-#' Friedman and Popescu's H^2_j of overall interaction strength.
+#' Friedman and Popescu's \eqn{H^2_j} of overall interaction strength per feature.
+#' 
+#' The logic of Friedman and Popescu (2008) is as follows: 
+#' If there are no interactions involving \eqn{x_j}, we can decompose the prediction 
+#' function \eqn{F} as the sum of the partial dependence \eqn{F_j} on \eqn{x_j} and the 
+#' partial dependence \eqn{F_{\setminus j}} on all other features 
+#' \eqn{\mathbf{x}_{\setminus j}}, i.e.,
+#' \deqn{
+#'   F(\mathbf{x}) = F_j(x_j) + F_{\setminus j}(\mathbf{x}_{\setminus j}).
+#' }
+#' Correspondingly, Friedman and Popescu's \eqn{H^2_j} statistic of overall interaction 
+#' strength is given by
+#' \deqn{
+#'   H_{j}^2 = \frac{\frac{1}{n} \sum_{i = 1}^n\big[F(\mathbf{x}_i) - \hat F_j(x_{ij}) - \hat F_{\setminus j}(\mathbf{x}_{i\setminus k})\big]^2}{\frac{1}{n} \sum_{i = 1}^n\big[F(\mathbf{x}_i)\big]^2}.
+#' }
+#' 
+#' @section Remarks: 
+#' 1. Partial dependence functions are all centered to mean 0.
+#' 2. Partial dependence functions are evaluated over the data distribution. 
+#'   This is different to partial dependence plots, where one uses a fixed grid.
+#' 3. Weighted versions follow by replacing all arithmetic means by corresponding
+#'   weighted means.
+#' 4. Multivariate predictions can be treated in a component-wise manner.
+#' 5. \eqn{H^2_j = 0} means there are no interactions associated with \eqn{x_j}. 
+#'   The higher the value, the more prediction variability comes from interactions 
+#'   with \eqn{x_j}.
+#' 6. Since the denominator is the same for all features, the values of the test 
+#'   statistics can be compared across features.
 #' 
 #' @inheritParams pd_raw
 #' @inheritParams interact

@@ -134,6 +134,6 @@ inter
 
 }
 \references{
-Friedman, Jerome H., and Bogdan E. Popescu. "Predictive Learning via Rule Ensembles."
+Friedman, Jerome H., and Bogdan E. Popescu. \emph{"Predictive Learning via Rule Ensembles."}
 The Annals of Applied Statistics 2, no. 3 (2008): 916-54.
 }

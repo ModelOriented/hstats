@@ -107,7 +107,22 @@ Matrix of interactions statistics (one row per variable, one column per
 prediction dimension).
 }
 \description{
-Friedman and Popescu's H^2_j of overall interaction strength.
+Friedman and Popescu's \eqn{H^2_j} of overall interaction strength per feature.
+}
+\details{
+The logic of Friedman and Popescu (2008) is as follows:
+If there are no interactions involving \eqn{x_j}, we can decompose the prediction
+function \eqn{F} as the sum of the partial dependence \eqn{F_j} on \eqn{x_j} and the
+partial dependence \eqn{F_{\setminus j}} on all other features
+\eqn{\mathbf{x}_{\setminus j}}, i.e.,
+\deqn{
+  F(\mathbf{x}) = F_j(x_j) + F_{\setminus j}(\mathbf{x}_{\setminus j}).
+}
+Correspondingly, Friedman and Popescu's \eqn{H^2_j} statistic of overall interaction
+strength is given by
+\deqn{
+  H_{j}^2 = \frac{\frac{1}{n} \sum_{i = 1}^n\big[F(\mathbf{x}_i) - \hat F_j(x_{ij}) - \hat F_{\setminus j}(\mathbf{x}_{i\setminus k})\big]^2}{\frac{1}{n} \sum_{i = 1}^n\big[F(\mathbf{x}_i)\big]^2}.
+}
 }
 \section{Methods (by class)}{
 \itemize{
@@ -120,6 +135,23 @@ Friedman and Popescu's H^2_j of overall interaction strength.
 \item \code{H2_overall(interact)}: Overall interaction strength from "interact" object.
 
 }}
+\section{Remarks}{
+
+\enumerate{
+\item Partial dependence functions are all centered to mean 0.
+\item Partial dependence functions are evaluated over the data distribution.
+This is different to partial dependence plots, where one uses a fixed grid.
+\item Weighted versions follow by replacing all arithmetic means by corresponding
+weighted means.
+\item Multivariate predictions can be treated in a component-wise manner.
+\item \eqn{H^2_j = 0} means there are no interactions associated with \eqn{x_j}.
+The higher the value, the more prediction variability comes from interactions
+with \eqn{x_j}.
+\item Since the denominator is the same for all features, the values of the test
+statistics can be compared across features.
+}
+}
+
 \examples{
 # MODEL ONE: Linear regression
 fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
@@ -138,6 +170,6 @@ H2_overall(fit, v = v, X = iris, verbose = FALSE)
 }
 }
 \references{
-Friedman, Jerome H., and Bogdan E. Popescu. "Predictive Learning via Rule Ensembles."
+Friedman, Jerome H., and Bogdan E. Popescu. \emph{"Predictive Learning via Rule Ensembles."}
 The Annals of Applied Statistics 2, no. 3 (2008): 916-54.
 }
