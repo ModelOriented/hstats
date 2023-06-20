@@ -127,17 +127,17 @@ Matrix of interactions statistics (one row per variable pair, one column per
 prediction dimension).
 }
 \description{
-Friedman and Popescu's pairwise interaction strength.
+Friedman and Popescu's statistics of pairwise interaction strength.
 }
 \details{
 Following Friedman and Popescu (2008), if there are no interaction effects between
-features \eqn{x_j} and \eqn{x_k}, their two-dimensional partial dependence
-function \eqn{F_{jk}} can be written as the sum of the univariate partial
-dependencies, i.e.,
+features \eqn{x_j} and \eqn{x_k}, their two-dimensional (centered) partial dependence
+function \eqn{F_{jk}} can be written as the sum of the (centered) univariate partial
+dependencies \eqn{F_j} and \eqn{F_k}, i.e.,
 \deqn{
   F_{jk}(x_j, x_k) = F_j(x_j)+ F_k(x_k).
 }
-Correspondingly, Friedman and Popescu's $H_{jk}^2$ statistic of pairwise interaction
+Correspondingly, Friedman and Popescu's \eqn{H_{jk}^2} statistic of pairwise interaction
 strength is defined as
 \deqn{
   H_{jk}^2 = \frac{A_{jk}}{B_{jk}},
@@ -148,8 +148,9 @@ where
 }
 and
 \deqn{
-  B_{jk} = \frac{1}{n} \sum_{i = 1}^n\big[\hat F_{jk}(x_{ij}, x_{ik})\big]^2.
+  B_{jk} = \frac{1}{n} \sum_{i = 1}^n\big[\hat F_{jk}(x_{ij}, x_{ik})\big]^2
 }
+(check \code{\link[=pd_profiles]{pd_profiles()}} for all definitions).
 }
 \section{Methods (by class)}{
 \itemize{

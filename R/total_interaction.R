@@ -1,14 +1,23 @@
 #' Total Interaction Strength
 #' 
-#' Calculates proportion of variability of prediction function that comes from
+#' Calculates the proportion of variability of prediction function that comes from
 #' interaction effects of all features combined.
 #' 
-#' In the spirit of Friedman and Popescu (2008), we can say: if the model is additive 
-#' in all features (no interactions), then
-#' \deqn{F(\mathbf{x}) = \sum_{j}^{p} F_j(x_j).}
+#' @details
+#' The idea is as follows: if the model is additive in all features,
+#' then the (centered) prediction function \eqn{F} equals the sum of the (centered)
+#' partial dependence functions \eqn{F_j(x_j)}, i.e.,
+#' \deqn{
+#'   F(\mathbf{x}) = \sum_{j}^{p} F_j(x_j)
+#' }
+#' (see [pd_profiles()] for the definitions).
 #' To measure the relative amount of variability explained by all interactions, 
 #' we can therefore study the test statistic of total interaction strength
-#' \deqn{H^2 = \frac{\frac{1}{n} \sum_{i = 1}^n \big[F(\mathbf{x}_i) - \sum_{j = 1}^p\hat F_j(x_{ij})\big]^2}{\frac{1}{n} \sum_{i = 1}^n\big[F(\mathbf{x}_i)\big]^2}.}
+#' \deqn{
+#'   H^2 = \frac{\frac{1}{n} \sum_{i = 1}^n \big[F(\mathbf{x}_i) - 
+#'   \sum_{j = 1}^p\hat F_j(x_{ij})\big]^2}{\frac{1}{n} 
+#'   \sum_{i = 1}^n\big[F(\mathbf{x}_i)\big]^2}.
+#' }
 #' It equals the variability of the predictions unexplained by the main effects. 
 #' A value of 0 would mean there are no interaction effects at all.
 #' 

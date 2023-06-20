@@ -1,24 +1,29 @@
 #' Overall Interaction Strength
 #' 
-#' Friedman and Popescu's \eqn{H^2_j} of overall interaction strength per feature.
+#' Friedman and Popescu's \eqn{H^2_j} statistics of overall interaction strength per 
+#' feature.
 #' 
+#' @details
 #' The logic of Friedman and Popescu (2008) is as follows: 
-#' If there are no interactions involving \eqn{x_j}, we can decompose the prediction 
-#' function \eqn{F} as the sum of the partial dependence \eqn{F_j} on \eqn{x_j} and the 
-#' partial dependence \eqn{F_{\setminus j}} on all other features 
-#' \eqn{\mathbf{x}_{\setminus j}}, i.e.,
+#' If there are no interactions involving feature \eqn{x_j}, we can decompose the 
+#' (centered) prediction function \eqn{F} into the sum of the (centered) partial 
+#' dependence \eqn{F_j} on \eqn{x_j} and the (centered) partial dependence 
+#' \eqn{F_{\setminus j}} on all other features \eqn{\mathbf{x}_{\setminus j}}, i.e.,
 #' \deqn{
 #'   F(\mathbf{x}) = F_j(x_j) + F_{\setminus j}(\mathbf{x}_{\setminus j}).
 #' }
 #' Correspondingly, Friedman and Popescu's \eqn{H^2_j} statistic of overall interaction 
 #' strength is given by
 #' \deqn{
-#'   H_{j}^2 = \frac{\frac{1}{n} \sum_{i = 1}^n\big[F(\mathbf{x}_i) - \hat F_j(x_{ij}) - \hat F_{\setminus j}(\mathbf{x}_{i\setminus k})\big]^2}{\frac{1}{n} \sum_{i = 1}^n\big[F(\mathbf{x}_i)\big]^2}.
+#'   H_{j}^2 = \frac{\frac{1}{n} \sum_{i = 1}^n\big[F(\mathbf{x}_i) - 
+#'   \hat F_j(x_{ij}) - \hat F_{\setminus j}(\mathbf{x}_{i\setminus k})
+#'   \big]^2}{\frac{1}{n} \sum_{i = 1}^n\big[F(\mathbf{x}_i)\big]^2}
 #' }
+#' (check [pd_profiles()] for all definitions).
 #' 
 #' @section Remarks: 
-#' 1. Partial dependence functions are all centered to mean 0.
-#' 2. Partial dependence functions are evaluated over the data distribution. 
+#' 1. Partial dependence functions (and \eqn{F}) are all centered to (possibly weighted) mean 0.
+#' 2. Partial dependence functions (and \eqn{F}) are evaluated over the data distribution. 
 #'   This is different to partial dependence plots, where one uses a fixed grid.
 #' 3. Weighted versions follow by replacing all arithmetic means by corresponding
 #'   weighted means.

@@ -90,10 +90,8 @@ selected from \code{X}. In this case, set a random seed for reproducibility.}
 A list of PD profiles per variable in \code{v}. Has additional class "pd_profiles".
 }
 \description{
-For a set \code{v} of features, their individual partial dependence is evaluated over
-evaluation grids. The grids can be prespecified for any subset of the features.
-The function calls the prediction function m times, where m is the number of
-features. Multivariate predictions are supported.
+Estimates the univariable partial dependence functions of features \code{v} over a
+grid of values. For higher-dimensional partial dependence functions, see \code{\link[=pd_raw]{pd_raw()}}.
 }
 \section{Methods (by class)}{
 \itemize{
@@ -104,6 +102,30 @@ features. Multivariate predictions are supported.
 \item \code{pd_profiles(Learner)}: Method for "mlr3" models.
 
 }}
+\section{Partial Dependence Functions}{
+
+
+Let \eqn{F: R^p \to R} denote the prediction function that maps the
+\eqn{p}-dimensional feature vector \eqn{\mathbf{x} = (x_1, \dots, x_p)}
+to its prediction. Furthermore, let
+\deqn{
+  F_s(\mathbf{x}_s) = E_{\mathbf{x}_{\setminus s}}(F(\mathbf{x}_s, \mathbf{x}_{\setminus s}))
+}
+be the partial dependence function of \eqn{F} on the feature subset
+\eqn{\mathbf{x}_s}, where \eqn{s \subseteq \{1, \dots, p\}}, as introduced in
+Friedman (2001). Here, the expectation runs over the joint marginal distribution
+of features \eqn{\mathbf{x}_{\setminus s}} not in \eqn{\mathbf{x}_s}.
+
+Given data, \eqn{F_s(\mathbf{x}_s)} can be estimated by the empirical partial
+dependence function
+
+\deqn{
+  \hat F_s(\mathbf{x}_s) = \frac{1}{n} \sum_{i = 1}^n F(\mathbf{x}_s, \mathbf{x}_{i\setminus s}),
+}
+where \eqn{\mathbf{x}_{i\setminus s}} \eqn{i = 1, \dots, n}, are the observed values
+of \eqn{\mathbf{x}_{\setminus s}}.
+}
+
 \examples{
 # MODEL ONE: Linear regression
 fit <- lm(Sepal.Length ~ ., data = iris)

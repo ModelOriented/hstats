@@ -173,7 +173,7 @@ where $\boldsymbol x_{i\setminus s}$, $i = 1, \dots, n$, are the observed values
 
 In [2], Friedman and Popescu introduced different statistics to measure interaction strength. Closely following their notation, we will summarize the main ideas. 
 
-If there are no interactions involving $x_j$, we can decompose the prediction function $F$ as the sum of the partial dependence $F_j$ on $x_j$ and the partial dependence $F_{\setminus j}$ on all other features $\boldsymbol x_{\setminus j}$, i.e.,
+If there are no interactions involving $x_j$, we can decompose the prediction function $F$ into the sum of the partial dependence $F_j$ on $x_j$ and the partial dependence $F_{\setminus j}$ on all other features $\boldsymbol x_{\setminus j}$, i.e.,
 
 $$
 	F(\boldsymbol x) = F_j(x_j) + F_{\setminus j}(\boldsymbol x_{\setminus j}).
@@ -187,8 +187,8 @@ $$
 
 **Remarks**
 
-1. Partial dependence functions are all centered to mean 0.
-2. Partial dependence functions are evaluated over the data distribution. This is different to partial dependence plots, where one uses a fixed grid.
+1. Partial dependence functions (and $F$) are all centered to mean 0.
+2. Partial dependence functions (and $F$) are evaluated over the data distribution. This is different to partial dependence plots, where one uses a fixed grid.
 3. Weighted versions follow by replacing all arithmetic means by corresponding weighted means.
 4. Multivariate predictions can be treated in a component-wise manner.
 5. $H^2_j = 0$ means there are no interactions associated with $x_j$. The higher the value, the more prediction variability comes from interactions with $x_j$.

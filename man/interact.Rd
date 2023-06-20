@@ -91,13 +91,20 @@ An object of class "interact" containing these elements:
 }
 }
 \description{
-Expensive crunching behind interaction statistics such as:
+Expensive crunching behind different interaction statistics (and versions of them):
 \itemize{
-\item Friedman and Popescu's \eqn{H^2_j} of overall interaction strength per feature.
-\item Friedman and Popescu's \eqn{H^2_{jk}} of pairwise interaction strengths.
-\item Unnormalized pairwise statistic \eqn{H_{jk}}.
-\item ...
+\item Friedman and Popescu's \eqn{H^2_j} statistic of overall interaction strength per
+feature, see \code{\link[=H2_overall]{H2_overall()}}.
+\item Friedman and Popescu's \eqn{H^2_{jk}} statistic of pairwise interaction strength,
+see \code{\link[=H2_pairwise]{H2_pairwise()}}.
+\item Total interaction strength \eqn{H^2}, a statistic measuring the proportion
+of prediction variability unexplained by main effects, see \code{\link[=total_interaction]{total_interaction()}}.
 }
+
+Since one typically is interested in calculating different of above statistics, and
+often in different versions (scaled and unscaled, squared or not etc.), it is
+convenient to first do all expensive calculations once using \code{\link[=interact]{interact()}}, and then
+derive all relevant statistics from its result, see the examples below.
 }
 \section{Methods (by class)}{
 \itemize{
@@ -119,6 +126,7 @@ fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = ir
 v <- c("Petal.Length", "Petal.Width", "Species")
 inter <- interact(fit, v = v, X = iris, verbose = FALSE)
 inter
+
 # MODEL THREE: Gamma GLM with log link
 fit <- glm(Sepal.Length ~ ., data = iris, family = Gamma(link = log))
 
