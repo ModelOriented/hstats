@@ -1,7 +1,7 @@
 #' Overall Interaction Strength
 #' 
 #' Friedman and Popescu's \eqn{H^2_j} statistics of overall interaction strength per 
-#' feature.
+#' feature, ideally calculated from the result of [interact()].
 #' 
 #' @details
 #' The logic of Friedman and Popescu (2008) is as follows: 

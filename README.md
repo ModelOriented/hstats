@@ -14,7 +14,7 @@
 
 ## Overview
 
-**What makes a ML model black-box? It is the complex interactions!**
+**What makes a ML model black-box? It's the interactions!**
 
 This package offers a fast, model-agnostic implementation of Friedman and Popescu's statistics of interaction strength [2]. As such, it helps to unveil the darkness of the black-box.
 
@@ -23,8 +23,9 @@ The package
 - supports multivariate predictions,
 - respects case weights, and
 - works with both data.frames and matrices (e.g., for XGBoost).
+- Furthermore, different variants of the original statistics in [2] are available.
 
-Note: The numbers usually slightly differ from the implementation in the {gbm} package. The reason is that {interactML} is model-agnostic and therefore cannot rely on the fast tree-traversal method to calculate partial dependence functions.
+Note: The {gbm} package offers a model-specific implementation of some of the statistics. Since it uses the weighted tree-traversal method of [1] to estimate partial dependence functions, the results are typically slightly different.
 
 ## Installation
 
@@ -38,14 +39,16 @@ devtools::install_github("mayer79/interactML")
 
 ## Usage
 
-To demonstrate the typical workflow, we use a house price dataset with 14,000 transactions from Miami-Date county, available in the {shapviz} package. We model logarithmic sales prices as a function of geographic features and other features like living area and building age. The model is fitted with XGBoost, using interaction constraints to produce a model additive in all non-geographic features.
+To demonstrate the typical workflow, we use a beautiful house price dataset with about 14,000 transactions from Miami-Dade County available in the {shapviz} package. 
 
-Let's first fit such model: 
+We are going to model logarithmic sales prices as a function of geographic features and other features like living area and building age. The model is fitted with XGBoost using interaction constraints to produce a model additive in all non-geographic features.
+
+What can we say about interactions? Can we verify additivity in non-geographic features?
 
 ```r
+library(interactML)
 library(xgboost)
 library(shapviz)
-library(interactML)
 
 # Variable sets
 x_geo <- c("LATITUDE", "LONGITUDE", "CNTR_DIST", "OCEAN_DIST", "RAIL_DIST", "HWY_DIST")
@@ -87,12 +90,14 @@ fit <- xgb.train(
 )
 ```
 
-Now, we will go through two main steps:
+We will now do four things:
 
-1. Calculate interaction strength per feature.
-2. Calculate pairwise interactions, but only for those features with strongest interactions in Step 1.
+1. Use `interact()` to crunch expensive quantities.
+2. Call `H2_overall()` on its result to see which variables have strongest interactions.
+3. Then, we use `H2_pairwise()` to see which variable pairs have strong interactions. First, we use Friedman and Popescu's original statistic, then we use a variant that can easier be compared. Note that we can see the results only for those features with strong interactions (Step 2).
+4. Finally, to get an impression how much of the prediction variability comes from interactions, we call `total_interaction()`.
 
-By default, {interactML} subsamples 300 rows to do the calculations of all statistics. Predictions are done on cross-products, i.e., on datasets with 900'000 rows.
+Note: The statistics need to repeatedly calculate predictions on $n^2$ rows. That is why {interactML} samples 300 rows by default. To get more robust results, increase this value at the price of slower run time.
 
 ```r
 # Crunch

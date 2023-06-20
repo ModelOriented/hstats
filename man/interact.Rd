@@ -78,16 +78,15 @@ selected from \code{X}. In this case, set a random seed for reproducibility.}
 \value{
 An object of class "interact" containing these elements:
 \itemize{
-\item \code{f}: Matrix with predictions.
-\item \code{mean_f2}: (Weighted) mean f^2. Used to normalize most statistics.
-\item \code{F_j}: List of matrices, each representing univariable PDs.
-\item \code{F_not_j}: List of matrices, each representing the PDs of all variables != j.
-\item \code{F_jk}: List of matrices, each representing bivariate PDs.
-\item \code{w}: Same as input w.
-\item \code{H2_j}: Matrix of Friedman and Popescu's \eqn{H^2_j}.
+\item \code{f}: Matrix with predictions \eqn{F}.
+\item \code{mean_f2}: (Weighted) column means of \code{f}. Used to normalize most statistics.
+\item \code{F_j}: List of matrices, each representing PDs \eqn{F_j}.
+\item \code{F_not_j}: List of matrices with PDs \eqn{F_{\setminus j}} of other features.
+\item \code{F_jk}: List of matrices, each representing bivariate PDs \eqn{F_{jk}}.
+\item \code{w}: Same as input `w.
 \item \code{v}: Same as input \code{v}.
 \item \code{v_pairwise}: Subset of \code{v} with largest \code{H2_j} used for pairwise calculations.
-\item \code{combs}: List of variable pairs for which pairwise PDs are available.
+\item \code{combs}: Named list of variable pairs for which pairwise PDs are available.
 }
 }
 \description{
@@ -101,9 +100,9 @@ see \code{\link[=H2_pairwise]{H2_pairwise()}}.
 of prediction variability unexplained by main effects, see \code{\link[=total_interaction]{total_interaction()}}.
 }
 
-Since one typically is interested in calculating different of above statistics, and
-often in different versions (scaled and unscaled, squared or not etc.), it is
-convenient to first do all expensive calculations once using \code{\link[=interact]{interact()}}, and then
+Since one typically is interested in calculating different statistics
+in different versions (scaled and unscaled, squared or not etc.), it is
+convenient to do expensive calculations once using \code{\link[=interact]{interact()}}, and then
 derive all relevant statistics from its result, see the examples below.
 }
 \section{Methods (by class)}{

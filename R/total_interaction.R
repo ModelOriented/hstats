@@ -1,7 +1,7 @@
 #' Total Interaction Strength
 #' 
-#' Calculates the proportion of variability of prediction function that comes from
-#' interaction effects of all features combined.
+#' Proportion of prediction variability coming from interactions, 
+#' ideally calculated from the result of [interact()].
 #' 
 #' @details
 #' The idea is as follows: if the model is additive in all features,

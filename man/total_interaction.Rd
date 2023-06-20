@@ -88,8 +88,8 @@ selected from \code{X}. In this case, set a random seed for reproducibility.}
 Vector of total interaction strength (one value per prediction dimension).
 }
 \description{
-Calculates the proportion of variability of prediction function that comes from
-interaction effects of all features combined.
+Proportion of prediction variability coming from interactions,
+ideally calculated from the result of \code{\link[=interact]{interact()}}.
 }
 \details{
 The idea is as follows: if the model is additive in all features,

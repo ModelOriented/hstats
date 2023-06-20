@@ -1,6 +1,7 @@
 #' Pairwise Interaction Strength
 #' 
-#' Friedman and Popescu's statistics of pairwise interaction strength.
+#' Friedman and Popescu's statistics of pairwise interaction strength, 
+#' ideally calculated from the result of [interact()].
 #' 
 #' @details
 #' Following Friedman and Popescu (2008), if there are no interaction effects between 
@@ -46,7 +47,7 @@
 #'   \tilde H^2_{jk} = \frac{A_{jk}}{\frac{1}{n} \sum_{i = 1}^n\big[F(\mathbf{x}_i)\big]^2}.
 #' }
 #' This statistic would tell us how much of the total variance of the predictions comes 
-#' from the pairwise interaction of \eqn{x_j} and \eqn{x_k}. Use `denominator = "f"` to
+#' from the pairwise interaction of \eqn{x_j} and \eqn{x_k}. Use `denominator = "F"` to
 #' apply this variant.
 #' 
 #' Another possibility would be to use the unnormalized test statistic on the scale 
@@ -71,7 +72,7 @@
 #' fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
 #' inter <- interact(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
 #' H2_pairwise(inter)                     # Proportion of pairwise effect variability
-#' H2_pairwise(inter, denominator = "f")  # Proportion of prediction variability
+#' H2_pairwise(inter, denominator = "F")  # Proportion of prediction variability
 #' 
 #' \dontrun{
 #' H2_pairwise(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
@@ -91,7 +92,7 @@ H2_pairwise <- function(object, ...) {
 #' @export
 H2_pairwise.default <- function(object, v, X, pred_fun = stats::predict,
                                 pairwise_m = 5L, n_max = 300L, w = NULL, verbose = TRUE,
-                                normalize = TRUE, denominator = c("F_jk", "f"),
+                                normalize = TRUE, denominator = c("F_jk", "F"),
                                 squared = TRUE, sort = TRUE, 
                                 top_m = Inf, eps = 1e-8, ...) {
   istat <- interact(
@@ -121,7 +122,7 @@ H2_pairwise.default <- function(object, v, X, pred_fun = stats::predict,
 H2_pairwise.ranger <- function(object, v, X, 
                                pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
                                pairwise_m = 5L, n_max = 300L, w = NULL, verbose = TRUE,
-                               normalize = TRUE, denominator = c("F_jk", "f"),
+                               normalize = TRUE, denominator = c("F_jk", "F"),
                                squared = TRUE, sort = TRUE, top_m = Inf, eps = 1e-8, 
                                ...) {
   H2_pairwise.default(
@@ -148,7 +149,7 @@ H2_pairwise.ranger <- function(object, v, X,
 H2_pairwise.Learner <- function(object, v, X, 
                                 pred_fun = function(m, X) m$predict_newdata(X)$response,
                                 pairwise_m = 5L, n_max = 300L, w = NULL, verbose = TRUE,
-                                normalize = TRUE, denominator = c("F_jk", "f"), 
+                                normalize = TRUE, denominator = c("F_jk", "F"), 
                                 squared = TRUE, sort = TRUE, top_m = Inf, eps = 1e-8, 
                                 ...) {
   H2_pairwise.default(
@@ -173,13 +174,13 @@ H2_pairwise.Learner <- function(object, v, X,
 #' @describeIn H2_pairwise Pairwise interaction strength from "interact" object.
 #' @export
 H2_pairwise.interact <- function(object, normalize = TRUE, 
-                                 denominator = c("F_jk", "f"),
+                                 denominator = c("F_jk", "F"),
                                  squared = TRUE, sort = TRUE, 
                                  top_m = Inf, eps = 1e-8, ...) {
   denominator <- match.arg(denominator)
   combs <- object[["combs"]]
   n_combs <- length(combs)
-  nms <- colnames(object[["f"]])
+  nms <- colnames(object[["F"]])
   num <- denom <- matrix(
     nrow = n_combs, ncol = length(nms), dimnames = list(names(combs), nms)
   )

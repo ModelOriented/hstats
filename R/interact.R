@@ -9,9 +9,9 @@
 #' - Total interaction strength \eqn{H^2}, a statistic measuring the proportion
 #'   of prediction variability unexplained by main effects, see [total_interaction()].
 #'   
-#' Since one typically is interested in calculating different of above statistics, and
-#' often in different versions (scaled and unscaled, squared or not etc.), it is 
-#' convenient to first do all expensive calculations once using [interact()], and then
+#' Since one typically is interested in calculating different statistics
+#' in different versions (scaled and unscaled, squared or not etc.), it is 
+#' convenient to do expensive calculations once using [interact()], and then
 #' derive all relevant statistics from its result, see the examples below.
 #'  
 #' @inheritParams pd_raw
@@ -23,16 +23,15 @@
 #' @param verbose Should a progress bar be shown? The default is `TRUE`.
 #' @returns 
 #'   An object of class "interact" containing these elements:
-#'   - `f`: Matrix with predictions.
-#'   - `mean_f2`: (Weighted) mean f^2. Used to normalize most statistics.
-#'   - `F_j`: List of matrices, each representing univariable PDs.
-#'   - `F_not_j`: List of matrices, each representing the PDs of all variables != j.
-#'   - `F_jk`: List of matrices, each representing bivariate PDs.
-#'   - `w`: Same as input w.
-#'   - `H2_j`: Matrix of Friedman and Popescu's \eqn{H^2_j}.
+#'   - `f`: Matrix with predictions \eqn{F}.
+#'   - `mean_f2`: (Weighted) column means of `f`. Used to normalize most statistics.
+#'   - `F_j`: List of matrices, each representing PDs \eqn{F_j}.
+#'   - `F_not_j`: List of matrices with PDs \eqn{F_{\setminus j}} of other features.
+#'   - `F_jk`: List of matrices, each representing bivariate PDs \eqn{F_{jk}}.
+#'   - `w`: Same as input `w.
 #'   - `v`: Same as input `v`.
 #'   - `v_pairwise`: Subset of `v` with largest `H2_j` used for pairwise calculations.
-#'   - `combs`: List of variable pairs for which pairwise PDs are available.
+#'   - `combs`: Named list of variable pairs for which pairwise PDs are available.
 #' @references
 #' Friedman, Jerome H., and Bogdan E. Popescu. *"Predictive Learning via Rule Ensembles."*
 #'   The Annals of Applied Statistics 2, no. 3 (2008): 916-54.
@@ -198,7 +197,6 @@ interact.default <- function(object, v, X, pred_fun = stats::predict, pairwise_m
       F_not_j = F_not_j, 
       F_jk = F_jk,
       w = w,
-      H2_j = H2_j,
       v = v,
       v_pairwise = v_pairwise,
       combs = combs

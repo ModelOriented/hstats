@@ -20,7 +20,7 @@ H2_pairwise(object, ...)
   w = NULL,
   verbose = TRUE,
   normalize = TRUE,
-  denominator = c("F_jk", "f"),
+  denominator = c("F_jk", "F"),
   squared = TRUE,
   sort = TRUE,
   top_m = Inf,
@@ -38,7 +38,7 @@ H2_pairwise(object, ...)
   w = NULL,
   verbose = TRUE,
   normalize = TRUE,
-  denominator = c("F_jk", "f"),
+  denominator = c("F_jk", "F"),
   squared = TRUE,
   sort = TRUE,
   top_m = Inf,
@@ -56,7 +56,7 @@ H2_pairwise(object, ...)
   w = NULL,
   verbose = TRUE,
   normalize = TRUE,
-  denominator = c("F_jk", "f"),
+  denominator = c("F_jk", "F"),
   squared = TRUE,
   sort = TRUE,
   top_m = Inf,
@@ -67,7 +67,7 @@ H2_pairwise(object, ...)
 \method{H2_pairwise}{interact}(
   object,
   normalize = TRUE,
-  denominator = c("F_jk", "f"),
+  denominator = c("F_jk", "F"),
   squared = TRUE,
   sort = TRUE,
   top_m = Inf,
@@ -127,7 +127,8 @@ Matrix of interactions statistics (one row per variable pair, one column per
 prediction dimension).
 }
 \description{
-Friedman and Popescu's statistics of pairwise interaction strength.
+Friedman and Popescu's statistics of pairwise interaction strength,
+ideally calculated from the result of \code{\link[=interact]{interact()}}.
 }
 \details{
 Following Friedman and Popescu (2008), if there are no interaction effects between
@@ -188,7 +189,7 @@ a different denominator, namely the same as used for \eqn{H^2_j}:
   \tilde H^2_{jk} = \frac{A_{jk}}{\frac{1}{n} \sum_{i = 1}^n\big[F(\mathbf{x}_i)\big]^2}.
 }
 This statistic would tell us how much of the total variance of the predictions comes
-from the pairwise interaction of \eqn{x_j} and \eqn{x_k}. Use \code{denominator = "f"} to
+from the pairwise interaction of \eqn{x_j} and \eqn{x_k}. Use \code{denominator = "F"} to
 apply this variant.
 
 Another possibility would be to use the unnormalized test statistic on the scale
@@ -201,7 +202,7 @@ of the predictions, i.e., \eqn{\sqrt{A_{jk}}}. Set \code{normalize = FALSE} and
 fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
 inter <- interact(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
 H2_pairwise(inter)                     # Proportion of pairwise effect variability
-H2_pairwise(inter, denominator = "f")  # Proportion of prediction variability
+H2_pairwise(inter, denominator = "F")  # Proportion of prediction variability
 
 \dontrun{
 H2_pairwise(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
