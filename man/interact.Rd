@@ -78,32 +78,38 @@ selected from \code{X}. In this case, set a random seed for reproducibility.}
 \value{
 An object of class "interact" containing these elements:
 \itemize{
-\item \code{f}: Matrix with predictions \eqn{F}.
+\item \code{f}: Matrix with (centered) predictions \eqn{F}.
 \item \code{mean_f2}: (Weighted) column means of \code{f}. Used to normalize most statistics.
-\item \code{F_j}: List of matrices, each representing PDs \eqn{F_j}.
-\item \code{F_not_j}: List of matrices with PDs \eqn{F_{\setminus j}} of other features.
-\item \code{F_jk}: List of matrices, each representing bivariate PDs \eqn{F_{jk}}.
+\item \code{F_j}: List of matrices, each representing (centered)
+partial dependence functions \eqn{F_j}.
+\item \code{F_not_j}: List of matrices with (centered) partial dependence
+functions \eqn{F_{\setminus j}} of other features.
+\item \code{F_jk}: List of matrices, each representing (centered) bivariate
+partial dependence functions \eqn{F_{jk}}.
 \item \code{w}: Same as input `w.
 \item \code{v}: Same as input \code{v}.
 \item \code{v_pairwise}: Subset of \code{v} with largest \code{H2_j} used for pairwise calculations.
-\item \code{combs}: Named list of variable pairs for which pairwise PDs are available.
+\item \code{combs}: Named list of variable pairs for which pairwise partial
+dependence functions are available.
 }
 }
 \description{
 Expensive crunching behind different interaction statistics (and versions of them):
 \itemize{
+\item Total interaction strength \eqn{H^2}, a statistic measuring the proportion
+of prediction variability unexplained by main effects, see \code{\link[=H2]{H2()}}.
 \item Friedman and Popescu's \eqn{H^2_j} statistic of overall interaction strength per
 feature, see \code{\link[=H2_j]{H2_j()}}.
 \item Friedman and Popescu's \eqn{H^2_{jk}} statistic of pairwise interaction strength,
 see \code{\link[=H2_jk]{H2_jk()}}.
-\item Total interaction strength \eqn{H^2}, a statistic measuring the proportion
-of prediction variability unexplained by main effects, see \code{\link[=H2]{H2()}}.
 }
 
 Since one typically is interested in calculating different statistics
 in different versions (scaled and unscaled, squared or not etc.), it is
 convenient to do expensive calculations once using \code{\link[=interact]{interact()}}, and then
 derive all relevant statistics from its result, see the examples below.
+
+\code{summary()} provides standard statistics.
 }
 \section{Methods (by class)}{
 \itemize{
@@ -119,25 +125,26 @@ derive all relevant statistics from its result, see the examples below.
 fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
 inter <- interact(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
 inter
+summary(inter)
 
 # MODEL TWO: Multi-response linear regression
 fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
 v <- c("Petal.Length", "Petal.Width", "Species")
 inter <- interact(fit, v = v, X = iris, verbose = FALSE)
-inter
+summary(inter)
 
 # MODEL THREE: Gamma GLM with log link
 fit <- glm(Sepal.Length ~ ., data = iris, family = Gamma(link = log))
 
 # No interactions for additive features, at least on link scale
 inter <- interact(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
-inter
+summary(inter)
 
 # On original scale, we have interactions everywhere...
 inter <- interact(
   fit, v = names(iris[-1]), X = iris, type = "response", verbose = FALSE
 )
-inter
+summary(inter)
 
 }
 \references{

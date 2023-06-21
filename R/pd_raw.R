@@ -2,6 +2,9 @@
 #' 
 #' Workhorse of the package.
 #' 
+#' @noRd
+#' @keywords internal
+#' 
 #' @inheritParams pd
 #' @param compress_X If `X` has a single non-`v` column: should duplicates be removed
 #'   and compensated via case weights? Default is `TRUE`.

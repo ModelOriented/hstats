@@ -90,74 +90,78 @@ fit <- xgb.train(
 )
 ```
 
-We will now do four things:
+We will now do two things:
 
-1. Use `interact()` to crunch expensive quantities.
-2. Call `H2_j()` on its result to see *which variables* have strongest interactions.
-3. Then, we use `H2_jk()` to see *which variable pairs* have strong interactions. First, we use Friedman and Popescu's original statistic, then we use a variant whose values can easier be compared. Note that we can see the results only for those features with strong interactions (Step 2).
-4. Finally, to get an impression how much of the prediction variability comes from interactions, we call `H2()`.
-
-Note: The statistics need to repeatedly calculate predictions on $n^2$ rows. That is why {interactML} samples 300 rows by default. To get more robust results, increase this value at the price of slower run time.
+1. Call `interact()` for the expensive crunching.
+2. Get main statistics with `summary()`.
 
 ```r
 # Crunch
 set.seed(1)
 
-system.time(  # 2-3 seconds on simple laptop
+system.time(  # 2-3 seconds on simple laptop - a random forest will take much longer
   inter <- interact(fit, v = x, X = X_train)
 )
 
-# The rest of the calculations are derived from "inter"
-
-# Friedman and Popescu's H-squared statistic of overall interaction strength
-H2_j(inter)
+summary(inter)
 
 # Output
-# OCEAN_DIST        0.062639450
-# LONGITUDE         0.045194768
-# LATITUDE          0.029151873
-# CNTR_DIST         0.027695769
-# RAIL_DIST         0.003805603
-# HWY_DIST          0.003484982
-# TOT_LVG_AREA      0.000000000
-# LND_SQFOOT        0.000000000
-# structure_quality 0.000000000
-# age               0.000000000
+Proportion of prediction variability explained by interactions:
+         y 
+0.09602024 
 
-# Friedman and Popescu's H-squared statistic of pairwise interaction strength
-H2_jk(inter)
+Features with strongest overall interactions (Friedman and Popescu's H^2):
+                            y
+OCEAN_DIST        0.062639450
+LONGITUDE         0.045194768
+LATITUDE          0.029151873
+CNTR_DIST         0.027695769
+RAIL_DIST         0.003805603
+HWY_DIST          0.003484982
+TOT_LVG_AREA      0.000000000
+LND_SQFOOT        0.000000000
+structure_quality 0.000000000
+age               0.000000000
 
-# Output
-# LONGITUDE:OCEAN_DIST 0.156475264
-# LONGITUDE:CNTR_DIST  0.122113602
-# LATITUDE:LONGITUDE   0.076213847
-# LATITUDE:OCEAN_DIST  0.061130256
-# CNTR_DIST:OCEAN_DIST 0.040675335
-# LATITUDE:RAIL_DIST   0.030786973
-# LATITUDE:CNTR_DIST   0.029474763
-# CNTR_DIST:RAIL_DIST  0.012886536
-# LONGITUDE:RAIL_DIST  0.008402545
-# OCEAN_DIST:RAIL_DIST 0.007081773
-
-# Variant that uses a common denominator for fair comparison of interactions
-H2_jk(inter, denominator = "F")
-                                y
-# LONGITUDE:OCEAN_DIST 0.0240273521
-# LATITUDE:OCEAN_DIST  0.0080679657
-# LONGITUDE:CNTR_DIST  0.0080630917
-# CNTR_DIST:OCEAN_DIST 0.0078054639
-# LATITUDE:LONGITUDE   0.0050811281
-# LATITUDE:CNTR_DIST   0.0038791387
-# CNTR_DIST:RAIL_DIST  0.0006329998
-# OCEAN_DIST:RAIL_DIST 0.0006321939
-# LATITUDE:RAIL_DIST   0.0006285874
-# LONGITUDE:RAIL_DIST  0.0002083208
-
-# Overall proportion of variability explained by interactions
-H2(inter)  # 0.096
+Feature pairs with strong interactions (Friedman and Popescu's H^2):
+                               y
+LONGITUDE:OCEAN_DIST 0.156475264
+LONGITUDE:CNTR_DIST  0.122113602
+LATITUDE:LONGITUDE   0.076213847
+LATITUDE:OCEAN_DIST  0.061130256
+CNTR_DIST:OCEAN_DIST 0.040675335
+LATITUDE:RAIL_DIST   0.030786973
+LATITUDE:CNTR_DIST   0.029474763
+CNTR_DIST:RAIL_DIST  0.012886536
+LONGITUDE:RAIL_DIST  0.008402545
+OCEAN_DIST:RAIL_DIST 0.007081773
 ```
 
-**Comments:** The model indeed is additive in non-geographic features, i.e., the interaction constraints are respected. Furthermore, we see that about 10% of prediction variation comes from interaction effects. The clearly strongest interaction happens between longitude and distance to the ocean: About 15.6% of their joint effect can be attributed to their interaction effect, which contributes also about 2.4% to the prediction variability.
+**Comments:** 
+
+- About 10% of prediction variability comes from interaction effects.
+- The strongest overall interactions are associated with "OCEAN_DIST" and "LONGITUDE". For instance, we can say that about 6% of prediction variability can be attributed to all interactions of "OCEAN_DISTANCE".
+- About 15.6% of the joint effect variability of above two features come from their pairwise interaction.
+
+Remarks: 
+
+1. Pairwise statistics are calculated only for the features with strongest overall interactions.
+2. Pairwise Friedmans and Popescu's $H^2_{jk}$ measures interaction strength relative to the combined effect of the two features. As a modification, we can compute a variant with common denominator (overall prediction variability, as with $H^2_j$), see below.
+3. The statistics need to repeatedly calculate predictions on $n^2$ rows. That is why {interactML} samples 300 rows by default. To get more robust results, increase this value at the price of slower run time.
+
+Which pairwise interaction is strongest?
+
+```r
+H2_jk(inter, denominator = "F", top_m = 5)
+                               y
+LONGITUDE:OCEAN_DIST 0.024027352
+LATITUDE:OCEAN_DIST  0.008067966
+LONGITUDE:CNTR_DIST  0.008063092
+CNTR_DIST:OCEAN_DIST 0.007805464
+LATITUDE:LONGITUDE   0.005081128
+```
+
+**Comment:** It remains the interaction between Longitude and distance to the ocean. The value tells us that about 2.4% of overall prediction variability comes from this interaction.
 
 ## Background
 
@@ -231,7 +235,7 @@ $$
 2. $H^2_{jk} = 0$ means there are no interaction effects between $x_j$ and $x_k$. The larger the value, the more of the joint effect of the two features comes from the interaction.
 3.  Since the denominator differs between variable pairs, unlike $H_j$, this test statistic is difficult to compare between variable pairs. If both main effects are very weak, a negligible interaction can get a high $H^2_{jk}$.
 
-**Alternatives**
+**Modification**
 
 To be able to compare pairwise interaction strength across variable pairs, and to overcome the problem mentioned in the last remark, we suggest as alternative a different denominator, namely the same as used for $H^2_j$:
 
@@ -239,13 +243,13 @@ $$
   \tilde H^2_{jk} = \frac{A_{jk}}{\frac{1}{n} \sum_{i = 1}^n \left[F(\boldsymbol x_i)\right]^2}.
 $$
 
-This statistic would tell us how much of the total variance of the predictions comes from the pairwise interaction of $x_j$ and $x_k$.
+This statistic measures how much of the total variance of the predictions comes from the pairwise interaction of $x_j$ and $x_k$.
 
 Another possibility would be to use the unnormalized test statistic on the scale of the predictions, i.e., $\sqrt{A_{jk}}$.
 
 ### Total interaction strength of all variables together
 
-In the spirit of [2], we can say: if the model is additive in all features (no interactions), then
+If the model is additive in all features (no interactions), then
 
 $$
 	F(\boldsymbol x) = \sum_{j}^{p} F_j(x_j).

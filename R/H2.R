@@ -10,7 +10,7 @@
 #' \deqn{
 #'   F(\mathbf{x}) = \sum_{j}^{p} F_j(x_j)
 #' }
-#' (see [pd()] for the definitions).
+#' (check [pd()] for all definitions).
 #' To measure the relative amount of variability explained by all interactions, 
 #' we can therefore study the test statistic of total interaction strength
 #' \deqn{
@@ -22,7 +22,6 @@
 #' A value of 0 would mean there are no interaction effects at all.
 #' 
 #' @inheritParams H2_j
-#' @inherit interact references
 #' @returns Vector of total interaction strength (one value per prediction dimension).
 #' @export
 #' @examples

@@ -62,16 +62,16 @@ $$
 	\item Since the denominator differs between variable pairs, unlike $H_j$, this test statistic is difficult to compare between variable pairs. If both main effects are very weak, a negligible interaction can get a high $H^2_{jk}$. Therefore, [2] suggests to calculate $H^2_{jk}$ only for {\em important} variables.
 \end{enumerate}
 
-\paragraph{Alternatives:} To be able to compare pairwise interaction strength across variable pairs, and to overcome the problem mentioned in the last remark, we suggest as alternative a different denominator, namely the same as used for $H^2_j$:
+\paragraph{Modification:} To be able to compare pairwise interaction strength across variable pairs, and to overcome the problem mentioned in the last remark, we suggest as alternative a different denominator, namely the same as used for $H^2_j$:
 $$
   \tilde H^2_{jk} = \frac{A_{jk}}{\frac{1}{n} \sum_{i = 1}^n\big[F(\mathbf{x}_i)\big]^2}.
 $$
-This statistic would tell us how much of the total variance of the predictions comes from the pairwise interaction of $x_j$ and $x_k$.
+This statistic measures how much of the total variance of the predictions comes from the pairwise interaction of $x_j$ and $x_k$.
 
 Another possibility would be to use the unnormalized test statistic on the scale of the predictions, i.e., $\sqrt{A_{jk}}$.
 
 \subsection{Total interaction strength of all variables together}
-In the spirit of [2], we can say: if the model is additive in all features (no interactions), then
+If the model is additive in all features (no interactions), then
 $$
 	F(\mathbf{x}) = \sum_{j}^{p} F_j(x_j).
 $$

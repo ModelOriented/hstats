@@ -97,7 +97,7 @@ partial dependence functions \eqn{F_j(x_j)}, i.e.,
 \deqn{
   F(\mathbf{x}) = \sum_{j}^{p} F_j(x_j)
 }
-(see \code{\link[=pd]{pd()}} for the definitions).
+(check \code{\link[=pd]{pd()}} for all definitions).
 To measure the relative amount of variability explained by all interactions,
 we can therefore study the test statistic of total interaction strength
 \deqn{
@@ -140,8 +140,4 @@ fit <- lm(Sepal.Length ~ ., data = iris)
 inter <- interact(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
 H2(inter)
 }
-}
-\references{
-Friedman, Jerome H., and Bogdan E. Popescu. \emph{"Predictive Learning via Rule Ensembles."}
-The Annals of Applied Statistics 2, no. 3 (2008): 916-54.
 }

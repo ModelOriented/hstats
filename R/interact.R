@@ -2,17 +2,19 @@
 #' 
 #' @description
 #' Expensive crunching behind different interaction statistics (and versions of them):
+#' - Total interaction strength \eqn{H^2}, a statistic measuring the proportion
+#'   of prediction variability unexplained by main effects, see [H2()].
 #' - Friedman and Popescu's \eqn{H^2_j} statistic of overall interaction strength per
 #'   feature, see [H2_j()].
 #' - Friedman and Popescu's \eqn{H^2_{jk}} statistic of pairwise interaction strength,
 #'   see [H2_jk()].
-#' - Total interaction strength \eqn{H^2}, a statistic measuring the proportion
-#'   of prediction variability unexplained by main effects, see [H2()].
 #'   
 #' Since one typically is interested in calculating different statistics
 #' in different versions (scaled and unscaled, squared or not etc.), it is 
 #' convenient to do expensive calculations once using [interact()], and then
-#' derive all relevant statistics from its result, see the examples below.
+#' derive all relevant statistics from its result, see the examples below. 
+#' 
+#' `summary()` provides standard statistics.
 #'  
 #' @inheritParams pd
 #' @param pairwise_m Number of features for which pairwise statistics are calculated.
@@ -23,15 +25,19 @@
 #' @param verbose Should a progress bar be shown? The default is `TRUE`.
 #' @returns 
 #'   An object of class "interact" containing these elements:
-#'   - `f`: Matrix with predictions \eqn{F}.
+#'   - `f`: Matrix with (centered) predictions \eqn{F}.
 #'   - `mean_f2`: (Weighted) column means of `f`. Used to normalize most statistics.
-#'   - `F_j`: List of matrices, each representing PDs \eqn{F_j}.
-#'   - `F_not_j`: List of matrices with PDs \eqn{F_{\setminus j}} of other features.
-#'   - `F_jk`: List of matrices, each representing bivariate PDs \eqn{F_{jk}}.
+#'   - `F_j`: List of matrices, each representing (centered) 
+#'     partial dependence functions \eqn{F_j}.
+#'   - `F_not_j`: List of matrices with (centered) partial dependence 
+#'     functions \eqn{F_{\setminus j}} of other features.
+#'   - `F_jk`: List of matrices, each representing (centered) bivariate 
+#'     partial dependence functions \eqn{F_{jk}}.
 #'   - `w`: Same as input `w.
 #'   - `v`: Same as input `v`.
 #'   - `v_pairwise`: Subset of `v` with largest `H2_j` used for pairwise calculations.
-#'   - `combs`: Named list of variable pairs for which pairwise PDs are available.
+#'   - `combs`: Named list of variable pairs for which pairwise partial 
+#'     dependence functions are available.
 #' @references
 #'   Friedman, Jerome H., and Bogdan E. Popescu. *"Predictive Learning via Rule Ensembles."*
 #'     The Annals of Applied Statistics 2, no. 3 (2008): 916-54.
@@ -41,25 +47,26 @@
 #' fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
 #' inter <- interact(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
 #' inter
+#' summary(inter)
 #' 
 #' # MODEL TWO: Multi-response linear regression
 #' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
 #' v <- c("Petal.Length", "Petal.Width", "Species")
 #' inter <- interact(fit, v = v, X = iris, verbose = FALSE)
-#' inter
+#' summary(inter)
 #'
 #' # MODEL THREE: Gamma GLM with log link
 #' fit <- glm(Sepal.Length ~ ., data = iris, family = Gamma(link = log))
 #' 
 #' # No interactions for additive features, at least on link scale
 #' inter <- interact(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
-#' inter
+#' summary(inter)
 #' 
 #' # On original scale, we have interactions everywhere...
 #' inter <- interact(
 #'   fit, v = names(iris[-1]), X = iris, type = "response", verbose = FALSE
 #' )
-#' inter
+#' summary(inter)
 #' 
 interact <- function(object, ...) {
   UseMethod("interact")
@@ -220,4 +227,55 @@ interact.Learner <- function(object, v, X,
     verbose = verbose,
     ...
   )
+}
+
+#' Print Method
+#' 
+#' Print method for object of class "interact". 
+#'
+#' @param x An object of class "interact".
+#' @param ... Further arguments passed from other methods.
+#' @returns Invisibly, the input is returned.
+#' @export
+#' @examples
+#' fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
+#' inter <- interact(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
+#' inter 
+#' @seealso [interact()]
+print.interact <- function(x, ...) {
+  cat("'interact' object. Run summary() to get interaction statistics.\n")
+  invisible(x)
+}
+
+#' Summary Method
+#' 
+#' Summary method for "interact" object.
+#'
+#' @param object An object of class "interact".
+#' @param n Maximum number of rows of results to print.s
+#' @param ... Further arguments passed from other methods.
+#' @returns A list of resulting matrices.
+#' @export
+#' @examples
+#' fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
+#' inter <- interact(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
+#' summary(inter)
+#' @seealso [interact()]
+summary.interact <- function(object, n = 10L, ...) {
+  h2 <- H2(object)
+  h2_j <- H2_j(object)
+  h2_jk <- H2_jk(object)
+  
+  cat("Proportion of prediction variability explained by interactions:\n")
+  print(h2)
+  cat("\n")
+  
+  cat("Features with strongest overall interactions (Friedman and Popescu's H^2):\n")
+  print(utils::head(h2_j, n))
+  cat("\n")
+  
+  cat("Feature pairs with strong interactions (Friedman and Popescu's H^2):\n")
+  print(utils::head(h2_jk, n))
+  cat("\n")
+  invisible(list(H2 = h2, H2_j = h2_j, H2_jk = h2_jk))
 }

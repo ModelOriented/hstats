@@ -38,7 +38,7 @@
 #'   high \eqn{H^2_{jk}}. Therefore, Friedman and Popescu (2008) suggests to calculate 
 #'   \eqn{H^2_{jk}} only for *important* variables.
 #'   
-#' @section Alternatives:
+#' @section Modification:
 #' 
 #' To be able to compare pairwise interaction strength across variable pairs, 
 #' and to overcome the problem mentioned in the last remark, we suggest as alternative 
@@ -46,7 +46,7 @@
 #' \deqn{
 #'   \tilde H^2_{jk} = \frac{A_{jk}}{\frac{1}{n} \sum_{i = 1}^n\big[F(\mathbf{x}_i)\big]^2}.
 #' }
-#' This statistic would tell us how much of the total variance of the predictions comes 
+#' This statistic measures how much of the total variance of the predictions comes 
 #' from the pairwise interaction of \eqn{x_j} and \eqn{x_k}. Use `denominator = "F"` to
 #' apply this variant.
 #' 
