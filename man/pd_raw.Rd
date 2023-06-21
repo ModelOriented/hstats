@@ -10,11 +10,9 @@ pd_raw(
   X,
   grid,
   pred_fun = stats::predict,
-  n_max = 1000L,
   w = NULL,
   compress_X = TRUE,
   compress_grid = TRUE,
-  check = TRUE,
   ...
 )
 }
@@ -25,7 +23,9 @@ pd_raw(
 
 \item{X}{A data.frame or matrix serving as background dataset.}
 
-\item{grid}{A vector (if \code{length(v) == 1L}), or a matrix/data.frame otherwise.}
+\item{grid}{Named list. Each element specifies the evaluation grid for the
+corresponding feature. Missing components are automatically generated via
+\code{\link[=univariate_grid]{univariate_grid()}}. If \code{v} has length 1, then \code{grid} can also be a vector.}
 
 \item{pred_fun}{Prediction function of the form \verb{function(object, X, ...)},
 providing K >= 1 numeric predictions per row. Its first argument represents the
@@ -33,9 +33,6 @@ model \code{object}, its second argument a data structure like \code{X}. Additio
 (such as \code{type = "response"} in a GLM) can be passed via \code{...}. The default,
 \code{\link[stats:predict]{stats::predict()}}, will work in most cases. Note that column names in a resulting
 matrix of predictions will be used as default column names in the results.}
-
-\item{n_max}{If \code{X} has more than \code{n_max} rows, a random sample of \code{n_max} rows is
-selected from \code{X}. In this case, set a random seed for reproducibility.}
 
 \item{w}{Optional vector of case weights for each row of \code{X}.}
 
@@ -45,8 +42,6 @@ and compensated via case weights? Default is \code{TRUE}.}
 \item{compress_grid}{Should duplicates in \code{grid} be removed and PDs mapped back to
 the original grid index? Default is \code{TRUE}.}
 
-\item{check}{Should input checks be applied? Default is \code{TRUE}.}
-
 \item{...}{Additional arguments passed to \code{pred_fun(object, X, ...)}, for instance
 \code{type = "response"} in a \code{\link[=glm]{glm()}} model.}
 }
@@ -55,20 +50,7 @@ A matrix of partial dependence values (one column per prediction dimension,
 one row per grid row, in the same order as \code{grid}).
 }
 \description{
-Workhorse of \code{\link[=pd_profiles]{pd_profiles()}} and \code{\link[=interact]{interact()}}.
-Furthermore, it can be used to calculate multi-dimensional partial dependencies.
-In this case, provide your own evaluation grid, for instance via \code{\link[=multivariate_grid]{multivariate_grid()}}.
-}
-\examples{
-fit <- lm(Sepal.Length ~ ., data = iris)
-pd_raw(fit, v = "Petal.Width", X = iris, pred_fun = predict, grid = 1:2)
-
-# 2D PD
-grid <- multivariate_grid(iris[4:5])
-grid
-values <- pd_raw(fit, X = iris, v = colnames(iris)[4:5], grid = grid)
-result <- data.frame(grid, values)
-head(result, 2)
+Workhorse of the package.
 }
 \references{
 Friedman, Jerome H. \emph{"Greedy Function Approximation: A Gradient Boosting Machine."}

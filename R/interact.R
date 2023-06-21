@@ -14,7 +14,7 @@
 #' convenient to do expensive calculations once using [interact()], and then
 #' derive all relevant statistics from its result, see the examples below.
 #'  
-#' @inheritParams pd_raw
+#' @inheritParams partial_dependence
 #' @param pairwise_m Number of features for which pairwise statistics are calculated.
 #'   The features are selected based on Friedman and Popescu's overall interaction 
 #'   strength \eqn{H^2_j} (rowwise maximum in the multivariate case). 
@@ -33,8 +33,8 @@
 #'   - `v_pairwise`: Subset of `v` with largest `H2_j` used for pairwise calculations.
 #'   - `combs`: Named list of variable pairs for which pairwise PDs are available.
 #' @references
-#' Friedman, Jerome H., and Bogdan E. Popescu. *"Predictive Learning via Rule Ensembles."*
-#'   The Annals of Applied Statistics 2, no. 3 (2008): 916-54.
+#'   Friedman, Jerome H., and Bogdan E. Popescu. *"Predictive Learning via Rule Ensembles."*
+#'     The Annals of Applied Statistics 2, no. 3 (2008): 916-54.
 #' @export
 #' @examples
 #' # MODEL ONE: Linear regression
@@ -96,18 +96,9 @@ interact.default <- function(object, v, X, pred_fun = stats::predict, pairwise_m
   for (j in seq_len(p)) {
     # Main effect of x_j
     z <- v[j]
+    g <- if (is.data.frame(X)) X[[z]] else X[, z]
     F_j[[z]] <- wcenter(
-      pd_raw(
-        object = object, 
-        v = z, 
-        X = X, 
-        grid = if (is.data.frame(X)) X[[z]] else X[, z],
-        pred_fun = pred_fun, 
-        n_max = n_max, # No effect
-        w = w,
-        check = FALSE, # Already done
-        ...
-      ),
+      pd_raw(object = object, v = z, X = X, grid = g, pred_fun = pred_fun, w = w, ...),
       w = w
     )
     
@@ -120,10 +111,8 @@ interact.default <- function(object, v, X, pred_fun = stats::predict, pairwise_m
         X = X, 
         grid = X[, not_z],
         pred_fun = pred_fun,
-        n_max = n_max, # No effect
         w = w,
         compress_grid = FALSE,  # grid has too many columns (saves a very quick check)
-        check = FALSE, # Already done
         ...
       ),
       w = w
@@ -165,17 +154,7 @@ interact.default <- function(object, v, X, pred_fun = stats::predict, pairwise_m
     for (i in seq_len(n_combs)) {
       z <- combs[[i]]
       F_jk[[i]] <- wcenter(
-        pd_raw(
-          object, 
-          v = z, 
-          X = X, 
-          grid = X[, z],
-          pred_fun = pred_fun,
-          n_max = n_max, # No effect
-          w = w,
-          check = FALSE, # Already done
-          ...
-        ),
+        pd_raw(object, v = z, X = X, grid = X[, z], pred_fun = pred_fun, w = w, ...),
         w = w
       )
       if (show_bar) {

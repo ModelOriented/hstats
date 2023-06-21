@@ -103,7 +103,7 @@ Note: The statistics need to repeatedly calculate predictions on $n^2$ rows. Tha
 # Crunch
 set.seed(1)
 
-system.time(  # 2 seconds on simple laptop
+system.time(  # 3 seconds on simple laptop
   inter <- interact(fit, v = x, X = X_train)
 )
 

@@ -21,8 +21,6 @@
 #' It equals the variability of the predictions unexplained by the main effects. 
 #' A value of 0 would mean there are no interaction effects at all.
 #' 
-#' @inheritParams pd_raw
-#' @inheritParams interact
 #' @inheritParams H2_overall
 #' @inherit interact references
 #' @returns Vector of total interaction strength (one value per prediction dimension).

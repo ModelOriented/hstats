@@ -76,10 +76,9 @@ H2_pairwise(object, ...)
 )
 }
 \arguments{
-\item{object}{Fitted model object.}
+\item{object}{Object of class "interact", or a model object.}
 
-\item{...}{Additional arguments passed to \code{pred_fun(object, X, ...)}, for instance
-\code{type = "response"} in a \code{\link[=glm]{glm()}} model.}
+\item{...}{Further parameters passed to predict function (only for default method).}
 
 \item{v}{Vector of feature names.}
 
@@ -91,12 +90,6 @@ model \code{object}, its second argument a data structure like \code{X}. Additio
 (such as \code{type = "response"} in a GLM) can be passed via \code{...}. The default,
 \code{\link[stats:predict]{stats::predict()}}, will work in most cases. Note that column names in a resulting
 matrix of predictions will be used as default column names in the results.}
-
-\item{pairwise_m}{Number of features for which pairwise statistics are calculated.
-The features are selected based on Friedman and Popescu's overall interaction
-strength \eqn{H^2_j} (rowwise maximum in the multivariate case).
-Set to \code{length(v)} to not miss any pairwise interaction.
-Set to 0 to not calculate any pairwise interaction.}
 
 \item{n_max}{If \code{X} has more than \code{n_max} rows, a random sample of \code{n_max} rows is
 selected from \code{X}. In this case, set a random seed for reproducibility.}

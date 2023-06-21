@@ -55,10 +55,9 @@ total_interaction(object, ...)
 \method{total_interaction}{interact}(object, normalize = TRUE, squared = TRUE, eps = 1e-08, ...)
 }
 \arguments{
-\item{object}{Fitted model object.}
+\item{object}{Object of class "interact", or a model object.}
 
-\item{...}{Additional arguments passed to \code{pred_fun(object, X, ...)}, for instance
-\code{type = "response"} in a \code{\link[=glm]{glm()}} model.}
+\item{...}{Further parameters passed to predict function (only for default method).}
 
 \item{v}{Vector of feature names.}
 

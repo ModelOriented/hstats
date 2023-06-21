@@ -34,7 +34,6 @@
 #' 6. Since the denominator is the same for all features, the values of the test 
 #'   statistics can be compared across features.
 #' 
-#' @inheritParams pd_raw
 #' @inheritParams interact
 #' @param object Object of class "interact", or a model object.
 #' @param normalize Should statistic be normalized? Default is `TRUE`.

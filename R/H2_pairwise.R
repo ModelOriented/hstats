@@ -54,8 +54,6 @@
 #' of the predictions, i.e., \eqn{\sqrt{A_{jk}}}. Set `normalize = FALSE` and 
 #' `squared = FALSE` to get this statistic.
 #' 
-#' @inheritParams pd_raw
-#' @inheritParams interact
 #' @inheritParams H2_overall
 #' @param denominator Should the denominator be the variation of the combined 
 #'   effect \eqn{F_{jk}} (like Friedman and Popescu, default) or rather the
