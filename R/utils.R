@@ -196,7 +196,7 @@ basic_check <- function(X, v, pred_fun, w) {
 #' Raw H2 Overall
 #' 
 #' Function used to calculate Friedman and Popescu's overall H-squared. It is separated
-#' from the main H2_overall function because it is used within interaction_statistics
+#' from the main H2_j function because it is used within interaction_statistics
 #' to select the variables for pairwise calculations.
 #' 
 #' @noRd
@@ -207,8 +207,8 @@ basic_check <- function(X, v, pred_fun, w) {
 #' @param f Predictions.
 #' @param mean_f2 Weighted average of f^2.
 #' @param w Optional case weights.
-#' @inheritParams H2_overall
-H2_overall_raw <- function(F_j, F_not_j, f, mean_f2, w = NULL, 
+#' @inheritParams H2_j
+H2_j_raw <- function(F_j, F_not_j, f, mean_f2, w = NULL, 
                            normalize = TRUE, squared = TRUE, sort = TRUE, 
                            top_m = Inf, eps = 1e-8, ...) {
   v <- names(F_j)
@@ -234,7 +234,7 @@ H2_overall_raw <- function(F_j, F_not_j, f, mean_f2, w = NULL,
 #' @noRd
 #' @keywords internal
 #' 
-#' @inheritParams H2_overall
+#' @inheritParams H2_j
 #' @param num Numerator of statistic.
 #' @param denom Denominator of statistic.
 #' @returns Matrix of statistics.

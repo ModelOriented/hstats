@@ -46,7 +46,7 @@
 #' @param ... Additional arguments passed to `pred_fun(object, X, ...)`, for instance
 #'   `type = "response"` in a [glm()] model.
 #' @returns 
-#'   A list of PD profiles per variable in `v`. Has additional class "partial_dependence".
+#'   A list of PD profiles per variable in `v`. Has additional class "pd".
 #' @references
 #'   Friedman, Jerome H. *"Greedy Function Approximation: A Gradient Boosting Machine."* 
 #'     Annals of Statistics 29, no. 5 (2001): 1189-1232.
@@ -54,19 +54,17 @@
 #' @examples
 #' # MODEL ONE: Linear regression
 #' fit <- lm(Sepal.Length ~ ., data = iris)
-#' pd <- partial_dependence(fit, v = "Species", X = iris)
-#' pd$Species
-#' head(pd$Sepal.Width)
+#' pd <- pd(fit, v = "Species", X = iris)
+#' pd$pd
+#' head(pd$pd)
 #' 
-#' pd <- partial_dependence(fit, v = "Petal.Width", X = iris, grid = seq(1, 0, by = -0.5))
-#' pd$Petal.Width 
+#' pd <- pd(fit, v = "Petal.Width", X = iris, grid = seq(1, 0, by = -0.5))
+#' pd$pd
 #' 
 #' # MODEL TWO: Multi-response linear regression
 #' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width + Species, data = iris)
-#' v <- names(iris[3:5])
-#' partial_grid <- list(Petal.Width = seq(0, 1, by = 0.5))
-#' pd <- partial_dependence(fit, v = v, X = iris, grid = partial_grid, verbose = FALSE)
-#' pd$Species
+#' pd <- pd(fit, v = "Petal.Width", X = iris)
+#' pd$pd[1:4, ]
 #'  
 #' # MODEL THREE: Gamma GLM -> pass options to predict() via ...
 #' fit <- glm(
@@ -74,18 +72,18 @@
 #'   data = iris, 
 #'   family = Gamma(link = log)
 #' )
-#' partial_dependence(fit, v = "Species", X = iris, type = "response")$Species
-partial_dependence <- function(object, ...) {
-  UseMethod("partial_dependence")
+#' pd(fit, v = "Species", X = iris, type = "response")$pd
+pd <- function(object, ...) {
+  UseMethod("pd")
 }
 
-#' @describeIn partial_dependence Default method.
+#' @describeIn pd Default method.
 #' @export
-partial_dependence.default <- function(object, v, X, pred_fun = stats::predict,
-                                       grid = NULL, grid_size = 36L, 
-                                       trim = c(0.01, 0.99), 
-                                       strategy = c("quantile", "uniform"), 
-                                       n_max = 1000L, w = NULL, ...) {
+pd.default <- function(object, v, X, 
+                       pred_fun = stats::predict,
+                       grid = NULL, grid_size = 36L, trim = c(0.01, 0.99), 
+                       strategy = c("quantile", "uniform"), 
+                       n_max = 1000L, w = NULL, ...) {
   basic_check(X = X, v = v, pred_fun = pred_fun, w = w)
   
   if (is.null(grid)) {
@@ -117,18 +115,17 @@ partial_dependence.default <- function(object, v, X, pred_fun = stats::predict,
     ...
   )
   pd <- cbind.data.frame(grid, pd)
-  structure(list(pd = pd, v = v), class = "partial_dependence")
+  structure(list(pd = pd, v = v), class = "pd")
 }
 
-#' @describeIn partial_dependence Method for "ranger" models.
+#' @describeIn pd Method for "ranger" models.
 #' @export
-partial_dependence.ranger <- function(object, v, X, 
-                                      pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions, 
-                                      grid = NULL, grid_size = 36L, 
-                                      trim = c(0.01, 0.99), 
-                                      strategy = c("quantile", "uniform"), 
-                                      n_max = 1000L, w = NULL, ...) {
-  partial_dependence.default(
+pd.ranger <- function(object, v, X, 
+                      pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions, 
+                      grid = NULL, grid_size = 36L, trim = c(0.01, 0.99), 
+                      strategy = c("quantile", "uniform"), 
+                      n_max = 1000L, w = NULL, ...) {
+  pd.default(
     object = object,
     v = v,
     X = X,
@@ -143,15 +140,14 @@ partial_dependence.ranger <- function(object, v, X,
   )
 }
 
-#' @describeIn partial_dependence Method for "mlr3" models.
+#' @describeIn pd Method for "mlr3" models.
 #' @export
-partial_dependence.Learner <- function(object, v, X, 
-                                       pred_fun = function(m, X) m$predict_newdata(X)$response, 
-                                       grid = NULL, grid_size = 36L, 
-                                       trim = c(0.01, 0.99),
-                                       strategy = c("quantile", "uniform"), 
-                                       n_max = 1000L, w = NULL, ...) {
-  partial_dependence.default(
+pd.Learner <- function(object, v, X, 
+                       pred_fun = function(m, X) m$predict_newdata(X)$response, 
+                       grid = NULL, grid_size = 36L, trim = c(0.01, 0.99),
+                       strategy = c("quantile", "uniform"), 
+                       n_max = 1000L, w = NULL, ...) {
+  pd.default(
     object = object,
     v = v,
     X = X,

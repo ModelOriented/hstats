@@ -3,18 +3,18 @@
 #' @description
 #' Expensive crunching behind different interaction statistics (and versions of them):
 #' - Friedman and Popescu's \eqn{H^2_j} statistic of overall interaction strength per
-#'   feature, see [H2_overall()].
+#'   feature, see [H2_j()].
 #' - Friedman and Popescu's \eqn{H^2_{jk}} statistic of pairwise interaction strength,
-#'   see [H2_pairwise()].
+#'   see [H2_jk()].
 #' - Total interaction strength \eqn{H^2}, a statistic measuring the proportion
-#'   of prediction variability unexplained by main effects, see [total_interaction()].
+#'   of prediction variability unexplained by main effects, see [H2()].
 #'   
 #' Since one typically is interested in calculating different statistics
 #' in different versions (scaled and unscaled, squared or not etc.), it is 
 #' convenient to do expensive calculations once using [interact()], and then
 #' derive all relevant statistics from its result, see the examples below.
 #'  
-#' @inheritParams partial_dependence
+#' @inheritParams pd
 #' @param pairwise_m Number of features for which pairwise statistics are calculated.
 #'   The features are selected based on Friedman and Popescu's overall interaction 
 #'   strength \eqn{H^2_j} (rowwise maximum in the multivariate case). 
@@ -127,7 +127,7 @@ interact.default <- function(object, v, X, pred_fun = stats::predict, pairwise_m
   }
   
   # Pairwise stats are calculated only for subset of features with large interactions
-  H2_j <- H2_overall_raw(
+  h2_j <- H2_j_raw(
     F_j = F_j, 
     F_not_j = F_not_j, 
     f = f, 
@@ -136,7 +136,7 @@ interact.default <- function(object, v, X, pred_fun = stats::predict, pairwise_m
     normalize = TRUE, 
     sort = FALSE
   )
-  rowwise_max <- apply(H2_j, MARGIN = 1L, FUN = max)
+  rowwise_max <- apply(h2_j, MARGIN = 1L, FUN = max)
   rowwise_max <- rowwise_max[rowwise_max > 0]
   if (min(pairwise_m, length(rowwise_max)) >= 2L) {
     v_pairwise <- v[v %in% names(utils::head(sort(-rowwise_max), pairwise_m))]

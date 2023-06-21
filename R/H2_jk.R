@@ -24,11 +24,11 @@
 #' \deqn{
 #'   B_{jk} = \frac{1}{n} \sum_{i = 1}^n\big[\hat F_{jk}(x_{ij}, x_{ik})\big]^2
 #' }
-#' (check [pd_profiles()] for all definitions).
+#' (check [pd()] for all definitions).
 #'
 #' @section Remarks:
 #' 
-#' 1. Remarks 1 to 4 of [H2_pairwise()] also apply here.
+#' 1. Remarks 1 to 4 of [H2_jk()] also apply here.
 #' 2. \eqn{H^2_{jk} = 0} means there are no interaction effects between \eqn{x_j}
 #'   and \eqn{x_k}. The larger the value, the more of the joint effect of the two 
 #'   features comes from the interaction.
@@ -54,7 +54,8 @@
 #' of the predictions, i.e., \eqn{\sqrt{A_{jk}}}. Set `normalize = FALSE` and 
 #' `squared = FALSE` to get this statistic.
 #' 
-#' @inheritParams H2_overall
+#' @inheritParams interact
+#' @inheritParams H2_j
 #' @param denominator Should the denominator be the variation of the combined 
 #'   effect \eqn{F_{jk}} (like Friedman and Popescu, default) or rather the
 #'   variation of the predictions. The latter has the advantage that values can 
@@ -69,30 +70,29 @@
 #' # MODEL ONE: Linear regression
 #' fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
 #' inter <- interact(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
-#' H2_pairwise(inter)                     # Proportion of pairwise effect variability
-#' H2_pairwise(inter, denominator = "F")  # Proportion of prediction variability
+#' H2_jk(inter)                     # Proportion of pairwise effect variability
+#' H2_jk(inter, denominator = "F")  # Proportion of prediction variability
 #' 
 #' \dontrun{
-#' H2_pairwise(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
+#' H2_jk(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
 #' 
 #' # MODEL TWO: Multi-response linear regression
 #' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
 #' v <- c("Petal.Length", "Petal.Width", "Species")
 #' inter <- interact(fit, v = v, X = iris, verbose = FALSE)
-#' H2_pairwise(inter)
-#' H2_pairwise(fit, v = v, X = iris, verbose = FALSE)
+#' H2_jk(inter)
+#' H2_jk(fit, v = v, X = iris, verbose = FALSE)
 #' }
-H2_pairwise <- function(object, ...) {
-  UseMethod("H2_pairwise")
+H2_jk <- function(object, ...) {
+  UseMethod("H2_jk")
 }
 
-#' @describeIn H2_pairwise Default pairwise interaction strength.
+#' @describeIn H2_jk Default pairwise interaction strength.
 #' @export
-H2_pairwise.default <- function(object, v, X, pred_fun = stats::predict,
-                                pairwise_m = 5L, n_max = 300L, w = NULL, verbose = TRUE,
-                                normalize = TRUE, denominator = c("F_jk", "F"),
-                                squared = TRUE, sort = TRUE, 
-                                top_m = Inf, eps = 1e-8, ...) {
+H2_jk.default <- function(object, v, X, pred_fun = stats::predict,
+                          pairwise_m = 5L, n_max = 300L, w = NULL, verbose = TRUE,
+                          normalize = TRUE, denominator = c("F_jk", "F"),
+                          squared = TRUE, sort = TRUE, top_m = Inf, eps = 1e-8, ...) {
   istat <- interact(
     object = object,
     v = v,
@@ -104,7 +104,7 @@ H2_pairwise.default <- function(object, v, X, pred_fun = stats::predict,
     verbose = verbose,
     ...
   )
-  H2_pairwise(
+  H2_jk(
     istat,
     normalize = normalize,
     denominator = denominator,
@@ -115,15 +115,14 @@ H2_pairwise.default <- function(object, v, X, pred_fun = stats::predict,
   )
 }
 
-#' @describeIn H2_pairwise Pairwise interaction strength from "ranger" models.
+#' @describeIn H2_jk Pairwise interaction strength from "ranger" models.
 #' @export
-H2_pairwise.ranger <- function(object, v, X, 
-                               pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
-                               pairwise_m = 5L, n_max = 300L, w = NULL, verbose = TRUE,
-                               normalize = TRUE, denominator = c("F_jk", "F"),
-                               squared = TRUE, sort = TRUE, top_m = Inf, eps = 1e-8, 
-                               ...) {
-  H2_pairwise.default(
+H2_jk.ranger <- function(object, v, X, 
+                         pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
+                         pairwise_m = 5L, n_max = 300L, w = NULL, verbose = TRUE,
+                         normalize = TRUE, denominator = c("F_jk", "F"),
+                         squared = TRUE, sort = TRUE, top_m = Inf, eps = 1e-8, ...) {
+  H2_jk.default(
     object = object,
     v = v,
     X = X,
@@ -142,15 +141,14 @@ H2_pairwise.ranger <- function(object, v, X,
   )
 }
 
-#' @describeIn H2_pairwise Pairwise interaction strength from "mlr3" models.
+#' @describeIn H2_jk Pairwise interaction strength from "mlr3" models.
 #' @export
-H2_pairwise.Learner <- function(object, v, X, 
-                                pred_fun = function(m, X) m$predict_newdata(X)$response,
-                                pairwise_m = 5L, n_max = 300L, w = NULL, verbose = TRUE,
-                                normalize = TRUE, denominator = c("F_jk", "F"), 
-                                squared = TRUE, sort = TRUE, top_m = Inf, eps = 1e-8, 
-                                ...) {
-  H2_pairwise.default(
+H2_jk.Learner <- function(object, v, X, 
+                          pred_fun = function(m, X) m$predict_newdata(X)$response,
+                          pairwise_m = 5L, n_max = 300L, w = NULL, verbose = TRUE,
+                          normalize = TRUE, denominator = c("F_jk", "F"), 
+                          squared = TRUE, sort = TRUE, top_m = Inf, eps = 1e-8, ...) {
+  H2_jk.default(
     object = object,
     v = v,
     X = X,
@@ -169,16 +167,14 @@ H2_pairwise.Learner <- function(object, v, X,
   )
 }
 
-#' @describeIn H2_pairwise Pairwise interaction strength from "interact" object.
+#' @describeIn H2_jk Pairwise interaction strength from "interact" object.
 #' @export
-H2_pairwise.interact <- function(object, normalize = TRUE, 
-                                 denominator = c("F_jk", "F"),
-                                 squared = TRUE, sort = TRUE, 
-                                 top_m = Inf, eps = 1e-8, ...) {
+H2_jk.interact <- function(object, normalize = TRUE, denominator = c("F_jk", "F"),
+                           squared = TRUE, sort = TRUE, top_m = Inf, eps = 1e-8, ...) {
   denominator <- match.arg(denominator)
   combs <- object[["combs"]]
   n_combs <- length(combs)
-  nms <- colnames(object[["F"]])
+  nms <- colnames(object[["f"]])
   num <- denom <- matrix(
     nrow = n_combs, ncol = length(nms), dimnames = list(names(combs), nms)
   )

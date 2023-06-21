@@ -10,7 +10,7 @@
 #' \deqn{
 #'   F(\mathbf{x}) = \sum_{j}^{p} F_j(x_j)
 #' }
-#' (see [pd_profiles()] for the definitions).
+#' (see [pd()] for the definitions).
 #' To measure the relative amount of variability explained by all interactions, 
 #' we can therefore study the test statistic of total interaction strength
 #' \deqn{
@@ -21,7 +21,7 @@
 #' It equals the variability of the predictions unexplained by the main effects. 
 #' A value of 0 would mean there are no interaction effects at all.
 #' 
-#' @inheritParams H2_overall
+#' @inheritParams H2_j
 #' @inherit interact references
 #' @returns Vector of total interaction strength (one value per prediction dimension).
 #' @export
@@ -29,30 +29,30 @@
 #' # MODEL ONE: Linear regression
 #' fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
 #' inter <- interact(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
-#' total_interaction(inter)
+#' H2(inter)
 #' 
 #' \dontrun{
-#' total_interaction(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
+#' H2(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
 #' 
 #' # MODEL TWO: Multi-response linear regression
 #' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
 #' v <- c("Petal.Length", "Petal.Width", "Species")
 #' inter <- interact(fit, v = v, X = iris, verbose = FALSE)
-#' total_interaction(inter)
-#' total_interaction(fit, v = v, X = iris, verbose = FALSE)
+#' H2(inter)
+#' H2(fit, v = v, X = iris, verbose = FALSE)
 #' 
 #' # MODEL THREE: No interactions
 #' fit <- lm(Sepal.Length ~ ., data = iris)
 #' inter <- interact(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
-#' total_interaction(inter)
+#' H2(inter)
 #' }
-total_interaction <- function(object, ...) {
-  UseMethod("total_interaction")
+H2 <- function(object, ...) {
+  UseMethod("H2")
 }
 
-#' @describeIn total_interaction Default method of total interaction strength.
+#' @describeIn H2 Default method of total interaction strength.
 #' @export
-total_interaction.default <- function(object, v, X, pred_fun = stats::predict,
+H2.default <- function(object, v, X, pred_fun = stats::predict,
                                       n_max = 300L, w = NULL, verbose = TRUE, 
                                       normalize = TRUE, squared = TRUE, eps = 1e-8, 
                                       ...) {
@@ -67,19 +67,19 @@ total_interaction.default <- function(object, v, X, pred_fun = stats::predict,
     verbose = verbose,
     ...
   )
-  total_interaction(
+  H2(
     istat, normalize = normalize, squared = squared, sort = FALSE, eps = eps
   )
 }
 
-#' @describeIn total_interaction Total interaction strength from "ranger" models.
+#' @describeIn H2 Total interaction strength from "ranger" models.
 #' @export
-total_interaction.ranger <- function(object, v, X, 
+H2.ranger <- function(object, v, X, 
                                      pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
                                      n_max = 300L, w = NULL, verbose = TRUE,
                                      normalize = TRUE, squared = TRUE, 
                                      eps = 1e-8, ...) {
-  total_interaction.default(
+  H2.default(
     object = object,
     v = v,
     X = X,
@@ -94,14 +94,14 @@ total_interaction.ranger <- function(object, v, X,
   )
 }
 
-#' @describeIn total_interaction Total interaction strength from "mlr3" models.
+#' @describeIn H2 Total interaction strength from "mlr3" models.
 #' @export
-total_interaction.Learner <- function(object, v, X, 
+H2.Learner <- function(object, v, X, 
                                       pred_fun = function(m, X) m$predict_newdata(X)$response,
                                       n_max = 300L, w = NULL, verbose = TRUE,
                                       normalize = TRUE, squared = TRUE, 
                                       eps = 1e-8, ...) {
-  total_interaction.default(
+  H2.default(
     object = object,
     v = v,
     X = X,
@@ -116,9 +116,9 @@ total_interaction.Learner <- function(object, v, X,
   )
 }
 
-#' @describeIn total_interaction Total interaction strength from "interact" object.
+#' @describeIn H2 Total interaction strength from "interact" object.
 #' @export
-total_interaction.interact <- function(object, normalize = TRUE, 
+H2.interact <- function(object, normalize = TRUE, 
                                        squared = TRUE, eps = 1e-8, ...) {
   postprocess(
     num = with(object, wcolMeans((f - Reduce("+", F_j))^2, w = w)),

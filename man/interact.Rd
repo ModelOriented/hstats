@@ -93,11 +93,11 @@ An object of class "interact" containing these elements:
 Expensive crunching behind different interaction statistics (and versions of them):
 \itemize{
 \item Friedman and Popescu's \eqn{H^2_j} statistic of overall interaction strength per
-feature, see \code{\link[=H2_overall]{H2_overall()}}.
+feature, see \code{\link[=H2_j]{H2_j()}}.
 \item Friedman and Popescu's \eqn{H^2_{jk}} statistic of pairwise interaction strength,
-see \code{\link[=H2_pairwise]{H2_pairwise()}}.
+see \code{\link[=H2_jk]{H2_jk()}}.
 \item Total interaction strength \eqn{H^2}, a statistic measuring the proportion
-of prediction variability unexplained by main effects, see \code{\link[=total_interaction]{total_interaction()}}.
+of prediction variability unexplained by main effects, see \code{\link[=H2]{H2()}}.
 }
 
 Since one typically is interested in calculating different statistics

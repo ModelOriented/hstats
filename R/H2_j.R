@@ -19,7 +19,7 @@
 #'   \hat F_j(x_{ij}) - \hat F_{\setminus j}(\mathbf{x}_{i\setminus k})
 #'   \big]^2}{\frac{1}{n} \sum_{i = 1}^n\big[F(\mathbf{x}_i)\big]^2}
 #' }
-#' (check [pd_profiles()] for all definitions).
+#' (check [pd()] for all definitions).
 #' 
 #' @section Remarks: 
 #' 1. Partial dependence functions (and \eqn{F}) are all centered to (possibly weighted) mean 0.
@@ -52,28 +52,27 @@
 #' # MODEL ONE: Linear regression
 #' fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
 #' inter <- interact(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
-#' H2_overall(inter)
+#' H2_j(inter)
 #' 
 #' \dontrun{
-#' H2_overall(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
+#' H2_j(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
 #' 
 #' # MODEL TWO: Multi-response linear regression
 #' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
 #' v <- c("Petal.Length", "Petal.Width", "Species")
 #' inter <- interact(fit, v = v, X = iris, verbose = FALSE)
-#' H2_overall(inter)
-#' H2_overall(fit, v = v, X = iris, verbose = FALSE)
+#' H2_j(inter)
+#' H2_j(fit, v = v, X = iris, verbose = FALSE)
 #' }
-H2_overall <- function(object, ...) {
-  UseMethod("H2_overall")
+H2_j <- function(object, ...) {
+  UseMethod("H2_j")
 }
 
-#' @describeIn H2_overall Default method of overall interaction strength.
+#' @describeIn H2_j Default method of overall interaction strength.
 #' @export
-H2_overall.default <- function(object, v, X, pred_fun = stats::predict,
-                               n_max = 300L, w = NULL, verbose = TRUE,
-                               normalize = TRUE, squared = TRUE, sort = TRUE, 
-                               top_m = Inf, eps = 1e-8, ...) {
+H2_j.default <- function(object, v, X, pred_fun = stats::predict,
+                         n_max = 300L, w = NULL, verbose = TRUE, normalize = TRUE, 
+                         squared = TRUE, sort = TRUE, top_m = Inf, eps = 1e-8, ...) {
   
   istat <- interact(
     object = object,
@@ -86,7 +85,7 @@ H2_overall.default <- function(object, v, X, pred_fun = stats::predict,
     verbose = verbose,
     ...
   )
-  H2_overall(
+  H2_j(
     istat,
     normalize = normalize, 
     squared = squared, 
@@ -96,14 +95,13 @@ H2_overall.default <- function(object, v, X, pred_fun = stats::predict,
   )
 }
 
-#' @describeIn H2_overall Overall interaction strength from "ranger" models.
+#' @describeIn H2_j Overall interaction strength from "ranger" models.
 #' @export
-H2_overall.ranger <- function(object, v, X, 
-                              pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
-                              n_max = 300L, w = NULL, verbose = TRUE,
-                              normalize = TRUE, squared = TRUE, sort = TRUE, 
-                              top_m = Inf, eps = 1e-8, ...) {
-  H2_overall.default(
+H2_j.ranger <- function(object, v, X, 
+                        pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
+                        n_max = 300L, w = NULL, verbose = TRUE, normalize = TRUE, 
+                        squared = TRUE, sort = TRUE, top_m = Inf, eps = 1e-8, ...) {
+  H2_j.default(
     object = object,
     v = v,
     X = X,
@@ -121,14 +119,13 @@ H2_overall.ranger <- function(object, v, X,
   )
 }
 
-#' @describeIn H2_overall Overall interaction strength from "mlr3" models.
+#' @describeIn H2_j Overall interaction strength from "mlr3" models.
 #' @export
-H2_overall.Learner <- function(object, v, X, 
-                               pred_fun = function(m, X) m$predict_newdata(X)$response,
-                               n_max = 300L, w = NULL, verbose = TRUE,
-                               normalize = TRUE, squared = TRUE, sort = TRUE, 
-                               top_m = Inf, eps = 1e-8, ...) {
-  H2_overall.default(
+H2_j.Learner <- function(object, v, X, 
+                         pred_fun = function(m, X) m$predict_newdata(X)$response,
+                         n_max = 300L, w = NULL, verbose = TRUE, normalize = TRUE, 
+                         squared = TRUE, sort = TRUE, top_m = Inf, eps = 1e-8, ...) {
+  H2_j.default(
     object = object,
     v = v,
     X = X,
@@ -146,12 +143,11 @@ H2_overall.Learner <- function(object, v, X,
   )
 }
 
-#' @describeIn H2_overall Overall interaction strength from "interact" object.
+#' @describeIn H2_j Overall interaction strength from "interact" object.
 #' @export
-H2_overall.interact <- function(object, normalize = TRUE, squared = TRUE, 
-                                              sort = TRUE, top_m = Inf, 
-                                              eps = 1e-8, ...) {
-  H2_overall_raw(
+H2_j.interact <- function(object, normalize = TRUE, squared = TRUE, sort = TRUE, 
+                          top_m = Inf, eps = 1e-8, ...) {
+  H2_j_raw(
     F_j = object[["F_j"]],
     F_not_j = object[["F_not_j"]], 
     f = object[["f"]], 

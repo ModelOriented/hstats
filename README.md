@@ -93,9 +93,9 @@ fit <- xgb.train(
 We will now do four things:
 
 1. Use `interact()` to crunch expensive quantities.
-2. Call `H2_overall()` on its result to see which variables have strongest interactions.
-3. Then, we use `H2_pairwise()` to see which variable pairs have strong interactions. First, we use Friedman and Popescu's original statistic, then we use a variant that can easier be compared. Note that we can see the results only for those features with strong interactions (Step 2).
-4. Finally, to get an impression how much of the prediction variability comes from interactions, we call `total_interaction()`.
+2. Call `H2_j()` on its result to see *which variables* have strongest interactions.
+3. Then, we use `H2_jk()` to see *which variable pairs* have strong interactions. First, we use Friedman and Popescu's original statistic, then we use a variant whose values can easier be compared. Note that we can see the results only for those features with strong interactions (Step 2).
+4. Finally, to get an impression how much of the prediction variability comes from interactions, we call `H2()`.
 
 Note: The statistics need to repeatedly calculate predictions on $n^2$ rows. That is why {interactML} samples 300 rows by default. To get more robust results, increase this value at the price of slower run time.
 
@@ -103,14 +103,14 @@ Note: The statistics need to repeatedly calculate predictions on $n^2$ rows. Tha
 # Crunch
 set.seed(1)
 
-system.time(  # 3 seconds on simple laptop
+system.time(  # 2-3 seconds on simple laptop
   inter <- interact(fit, v = x, X = X_train)
 )
 
 # The rest of the calculations are derived from "inter"
 
 # Friedman and Popescu's H-squared statistic of overall interaction strength
-H2_overall(inter)
+H2_j(inter)
 
 # Output
 # OCEAN_DIST        0.062639450
@@ -125,7 +125,7 @@ H2_overall(inter)
 # age               0.000000000
 
 # Friedman and Popescu's H-squared statistic of pairwise interaction strength
-H2_pairwise(inter)
+H2_jk(inter)
 
 # Output
 # LONGITUDE:OCEAN_DIST 0.156475264
@@ -140,7 +140,7 @@ H2_pairwise(inter)
 # OCEAN_DIST:RAIL_DIST 0.007081773
 
 # Variant that uses a common denominator for fair comparison of interactions
-H2_pairwise(inter, denominator = "f")
+H2_jk(inter, denominator = "F")
                                 y
 # LONGITUDE:OCEAN_DIST 0.0240273521
 # LATITUDE:OCEAN_DIST  0.0080679657
@@ -154,10 +154,10 @@ H2_pairwise(inter, denominator = "f")
 # LONGITUDE:RAIL_DIST  0.0002083208
 
 # Overall proportion of variability explained by interactions
-total_interaction(inter)  # 0.096
+H2(inter)  # 0.096
 ```
 
-**Comments:** The model indeed is additive in non-geographic features, i.e., the interaction constraints are respected. Furthermore, we see that about 10% of prediction variation comes from interaction effects. The clearly strongest interaction happens between longitude and distance to the ocean.
+**Comments:** The model indeed is additive in non-geographic features, i.e., the interaction constraints are respected. Furthermore, we see that about 10% of prediction variation comes from interaction effects. The clearly strongest interaction happens between longitude and distance to the ocean: About 15.6% of their joint effect can be attributed to their interaction effect, which contributes also about 2.4% to the prediction variability.
 
 ## Background
 
