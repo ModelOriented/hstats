@@ -149,10 +149,10 @@ Remarks:
 2. Pairwise Friedmans and Popescu's $H^2_{jk}$ measures interaction strength relative to the combined effect of the two features. As a modification, we can compute a variant with common denominator (overall prediction variability, as with $H^2_j$), see below.
 3. The statistics need to repeatedly calculate predictions on $n^2$ rows. That is why {interactML} samples 300 rows by default. To get more robust results, increase this value at the price of slower run time.
 
-Which pairwise interaction is strongest?
+Which pairwise interaction is strongest (in absolute value)?
 
 ```r
-H2_jk(inter, denominator = "F", top_m = 5)
+H2_jk(inter, normalize = FALSE, squared = FALSE, top_m = 5)
                                y
 LONGITUDE:OCEAN_DIST 0.024027352
 LATITUDE:OCEAN_DIST  0.008067966
@@ -237,15 +237,8 @@ $$
 
 **Modification**
 
-To be able to compare pairwise interaction strength across variable pairs, and to overcome the problem mentioned in the last remark, we suggest as alternative a different denominator, namely the same as used for $H^2_j$:
+To be better able to compare pairwise interaction strength across variable pairs, and to overcome the problem mentioned in the last remark, we suggest as alternative the unnormalized test statistic on the scale of the predictions, i.e., $\sqrt{A_{jk}}$. Furthermore, instead of focusing on pairwise interactions between *important features*, we suggest to calculate pairwise interaction statistics for features with strongest $H^2_j$ statistics. Note that these use a common denominator, and therefore can be directly compared.
 
-$$
-  \tilde H^2_{jk} = \frac{A_{jk}}{\frac{1}{n} \sum_{i = 1}^n \left[F(\boldsymbol x_i)\right]^2}.
-$$
-
-This statistic measures how much of the total variance of the predictions comes from the pairwise interaction of $x_j$ and $x_k$.
-
-Another possibility would be to use the unnormalized test statistic on the scale of the predictions, i.e., $\sqrt{A_{jk}}$.
 
 ### Total interaction strength of all variables together
 

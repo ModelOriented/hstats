@@ -20,7 +20,6 @@ H2_jk(object, ...)
   w = NULL,
   verbose = TRUE,
   normalize = TRUE,
-  denominator = c("F_jk", "F"),
   squared = TRUE,
   sort = TRUE,
   top_m = Inf,
@@ -38,7 +37,6 @@ H2_jk(object, ...)
   w = NULL,
   verbose = TRUE,
   normalize = TRUE,
-  denominator = c("F_jk", "F"),
   squared = TRUE,
   sort = TRUE,
   top_m = Inf,
@@ -56,7 +54,6 @@ H2_jk(object, ...)
   w = NULL,
   verbose = TRUE,
   normalize = TRUE,
-  denominator = c("F_jk", "F"),
   squared = TRUE,
   sort = TRUE,
   top_m = Inf,
@@ -67,7 +64,6 @@ H2_jk(object, ...)
 \method{H2_jk}{interact}(
   object,
   normalize = TRUE,
-  denominator = c("F_jk", "F"),
   squared = TRUE,
   sort = TRUE,
   top_m = Inf,
@@ -95,8 +91,8 @@ matrix of predictions will be used as default column names in the results.}
 \item{pairwise_m}{Number of features for which pairwise statistics are calculated.
 The features are selected based on Friedman and Popescu's overall interaction
 strength \eqn{H^2_j} (rowwise maximum in the multivariate case).
-Set to \code{length(v)} to not miss any pairwise interaction.
-Set to 0 to not calculate any pairwise interaction.}
+Set to \code{length(v)} to calculate it for every pair.
+Set to 0 to avoid pairwise calculation.}
 
 \item{n_max}{If \code{X} has more than \code{n_max} rows, a random sample of \code{n_max} rows is
 selected from \code{X}. In this case, set a random seed for reproducibility.}
@@ -106,12 +102,6 @@ selected from \code{X}. In this case, set a random seed for reproducibility.}
 \item{verbose}{Should a progress bar be shown? The default is \code{TRUE}.}
 
 \item{normalize}{Should statistic be normalized? Default is \code{TRUE}.}
-
-\item{denominator}{Should the denominator be the variation of the combined
-effect \eqn{F_{jk}} (like Friedman and Popescu, default) or rather the
-variation of the predictions. The latter has the advantage that values can
-directly be compared across variable pairs (and are still relative).
-Only relevant when \code{normalize = TRUE}.}
 
 \item{squared}{Should \emph{squared} statistics be returned? Default is \code{TRUE}.}
 
@@ -167,7 +157,7 @@ and
 \section{Remarks}{
 
 \enumerate{
-\item Remarks 1 to 4 of \code{\link[=H2_jk]{H2_jk()}} also apply here.
+\item Remarks 1 to 4 of \code{\link[=H2_j]{H2_j()}} also apply here.
 \item \eqn{H^2_{jk} = 0} means there are no interaction effects between \eqn{x_j}
 and \eqn{x_k}. The larger the value, the more of the joint effect of the two
 features comes from the interaction.
@@ -179,30 +169,27 @@ high \eqn{H^2_{jk}}. Therefore, Friedman and Popescu (2008) suggests to calculat
 }
 }
 
-\section{Alternatives}{
+\section{Modification}{
 
 
-To be able to compare pairwise interaction strength across variable pairs,
+To be better able to compare pairwise interaction strength across variable pairs,
 and to overcome the problem mentioned in the last remark, we suggest as alternative
-a different denominator, namely the same as used for \eqn{H^2_j}:
-\deqn{
-  \tilde H^2_{jk} = \frac{A_{jk}}{\frac{1}{n} \sum_{i = 1}^n\big[F(\mathbf{x}_i)\big]^2}.
-}
-This statistic would tell us how much of the total variance of the predictions comes
-from the pairwise interaction of \eqn{x_j} and \eqn{x_k}. Use \code{denominator = "F"} to
-apply this variant.
-
-Another possibility would be to use the unnormalized test statistic on the scale
-of the predictions, i.e., \eqn{\sqrt{A_{jk}}}. Set \code{normalize = FALSE} and
-\code{squared = FALSE} to get this statistic.
+the unnormalized test statistic on the scale of the predictions,
+i.e., \eqn{\sqrt{A_{jk}}}. Set \code{normalize = FALSE} and \code{squared = FALSE} for this.
+Furthermore, we calculate pairwise statistics only for features with highest
+\eqn{H^2_{j}}.
 }
 
 \examples{
 # MODEL ONE: Linear regression
 fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
 inter <- interact(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
-H2_jk(inter)                     # Proportion of pairwise effect variability
-H2_jk(inter, denominator = "F")  # Proportion of prediction variability
+
+# Proportion of joint effect coming from pairwise interaction
+H2_jk(inter)
+
+# Absolute measure
+H2_jk(inter, normalize = FALSE, squared = FALSE)  
 
 \dontrun{
 H2_jk(fit, v = names(iris[-1]), X = iris, verbose = FALSE)

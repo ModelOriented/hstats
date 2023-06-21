@@ -65,8 +65,8 @@ matrix of predictions will be used as default column names in the results.}
 \item{pairwise_m}{Number of features for which pairwise statistics are calculated.
 The features are selected based on Friedman and Popescu's overall interaction
 strength \eqn{H^2_j} (rowwise maximum in the multivariate case).
-Set to \code{length(v)} to not miss any pairwise interaction.
-Set to 0 to not calculate any pairwise interaction.}
+Set to \code{length(v)} to calculate it for every pair.
+Set to 0 to avoid pairwise calculation.}
 
 \item{n_max}{If \code{X} has more than \code{n_max} rows, a random sample of \code{n_max} rows is
 selected from \code{X}. In this case, set a random seed for reproducibility.}
@@ -107,9 +107,8 @@ see \code{\link[=H2_jk]{H2_jk()}}.
 Since one typically is interested in calculating different statistics
 in different versions (scaled and unscaled, squared or not etc.), it is
 convenient to do expensive calculations once using \code{\link[=interact]{interact()}}, and then
-derive all relevant statistics from its result, see the examples below.
-
-\code{summary()} provides standard statistics.
+derive all relevant statistics from its result. Furthermore, the main statistics are
+provided by \code{summary()}.
 }
 \section{Methods (by class)}{
 \itemize{

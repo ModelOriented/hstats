@@ -12,16 +12,15 @@
 #' Since one typically is interested in calculating different statistics
 #' in different versions (scaled and unscaled, squared or not etc.), it is 
 #' convenient to do expensive calculations once using [interact()], and then
-#' derive all relevant statistics from its result, see the examples below. 
-#' 
-#' `summary()` provides standard statistics.
+#' derive all relevant statistics from its result. Furthermore, the main statistics are
+#' provided by `summary()`.
 #'  
 #' @inheritParams pd
 #' @param pairwise_m Number of features for which pairwise statistics are calculated.
 #'   The features are selected based on Friedman and Popescu's overall interaction 
 #'   strength \eqn{H^2_j} (rowwise maximum in the multivariate case). 
-#'   Set to `length(v)` to not miss any pairwise interaction. 
-#'   Set to 0 to not calculate any pairwise interaction.
+#'   Set to `length(v)` to calculate it for every pair. 
+#'   Set to 0 to avoid pairwise calculation.
 #' @param verbose Should a progress bar be shown? The default is `TRUE`.
 #' @returns 
 #'   An object of class "interact" containing these elements:
@@ -270,11 +269,13 @@ summary.interact <- function(object, n = 10L, ...) {
   print(h2)
   cat("\n")
   
-  cat("Features with strongest overall interactions (Friedman and Popescu's H^2):\n")
+  cat("Features with strongest overall interactions")
+  cat("(Friedman and Popescu's H^2_j of overall interaction):\n")
   print(utils::head(h2_j, n))
   cat("\n")
   
-  cat("Feature pairs with strong interactions (Friedman and Popescu's H^2):\n")
+  cat("Feature pairs with strongest relative interactions")
+  cat("Friedman and Popescu's H^2_jk of pairwise interaction):\n")
   print(utils::head(h2_jk, n))
   cat("\n")
   invisible(list(H2 = h2, H2_j = h2_j, H2_jk = h2_jk))

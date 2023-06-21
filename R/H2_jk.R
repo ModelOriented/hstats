@@ -28,7 +28,7 @@
 #'
 #' @section Remarks:
 #' 
-#' 1. Remarks 1 to 4 of [H2_jk()] also apply here.
+#' 1. Remarks 1 to 4 of [H2_j()] also apply here.
 #' 2. \eqn{H^2_{jk} = 0} means there are no interaction effects between \eqn{x_j}
 #'   and \eqn{x_k}. The larger the value, the more of the joint effect of the two 
 #'   features comes from the interaction.
@@ -40,27 +40,15 @@
 #'   
 #' @section Modification:
 #' 
-#' To be able to compare pairwise interaction strength across variable pairs, 
+#' To be better able to compare pairwise interaction strength across variable pairs, 
 #' and to overcome the problem mentioned in the last remark, we suggest as alternative 
-#' a different denominator, namely the same as used for \eqn{H^2_j}:
-#' \deqn{
-#'   \tilde H^2_{jk} = \frac{A_{jk}}{\frac{1}{n} \sum_{i = 1}^n\big[F(\mathbf{x}_i)\big]^2}.
-#' }
-#' This statistic measures how much of the total variance of the predictions comes 
-#' from the pairwise interaction of \eqn{x_j} and \eqn{x_k}. Use `denominator = "F"` to
-#' apply this variant.
-#' 
-#' Another possibility would be to use the unnormalized test statistic on the scale 
-#' of the predictions, i.e., \eqn{\sqrt{A_{jk}}}. Set `normalize = FALSE` and 
-#' `squared = FALSE` to get this statistic.
+#' the unnormalized test statistic on the scale of the predictions, 
+#' i.e., \eqn{\sqrt{A_{jk}}}. Set `normalize = FALSE` and `squared = FALSE` for this.
+#' Furthermore, we calculate pairwise statistics only for features with highest
+#' \eqn{H^2_{j}}.
 #' 
 #' @inheritParams interact
 #' @inheritParams H2_j
-#' @param denominator Should the denominator be the variation of the combined 
-#'   effect \eqn{F_{jk}} (like Friedman and Popescu, default) or rather the
-#'   variation of the predictions. The latter has the advantage that values can 
-#'   directly be compared across variable pairs (and are still relative). 
-#'   Only relevant when `normalize = TRUE`.
 #' @returns 
 #'   Matrix of interactions statistics (one row per variable pair, one column per
 #'   prediction dimension).
@@ -70,8 +58,12 @@
 #' # MODEL ONE: Linear regression
 #' fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
 #' inter <- interact(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
-#' H2_jk(inter)                     # Proportion of pairwise effect variability
-#' H2_jk(inter, denominator = "F")  # Proportion of prediction variability
+#' 
+#' # Proportion of joint effect coming from pairwise interaction
+#' H2_jk(inter)
+#' 
+#' # Absolute measure
+#' H2_jk(inter, normalize = FALSE, squared = FALSE)  
 #' 
 #' \dontrun{
 #' H2_jk(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
@@ -91,8 +83,8 @@ H2_jk <- function(object, ...) {
 #' @export
 H2_jk.default <- function(object, v, X, pred_fun = stats::predict,
                           pairwise_m = 5L, n_max = 300L, w = NULL, verbose = TRUE,
-                          normalize = TRUE, denominator = c("F_jk", "F"),
-                          squared = TRUE, sort = TRUE, top_m = Inf, eps = 1e-8, ...) {
+                          normalize = TRUE, squared = TRUE, sort = TRUE, 
+                          top_m = Inf, eps = 1e-8, ...) {
   istat <- interact(
     object = object,
     v = v,
@@ -107,7 +99,6 @@ H2_jk.default <- function(object, v, X, pred_fun = stats::predict,
   H2_jk(
     istat,
     normalize = normalize,
-    denominator = denominator,
     squared = squared, 
     sort = sort, 
     top_m = top_m, 
@@ -120,8 +111,8 @@ H2_jk.default <- function(object, v, X, pred_fun = stats::predict,
 H2_jk.ranger <- function(object, v, X, 
                          pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
                          pairwise_m = 5L, n_max = 300L, w = NULL, verbose = TRUE,
-                         normalize = TRUE, denominator = c("F_jk", "F"),
-                         squared = TRUE, sort = TRUE, top_m = Inf, eps = 1e-8, ...) {
+                         normalize = TRUE, squared = TRUE, sort = TRUE, 
+                         top_m = Inf, eps = 1e-8, ...) {
   H2_jk.default(
     object = object,
     v = v,
@@ -132,7 +123,6 @@ H2_jk.ranger <- function(object, v, X,
     w = w,
     verbose = verbose,
     normalize = normalize,
-    denominator = denominator,
     squared = squared, 
     sort = sort, 
     top_m = top_m, 
@@ -146,8 +136,8 @@ H2_jk.ranger <- function(object, v, X,
 H2_jk.Learner <- function(object, v, X, 
                           pred_fun = function(m, X) m$predict_newdata(X)$response,
                           pairwise_m = 5L, n_max = 300L, w = NULL, verbose = TRUE,
-                          normalize = TRUE, denominator = c("F_jk", "F"), 
-                          squared = TRUE, sort = TRUE, top_m = Inf, eps = 1e-8, ...) {
+                          normalize = TRUE, squared = TRUE, sort = TRUE,
+                          top_m = Inf, eps = 1e-8, ...) {
   H2_jk.default(
     object = object,
     v = v,
@@ -158,7 +148,6 @@ H2_jk.Learner <- function(object, v, X,
     w = w,
     verbose = verbose,
     normalize = normalize,
-    denominator = denominator,
     squared = squared, 
     sort = sort, 
     top_m = top_m, 
@@ -169,9 +158,8 @@ H2_jk.Learner <- function(object, v, X,
 
 #' @describeIn H2_jk Pairwise interaction strength from "interact" object.
 #' @export
-H2_jk.interact <- function(object, normalize = TRUE, denominator = c("F_jk", "F"),
-                           squared = TRUE, sort = TRUE, top_m = Inf, eps = 1e-8, ...) {
-  denominator <- match.arg(denominator)
+H2_jk.interact <- function(object, normalize = TRUE, squared = TRUE, sort = TRUE, 
+                           top_m = Inf, eps = 1e-8, ...) {
   combs <- object[["combs"]]
   n_combs <- length(combs)
   nms <- colnames(object[["f"]])
@@ -183,10 +171,7 @@ H2_jk.interact <- function(object, normalize = TRUE, denominator = c("F_jk", "F"
     num[i, ] <- with(
       object, wcolMeans((F_jk[[i]] - F_j[[z[1L]]] - F_j[[z[2L]]])^2, w = w)
     )
-    denom[i, ] <- with(
-      object, 
-      if (denominator == "F_jk") wcolMeans(F_jk[[i]]^2, w = w) else mean_f2
-    )
+    denom[i, ] <- if (normalize) with(object, wcolMeans(F_jk[[i]]^2, w = w)) else 1
   }
   postprocess(
     num = num,
