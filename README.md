@@ -41,6 +41,8 @@ We are going to model logarithmic sales prices as a function of geographic featu
 
 What can we say about interactions? Can we verify additivity in non-geographic features?
 
+### Fit XGBoost model
+
 ```r
 library(interactML)
 library(xgboost)
@@ -85,6 +87,8 @@ fit <- xgb.train(
   callbacks = list(cb.print.evaluation(period = 100))
 )
 ```
+
+### Analyze interactions 
 
 We will now do two things:
 
@@ -139,7 +143,7 @@ OCEAN_DIST:RAIL_DIST 0.007081773
 - The strongest overall interactions are associated with "OCEAN_DIST" and "LONGITUDE". For instance, we can say that about 6% of prediction variability can be attributed to all interactions of "OCEAN_DISTANCE".
 - About 15.6% of the joint effect variability of above two features come from their pairwise interaction.
 
-Remarks: 
+**Remarks:**
 
 1. Pairwise statistics are calculated only for the features with strongest overall interactions.
 2. The statistics need to repeatedly calculate predictions on $n^2$ rows. That is why {interactML} samples 300 rows by default. To get more robust results, increase this value at the price of slower run time.
