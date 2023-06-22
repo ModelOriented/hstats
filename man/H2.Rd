@@ -27,17 +27,17 @@ H2(object, ...)
 Vector of total interaction strength (one value per prediction dimension).
 }
 \description{
-Proportion of prediction variability coming from interactions,
-ideally calculated from the result of \code{\link[=interact]{interact()}}.
+Proportion of prediction variability coming from interactions extracted from the
+result of \code{\link[=interact]{interact()}}, see Details.
 }
 \details{
-The idea is as follows: if the model is additive in all features,
-then the (centered) prediction function \eqn{F} equals the sum of the (centered)
-partial dependence functions \eqn{F_j(x_j)}, i.e.,
+If the model is additive in all features, then the (centered) prediction
+function \eqn{F} equals the sum of the (centered) partial dependence
+functions \eqn{F_j(x_j)}, i.e.,
 \deqn{
   F(\mathbf{x}) = \sum_{j}^{p} F_j(x_j)
 }
-(check \code{\link[=pd]{pd()}} for all definitions).
+(check \code{\link[=partial_dep]{partial_dep()}} for all definitions).
 To measure the relative amount of variability explained by all interactions,
 we can therefore study the test statistic of total interaction strength
 \deqn{
@@ -75,4 +75,7 @@ fit <- lm(Sepal.Length ~ ., data = iris)
 inter <- interact(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
 H2(inter)
 }
+}
+\seealso{
+\code{\link[=interact]{interact()}}, \code{\link[=H2_j]{H2_j()}}, \code{\link[=H2_jk]{H2_jk()}}
 }

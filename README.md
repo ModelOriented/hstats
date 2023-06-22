@@ -93,13 +93,12 @@ fit <- xgb.train(
 We will now do two things:
 
 1. Call `interact()` for the expensive crunching.
-2. Get main statistics with `summary()`.
+2. Get statistics with `summary()`.
 
 ```r
-# Crunch
+# 2 seconds on simple laptop - a random forest will take 1-2 minutes
 set.seed(1)
-
-system.time(  # 2-3 seconds on simple laptop - a random forest will take much longer
+system.time(
   inter <- interact(fit, v = x, X = X_train)
 )
 
@@ -110,7 +109,8 @@ Proportion of prediction variability explained by interactions:
          y 
 0.09602024 
 
-Features with strongest overall interactions (Friedman and Popescu's H^2):
+Friedman and Popescu's H^2_j of overall interaction
+(Features with strongest overall interactions)
                             y
 OCEAN_DIST        0.062639450
 LONGITUDE         0.045194768
@@ -123,7 +123,8 @@ LND_SQFOOT        0.000000000
 structure_quality 0.000000000
 age               0.000000000
 
-Feature pairs with strong interactions (Friedman and Popescu's H^2):
+Friedman and Popescu's H^2_jk of pairwise interaction
+(Relative interaction strength for features with high H^2_j)
                                y
 LONGITUDE:OCEAN_DIST 0.156475264
 LONGITUDE:CNTR_DIST  0.122113602
@@ -146,22 +147,22 @@ OCEAN_DIST:RAIL_DIST 0.007081773
 Remarks: 
 
 1. Pairwise statistics are calculated only for the features with strongest overall interactions.
-2. Pairwise Friedmans and Popescu's $H^2_{jk}$ measures interaction strength relative to the combined effect of the two features. As a modification, we can compute a variant with common denominator (overall prediction variability, as with $H^2_j$), see below.
-3. The statistics need to repeatedly calculate predictions on $n^2$ rows. That is why {interactML} samples 300 rows by default. To get more robust results, increase this value at the price of slower run time.
+2. The statistics need to repeatedly calculate predictions on $n^2$ rows. That is why {interactML} samples 300 rows by default. To get more robust results, increase this value at the price of slower run time.
+3. Pairwise Friedmans and Popescu's $H^2_{jk}$ measures interaction strength relative to the combined effect of the two features. This does not necessarily show which interactions are strongest. To do so, we study unnormalized statistics:
 
-Which pairwise interaction is strongest (in absolute value)?
+Strongest pairwise interactions (values on the scale of the response log(price)):
 
 ```r
 H2_jk(inter, normalize = FALSE, squared = FALSE, top_m = 5)
-                               y
-LONGITUDE:OCEAN_DIST 0.024027352
-LATITUDE:OCEAN_DIST  0.008067966
-LONGITUDE:CNTR_DIST  0.008063092
-CNTR_DIST:OCEAN_DIST 0.007805464
-LATITUDE:LONGITUDE   0.005081128
+                              y
+LONGITUDE:OCEAN_DIST 0.08279401
+LATITUDE:OCEAN_DIST  0.04797644
+LONGITUDE:CNTR_DIST  0.04796194
+CNTR_DIST:OCEAN_DIST 0.04718950
+LATITUDE:LONGITUDE   0.03807378
 ```
 
-**Comment:** It remains the interaction between Longitude and distance to the ocean. The value tells us that about 2.4% of overall prediction variability comes from this interaction.
+**Comment:** The strongest pairwise interaction remains the one between longitude and distance to the ocean.
 
 ## Background
 
@@ -237,8 +238,9 @@ $$
 
 **Modification**
 
-To be better able to compare pairwise interaction strength across variable pairs, and to overcome the problem mentioned in the last remark, we suggest as alternative the unnormalized test statistic on the scale of the predictions, i.e., $\sqrt{A_{jk}}$. Furthermore, instead of focusing on pairwise interactions between *important features*, we suggest to calculate pairwise interaction statistics for features with strongest $H^2_j$ statistics. Note that these use a common denominator, and therefore can be directly compared.
+To be better able to compare pairwise interaction strength across variable pairs, and to overcome the problem mentioned in the last remark, we suggest as alternative the unnormalized test statistic on the scale of the predictions, i.e., $\sqrt{A_{jk}}$. 
 
+Furthermore, we do pairwise calculations not for the most *important* features but rather for those features with *strongest overall interactions*.
 
 ### Total interaction strength of all variables together
 

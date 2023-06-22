@@ -41,8 +41,8 @@ Matrix of interactions statistics (one row per variable pair, one column per
 prediction dimension).
 }
 \description{
-Friedman and Popescu's statistics of pairwise interaction strength,
-ideally calculated from the result of \code{\link[=interact]{interact()}}.
+Friedman and Popescu's statistics of pairwise interaction strength extracted from the
+result of \code{\link[=interact]{interact()}}, see Details.
 }
 \details{
 Following Friedman and Popescu (2008), if there are no interaction effects between
@@ -52,8 +52,8 @@ dependencies \eqn{F_j} and \eqn{F_k}, i.e.,
 \deqn{
   F_{jk}(x_j, x_k) = F_j(x_j)+ F_k(x_k).
 }
-Correspondingly, Friedman and Popescu's \eqn{H_{jk}^2} statistic of pairwise interaction
-strength is defined as
+Correspondingly, Friedman and Popescu's \eqn{H_{jk}^2} statistic of pairwise
+interaction strength is defined as
 \deqn{
   H_{jk}^2 = \frac{A_{jk}}{B_{jk}},
 }
@@ -65,17 +65,9 @@ and
 \deqn{
   B_{jk} = \frac{1}{n} \sum_{i = 1}^n\big[\hat F_{jk}(x_{ij}, x_{ik})\big]^2
 }
-(check \code{\link[=pd]{pd()}} for all definitions).
-}
-\section{Methods (by class)}{
-\itemize{
-\item \code{H2_jk(default)}: Default pairwise interaction strength.
+(check \code{\link[=partial_dep]{partial_dep()}} for all definitions).
 
-\item \code{H2_jk(interact)}: Pairwise interaction strength from "interact" object.
-
-}}
-\section{Remarks}{
-
+\strong{Remarks:}
 \enumerate{
 \item Remarks 1 to 4 of \code{\link[=H2_j]{H2_j()}} also apply here.
 \item \eqn{H^2_{jk} = 0} means there are no interaction effects between \eqn{x_j}
@@ -85,30 +77,36 @@ features comes from the interaction.
 this test statistic is difficult to compare between variable pairs.
 If both main effects are very weak, a negligible interaction can get a
 high \eqn{H^2_{jk}}. Therefore, Friedman and Popescu (2008) suggests to calculate
-\eqn{H^2_{jk}} only for \emph{important} variables.
-}
+\eqn{H^2_{jk}} only for \emph{important} variables (see "Modification" below).
 }
 
-\section{Modification}{
-
+\strong{Modification}
 
 To be better able to compare pairwise interaction strength across variable pairs,
 and to overcome the problem mentioned in the last remark, we suggest as alternative
 the unnormalized test statistic on the scale of the predictions,
-i.e., \eqn{\sqrt{A_{jk}}}. Set \code{normalize = FALSE} and \code{squared = FALSE} for this.
-Furthermore, we calculate pairwise statistics only for features with highest
-\eqn{H^2_{j}}.
+i.e., \eqn{\sqrt{A_{jk}}}. Set \code{normalize = FALSE} and \code{squared = FALSE} to obtain
+this statistic.
+Furthermore, we do pairwise calculations not for the most \emph{important} features but
+rather for those features with \emph{strongest overall interactions}.
 }
+\section{Methods (by class)}{
+\itemize{
+\item \code{H2_jk(default)}: Default pairwise interaction strength.
 
+\item \code{H2_jk(interact)}: Pairwise interaction strength from "interact" object.
+
+}}
 \examples{
 # MODEL ONE: Linear regression
 fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
 inter <- interact(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
 
 # Proportion of joint effect coming from pairwise interaction
+# (only for features with strong overall interactions)
 H2_jk(inter)
 
-# Absolute measure
+# Absolute measure as alternative
 H2_jk(inter, normalize = FALSE, squared = FALSE)  
 
 \dontrun{
@@ -124,4 +122,7 @@ H2_jk(inter)
 \references{
 Friedman, Jerome H., and Bogdan E. Popescu. \emph{"Predictive Learning via Rule Ensembles."}
 The Annals of Applied Statistics 2, no. 3 (2008): 916-54.
+}
+\seealso{
+\code{\link[=interact]{interact()}}, \code{\link[=H2]{H2()}}, \code{\link[=H2_j]{H2_j()}}
 }

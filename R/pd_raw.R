@@ -5,7 +5,7 @@
 #' @noRd
 #' @keywords internal
 #' 
-#' @inheritParams pd
+#' @inheritParams partial_dep
 #' @param compress_X If `X` has a single non-`v` column: should duplicates be removed
 #'   and compensated via case weights? Default is `TRUE`.
 #' @param compress_grid Should duplicates in `grid` be removed and PDs mapped back to 
@@ -13,7 +13,7 @@
 #' @returns 
 #'   A matrix of partial dependence values (one column per prediction dimension, 
 #'   one row per grid row, in the same order as `grid`).
-#' @inherit pd references
+#' @inherit partial_dep references
 pd_raw <- function(object, v, X, grid, pred_fun = stats::predict,
                    w = NULL, compress_X = TRUE, compress_grid = TRUE, ...) {
   # Try different compressions

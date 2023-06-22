@@ -119,25 +119,6 @@ rowmean <- function(x, ngroups, w = NULL) {
   out
 }
 
-#' Zip Small Values
-#' 
-#' Internal function. Sets very small or non-finite (NA, ...) values in vector, 
-#' matrix or data.frame to 0.
-#' 
-#' @noRd
-#' @keywords internal
-#' 
-#' @param x Vector, matrix, or data.frame.
-#' @param eps Threshold, below which absolute values are set to 0.
-#' @returns Same as `x` but with values below `eps` replaced by 0.
-.zap_small <- function(x, eps = 1e-8) {
-  zero <- abs(x) < eps | !is.finite(x)
-  if (any(zero)) {
-    x[zero] <- 0
-  }
-  x
-}
-
 #' Weighted Version of colMeans()
 #' 
 #' Internal function used to calculate column-wise weighted means.
@@ -252,10 +233,30 @@ postprocess <- function(num, denom = 1, normalize = TRUE, squared = TRUE,
   utils::head(out, n = top_m)
 }
 
-combine_by <- function(x, to_numeric) {
-  x <- lapply(names(x), function(nm) data.frame(by = nm, x[[nm]]))
-  if (to_numeric) {
-    x[["by"]] <- as.numeric(x[["by"]])
+#' Zap Small Values
+#' 
+#' Internal function. Sets very small or non-finite (NA, ...) values in vector, 
+#' matrix or data.frame to 0.
+#' 
+#' @noRd
+#' @keywords internal
+#' 
+#' @param x Vector, matrix, or data.frame.
+#' @param eps Threshold, below which absolute values are set to 0.
+#' @returns Same as `x` but with values below `eps` replaced by 0.
+.zap_small <- function(x, eps = 1e-8) {
+  zero <- abs(x) < eps | !is.finite(x)
+  if (any(zero)) {
+    x[zero] <- 0
   }
-  do.call(rbind, x)
+  x
 }
+
+# 
+# combine_by <- function(x, to_numeric) {
+#   x <- lapply(names(x), function(nm) data.frame(by = nm, x[[nm]]))
+#   if (to_numeric) {
+#     x[["by"]] <- as.numeric(x[["by"]])
+#   }
+#   do.call(rbind, x)
+# }

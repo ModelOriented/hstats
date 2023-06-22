@@ -1,7 +1,7 @@
-#' Partial Dependence Profiles
+#' Partial Dependence Function
 #' 
-#' Estimates the partial dependence function of features `v` over a 
-#' grid of values.
+#' Estimates the partial dependence function of feature(s) `v` over a 
+#' grid of values. Both multivariate and multivariable situations are supported.
 #' 
 #' @section Partial Dependence Functions: 
 #' 
@@ -40,13 +40,15 @@
 #' @param n_max If `X` has more than `n_max` rows, a random sample of `n_max` rows is
 #'   selected from `X`. In this case, set a random seed for reproducibility.
 #' @param w Optional vector of case weights for each row of `X`.
-#' @param grid Named list. Each element specifies the evaluation grid for the
-#'   corresponding feature. Missing components are automatically generated via
-#'   [univariate_grid()]. If `v` has length 1, then `grid` can also be a vector.
-#' @param ... Additional arguments passed to `pred_fun(object, X, ...)`, for instance
-#'   `type = "response"` in a [glm()] model.
+#' @param grid Optional evaluation grid in line with `v`.
+#' @param ... Additional arguments passed to `pred_fun(object, X, ...)`, 
+#'   for instance `type = "response"` in a [glm()] model.
 #' @returns 
-#'   A list of PD profiles per variable in `v`. Has additional class "pd".
+#'   A list with additional class "pd" containing the following elements
+#'   - `pd`: data.frame representing both the evaluation grid and the corresponding
+#'     partial dependencies.
+#'   - `v`: Same as input `v`.
+#'   - `pred_names`: Vector of column names representing partial dependencies. 
 #' @references
 #'   Friedman, Jerome H. *"Greedy Function Approximation: A Gradient Boosting Machine."* 
 #'     Annals of Statistics 29, no. 5 (2001): 1189-1232.
@@ -54,17 +56,17 @@
 #' @examples
 #' # MODEL ONE: Linear regression
 #' fit <- lm(Sepal.Length ~ ., data = iris)
-#' pd <- pd(fit, v = "Species", X = iris)
-#' pd$pd
-#' head(pd$pd)
+#' pd <- partial_dep(fit, v = "Species", X = iris)
+#' pd
 #' 
-#' pd <- pd(fit, v = "Petal.Width", X = iris, grid = seq(1, 0, by = -0.5))
-#' pd$pd
+#' # Multivariable input
+#' pd <- partial_dep(fit, v = c("Species", "Petal.Width"), X = iris)
+#' pd
 #' 
 #' # MODEL TWO: Multi-response linear regression
 #' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width + Species, data = iris)
-#' pd <- pd(fit, v = "Petal.Width", X = iris)
-#' pd$pd[1:4, ]
+#' pd <- partial_dep(fit, v = "Petal.Width", X = iris)
+#' pd
 #'  
 #' # MODEL THREE: Gamma GLM -> pass options to predict() via ...
 #' fit <- glm(
@@ -72,15 +74,14 @@
 #'   data = iris, 
 #'   family = Gamma(link = log)
 #' )
-#' pd(fit, v = "Species", X = iris, type = "response")$pd
-pd <- function(object, ...) {
-  UseMethod("pd")
+#' partial_dep(fit, v = "Species", X = iris, type = "response")$pd
+partial_dep <- function(object, ...) {
+  UseMethod("partial_dep")
 }
 
-#' @describeIn pd Default method.
+#' @describeIn partial_dep Default method.
 #' @export
-pd.default <- function(object, v, X, 
-                       pred_fun = stats::predict,
+partial_dep.default <- function(object, v, X, pred_fun = stats::predict,
                        grid = NULL, grid_size = 36L, trim = c(0.01, 0.99), 
                        strategy = c("quantile", "uniform"), 
                        n_max = 1000L, w = NULL, ...) {
@@ -114,18 +115,27 @@ pd.default <- function(object, v, X,
     compress_grid = FALSE,  # Almost always unique, so we save a check for uniqueness
     ...
   )
-  pd <- cbind.data.frame(grid, pd)
-  structure(list(pd = pd, v = v), class = "pd")
+  if (!is.data.frame(grid) && !is.matrix(grid)) {
+    grid <- stats::setNames(as.data.frame(grid), v)
+  }
+  structure(
+    list(
+      pd = cbind.data.frame(grid, pd),
+      v = v,
+      pred_names = colnames(pd)
+    ),
+    class = "pd"
+  )
 }
 
-#' @describeIn pd Method for "ranger" models.
+#' @describeIn partial_dep Method for "ranger" models.
 #' @export
-pd.ranger <- function(object, v, X, 
+partial_dep.ranger <- function(object, v, X, 
                       pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions, 
                       grid = NULL, grid_size = 36L, trim = c(0.01, 0.99), 
                       strategy = c("quantile", "uniform"), 
                       n_max = 1000L, w = NULL, ...) {
-  pd.default(
+  partial_dep.default(
     object = object,
     v = v,
     X = X,
@@ -140,14 +150,14 @@ pd.ranger <- function(object, v, X,
   )
 }
 
-#' @describeIn pd Method for "mlr3" models.
+#' @describeIn partial_dep Method for "mlr3" models.
 #' @export
-pd.Learner <- function(object, v, X, 
+partial_dep.Learner <- function(object, v, X, 
                        pred_fun = function(m, X) m$predict_newdata(X)$response, 
                        grid = NULL, grid_size = 36L, trim = c(0.01, 0.99),
                        strategy = c("quantile", "uniform"), 
                        n_max = 1000L, w = NULL, ...) {
-  pd.default(
+  partial_dep.default(
     object = object,
     v = v,
     X = X,
@@ -160,4 +170,23 @@ pd.Learner <- function(object, v, X,
     w = w,
     ...
   )
+}
+
+#' Print Method
+#' 
+#' Print method for object of class "pd". 
+#'
+#' @param x An object of class "pd".
+#' @param ... Further arguments passed from other methods.
+#' @returns Invisibly, the input is returned.
+#' @export
+#' @examples
+#' fit <- lm(Sepal.Length ~ ., data = iris)
+#' pd <- partial_dep(fit, v = "Species", X = iris)
+#' pd
+#' @seealso [partial_dep()]
+print.pd <- function(x, ...) {
+  cat("First partial dependence rows (use x$pd to extract all)\n\n")
+  print(utils::head(x[["pd"]]))
+  invisible(x)
 }

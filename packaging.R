@@ -16,7 +16,7 @@ use_description(
   fields = list(
     Title = "Model-Agnostic Interaction Statistics",
     Version = "0.1.0",
-    Description = "Fast implementation of model-agnostic interaction strength statistics
+    Description = "Fast, model-agnostic implementation of interaction strength statistics
     introduced in Friedman, J.H. and Popescu, B.E. (2008) <doi:10.1214/07-AOAS148>.
     The package supports multivariate predictions and can deal with case weights. 
     Furthermore, different variants of the original statistics are provided.",

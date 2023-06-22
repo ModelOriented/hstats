@@ -23,6 +23,11 @@ Summary method for "interact" object.
 fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
 inter <- interact(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
 summary(inter)
+
+# summary() returns list of statistics
+s <- summary(inter)
+s$H2_j  # same as H2_j(inter)
+
 }
 \seealso{
 \code{\link[=interact]{interact()}}

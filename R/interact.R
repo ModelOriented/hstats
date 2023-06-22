@@ -1,26 +1,23 @@
 #' Calculate Interaction Statistics
 #' 
 #' @description
-#' Expensive crunching behind different interaction statistics (and versions of them):
+#' This is the main function of the package. It does the expensive calculations behind
+#' interaction statistics:
 #' - Total interaction strength \eqn{H^2}, a statistic measuring the proportion
-#'   of prediction variability unexplained by main effects, see [H2()].
+#'   of prediction variability unexplained by main effects, see [H2()] for the definition.
 #' - Friedman and Popescu's \eqn{H^2_j} statistic of overall interaction strength per
-#'   feature, see [H2_j()].
+#'   feature, see [H2_j()] for its definition.
 #' - Friedman and Popescu's \eqn{H^2_{jk}} statistic of pairwise interaction strength,
-#'   see [H2_jk()].
-#'   
-#' Since one typically is interested in calculating different statistics
-#' in different versions (scaled and unscaled, squared or not etc.), it is 
-#' convenient to do expensive calculations once using [interact()], and then
-#' derive all relevant statistics from its result. Furthermore, the main statistics are
-#' provided by `summary()`.
+#'   see [H2_jk()] for details.
 #'  
-#' @inheritParams pd
+#'  Instead of getting these statistics via `summary()`, you can obtain them via the 
+#'  more flexible functions [H2()], [H2_j()], and [H2_jk()].
+#'  
+#' @inheritParams partial_dep
 #' @param pairwise_m Number of features for which pairwise statistics are calculated.
 #'   The features are selected based on Friedman and Popescu's overall interaction 
 #'   strength \eqn{H^2_j} (rowwise maximum in the multivariate case). 
-#'   Set to `length(v)` to calculate it for every pair. 
-#'   Set to 0 to avoid pairwise calculation.
+#'   Set to `length(v)` to calculate every pair and to 0 to avoid pairwise calculations. 
 #' @param verbose Should a progress bar be shown? The default is `TRUE`.
 #' @returns 
 #'   An object of class "interact" containing these elements:
@@ -41,6 +38,8 @@
 #'   Friedman, Jerome H., and Bogdan E. Popescu. *"Predictive Learning via Rule Ensembles."*
 #'     The Annals of Applied Statistics 2, no. 3 (2008): 916-54.
 #' @export
+#' @seealso [H2()], [H2_j()], and [H2_jk()] for specific statistics calculated from the
+#'   resulting object.
 #' @examples
 #' # MODEL ONE: Linear regression
 #' fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
@@ -184,7 +183,7 @@ interact.default <- function(object, v, X, pred_fun = stats::predict, pairwise_m
       w = w,
       v = v,
       v_pairwise = v_pairwise,
-      combs = combs,
+      combs = combs
     ), 
     class = "interact"
   )
@@ -259,6 +258,11 @@ print.interact <- function(x, ...) {
 #' fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
 #' inter <- interact(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
 #' summary(inter)
+#' 
+#' # summary() returns list of statistics
+#' s <- summary(inter)
+#' s$H2_j  # same as H2_j(inter)
+#' 
 #' @seealso [interact()]
 summary.interact <- function(object, n = 10L, ...) {
   h2 <- H2(object)
@@ -269,13 +273,13 @@ summary.interact <- function(object, n = 10L, ...) {
   print(h2)
   cat("\n")
   
-  cat("Features with strongest overall interactions")
-  cat("(Friedman and Popescu's H^2_j of overall interaction):\n")
+  cat("Friedman and Popescu's H^2_j of overall interaction\n")
+  cat("(Features with strongest overall interactions)\n")
   print(utils::head(h2_j, n))
   cat("\n")
   
-  cat("Feature pairs with strongest relative interactions")
-  cat("Friedman and Popescu's H^2_jk of pairwise interaction):\n")
+  cat("Friedman and Popescu's H^2_jk of pairwise interaction\n")
+  cat("(Relative interaction strength for features with high H^2_j)\n")
   print(utils::head(h2_jk, n))
   cat("\n")
   invisible(list(H2 = h2, H2_j = h2_j, H2_jk = h2_jk))

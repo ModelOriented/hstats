@@ -42,7 +42,7 @@ prediction dimension).
 }
 \description{
 Friedman and Popescu's \eqn{H^2_j} statistics of overall interaction strength per
-feature, ideally calculated from the result of \code{\link[=interact]{interact()}}.
+feature extracted from the result of \code{\link[=interact]{interact()}}, see Details.
 }
 \details{
 The logic of Friedman and Popescu (2008) is as follows:
@@ -60,19 +60,12 @@ strength is given by
   \hat F_j(x_{ij}) - \hat F_{\setminus j}(\mathbf{x}_{i\setminus k})
   \big]^2}{\frac{1}{n} \sum_{i = 1}^n\big[F(\mathbf{x}_i)\big]^2}
 }
-(check \code{\link[=pd]{pd()}} for all definitions).
-}
-\section{Methods (by class)}{
-\itemize{
-\item \code{H2_j(default)}: Default method of overall interaction strength.
+(check \code{\link[=partial_dep]{partial_dep()}} for all definitions).
 
-\item \code{H2_j(interact)}: Overall interaction strength from "interact" object.
-
-}}
-\section{Remarks}{
-
+\strong{Remarks:}
 \enumerate{
-\item Partial dependence functions (and \eqn{F}) are all centered to (possibly weighted) mean 0.
+\item Partial dependence functions (and \eqn{F}) are all centered to
+(possibly weighted) mean 0.
 \item Partial dependence functions (and \eqn{F}) are evaluated over the data distribution.
 This is different to partial dependence plots, where one uses a fixed grid.
 \item Weighted versions follow by replacing all arithmetic means by corresponding
@@ -85,7 +78,13 @@ with \eqn{x_j}.
 statistics can be compared across features.
 }
 }
+\section{Methods (by class)}{
+\itemize{
+\item \code{H2_j(default)}: Default method of overall interaction strength.
 
+\item \code{H2_j(interact)}: Overall interaction strength from "interact" object.
+
+}}
 \examples{
 # MODEL ONE: Linear regression
 fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
@@ -100,10 +99,12 @@ fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = ir
 v <- c("Petal.Length", "Petal.Width", "Species")
 inter <- interact(fit, v = v, X = iris, verbose = FALSE)
 H2_j(inter)
-H2_j(fit, v = v, X = iris, verbose = FALSE)
 }
 }
 \references{
 Friedman, Jerome H., and Bogdan E. Popescu. \emph{"Predictive Learning via Rule Ensembles."}
 The Annals of Applied Statistics 2, no. 3 (2008): 916-54.
+}
+\seealso{
+\code{\link[=interact]{interact()}}, \code{\link[=H2]{H2()}}, \code{\link[=H2_jk]{H2_jk()}}
 }

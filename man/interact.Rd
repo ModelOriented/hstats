@@ -48,8 +48,8 @@ interact(object, ...)
 \arguments{
 \item{object}{Fitted model object.}
 
-\item{...}{Additional arguments passed to \code{pred_fun(object, X, ...)}, for instance
-\code{type = "response"} in a \code{\link[=glm]{glm()}} model.}
+\item{...}{Additional arguments passed to \code{pred_fun(object, X, ...)},
+for instance \code{type = "response"} in a \code{\link[=glm]{glm()}} model.}
 
 \item{v}{Vector of feature names.}
 
@@ -65,8 +65,7 @@ matrix of predictions will be used as default column names in the results.}
 \item{pairwise_m}{Number of features for which pairwise statistics are calculated.
 The features are selected based on Friedman and Popescu's overall interaction
 strength \eqn{H^2_j} (rowwise maximum in the multivariate case).
-Set to \code{length(v)} to calculate it for every pair.
-Set to 0 to avoid pairwise calculation.}
+Set to \code{length(v)} to calculate every pair and to 0 to avoid pairwise calculations.}
 
 \item{n_max}{If \code{X} has more than \code{n_max} rows, a random sample of \code{n_max} rows is
 selected from \code{X}. In this case, set a random seed for reproducibility.}
@@ -94,21 +93,19 @@ dependence functions are available.
 }
 }
 \description{
-Expensive crunching behind different interaction statistics (and versions of them):
+This is the main function of the package. It does the expensive calculations behind
+interaction statistics:
 \itemize{
 \item Total interaction strength \eqn{H^2}, a statistic measuring the proportion
-of prediction variability unexplained by main effects, see \code{\link[=H2]{H2()}}.
+of prediction variability unexplained by main effects, see \code{\link[=H2]{H2()}} for the definition.
 \item Friedman and Popescu's \eqn{H^2_j} statistic of overall interaction strength per
-feature, see \code{\link[=H2_j]{H2_j()}}.
+feature, see \code{\link[=H2_j]{H2_j()}} for its definition.
 \item Friedman and Popescu's \eqn{H^2_{jk}} statistic of pairwise interaction strength,
-see \code{\link[=H2_jk]{H2_jk()}}.
+see \code{\link[=H2_jk]{H2_jk()}} for details.
 }
 
-Since one typically is interested in calculating different statistics
-in different versions (scaled and unscaled, squared or not etc.), it is
-convenient to do expensive calculations once using \code{\link[=interact]{interact()}}, and then
-derive all relevant statistics from its result. Furthermore, the main statistics are
-provided by \code{summary()}.
+Instead of getting these statistics via \code{summary()}, you can obtain them via the
+more flexible functions \code{\link[=H2]{H2()}}, \code{\link[=H2_j]{H2_j()}}, and \code{\link[=H2_jk]{H2_jk()}}.
 }
 \section{Methods (by class)}{
 \itemize{
@@ -149,4 +146,8 @@ summary(inter)
 \references{
 Friedman, Jerome H., and Bogdan E. Popescu. \emph{"Predictive Learning via Rule Ensembles."}
 The Annals of Applied Statistics 2, no. 3 (2008): 916-54.
+}
+\seealso{
+\code{\link[=H2]{H2()}}, \code{\link[=H2_j]{H2_j()}}, and \code{\link[=H2_jk]{H2_jk()}} for specific statistics calculated from the
+resulting object.
 }

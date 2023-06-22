@@ -1,7 +1,7 @@
 #' Overall Interaction Strength
 #' 
 #' Friedman and Popescu's \eqn{H^2_j} statistics of overall interaction strength per 
-#' feature, ideally calculated from the result of [interact()].
+#' feature extracted from the result of [interact()], see Details.
 #' 
 #' @details
 #' The logic of Friedman and Popescu (2008) is as follows: 
@@ -19,10 +19,12 @@
 #'   \hat F_j(x_{ij}) - \hat F_{\setminus j}(\mathbf{x}_{i\setminus k})
 #'   \big]^2}{\frac{1}{n} \sum_{i = 1}^n\big[F(\mathbf{x}_i)\big]^2}
 #' }
-#' (check [pd()] for all definitions).
+#' (check [partial_dep()] for all definitions).
 #' 
-#' @section Remarks: 
-#' 1. Partial dependence functions (and \eqn{F}) are all centered to (possibly weighted) mean 0.
+#' **Remarks:**
+#' 
+#' 1. Partial dependence functions (and \eqn{F}) are all centered to 
+#'   (possibly weighted) mean 0.
 #' 2. Partial dependence functions (and \eqn{F}) are evaluated over the data distribution. 
 #'   This is different to partial dependence plots, where one uses a fixed grid.
 #' 3. Weighted versions follow by replacing all arithmetic means by corresponding
@@ -46,6 +48,7 @@
 #'   Matrix of interactions statistics (one row per variable, one column per
 #'   prediction dimension).
 #' @inherit interact references
+#' @seealso [interact()], [H2()], [H2_jk()]
 #' @export
 #' @examples
 #' # MODEL ONE: Linear regression
@@ -61,7 +64,6 @@
 #' v <- c("Petal.Length", "Petal.Width", "Species")
 #' inter <- interact(fit, v = v, X = iris, verbose = FALSE)
 #' H2_j(inter)
-#' H2_j(fit, v = v, X = iris, verbose = FALSE)
 #' }
 H2_j <- function(object, ...) {
   UseMethod("H2_j")

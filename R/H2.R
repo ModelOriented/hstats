@@ -1,16 +1,16 @@
 #' Total Interaction Strength
 #' 
-#' Proportion of prediction variability coming from interactions, 
-#' ideally calculated from the result of [interact()].
+#' Proportion of prediction variability coming from interactions extracted from the
+#' result of [interact()], see Details.
 #' 
 #' @details
-#' The idea is as follows: if the model is additive in all features,
-#' then the (centered) prediction function \eqn{F} equals the sum of the (centered)
-#' partial dependence functions \eqn{F_j(x_j)}, i.e.,
+#' If the model is additive in all features, then the (centered) prediction 
+#' function \eqn{F} equals the sum of the (centered) partial dependence 
+#' functions \eqn{F_j(x_j)}, i.e.,
 #' \deqn{
 #'   F(\mathbf{x}) = \sum_{j}^{p} F_j(x_j)
 #' }
-#' (check [pd()] for all definitions).
+#' (check [partial_dep()] for all definitions).
 #' To measure the relative amount of variability explained by all interactions, 
 #' we can therefore study the test statistic of total interaction strength
 #' \deqn{
@@ -24,6 +24,7 @@
 #' @inheritParams H2_j
 #' @returns Vector of total interaction strength (one value per prediction dimension).
 #' @export
+#' @seealso [interact()], [H2_j()], [H2_jk()]
 #' @examples
 #' # MODEL ONE: Linear regression
 #' fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
