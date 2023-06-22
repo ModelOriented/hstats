@@ -184,7 +184,7 @@ interact.default <- function(object, v, X, pred_fun = stats::predict, pairwise_m
       w = w,
       v = v,
       v_pairwise = v_pairwise,
-      combs = combs
+      combs = combs,
     ), 
     class = "interact"
   )

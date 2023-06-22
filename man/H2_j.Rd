@@ -3,60 +3,12 @@
 \name{H2_j}
 \alias{H2_j}
 \alias{H2_j.default}
-\alias{H2_j.ranger}
-\alias{H2_j.Learner}
 \alias{H2_j.interact}
 \title{Overall Interaction Strength}
 \usage{
 H2_j(object, ...)
 
-\method{H2_j}{default}(
-  object,
-  v,
-  X,
-  pred_fun = stats::predict,
-  n_max = 300L,
-  w = NULL,
-  verbose = TRUE,
-  normalize = TRUE,
-  squared = TRUE,
-  sort = TRUE,
-  top_m = Inf,
-  eps = 1e-08,
-  ...
-)
-
-\method{H2_j}{ranger}(
-  object,
-  v,
-  X,
-  pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
-  n_max = 300L,
-  w = NULL,
-  verbose = TRUE,
-  normalize = TRUE,
-  squared = TRUE,
-  sort = TRUE,
-  top_m = Inf,
-  eps = 1e-08,
-  ...
-)
-
-\method{H2_j}{Learner}(
-  object,
-  v,
-  X,
-  pred_fun = function(m, X) m$predict_newdata(X)$response,
-  n_max = 300L,
-  w = NULL,
-  verbose = TRUE,
-  normalize = TRUE,
-  squared = TRUE,
-  sort = TRUE,
-  top_m = Inf,
-  eps = 1e-08,
-  ...
-)
+\method{H2_j}{default}(object, ...)
 
 \method{H2_j}{interact}(
   object,
@@ -69,27 +21,9 @@ H2_j(object, ...)
 )
 }
 \arguments{
-\item{object}{Object of class "interact", or a model object.}
+\item{object}{Object of class "interact".}
 
 \item{...}{Further parameters passed to predict function (only for default method).}
-
-\item{v}{Vector of feature names.}
-
-\item{X}{A data.frame or matrix serving as background dataset.}
-
-\item{pred_fun}{Prediction function of the form \verb{function(object, X, ...)},
-providing K >= 1 numeric predictions per row. Its first argument represents the
-model \code{object}, its second argument a data structure like \code{X}. Additional arguments
-(such as \code{type = "response"} in a GLM) can be passed via \code{...}. The default,
-\code{\link[stats:predict]{stats::predict()}}, will work in most cases. Note that column names in a resulting
-matrix of predictions will be used as default column names in the results.}
-
-\item{n_max}{If \code{X} has more than \code{n_max} rows, a random sample of \code{n_max} rows is
-selected from \code{X}. In this case, set a random seed for reproducibility.}
-
-\item{w}{Optional vector of case weights for each row of \code{X}.}
-
-\item{verbose}{Should a progress bar be shown? The default is \code{TRUE}.}
 
 \item{normalize}{Should statistic be normalized? Default is \code{TRUE}.}
 
@@ -131,10 +65,6 @@ strength is given by
 \section{Methods (by class)}{
 \itemize{
 \item \code{H2_j(default)}: Default method of overall interaction strength.
-
-\item \code{H2_j(ranger)}: Overall interaction strength from "ranger" models.
-
-\item \code{H2_j(Learner)}: Overall interaction strength from "mlr3" models.
 
 \item \code{H2_j(interact)}: Overall interaction strength from "interact" object.
 

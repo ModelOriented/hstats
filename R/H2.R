@@ -38,7 +38,6 @@
 #' v <- c("Petal.Length", "Petal.Width", "Species")
 #' inter <- interact(fit, v = v, X = iris, verbose = FALSE)
 #' H2(inter)
-#' H2(fit, v = v, X = iris, verbose = FALSE)
 #' 
 #' # MODEL THREE: No interactions
 #' fit <- lm(Sepal.Length ~ ., data = iris)
@@ -51,68 +50,8 @@ H2 <- function(object, ...) {
 
 #' @describeIn H2 Default method of total interaction strength.
 #' @export
-H2.default <- function(object, v, X, pred_fun = stats::predict,
-                                      n_max = 300L, w = NULL, verbose = TRUE, 
-                                      normalize = TRUE, squared = TRUE, eps = 1e-8, 
-                                      ...) {
-  istat <- interact(
-    object = object,
-    v = v,
-    X = X,
-    pred_fun = pred_fun,
-    pairwise_m = 0L,
-    n_max = n_max,
-    w = w,
-    verbose = verbose,
-    ...
-  )
-  H2(
-    istat, normalize = normalize, squared = squared, sort = FALSE, eps = eps
-  )
-}
-
-#' @describeIn H2 Total interaction strength from "ranger" models.
-#' @export
-H2.ranger <- function(object, v, X, 
-                                     pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
-                                     n_max = 300L, w = NULL, verbose = TRUE,
-                                     normalize = TRUE, squared = TRUE, 
-                                     eps = 1e-8, ...) {
-  H2.default(
-    object = object,
-    v = v,
-    X = X,
-    pred_fun = pred_fun,
-    n_max = n_max,
-    w = w,
-    verbose = verbose,
-    normalize = normalize, 
-    squared = squared, 
-    eps = eps,
-    ...
-  )
-}
-
-#' @describeIn H2 Total interaction strength from "mlr3" models.
-#' @export
-H2.Learner <- function(object, v, X, 
-                                      pred_fun = function(m, X) m$predict_newdata(X)$response,
-                                      n_max = 300L, w = NULL, verbose = TRUE,
-                                      normalize = TRUE, squared = TRUE, 
-                                      eps = 1e-8, ...) {
-  H2.default(
-    object = object,
-    v = v,
-    X = X,
-    pred_fun = pred_fun,
-    n_max = n_max,
-    w = w,
-    verbose = verbose,
-    normalize = normalize, 
-    squared = squared, 
-    eps = eps,
-    ...
-  )
+H2.default <- function(object, ...) {
+  stop("No default method implemented.")
 }
 
 #' @describeIn H2 Total interaction strength from "interact" object.

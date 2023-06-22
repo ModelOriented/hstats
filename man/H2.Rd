@@ -3,79 +3,19 @@
 \name{H2}
 \alias{H2}
 \alias{H2.default}
-\alias{H2.ranger}
-\alias{H2.Learner}
 \alias{H2.interact}
 \title{Total Interaction Strength}
 \usage{
 H2(object, ...)
 
-\method{H2}{default}(
-  object,
-  v,
-  X,
-  pred_fun = stats::predict,
-  n_max = 300L,
-  w = NULL,
-  verbose = TRUE,
-  normalize = TRUE,
-  squared = TRUE,
-  eps = 1e-08,
-  ...
-)
-
-\method{H2}{ranger}(
-  object,
-  v,
-  X,
-  pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
-  n_max = 300L,
-  w = NULL,
-  verbose = TRUE,
-  normalize = TRUE,
-  squared = TRUE,
-  eps = 1e-08,
-  ...
-)
-
-\method{H2}{Learner}(
-  object,
-  v,
-  X,
-  pred_fun = function(m, X) m$predict_newdata(X)$response,
-  n_max = 300L,
-  w = NULL,
-  verbose = TRUE,
-  normalize = TRUE,
-  squared = TRUE,
-  eps = 1e-08,
-  ...
-)
+\method{H2}{default}(object, ...)
 
 \method{H2}{interact}(object, normalize = TRUE, squared = TRUE, eps = 1e-08, ...)
 }
 \arguments{
-\item{object}{Object of class "interact", or a model object.}
+\item{object}{Object of class "interact".}
 
 \item{...}{Further parameters passed to predict function (only for default method).}
-
-\item{v}{Vector of feature names.}
-
-\item{X}{A data.frame or matrix serving as background dataset.}
-
-\item{pred_fun}{Prediction function of the form \verb{function(object, X, ...)},
-providing K >= 1 numeric predictions per row. Its first argument represents the
-model \code{object}, its second argument a data structure like \code{X}. Additional arguments
-(such as \code{type = "response"} in a GLM) can be passed via \code{...}. The default,
-\code{\link[stats:predict]{stats::predict()}}, will work in most cases. Note that column names in a resulting
-matrix of predictions will be used as default column names in the results.}
-
-\item{n_max}{If \code{X} has more than \code{n_max} rows, a random sample of \code{n_max} rows is
-selected from \code{X}. In this case, set a random seed for reproducibility.}
-
-\item{w}{Optional vector of case weights for each row of \code{X}.}
-
-\item{verbose}{Should a progress bar be shown? The default is \code{TRUE}.}
 
 \item{normalize}{Should statistic be normalized? Default is \code{TRUE}.}
 
@@ -112,10 +52,6 @@ A value of 0 would mean there are no interaction effects at all.
 \itemize{
 \item \code{H2(default)}: Default method of total interaction strength.
 
-\item \code{H2(ranger)}: Total interaction strength from "ranger" models.
-
-\item \code{H2(Learner)}: Total interaction strength from "mlr3" models.
-
 \item \code{H2(interact)}: Total interaction strength from "interact" object.
 
 }}
@@ -133,7 +69,6 @@ fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = ir
 v <- c("Petal.Length", "Petal.Width", "Species")
 inter <- interact(fit, v = v, X = iris, verbose = FALSE)
 H2(inter)
-H2(fit, v = v, X = iris, verbose = FALSE)
 
 # MODEL THREE: No interactions
 fit <- lm(Sepal.Length ~ ., data = iris)

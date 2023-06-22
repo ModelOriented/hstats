@@ -34,8 +34,7 @@
 #' 6. Since the denominator is the same for all features, the values of the test 
 #'   statistics can be compared across features.
 #' 
-#' @inheritParams interact
-#' @param object Object of class "interact", or a model object.
+#' @param object Object of class "interact".
 #' @param normalize Should statistic be normalized? Default is `TRUE`.
 #' @param squared Should *squared* statistics be returned? Default is `TRUE`. 
 #' @param sort Should results be sorted by the size of the statistic? Default is `TRUE`.
@@ -70,77 +69,8 @@ H2_j <- function(object, ...) {
 
 #' @describeIn H2_j Default method of overall interaction strength.
 #' @export
-H2_j.default <- function(object, v, X, pred_fun = stats::predict,
-                         n_max = 300L, w = NULL, verbose = TRUE, normalize = TRUE, 
-                         squared = TRUE, sort = TRUE, top_m = Inf, eps = 1e-8, ...) {
-  
-  istat <- interact(
-    object = object,
-    v = v,
-    X = X,
-    pred_fun = pred_fun,
-    pairwise_m = 0L,
-    n_max = n_max,
-    w = w,
-    verbose = verbose,
-    ...
-  )
-  H2_j(
-    istat,
-    normalize = normalize, 
-    squared = squared, 
-    sort = sort, 
-    top_m = top_m, 
-    eps = eps
-  )
-}
-
-#' @describeIn H2_j Overall interaction strength from "ranger" models.
-#' @export
-H2_j.ranger <- function(object, v, X, 
-                        pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
-                        n_max = 300L, w = NULL, verbose = TRUE, normalize = TRUE, 
-                        squared = TRUE, sort = TRUE, top_m = Inf, eps = 1e-8, ...) {
-  H2_j.default(
-    object = object,
-    v = v,
-    X = X,
-    pred_fun = pred_fun,
-    pairwise_m = 0L,
-    n_max = n_max,
-    w = w,
-    verbose = verbose,
-    normalize = normalize, 
-    squared = squared, 
-    sort = sort, 
-    top_m = top_m, 
-    eps = eps,
-    ...
-  )
-}
-
-#' @describeIn H2_j Overall interaction strength from "mlr3" models.
-#' @export
-H2_j.Learner <- function(object, v, X, 
-                         pred_fun = function(m, X) m$predict_newdata(X)$response,
-                         n_max = 300L, w = NULL, verbose = TRUE, normalize = TRUE, 
-                         squared = TRUE, sort = TRUE, top_m = Inf, eps = 1e-8, ...) {
-  H2_j.default(
-    object = object,
-    v = v,
-    X = X,
-    pred_fun = pred_fun,
-    pairwise_m = 0L,
-    n_max = n_max,
-    w = w,
-    verbose = verbose,
-    normalize = normalize, 
-    squared = squared, 
-    sort = sort, 
-    top_m = top_m, 
-    eps = eps,
-    ...
-  )
+H2_j.default <- function(object, ...) {
+  stop("No default method implemented.")
 }
 
 #' @describeIn H2_j Overall interaction strength from "interact" object.

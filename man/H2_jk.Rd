@@ -3,63 +3,12 @@
 \name{H2_jk}
 \alias{H2_jk}
 \alias{H2_jk.default}
-\alias{H2_jk.ranger}
-\alias{H2_jk.Learner}
 \alias{H2_jk.interact}
 \title{Pairwise Interaction Strength}
 \usage{
 H2_jk(object, ...)
 
-\method{H2_jk}{default}(
-  object,
-  v,
-  X,
-  pred_fun = stats::predict,
-  pairwise_m = 5L,
-  n_max = 300L,
-  w = NULL,
-  verbose = TRUE,
-  normalize = TRUE,
-  squared = TRUE,
-  sort = TRUE,
-  top_m = Inf,
-  eps = 1e-08,
-  ...
-)
-
-\method{H2_jk}{ranger}(
-  object,
-  v,
-  X,
-  pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
-  pairwise_m = 5L,
-  n_max = 300L,
-  w = NULL,
-  verbose = TRUE,
-  normalize = TRUE,
-  squared = TRUE,
-  sort = TRUE,
-  top_m = Inf,
-  eps = 1e-08,
-  ...
-)
-
-\method{H2_jk}{Learner}(
-  object,
-  v,
-  X,
-  pred_fun = function(m, X) m$predict_newdata(X)$response,
-  pairwise_m = 5L,
-  n_max = 300L,
-  w = NULL,
-  verbose = TRUE,
-  normalize = TRUE,
-  squared = TRUE,
-  sort = TRUE,
-  top_m = Inf,
-  eps = 1e-08,
-  ...
-)
+\method{H2_jk}{default}(object, ...)
 
 \method{H2_jk}{interact}(
   object,
@@ -72,34 +21,9 @@ H2_jk(object, ...)
 )
 }
 \arguments{
-\item{object}{Fitted model object.}
+\item{object}{Object of class "interact".}
 
-\item{...}{Additional arguments passed to \code{pred_fun(object, X, ...)}, for instance
-\code{type = "response"} in a \code{\link[=glm]{glm()}} model.}
-
-\item{v}{Vector of feature names.}
-
-\item{X}{A data.frame or matrix serving as background dataset.}
-
-\item{pred_fun}{Prediction function of the form \verb{function(object, X, ...)},
-providing K >= 1 numeric predictions per row. Its first argument represents the
-model \code{object}, its second argument a data structure like \code{X}. Additional arguments
-(such as \code{type = "response"} in a GLM) can be passed via \code{...}. The default,
-\code{\link[stats:predict]{stats::predict()}}, will work in most cases. Note that column names in a resulting
-matrix of predictions will be used as default column names in the results.}
-
-\item{pairwise_m}{Number of features for which pairwise statistics are calculated.
-The features are selected based on Friedman and Popescu's overall interaction
-strength \eqn{H^2_j} (rowwise maximum in the multivariate case).
-Set to \code{length(v)} to calculate it for every pair.
-Set to 0 to avoid pairwise calculation.}
-
-\item{n_max}{If \code{X} has more than \code{n_max} rows, a random sample of \code{n_max} rows is
-selected from \code{X}. In this case, set a random seed for reproducibility.}
-
-\item{w}{Optional vector of case weights for each row of \code{X}.}
-
-\item{verbose}{Should a progress bar be shown? The default is \code{TRUE}.}
+\item{...}{Further parameters passed to predict function (only for default method).}
 
 \item{normalize}{Should statistic be normalized? Default is \code{TRUE}.}
 
@@ -146,10 +70,6 @@ and
 \section{Methods (by class)}{
 \itemize{
 \item \code{H2_jk(default)}: Default pairwise interaction strength.
-
-\item \code{H2_jk(ranger)}: Pairwise interaction strength from "ranger" models.
-
-\item \code{H2_jk(Learner)}: Pairwise interaction strength from "mlr3" models.
 
 \item \code{H2_jk(interact)}: Pairwise interaction strength from "interact" object.
 
@@ -199,7 +119,6 @@ fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = ir
 v <- c("Petal.Length", "Petal.Width", "Species")
 inter <- interact(fit, v = v, X = iris, verbose = FALSE)
 H2_jk(inter)
-H2_jk(fit, v = v, X = iris, verbose = FALSE)
 }
 }
 \references{

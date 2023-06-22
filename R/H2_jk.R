@@ -47,7 +47,6 @@
 #' Furthermore, we calculate pairwise statistics only for features with highest
 #' \eqn{H^2_{j}}.
 #' 
-#' @inheritParams interact
 #' @inheritParams H2_j
 #' @returns 
 #'   Matrix of interactions statistics (one row per variable pair, one column per
@@ -73,7 +72,6 @@
 #' v <- c("Petal.Length", "Petal.Width", "Species")
 #' inter <- interact(fit, v = v, X = iris, verbose = FALSE)
 #' H2_jk(inter)
-#' H2_jk(fit, v = v, X = iris, verbose = FALSE)
 #' }
 H2_jk <- function(object, ...) {
   UseMethod("H2_jk")
@@ -81,79 +79,8 @@ H2_jk <- function(object, ...) {
 
 #' @describeIn H2_jk Default pairwise interaction strength.
 #' @export
-H2_jk.default <- function(object, v, X, pred_fun = stats::predict,
-                          pairwise_m = 5L, n_max = 300L, w = NULL, verbose = TRUE,
-                          normalize = TRUE, squared = TRUE, sort = TRUE, 
-                          top_m = Inf, eps = 1e-8, ...) {
-  istat <- interact(
-    object = object,
-    v = v,
-    X = X,
-    pred_fun = pred_fun,
-    pairwise_m = pairwise_m,
-    n_max = n_max,
-    w = w,
-    verbose = verbose,
-    ...
-  )
-  H2_jk(
-    istat,
-    normalize = normalize,
-    squared = squared, 
-    sort = sort, 
-    top_m = top_m, 
-    eps = eps
-  )
-}
-
-#' @describeIn H2_jk Pairwise interaction strength from "ranger" models.
-#' @export
-H2_jk.ranger <- function(object, v, X, 
-                         pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
-                         pairwise_m = 5L, n_max = 300L, w = NULL, verbose = TRUE,
-                         normalize = TRUE, squared = TRUE, sort = TRUE, 
-                         top_m = Inf, eps = 1e-8, ...) {
-  H2_jk.default(
-    object = object,
-    v = v,
-    X = X,
-    pred_fun = pred_fun,
-    pairwise_m = pairwise_m,
-    n_max = n_max,
-    w = w,
-    verbose = verbose,
-    normalize = normalize,
-    squared = squared, 
-    sort = sort, 
-    top_m = top_m, 
-    eps = eps,
-    ...
-  )
-}
-
-#' @describeIn H2_jk Pairwise interaction strength from "mlr3" models.
-#' @export
-H2_jk.Learner <- function(object, v, X, 
-                          pred_fun = function(m, X) m$predict_newdata(X)$response,
-                          pairwise_m = 5L, n_max = 300L, w = NULL, verbose = TRUE,
-                          normalize = TRUE, squared = TRUE, sort = TRUE,
-                          top_m = Inf, eps = 1e-8, ...) {
-  H2_jk.default(
-    object = object,
-    v = v,
-    X = X,
-    pred_fun = pred_fun,
-    pairwise_m = pairwise_m,
-    n_max = n_max,
-    w = w,
-    verbose = verbose,
-    normalize = normalize,
-    squared = squared, 
-    sort = sort, 
-    top_m = top_m, 
-    eps = eps,
-    ...
-  )
+H2_jk.default <- function(object, ...) {
+  stop("No default method implemented.")
 }
 
 #' @describeIn H2_jk Pairwise interaction strength from "interact" object.

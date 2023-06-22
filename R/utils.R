@@ -208,9 +208,8 @@ basic_check <- function(X, v, pred_fun, w) {
 #' @param mean_f2 Weighted average of f^2.
 #' @param w Optional case weights.
 #' @inheritParams H2_j
-H2_j_raw <- function(F_j, F_not_j, f, mean_f2, w = NULL, 
-                           normalize = TRUE, squared = TRUE, sort = TRUE, 
-                           top_m = Inf, eps = 1e-8, ...) {
+H2_j_raw <- function(F_j, F_not_j, f, mean_f2, w = NULL, normalize = TRUE, 
+                     squared = TRUE, sort = TRUE, top_m = Inf, eps = 1e-8, ...) {
   v <- names(F_j)
   num <- matrix(nrow = length(v), ncol = ncol(f), dimnames = list(v, colnames(f)))
   for (z in v) {
