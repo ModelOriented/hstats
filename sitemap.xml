@@ -16,10 +16,13 @@
     <loc>/news/index.html</loc>
   </url>
   <url>
-    <loc>/reference/H2_overall.html</loc>
+    <loc>/reference/H2.html</loc>
   </url>
   <url>
-    <loc>/reference/H2_pairwise.html</loc>
+    <loc>/reference/H2_j.html</loc>
+  </url>
+  <url>
+    <loc>/reference/H2_jk.html</loc>
   </url>
   <url>
     <loc>/reference/index.html</loc>
@@ -31,13 +34,16 @@
     <loc>/reference/multivariate_grid.html</loc>
   </url>
   <url>
-    <loc>/reference/pd_profiles.html</loc>
+    <loc>/reference/partial_dep.html</loc>
   </url>
   <url>
-    <loc>/reference/pd_raw.html</loc>
+    <loc>/reference/print.interact.html</loc>
   </url>
   <url>
-    <loc>/reference/total_interaction.html</loc>
+    <loc>/reference/print.pd.html</loc>
+  </url>
+  <url>
+    <loc>/reference/summary.interact.html</loc>
   </url>
   <url>
     <loc>/reference/univariate_grid.html</loc>

@@ -18,10 +18,10 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="pkgdown.css" rel="stylesheet">
 <script src="pkgdown.js"></script><meta property="og:title" content="Model-Agnostic Interaction Statistics">
-<meta property="og:description" content="Fast implementation of model-agnostic interaction strength statistics
+<meta property="og:description" content="Fast, model-agnostic implementation of interaction strength statistics
     introduced in Friedman, J.H. and Popescu, B.E. (2008)
     &lt;doi:10.1214/07-AOAS148&gt;.  The package supports multivariate
-    predictions and deals with case weights.  Furthermore, different variants
+    predictions and can deal with case weights.  Furthermore, different variants
     of the original statistics are provided.">
 <meta property="og:image" content="/logo.png">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
@@ -44,7 +44,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">interactML</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.0</span>
       </span>
     </div>
 
@@ -87,35 +87,36 @@
 <div class="section level2">
 <h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
 </h2>
-<p><strong>What makes a ML model black-box? It is the complex interactions!</strong></p>
-<p>This package offers a fast, model-agnostic implementation of Friedman and Popescu’s interaction strength statistics [2], in different versions and colors. As such, it helps to unveil the darkness of the black-box.</p>
+<p><strong>What makes a ML model black-box? It’s the interactions!</strong></p>
+<p>This package offers a fast, model-agnostic implementation of Friedman and Popescu’s statistics of interaction strength [2]. As such, it helps to unveil the darkness of the black-box.</p>
 <p>The package</p>
 <ul>
 <li>supports multivariate predictions,</li>
 <li>respects case weights, and</li>
 <li>works with both data.frames and matrices (e.g., for XGBoost).</li>
+<li>Furthermore, different variants of the original statistics in [2] are available.</li>
 </ul>
-<p>Note: The numbers usually slightly differ from the implementation in the {gbm} package. The reason is that {interactML} is model-agnostic and therefore cannot rely on the fast tree-traversal method to calculate partial dependence functions.</p>
+<p>Note: The {gbm} package offers a model-specific implementation of some of the statistics. Since it uses the weighted tree-traversal method of [1] to estimate partial dependence functions, the results are typically slightly different.</p>
 </div>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># From CRAN</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"interactML"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Or the development version:</span></span>
-<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"mayer79/interactML"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"mayer79/interactML"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a>
 </h2>
-<p>To demonstrate the typical workflow, we use a house price dataset with 14,000 transactions from Miami-Date county, available in the {shapviz} package. We model logarithmic sales prices as a function of geographic features and other features like living area and building age. The model is fitted with XGBoost, using interaction constraints to produce a model additive in all non-geographic features.</p>
-<p>Let’s first fit such model:</p>
+<p>To demonstrate the typical workflow, we use a beautiful house price dataset with about 14,000 transactions from Miami-Dade County available in the {shapviz} package.</p>
+<p>We are going to model logarithmic sales prices as a function of geographic features and other features like living area and building age. The model is fitted with XGBoost using interaction constraints to produce a model additive in all non-geographic features.</p>
+<p>What can we say about interactions? Can we verify additivity in non-geographic features?</p>
+<div class="section level3">
+<h3 id="fit-xgboost-model">Fit XGBoost model<a class="anchor" aria-label="anchor" href="#fit-xgboost-model"></a>
+</h3>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/dmlc/xgboost" class="external-link">xgboost</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/mayer79/interactML" class="external-link">interactML</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/dmlc/xgboost" class="external-link">xgboost</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ModelOriented/shapviz" class="external-link">shapviz</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/mayer79/interactML" class="external-link">interactML</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Variable sets</span></span>
 <span><span class="va">x_geo</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"LATITUDE"</span>, <span class="st">"LONGITUDE"</span>, <span class="st">"CNTR_DIST"</span>, <span class="st">"OCEAN_DIST"</span>, <span class="st">"RAIL_DIST"</span>, <span class="st">"HWY_DIST"</span><span class="op">)</span></span>
@@ -155,51 +156,76 @@
 <span>  nrounds <span class="op">=</span> <span class="fl">1000</span>,</span>
 <span>  callbacks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu">cb.print.evaluation</span><span class="op">(</span>period <span class="op">=</span> <span class="fl">100</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<p>Now, we will go through two main steps:</p>
+</div>
+<div class="section level3">
+<h3 id="analyze-interactions">Analyze interactions<a class="anchor" aria-label="anchor" href="#analyze-interactions"></a>
+</h3>
+<p>We will now do two things:</p>
 <ol style="list-style-type: decimal">
-<li>Calculate interaction strength per feature.</li>
-<li>Calculate pairwise interactions, but only for those features with strongest interactions in Step 1.</li>
+<li>Call <code><a href="reference/interact.html">interact()</a></code> for the expensive crunching.</li>
+<li>Get statistics with <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>.</li>
 </ol>
-<p>By default, {interactML} subsamples 300 rows to do the calculations of all statistics. Predictions are done on cross-products, i.e., on datasets with 900’000 rows.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Crunch</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/system.time.html" class="external-link">system.time</a></span><span class="op">(</span>  <span class="co"># 2 seconds on simple laptop</span></span>
-<span>  <span class="va">inter</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/interact.html">interact</a></span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="va">x</span>, X <span class="op">=</span> <span class="va">X_train</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Friedman and Popescu's H-squared statistic of overall interaction strength</span></span>
-<span><span class="fu"><a href="reference/H2_overall.html">H2_overall</a></span><span class="op">(</span><span class="va">inter</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Output</span></span>
-<span><span class="co"># OCEAN_DIST        0.064160889</span></span>
-<span><span class="co"># LONGITUDE         0.058408512</span></span>
-<span><span class="co"># LATITUDE          0.029758247</span></span>
-<span><span class="co"># CNTR_DIST         0.027793895</span></span>
-<span><span class="co"># HWY_DIST          0.003535304</span></span>
-<span><span class="co"># RAIL_DIST         0.003305428</span></span>
-<span><span class="co"># TOT_LVG_AREA      0.000000000</span></span>
-<span><span class="co"># LND_SQFOOT        0.000000000</span></span>
-<span><span class="co"># structure_quality 0.000000000</span></span>
-<span><span class="co"># age               0.000000000</span></span>
-<span></span>
-<span><span class="co"># Friedman and Popescu's H-squared statistic of pairwise interaction strength</span></span>
-<span><span class="fu"><a href="reference/H2_pairwise.html">H2_pairwise</a></span><span class="op">(</span><span class="va">inter</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Output</span></span>
-<span><span class="co"># LONGITUDE:OCEAN_DIST 0.155858345</span></span>
-<span><span class="co"># LONGITUDE:CNTR_DIST  0.123839276</span></span>
-<span><span class="co"># LATITUDE:LONGITUDE   0.081054304</span></span>
-<span><span class="co"># LATITUDE:OCEAN_DIST  0.067691746</span></span>
-<span><span class="co"># CNTR_DIST:OCEAN_DIST 0.042450301</span></span>
-<span><span class="co"># LATITUDE:CNTR_DIST   0.029422624</span></span>
-<span><span class="co"># LATITUDE:HWY_DIST    0.014230549</span></span>
-<span><span class="co"># CNTR_DIST:HWY_DIST   0.010091154</span></span>
-<span><span class="co"># LONGITUDE:HWY_DIST   0.005646211</span></span>
-<span><span class="co"># OCEAN_DIST:HWY_DIST  0.004547384</span></span>
-<span></span>
-<span><span class="co"># Overall proportion of variability explained by interactions</span></span>
-<span><span class="fu"><a href="reference/total_interaction.html">total_interaction</a></span><span class="op">(</span><span class="va">inter</span><span class="op">)</span>  <span class="co"># 0.1036339</span></span></code></pre></div>
-<p><strong>Comments:</strong> The model indeed seems additive in non-geographic features. Furthermore, we see that about 10% of prediction variation comes from interaction effects. The strongest interactions are associated with distance to the ocean and the longitude.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 2 seconds on simple laptop - a random forest will take 1-2 minutes</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">system.time</span>(</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  inter <span class="ot">&lt;-</span> <span class="fu">interact</span>(fit, <span class="at">v =</span> x, <span class="at">X =</span> X_train)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(inter)</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Output</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>Proportion of prediction variability explained by interactions</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>         y </span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="fl">0.09602024</span> </span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>Strongest overall interactions</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>                            y</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>OCEAN_DIST        <span class="fl">0.062639450</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>LONGITUDE         <span class="fl">0.045194768</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>LATITUDE          <span class="fl">0.029151873</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>CNTR_DIST         <span class="fl">0.027695769</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>RAIL_DIST         <span class="fl">0.003805603</span></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>HWY_DIST          <span class="fl">0.003484982</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>TOT_LVG_AREA      <span class="fl">0.000000000</span></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>LND_SQFOOT        <span class="fl">0.000000000</span></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>structure_quality <span class="fl">0.000000000</span></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>age               <span class="fl">0.000000000</span></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>Strongest relative pairwise interactions</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>(only <span class="cf">for</span> features with strong overall interactions)</span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>                               y</span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>LONGITUDE<span class="sc">:</span>OCEAN_DIST <span class="fl">0.156475264</span></span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>LONGITUDE<span class="sc">:</span>CNTR_DIST  <span class="fl">0.122113602</span></span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>LATITUDE<span class="sc">:</span>LONGITUDE   <span class="fl">0.076213847</span></span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>LATITUDE<span class="sc">:</span>OCEAN_DIST  <span class="fl">0.061130256</span></span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>CNTR_DIST<span class="sc">:</span>OCEAN_DIST <span class="fl">0.040675335</span></span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>LATITUDE<span class="sc">:</span>RAIL_DIST   <span class="fl">0.030786973</span></span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>LATITUDE<span class="sc">:</span>CNTR_DIST   <span class="fl">0.029474763</span></span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>CNTR_DIST<span class="sc">:</span>RAIL_DIST  <span class="fl">0.012886536</span></span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>LONGITUDE<span class="sc">:</span>RAIL_DIST  <span class="fl">0.008402545</span></span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>OCEAN_DIST<span class="sc">:</span>RAIL_DIST <span class="fl">0.007081773</span></span></code></pre></div>
+<p><strong>Comments:</strong></p>
+<ul>
+<li>About 10% of prediction variability comes from interaction effects.</li>
+<li>The strongest overall interactions are associated with “OCEAN_DIST” and “LONGITUDE”. For instance, we can say that about 6% of prediction variability can be attributed to all interactions of “OCEAN_DISTANCE”.</li>
+<li>About 15.6% of the joint effect variability of above two features come from their pairwise interaction.</li>
+</ul>
+<p><strong>Remarks:</strong></p>
+<ol style="list-style-type: decimal">
+<li>Pairwise statistics are calculated only for the features with strongest overall interactions.</li>
+<li>The statistics need to repeatedly calculate predictions on <span class="math inline"><em>n</em><sup>2</sup></span> rows. That is why {interactML} samples 300 rows by default. To get more robust results, increase this value at the price of slower run time.</li>
+<li>Pairwise Friedmans and Popescu’s <span class="math inline"><em>H</em><sub><em>j</em><em>k</em></sub><sup>2</sup></span> measures interaction strength relative to the combined effect of the two features. This does not necessarily show which interactions are strongest. To do so, we study unnormalized statistics:</li>
+</ol>
+<p>Strongest pairwise interactions (values on the scale of the response log(price)):</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">H2_jk</span>(inter, <span class="at">normalize =</span> <span class="cn">FALSE</span>, <span class="at">squared =</span> <span class="cn">FALSE</span>, <span class="at">top_m =</span> <span class="dv">5</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>                              y</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>LONGITUDE<span class="sc">:</span>OCEAN_DIST <span class="fl">0.08279401</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>LATITUDE<span class="sc">:</span>OCEAN_DIST  <span class="fl">0.04797644</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>LONGITUDE<span class="sc">:</span>CNTR_DIST  <span class="fl">0.04796194</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>CNTR_DIST<span class="sc">:</span>OCEAN_DIST <span class="fl">0.04718950</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>LATITUDE<span class="sc">:</span>LONGITUDE   <span class="fl">0.03807378</span></span></code></pre></div>
+<p><strong>Comment:</strong> The strongest pairwise interaction remains the one between longitude and distance to the ocean.</p>
+</div>
 </div>
 <div class="section level2">
 <h2 id="background">Background<a class="anchor" aria-label="anchor" href="#background"></a>
@@ -208,69 +234,83 @@
 <h3 id="partial-dependence">Partial dependence<a class="anchor" aria-label="anchor" href="#partial-dependence"></a>
 </h3>
 <p>Let <span class="math inline"><em>F</em> : <em>R</em><sup><em>p</em></sup> → <em>R</em></span> denote the prediction function that maps the <span class="math inline"><em>p</em></span>-dimensional feature vector <span class="math inline"><strong>x</strong> = (<em>x</em><sub>1</sub>,…,<em>x</em><sub><em>p</em></sub>)</span> to its prediction. Furthermore, let <span class="math inline"><em>F</em><sub><em>s</em></sub>(<strong>x</strong><sub><em>s</em></sub>) = <em>E</em><sub><strong>x</strong><sub>\<em>s</em></sub></sub>(<em>F</em>(<strong>x</strong><sub><em>s</em></sub>,<strong>x</strong><sub>\<em>s</em></sub>))</span> be the partial dependence function of <span class="math inline"><em>F</em></span> on the feature subset <span class="math inline"><strong>x</strong><sub><em>s</em></sub></span>, where <span class="math inline"><em>s</em> ⊆ {1, …, <em>p</em>}</span>, as introduced in [1]. Here, the expectation runs over the joint marginal distribution of features <span class="math inline"><strong>x</strong><sub>\<em>s</em></sub></span> not in <span class="math inline"><strong>x</strong><sub><em>s</em></sub></span>.</p>
-<p>Given data, <span class="math inline"><em>F</em><sub><em>s</em></sub>(<strong>x</strong><sub><em>s</em></sub>)</span> can be estimated by the empirical partial dependence function <span class="math display">$$
-  \hat F_s(\mathbf{x}_s) = \frac{1}{n} \sum_{i = 1}^n F(\mathbf{x}_s, \mathbf{x}_{i\setminus s}),
-$$</span> where <span class="math inline"><strong>x</strong><sub><em>i</em> \ <em>s</em></sub></span>, <span class="math inline"><em>i</em> = 1, …, <em>n</em></span>, are the observed values of <span class="math inline"><strong>x</strong><sub>\<em>s</em></sub></span>.</p>
+<p>Given data, <span class="math inline"><em>F</em><sub><em>s</em></sub>(<strong>x</strong><sub><em>s</em></sub>)</span> can be estimated by the empirical partial dependence function</p>
+<p><span class="math display">$$
+  \hat F_s(\boldsymbol x_s) = \frac{1}{n} \sum_{i = 1}^n F(\boldsymbol x_s, \boldsymbol x_{i \setminus s}),
+$$</span></p>
+<p>where <span class="math inline"><strong>x</strong><sub><em>i</em> \ <em>s</em></sub></span>, <span class="math inline"><em>i</em> = 1, …, <em>n</em></span>, are the observed values of <span class="math inline"><strong>x</strong><sub>\<em>s</em></sub></span>.</p>
 </div>
 <div class="section level3">
 <h3 id="overall-interaction-strength">Overall interaction strength<a class="anchor" aria-label="anchor" href="#overall-interaction-strength"></a>
 </h3>
 <p>In [2], Friedman and Popescu introduced different statistics to measure interaction strength. Closely following their notation, we will summarize the main ideas.</p>
-<p>If there are no interactions involving <span class="math inline"><em>x</em><sub><em>j</em></sub></span>, we can decompose the prediction function <span class="math inline"><em>F</em></span> as the sum of the partial dependence <span class="math inline"><em>F</em><sub><em>j</em></sub></span> on <span class="math inline"><em>x</em><sub><em>j</em></sub></span> and the partial dependence <span class="math inline"><em>F</em><sub>\<em>j</em></sub></span> on all other features <span class="math inline"><strong>x</strong><sub>\<em>j</em></sub></span>, i.e., <span class="math display"><em>F</em>(<strong>x</strong>) = <em>F</em><sub><em>j</em></sub>(<em>x</em><sub><em>j</em></sub>) + <em>F</em><sub>\<em>j</em></sub>(<strong>x</strong><sub>\<em>j</em></sub>).</span> Correspondingly, Friedman and Popescu’s <span class="math inline"><em>H</em><sub><em>j</em></sub><sup>2</sup></span> statistic of overall interaction strength is given by <span class="math display">$$
-    H_{j}^2 = \frac{\frac{1}{n} \sum_{i = 1}^n\big[F(\mathbf{x}_i) - \hat F_j(x_{ij}) - \hat F_{\setminus j}(\mathbf{x}_{i\setminus k})\big]^2}{\frac{1}{n} \sum_{i = 1}^n\big[F(\mathbf{x}_i)\big]^2}.
+<p>If there are no interactions involving <span class="math inline"><em>x</em><sub><em>j</em></sub></span>, we can decompose the prediction function <span class="math inline"><em>F</em></span> into the sum of the partial dependence <span class="math inline"><em>F</em><sub><em>j</em></sub></span> on <span class="math inline"><em>x</em><sub><em>j</em></sub></span> and the partial dependence <span class="math inline"><em>F</em><sub>\<em>j</em></sub></span> on all other features <span class="math inline"><strong>x</strong><sub>\<em>j</em></sub></span>, i.e.,</p>
+<p><span class="math display"><em>F</em>(<strong>x</strong>) = <em>F</em><sub><em>j</em></sub>(<em>x</em><sub><em>j</em></sub>) + <em>F</em><sub>\<em>j</em></sub>(<strong>x</strong><sub>\<em>j</em></sub>).</span></p>
+<p>Correspondingly, Friedman and Popescu’s <span class="math inline"><em>H</em><sub><em>j</em></sub><sup>2</sup></span> statistic of overall interaction strength is given by</p>
+<p><span class="math display">$$
+    H_{j}^2 = \frac{\frac{1}{n} \sum_{i = 1}^n\big[F(\boldsymbol x_i) - \hat F_j(x_{ij}) - \hat F_{\setminus j}(\boldsymbol x_{i\setminus k})\big]^2}{\frac{1}{n} \sum_{i = 1}^n\big[F(\boldsymbol x_i)\big]^2}.
 $$</span></p>
 <p><strong>Remarks</strong></p>
 <ol style="list-style-type: decimal">
-<li>Partial dependence functions are all centered to mean 0.</li>
-<li>Partial dependence functions are evaluated over the data distribution of the feature values, unlike with partial dependence plots, where one uses a fixed grid.</li>
+<li>Partial dependence functions (and <span class="math inline"><em>F</em></span>) are all centered to mean 0.</li>
+<li>Partial dependence functions (and <span class="math inline"><em>F</em></span>) are evaluated over the data distribution. This is different to partial dependence plots, where one uses a fixed grid.</li>
 <li>Weighted versions follow by replacing all arithmetic means by corresponding weighted means.</li>
 <li>Multivariate predictions can be treated in a component-wise manner.</li>
 <li>
-<span class="math inline"><em>H</em><sub><em>j</em></sub> = 0</span> means there are no interactions associated with <span class="math inline"><em>x</em><sub><em>j</em></sub></span>. The higher the value, the more prediction variability comes from interactions with <span class="math inline"><em>x</em><sub><em>j</em></sub></span>.</li>
+<span class="math inline"><em>H</em><sub><em>j</em></sub><sup>2</sup> = 0</span> means there are no interactions associated with <span class="math inline"><em>x</em><sub><em>j</em></sub></span>. The higher the value, the more prediction variability comes from interactions with <span class="math inline"><em>x</em><sub><em>j</em></sub></span>.</li>
 <li>Since the denominator is the same for all features, the values of the test statistics can be compared across features.</li>
 </ol>
 </div>
 <div class="section level3">
 <h3 id="pairwise-interaction-strength">Pairwise interaction strength<a class="anchor" aria-label="anchor" href="#pairwise-interaction-strength"></a>
 </h3>
-<p>Again following [2], if there are no interaction effects between features <span class="math inline"><em>x</em><sub><em>j</em></sub></span> and <span class="math inline"><em>x</em><sub><em>k</em></sub></span>, their two-dimensional partial dependence function <span class="math inline"><em>F</em><sub><em>j</em><em>k</em></sub></span> can be written as the sum of the univariate partial dependencies, i.e., <span class="math display"><em>F</em><sub><em>j</em><em>k</em></sub>(<em>x</em><sub><em>j</em></sub>,<em>x</em><sub><em>k</em></sub>) = <em>F</em><sub><em>j</em></sub>(<em>x</em><sub><em>j</em></sub>) + <em>F</em><sub><em>k</em></sub>(<em>x</em><sub><em>k</em></sub>).</span> Correspondingly, Friedman and Popescu’s <span class="math inline"><em>H</em><sub><em>j</em><em>k</em></sub><sup>2</sup></span> statistic of pairwise interaction strength can be written as <span class="math display">$$
-    H_{jk}^2 = \frac{\textrm{Numerator}_{jk}}{\textrm{Denominator}_{jk}},
-$$</span> where <span class="math display">$$
-  {\textrm{Numerator}_{jk}} = \frac{1}{n} \sum_{i = 1}^n\big[\hat F_{jk}(x_{ij}, x_{ik}) - \hat F_j(x_{ij}) - \hat F_k(x_{ik})\big]^2
-$$</span> and <span class="math display">$$
-  {\textrm{Denominator}_{jk}} = \frac{1}{n} \sum_{i = 1}^n\big[\hat F_{jk}(x_{ij}, x_{ik})\big]^2.
+<p>Again following [2], if there are no interaction effects between features <span class="math inline"><em>x</em><sub><em>j</em></sub></span> and <span class="math inline"><em>x</em><sub><em>k</em></sub></span>, their two-dimensional partial dependence function <span class="math inline"><em>F</em><sub><em>j</em><em>k</em></sub></span> can be written as the sum of the univariate partial dependencies, i.e.,</p>
+<p><span class="math display"><em>F</em><sub><em>j</em><em>k</em></sub>(<em>x</em><sub><em>j</em></sub>,<em>x</em><sub><em>k</em></sub>) = <em>F</em><sub><em>j</em></sub>(<em>x</em><sub><em>j</em></sub>) + <em>F</em><sub><em>k</em></sub>(<em>x</em><sub><em>k</em></sub>).</span></p>
+<p>Correspondingly, Friedman and Popescu’s <span class="math inline"><em>H</em><sub><em>j</em><em>k</em></sub><sup>2</sup></span> statistic of pairwise interaction strength is defined as</p>
+<p><span class="math display">$$
+  H_{jk}^2 = \frac{A_{jk}}{B_{jk}},
+$$</span></p>
+<p>where</p>
+<p><span class="math display">$$
+  A_{jk} = \frac{1}{n} \sum_{i = 1}^n\big[\hat F_{jk}(x_{ij}, x_{ik}) - \hat F_j(x_{ij}) - \hat F_k(x_{ik})\big]^2
+$$</span></p>
+<p>and</p>
+<p><span class="math display">$$
+  B_{jk} = \frac{1}{n} \sum_{i = 1}^n\big[\hat F_{jk}(x_{ij}, x_{ik})\big]^2.
 $$</span></p>
 <p><strong>Remarks</strong></p>
 <ol style="list-style-type: decimal">
-<li>Remarks 1–4 of <span class="math inline"><em>H</em><sub><em>j</em></sub><sup>2</sup></span> also apply here.</li>
+<li>Remarks 1 to 4 of <span class="math inline"><em>H</em><sub><em>j</em></sub><sup>2</sup></span> also apply here.</li>
 <li>
-<span class="math inline"><em>H</em><sub><em>j</em><em>k</em></sub> = 0</span> means there are no interaction effects between <span class="math inline"><em>x</em><sub><em>j</em></sub></span> and <span class="math inline"><em>x</em><sub><em>k</em></sub></span>. The larger the value, the more of the joint effect of the two features comes from the interaction.</li>
-<li>Since the denominator differs between variable pairs, unlike <span class="math inline"><em>H</em><sub><em>j</em></sub></span>, this test statistic is difficult to be compared across variable pairs. If both main effects are very weak, a similarly weak interaction can get a high value in <span class="math inline"><em>H</em><sub><em>j</em><em>k</em></sub></span>. Therefore, [2] suggests to calculate <span class="math inline"><em>H</em><sub><em>j</em><em>k</em></sub></span> only for <em>important</em> variables. \end{enumerate}</li>
+<span class="math inline"><em>H</em><sub><em>j</em><em>k</em></sub><sup>2</sup> = 0</span> means there are no interaction effects between <span class="math inline"><em>x</em><sub><em>j</em></sub></span> and <span class="math inline"><em>x</em><sub><em>k</em></sub></span>. The larger the value, the more of the joint effect of the two features comes from the interaction.</li>
+<li>Since the denominator differs between variable pairs, unlike <span class="math inline"><em>H</em><sub><em>j</em></sub></span>, this test statistic is difficult to compare between variable pairs. If both main effects are very weak, a negligible interaction can get a high <span class="math inline"><em>H</em><sub><em>j</em><em>k</em></sub><sup>2</sup></span>.</li>
 </ol>
-<p><strong>Alternatives</strong></p>
-<p>To be able to compare pairwise interaction strength across variable pairs, and to overcome the problem mentioned in the last remark, we suggest as alternative a different denominator, namely the same as used for <span class="math inline"><em>H</em><sub><em>j</em></sub></span>: <span class="math display">$$
-  \tilde H^2_{jk} = \frac{\mathrm{Numerator}_{jk}}{{\frac{1}{n} \sum_{i = 1}^n\big[F(\mathbf{x}_i)\big]^2}}.
-$$</span> This statistic would tell us how much of the total variance of the predictions comes from the pairwise interaction of <span class="math inline"><em>x</em><sub><em>j</em></sub></span> and <span class="math inline"><em>x</em><sub><em>k</em></sub></span>.</p>
-<p>Another possibility would be to use the unnormalized test statistic on the scale of the predictions, i.e., <span class="math inline">$\sqrt{\mathrm{Numerator}_{jk}}$</span>.</p>
+<p><strong>Modification</strong></p>
+<p>To be better able to compare pairwise interaction strength across variable pairs, and to overcome the problem mentioned in the last remark, we suggest as alternative the unnormalized test statistic on the scale of the predictions, i.e., <span class="math inline">$\sqrt{A_{jk}}$</span>.</p>
+<p>Furthermore, we do pairwise calculations not for the most <em>important</em> features but rather for those features with <em>strongest overall interactions</em>.</p>
 </div>
 <div class="section level3">
 <h3 id="total-interaction-strength-of-all-variables-together">Total interaction strength of all variables together<a class="anchor" aria-label="anchor" href="#total-interaction-strength-of-all-variables-together"></a>
 </h3>
-<p>In the same spirit of [2], we can say: if the model is additive in all features (there are no interactions at all), then <span class="math display">$$
-    F(\mathbf{x}) = \sum_{j}^{p} F_j(x_j).
-$$</span> To measure the relative amount of variability explained by all interactions, we can therefore study the test statistic of total interaction strength <span class="math display">$$
-  H = \frac{ {\frac{1}{n} \sum_{i = 1}^n \big[F(\mathbf{x}_i) - \sum_{j = 1}^p\hat F_j(x_{ij})\big]^2}}{{\frac{1}{n} \sum_{i = 1}^n\big[F(\mathbf{x}_i)\big]^2}}.
-$$</span> It equals the variability of the predictions unexplained by the main effects. A value of 0 would mean there are no interaction effects at all.</p>
+<p>If the model is additive in all features (no interactions), then</p>
+<p><span class="math display">$$
+    F(\boldsymbol x) = \sum_{j}^{p} F_j(x_j).
+$$</span></p>
+<p>To measure the relative amount of variability explained by all interactions, we can therefore study the test statistic of total interaction strength</p>
+<p><span class="math display">$$
+  H^2 = \frac{\frac{1}{n} \sum_{i = 1}^n \left[F(\boldsymbol x_i) - \sum_{j = 1}^p\hat F_j(x_{ij})\right]^2}{\frac{1}{n} \sum_{i = 1}^n\left[F(\boldsymbol x_i)\right]^2}.
+$$</span></p>
+<p>It equals the variability of the predictions unexplained by the main effects. A value of 0 would mean there are no interaction effects at all.</p>
 </div>
 <div class="section level3">
 <h3 id="workflow">Workflow<a class="anchor" aria-label="anchor" href="#workflow"></a>
 </h3>
-<p>Calculation of all <span class="math inline"><em>H</em><sub><em>j</em></sub><sup>2</sup></span> statistics requires <span class="math inline"><em>O</em>(2<em>n</em><sup>2</sup><em>p</em>)</span> predictions, while calculating of all pairwise <span class="math inline"><em>H</em><sub><em>j</em><em>k</em></sub></span> requires <span class="math inline"><em>O</em>(<em>n</em><sup>2</sup>(<em>p</em>(<em>p</em>−1)/2)</span> predictions. Therefore, we suggest to reduce the workflow in two important ways:</p>
+<p>Calculation of all <span class="math inline"><em>H</em><sub><em>j</em></sub><sup>2</sup></span> statistics requires <span class="math inline"><em>O</em>(<em>n</em><sup>2</sup><em>p</em>)</span> predictions, while calculating of all pairwise <span class="math inline"><em>H</em><sub><em>j</em><em>k</em></sub></span> requires <span class="math inline"><em>O</em>(<em>n</em><sup>2</sup><em>p</em><sup>2</sup></span> predictions. Therefore, we suggest to reduce the workflow in two important ways:</p>
 <ol style="list-style-type: decimal">
 <li>Evaluate the statistics only on a subset of the data, e.g., on <span class="math inline"><em>n</em>′ = 300</span> observations.</li>
-<li>Calculate <span class="math inline"><em>H</em><sub><em>j</em></sub><sup>2</sup></span> for all features. Then, select a small number <span class="math inline"><em>m</em></span> of features with highest <span class="math inline"><em>H</em><sub><em>j</em></sub></span> and limit pairwise calculations to this subset.</li>
+<li>Calculate <span class="math inline"><em>H</em><sub><em>j</em></sub><sup>2</sup></span> for all features. Then, select a small number <span class="math inline">$m = O(\sqrt{p})$</span> of features with highest <span class="math inline"><em>H</em><sub><em>j</em></sub><sup>2</sup></span> and do pairwise calculations only on this subset.</li>
 </ol>
-<p>In this way, we need <span class="math inline"><em>O</em>(2<em>n</em>′<sup>2</sup><em>p</em>)</span> predictions to calculate all <span class="math inline"><em>H</em><sub><em>j</em></sub><sup>2</sup></span>, and then <span class="math inline"><em>O</em>(<em>n</em>′<sup>2</sup>(<em>m</em>(<em>m</em>−1)/2)</span> predictions for the pairwise considerations.</p>
+<p>This leads to a total number of <span class="math inline"><em>O</em>(<em>n</em>′<sup>2</sup><em>p</em>)</span> predictions.</p>
 </div>
 </div>
 <div class="section level2">
