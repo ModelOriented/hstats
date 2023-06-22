@@ -30,10 +30,6 @@ Note: The {gbm} package offers a model-specific implementation of some of the st
 ## Installation
 
 ```r
-# From CRAN
-install.packages("interactML")
-
-# Or the development version:
 devtools::install_github("mayer79/interactML")
 ```
 
@@ -105,12 +101,11 @@ system.time(
 summary(inter)
 
 # Output
-Proportion of prediction variability explained by interactions:
+Proportion of prediction variability explained by interactions
          y 
 0.09602024 
 
-Friedman and Popescu's H^2_j of overall interaction
-(Features with strongest overall interactions)
+Strongest overall interactions
                             y
 OCEAN_DIST        0.062639450
 LONGITUDE         0.045194768
@@ -123,8 +118,8 @@ LND_SQFOOT        0.000000000
 structure_quality 0.000000000
 age               0.000000000
 
-Friedman and Popescu's H^2_jk of pairwise interaction
-(Relative interaction strength for features with high H^2_j)
+Strongest relative pairwise interactions
+(only for features with strong overall interactions)
                                y
 LONGITUDE:OCEAN_DIST 0.156475264
 LONGITUDE:CNTR_DIST  0.122113602

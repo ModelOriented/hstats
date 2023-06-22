@@ -269,17 +269,16 @@ summary.interact <- function(object, n = 10L, ...) {
   h2_j <- H2_j(object)
   h2_jk <- H2_jk(object)
   
-  cat("Proportion of prediction variability explained by interactions:\n")
+  cat("Proportion of prediction variability explained by interactions\n")
   print(h2)
   cat("\n")
   
-  cat("Friedman and Popescu's H^2_j of overall interaction\n")
-  cat("(Features with strongest overall interactions)\n")
+  cat("Strongest overall interactions\n")
   print(utils::head(h2_j, n))
   cat("\n")
   
-  cat("Friedman and Popescu's H^2_jk of pairwise interaction\n")
-  cat("(Relative interaction strength for features with high H^2_j)\n")
+  cat("Strongest relative pairwise interactions\n")
+  cat("(only for features with strong overall interactions)\n")
   print(utils::head(h2_jk, n))
   cat("\n")
   invisible(list(H2 = h2, H2_j = h2_j, H2_jk = h2_jk))
