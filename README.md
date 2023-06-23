@@ -86,6 +86,7 @@ fit <- xgb.train(
   nrounds = 1000,
   callbacks = list(cb.print.evaluation(period = 100))
 )
+
 ```
 
 ### Analyze interactions 
@@ -96,7 +97,7 @@ We will now do two things:
 2. Get statistics with `summary()`.
 
 ```r
-# 2 seconds on simple laptop - a random forest will take 1-2 minutes
+# 2-3 seconds on simple laptop - a random forest will take 1-2 minutes
 set.seed(1)
 system.time(
   inter <- interact(fit, v = x, X = X_train)
@@ -106,11 +107,10 @@ summary(inter)
 
 # Output
 Proportion of prediction variability explained by interactions
-         y 
 0.09602024 
 
 Strongest overall interactions
-                            y
+                         [,1]
 OCEAN_DIST        0.062639450
 LONGITUDE         0.045194768
 LATITUDE          0.029151873
@@ -124,7 +124,7 @@ age               0.000000000
 
 Strongest relative pairwise interactions
 (only for features with strong overall interactions)
-                               y
+                            [,1]
 LONGITUDE:OCEAN_DIST 0.156475264
 LONGITUDE:CNTR_DIST  0.122113602
 LATITUDE:LONGITUDE   0.076213847
@@ -153,7 +153,7 @@ Strongest pairwise interactions (values on the scale of the response log(price))
 
 ```r
 H2_jk(inter, normalize = FALSE, squared = FALSE, top_m = 5)
-                              y
+                           [,1]
 LONGITUDE:OCEAN_DIST 0.08279401
 LATITUDE:OCEAN_DIST  0.04797644
 LONGITUDE:CNTR_DIST  0.04796194

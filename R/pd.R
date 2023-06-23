@@ -82,9 +82,9 @@ partial_dep <- function(object, ...) {
 #' @describeIn partial_dep Default method.
 #' @export
 partial_dep.default <- function(object, v, X, pred_fun = stats::predict,
-                       grid = NULL, grid_size = 36L, trim = c(0.01, 0.99), 
-                       strategy = c("quantile", "uniform"), 
-                       n_max = 1000L, w = NULL, ...) {
+                                grid = NULL, grid_size = 36L, trim = c(0.01, 0.99), 
+                                strategy = c("quantile", "uniform"), 
+                                n_max = 1000L, w = NULL, ...) {
   basic_check(X = X, v = v, pred_fun = pred_fun, w = w)
   
   if (is.null(grid)) {
@@ -115,6 +115,12 @@ partial_dep.default <- function(object, v, X, pred_fun = stats::predict,
     compress_grid = FALSE,  # Almost always unique, so we save a check for uniqueness
     ...
   )
+  if (is.null(colnames(pd))) {
+    K <- ncol(pd)
+    colnames(pd) <- if (K == 1L) "y" else paste0("y", seq_len(K))
+  }
+  
+  # Organize output
   if (!is.data.frame(grid) && !is.matrix(grid)) {
     grid <- stats::setNames(as.data.frame(grid), v)
   }

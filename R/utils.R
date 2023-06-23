@@ -1,6 +1,6 @@
 #' Aligns Predictions
 #' 
-#' Turns predictions into matrix with column names.
+#' Turns predictions into matrix.
 #' 
 #' @noRd
 #' @keywords internal
@@ -13,10 +13,6 @@ align_pred <- function(x) {
   }
   if (!is.numeric(x)) {
     stop("Predictions must be numeric")
-  }
-  if (is.null(colnames(x))) {
-    p <- ncol(x)
-    colnames(x) <- if (p == 1L) "y" else paste0("y", seq_len(p))
   }
   x
 }
