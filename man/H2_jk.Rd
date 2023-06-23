@@ -110,8 +110,6 @@ H2_jk(inter)
 H2_jk(inter, normalize = FALSE, squared = FALSE)  
 
 \dontrun{
-H2_jk(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
-
 # MODEL TWO: Multi-response linear regression
 fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
 v <- c("Petal.Length", "Petal.Width", "Species")

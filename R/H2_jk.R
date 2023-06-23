@@ -68,8 +68,6 @@
 #' H2_jk(inter, normalize = FALSE, squared = FALSE)  
 #' 
 #' \dontrun{
-#' H2_jk(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
-#' 
 #' # MODEL TWO: Multi-response linear regression
 #' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
 #' v <- c("Petal.Length", "Petal.Width", "Species")
@@ -93,8 +91,9 @@ H2_jk.interact <- function(object, normalize = TRUE, squared = TRUE, sort = TRUE
   combs <- object[["combs"]]
   n_combs <- length(combs)
   nms <- colnames(object[["f"]])
+  p <- ncol(object[["f"]])
   num <- denom <- matrix(
-    nrow = n_combs, ncol = length(nms), dimnames = list(names(combs), nms)
+    nrow = n_combs, ncol = p, dimnames = list(names(combs), nms)
   )
   for (i in seq_len(n_combs)) {
     z <- combs[[i]]

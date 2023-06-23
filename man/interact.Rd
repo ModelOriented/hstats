@@ -85,7 +85,7 @@ partial dependence functions \eqn{F_j}.
 functions \eqn{F_{\setminus j}} of other features.
 \item \code{F_jk}: List of matrices, each representing (centered) bivariate
 partial dependence functions \eqn{F_{jk}}.
-\item \code{w}: Same as input `w.
+\item \code{w}: Same as input \code{w}.
 \item \code{v}: Same as input \code{v}.
 \item \code{v_pairwise}: Subset of \code{v} with largest \code{H2_j} used for pairwise calculations.
 \item \code{combs}: Named list of variable pairs for which pairwise partial

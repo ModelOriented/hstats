@@ -29,7 +29,7 @@
 #'     functions \eqn{F_{\setminus j}} of other features.
 #'   - `F_jk`: List of matrices, each representing (centered) bivariate 
 #'     partial dependence functions \eqn{F_{jk}}.
-#'   - `w`: Same as input `w.
+#'   - `w`: Same as input `w`.
 #'   - `v`: Same as input `v`.
 #'   - `v_pairwise`: Subset of `v` with largest `H2_j` used for pairwise calculations.
 #'   - `combs`: Named list of variable pairs for which pairwise partial 
