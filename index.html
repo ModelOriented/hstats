@@ -165,7 +165,7 @@
 <li>Call <code><a href="reference/interact.html">interact()</a></code> for the expensive crunching.</li>
 <li>Get statistics with <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>.</li>
 </ol>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 2 seconds on simple laptop - a random forest will take 1-2 minutes</span></span>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 2-3 seconds on simple laptop - a random forest will take 1-2 minutes</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">system.time</span>(</span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  inter <span class="ot">&lt;-</span> <span class="fu">interact</span>(fit, <span class="at">v =</span> x, <span class="at">X =</span> X_train)</span>
@@ -175,35 +175,34 @@
 <span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Output</span></span>
 <span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>Proportion of prediction variability explained by interactions</span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>         y </span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="fl">0.09602024</span> </span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>Strongest overall interactions</span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>                            y</span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>OCEAN_DIST        <span class="fl">0.062639450</span></span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>LONGITUDE         <span class="fl">0.045194768</span></span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>LATITUDE          <span class="fl">0.029151873</span></span>
-<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>CNTR_DIST         <span class="fl">0.027695769</span></span>
-<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>RAIL_DIST         <span class="fl">0.003805603</span></span>
-<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>HWY_DIST          <span class="fl">0.003484982</span></span>
-<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>TOT_LVG_AREA      <span class="fl">0.000000000</span></span>
-<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>LND_SQFOOT        <span class="fl">0.000000000</span></span>
-<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>structure_quality <span class="fl">0.000000000</span></span>
-<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>age               <span class="fl">0.000000000</span></span>
-<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>Strongest relative pairwise interactions</span>
-<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>(only <span class="cf">for</span> features with strong overall interactions)</span>
-<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>                               y</span>
-<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>LONGITUDE<span class="sc">:</span>OCEAN_DIST <span class="fl">0.156475264</span></span>
-<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>LONGITUDE<span class="sc">:</span>CNTR_DIST  <span class="fl">0.122113602</span></span>
-<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>LATITUDE<span class="sc">:</span>LONGITUDE   <span class="fl">0.076213847</span></span>
-<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>LATITUDE<span class="sc">:</span>OCEAN_DIST  <span class="fl">0.061130256</span></span>
-<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>CNTR_DIST<span class="sc">:</span>OCEAN_DIST <span class="fl">0.040675335</span></span>
-<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>LATITUDE<span class="sc">:</span>RAIL_DIST   <span class="fl">0.030786973</span></span>
-<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>LATITUDE<span class="sc">:</span>CNTR_DIST   <span class="fl">0.029474763</span></span>
-<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>CNTR_DIST<span class="sc">:</span>RAIL_DIST  <span class="fl">0.012886536</span></span>
-<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>LONGITUDE<span class="sc">:</span>RAIL_DIST  <span class="fl">0.008402545</span></span>
-<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>OCEAN_DIST<span class="sc">:</span>RAIL_DIST <span class="fl">0.007081773</span></span></code></pre></div>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="fl">0.09602024</span> </span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>Strongest overall interactions</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>                         [,<span class="dv">1</span>]</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>OCEAN_DIST        <span class="fl">0.062639450</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>LONGITUDE         <span class="fl">0.045194768</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>LATITUDE          <span class="fl">0.029151873</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>CNTR_DIST         <span class="fl">0.027695769</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>RAIL_DIST         <span class="fl">0.003805603</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>HWY_DIST          <span class="fl">0.003484982</span></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>TOT_LVG_AREA      <span class="fl">0.000000000</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>LND_SQFOOT        <span class="fl">0.000000000</span></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>structure_quality <span class="fl">0.000000000</span></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>age               <span class="fl">0.000000000</span></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>Strongest relative pairwise interactions</span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>(only <span class="cf">for</span> features with strong overall interactions)</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>                            [,<span class="dv">1</span>]</span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>LONGITUDE<span class="sc">:</span>OCEAN_DIST <span class="fl">0.156475264</span></span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>LONGITUDE<span class="sc">:</span>CNTR_DIST  <span class="fl">0.122113602</span></span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>LATITUDE<span class="sc">:</span>LONGITUDE   <span class="fl">0.076213847</span></span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>LATITUDE<span class="sc">:</span>OCEAN_DIST  <span class="fl">0.061130256</span></span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>CNTR_DIST<span class="sc">:</span>OCEAN_DIST <span class="fl">0.040675335</span></span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>LATITUDE<span class="sc">:</span>RAIL_DIST   <span class="fl">0.030786973</span></span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>LATITUDE<span class="sc">:</span>CNTR_DIST   <span class="fl">0.029474763</span></span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>CNTR_DIST<span class="sc">:</span>RAIL_DIST  <span class="fl">0.012886536</span></span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>LONGITUDE<span class="sc">:</span>RAIL_DIST  <span class="fl">0.008402545</span></span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>OCEAN_DIST<span class="sc">:</span>RAIL_DIST <span class="fl">0.007081773</span></span></code></pre></div>
 <p><strong>Comments:</strong></p>
 <ul>
 <li>About 10% of prediction variability comes from interaction effects.</li>
@@ -218,7 +217,7 @@
 </ol>
 <p>Strongest pairwise interactions (values on the scale of the response log(price)):</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">H2_jk</span>(inter, <span class="at">normalize =</span> <span class="cn">FALSE</span>, <span class="at">squared =</span> <span class="cn">FALSE</span>, <span class="at">top_m =</span> <span class="dv">5</span>)</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>                              y</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>                           [,<span class="dv">1</span>]</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>LONGITUDE<span class="sc">:</span>OCEAN_DIST <span class="fl">0.08279401</span></span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>LATITUDE<span class="sc">:</span>OCEAN_DIST  <span class="fl">0.04797644</span></span>
 <span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>LONGITUDE<span class="sc">:</span>CNTR_DIST  <span class="fl">0.04796194</span></span>

@@ -88,11 +88,10 @@
 <span class="r-in"><span><span class="va">inter</span> <span class="op">&lt;-</span> <span class="fu"><a href="interact.html">interact</a></span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">iris</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span>, X <span class="op">=</span> <span class="va">iris</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">inter</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Proportion of prediction variability explained by interactions</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         y </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 0.0502364 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.0502364</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Strongest overall interactions</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                      y</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                   [,1]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Species      0.0502364</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Width  0.0502364</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Sepal.Width  0.0000000</span>
@@ -100,18 +99,17 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Strongest relative pairwise interactions</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> (only for features with strong overall interactions)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                              y</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                           [,1]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Width:Species 0.05546172</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># summary() returns list of statistics</span></span></span>
 <span class="r-in"><span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">inter</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Proportion of prediction variability explained by interactions</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         y </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 0.0502364 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.0502364</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Strongest overall interactions</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                      y</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                   [,1]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Species      0.0502364</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Width  0.0502364</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Sepal.Width  0.0000000</span>
@@ -119,11 +117,11 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Strongest relative pairwise interactions</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> (only for features with strong overall interactions)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                              y</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                           [,1]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Width:Species 0.05546172</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span><span class="va">s</span><span class="op">$</span><span class="va">H2_j</span>  <span class="co"># same as H2_j(inter)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                      y</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                   [,1]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Species      0.0502364</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Width  0.0502364</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Sepal.Width  0.0000000</span>
