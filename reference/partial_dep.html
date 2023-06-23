@@ -63,10 +63,12 @@ grid of values. Both multivariate and multivariable situations are supported.</p
 <span>  <span class="va">v</span>,</span>
 <span>  <span class="va">X</span>,</span>
 <span>  pred_fun <span class="op">=</span> <span class="fu">stats</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span>,</span>
+<span>  BY <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  by_size <span class="op">=</span> <span class="fl">5L</span>,</span>
 <span>  grid <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  grid_size <span class="op">=</span> <span class="fl">36L</span>,</span>
 <span>  trim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.01</span>, <span class="fl">0.99</span><span class="op">)</span>,</span>
-<span>  strategy <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"quantile"</span>, <span class="st">"uniform"</span><span class="op">)</span>,</span>
+<span>  strategy <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"uniform"</span>, <span class="st">"quantile"</span><span class="op">)</span>,</span>
 <span>  n_max <span class="op">=</span> <span class="fl">1000L</span>,</span>
 <span>  w <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">...</span></span>
@@ -78,10 +80,12 @@ grid of values. Both multivariate and multivariable situations are supported.</p
 <span>  <span class="va">v</span>,</span>
 <span>  <span class="va">X</span>,</span>
 <span>  pred_fun <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">m</span>, <span class="va">X</span>, <span class="va">...</span><span class="op">)</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">m</span>, <span class="va">X</span>, <span class="va">...</span><span class="op">)</span><span class="op">$</span><span class="va">predictions</span>,</span>
+<span>  BY <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  by_size <span class="op">=</span> <span class="fl">5L</span>,</span>
 <span>  grid <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  grid_size <span class="op">=</span> <span class="fl">36L</span>,</span>
 <span>  trim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.01</span>, <span class="fl">0.99</span><span class="op">)</span>,</span>
-<span>  strategy <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"quantile"</span>, <span class="st">"uniform"</span><span class="op">)</span>,</span>
+<span>  strategy <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"uniform"</span>, <span class="st">"quantile"</span><span class="op">)</span>,</span>
 <span>  n_max <span class="op">=</span> <span class="fl">1000L</span>,</span>
 <span>  w <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">...</span></span>
@@ -93,10 +97,12 @@ grid of values. Both multivariate and multivariable situations are supported.</p
 <span>  <span class="va">v</span>,</span>
 <span>  <span class="va">X</span>,</span>
 <span>  pred_fun <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">m</span>, <span class="va">X</span><span class="op">)</span> <span class="va">m</span><span class="op">$</span><span class="fu">predict_newdata</span><span class="op">(</span><span class="va">X</span><span class="op">)</span><span class="op">$</span><span class="va">response</span>,</span>
+<span>  BY <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  by_size <span class="op">=</span> <span class="fl">5L</span>,</span>
 <span>  grid <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  grid_size <span class="op">=</span> <span class="fl">36L</span>,</span>
 <span>  trim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.01</span>, <span class="fl">0.99</span><span class="op">)</span>,</span>
-<span>  strategy <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"quantile"</span>, <span class="st">"uniform"</span><span class="op">)</span>,</span>
+<span>  strategy <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"uniform"</span>, <span class="st">"quantile"</span><span class="op">)</span>,</span>
 <span>  n_max <span class="op">=</span> <span class="fl">1000L</span>,</span>
 <span>  w <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">...</span></span>
@@ -131,6 +137,18 @@ model <code>object</code>, its second argument a data structure like <code>X</co
 matrix of predictions will be used as default column names in the results.</p></dd>
 
 
+<dt>BY</dt>
+<dd><p>Optional grouping vector. Calculated after detemination of grid, but
+before subsampling <code>X</code> to <code>n_max</code> rows (this is done within unique values of <code>BY</code>).
+Numeric <code>BY</code> with more than <code>by_size</code> unique values are binned via <code><a href="https://rdrr.io/r/base/cut.html" class="external-link">cut()</a></code>.
+Note that the same grid is used for each <code>BY</code> group to easier spot additivity.</p></dd>
+
+
+<dt>by_size</dt>
+<dd><p>Numeric <code>BY</code> values with more than this number of unique values will
+be binned via <code><a href="https://rdrr.io/r/base/cut.html" class="external-link">cut()</a></code>. Only relevant if <code>BY</code> is not <code>NULL</code>.</p></dd>
+
+
 <dt>grid</dt>
 <dd><p>Optional evaluation grid in line with <code>v</code>.</p></dd>
 
@@ -147,7 +165,7 @@ before calculations. Set to <code>c(0, 1)</code> for no trimming.</p></dd>
 
 <dt>strategy</dt>
 <dd><p>How to find evaluation points of non-discrete numeric columns?
-Either "quantile" or "uniform" (via <code><a href="https://rdrr.io/r/base/pretty.html" class="external-link">pretty()</a></code>), see description of
+Either "uniform" (via <code><a href="https://rdrr.io/r/base/pretty.html" class="external-link">pretty()</a></code>) or "quantile", see description of
 <code><a href="univariate_grid.html">univariate_grid()</a></code>.</p></dd>
 
 
@@ -208,15 +226,28 @@ Annals of Statistics 29, no. 5 (2001): 1189-1232.</p>
     <div id="ref-examples">
     <h2>Examples</h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># MODEL ONE: Linear regression</span></span></span>
-<span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="va">Sepal.Length</span> <span class="op">~</span> <span class="va">.</span>, data <span class="op">=</span> <span class="va">iris</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="va">Sepal.Length</span> <span class="op">~</span> <span class="va">.</span> <span class="op">+</span> <span class="va">Species</span> <span class="op">*</span> <span class="va">Petal.Length</span>, data <span class="op">=</span> <span class="va">iris</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">pd</span> <span class="op">&lt;-</span> <span class="fu">partial_dep</span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="st">"Species"</span>, X <span class="op">=</span> <span class="va">iris</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">pd</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> First partial dependence rows (use x$pd to extract all)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      Species        y</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1     setosa 6.425687</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 versicolor 5.702125</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3  virginica 5.402189</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1     setosa 5.476540</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 versicolor 5.748857</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3  virginica 5.207491</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Stratified by numeric BY variable (which is automatically binned)</span></span></span>
+<span class="r-in"><span><span class="va">pd</span> <span class="op">&lt;-</span> <span class="fu">partial_dep</span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="st">"Species"</span>, X <span class="op">=</span> <span class="va">iris</span>, BY <span class="op">=</span> <span class="va">iris</span><span class="op">$</span><span class="va">Petal.Length</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">pd</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> First partial dependence rows (use x$pd to extract all)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             BY    Species        y</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 (0.994,2.18]     setosa 5.006000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 (0.994,2.18] versicolor 4.522112</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 (0.994,2.18]  virginica 3.544445</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4  (4.54,5.72]     setosa 5.782591</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5  (4.54,5.72] versicolor 6.504613</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6  (4.54,5.72]  virginica 6.222711</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Multivariable input</span></span></span>
 <span class="r-in"><span><span class="va">pd</span> <span class="op">&lt;-</span> <span class="fu">partial_dep</span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Species"</span>, <span class="st">"Petal.Width"</span><span class="op">)</span>, X <span class="op">=</span> <span class="va">iris</span><span class="op">)</span></span></span>
@@ -224,26 +255,41 @@ Annals of Statistics 29, no. 5 (2001): 1189-1232.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> First partial dependence rows (use x$pd to extract all)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      Species Petal.Width        y</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1     setosa         0.1 6.772147</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 versicolor         0.1 6.048585</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3  virginica         0.1 5.748649</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4     setosa         0.2 6.740632</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5 versicolor         0.2 6.017070</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6  virginica         0.2 5.717134</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1     setosa         0.0 5.813992</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 versicolor         0.0 6.086309</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3  virginica         0.0 5.544943</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4     setosa         0.5 5.673309</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 versicolor         0.5 5.945626</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6  virginica         0.5 5.404260</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># MODEL TWO: Multi-response linear regression</span></span></span>
-<span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">iris</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span> <span class="op">~</span> <span class="va">Petal.Length</span> <span class="op">+</span> <span class="va">Petal.Width</span> <span class="op">+</span> <span class="va">Species</span>, data <span class="op">=</span> <span class="va">iris</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">pd</span> <span class="op">&lt;-</span> <span class="fu">partial_dep</span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="st">"Petal.Width"</span>, X <span class="op">=</span> <span class="va">iris</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">iris</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span> <span class="op">~</span> <span class="va">Petal.Length</span> <span class="op">+</span> <span class="va">Petal.Width</span> <span class="op">*</span> <span class="va">Species</span>, data <span class="op">=</span> <span class="va">iris</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">pd</span> <span class="op">&lt;-</span> <span class="fu">partial_dep</span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="st">"Petal.Width"</span>, X <span class="op">=</span> <span class="va">iris</span>, BY <span class="op">=</span> <span class="va">iris</span><span class="op">$</span><span class="va">Species</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">pd</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> First partial dependence rows (use x$pd to extract all)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Petal.Width Sepal.Length Sepal.Width</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1         0.1     5.849924    2.371959</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2         0.2     5.849325    2.434303</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3         0.3     5.848725    2.496648</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4         0.4     5.848126    2.558992</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5         0.5     5.847526    2.621337</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6         0.6     5.846927    2.683682</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       BY Petal.Width Sepal.Length Sepal.Width</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 setosa         0.1     4.945174    3.316740</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 setosa         0.2     4.986836    3.392946</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 setosa         0.3     5.028497    3.469151</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 setosa         0.4     5.070159    3.545356</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 setosa         0.5     5.111821    3.621561</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6 setosa         0.6     5.153483    3.697766</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Multivariate, multivariable, and BY</span></span></span>
+<span class="r-in"><span><span class="va">pd</span> <span class="op">&lt;-</span> <span class="fu">partial_dep</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="va">fit</span>, v <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Petal.Width"</span>, <span class="st">"Petal.Length"</span><span class="op">)</span>, X <span class="op">=</span> <span class="va">iris</span>, BY <span class="op">=</span> <span class="va">iris</span><span class="op">$</span><span class="va">Species</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">pd</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> First partial dependence rows (use x$pd to extract all)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       BY Petal.Width Petal.Length Sepal.Length Sepal.Width</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 setosa         0.0            1     4.469355    3.177012</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 setosa         0.5            1     4.677664    3.558038</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 setosa         1.0            1     4.885973    3.939064</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 setosa         1.5            1     5.094282    4.320090</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 setosa         2.0            1     5.302591    4.701116</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6 setosa         2.5            1     5.510900    5.082142</span>
 <span class="r-in"><span> </span></span>
 <span class="r-in"><span><span class="co"># MODEL THREE: Gamma GLM -&gt; pass options to predict() via ...</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm</a></span><span class="op">(</span></span></span>

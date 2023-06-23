@@ -61,7 +61,7 @@ Combinations are then formed by calling <code><a href="https://rdrr.io/r/base/ex
 <span>  <span class="va">x</span>,</span>
 <span>  grid_size <span class="op">=</span> <span class="fl">36L</span>,</span>
 <span>  trim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.01</span>, <span class="fl">0.99</span><span class="op">)</span>,</span>
-<span>  strategy <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"quantile"</span>, <span class="st">"uniform"</span><span class="op">)</span></span>
+<span>  strategy <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"uniform"</span>, <span class="st">"quantile"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -83,7 +83,7 @@ before calculations. Set to <code>c(0, 1)</code> for no trimming.</p></dd>
 
 <dt>strategy</dt>
 <dd><p>How to find evaluation points of non-discrete numeric columns?
-Either "quantile" or "uniform" (via <code><a href="https://rdrr.io/r/base/pretty.html" class="external-link">pretty()</a></code>), see description of
+Either "uniform" (via <code><a href="https://rdrr.io/r/base/pretty.html" class="external-link">pretty()</a></code>) or "quantile", see description of
 <code><a href="univariate_grid.html">univariate_grid()</a></code>.</p></dd>
 
 </dl></div>
@@ -97,11 +97,19 @@ Either "quantile" or "uniform" (via <code><a href="https://rdrr.io/r/base/pretty
     <div id="ref-examples">
     <h2>Examples</h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">multivariate_grid</span><span class="op">(</span><span class="va">iris</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">]</span>, grid_size <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Sepal.Length Sepal.Width</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1          4.4         2.2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2          7.7         2.2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3          4.4         4.2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4          7.7         4.2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    Sepal.Length Sepal.Width</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1             4           2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2             6           2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3             8           2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4             4           3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5             6           3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6             8           3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7             4           4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8             6           4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9             8           4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10            4           5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11            6           5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12            8           5</span>
 <span class="r-in"><span><span class="fu">multivariate_grid</span><span class="op">(</span><span class="va">iris</span><span class="op">$</span><span class="va">Species</span><span class="op">)</span>  <span class="co"># Works also in the univariate case</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] setosa     versicolor virginica </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Levels: setosa versicolor virginica</span>
