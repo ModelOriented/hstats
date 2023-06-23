@@ -37,6 +37,11 @@
 #'   (such as `type = "response"` in a GLM) can be passed via `...`. The default, 
 #'   [stats::predict()], will work in most cases. Note that column names in a resulting
 #'   matrix of predictions will be used as default column names in the results.
+#' @param BY Optional grouping vector. Calculated after detemination of grid, but 
+#'   before subsampling `X` to `n_max` rows (this is done within unique values of `BY`).
+#'   Numeric `BY` with more than `by_size` unique values are binned via [cut()].
+#' @param by_size Numeric `BY` values with more than this number of unique values will
+#'   be binned via [cut()]. Only relevant if `BY` is not `NULL`.
 #' @param n_max If `X` has more than `n_max` rows, a random sample of `n_max` rows is
 #'   selected from `X`. In this case, set a random seed for reproducibility.
 #' @param w Optional vector of case weights for each row of `X`.
@@ -59,6 +64,10 @@
 #' pd <- partial_dep(fit, v = "Species", X = iris)
 #' pd
 #' 
+#' # Stratified by numeric BY variable (which is automatically binned)
+#' pd <- partial_dep(fit, v = "Species", X = iris, BY = iris$Sepal.Width)
+#' pd
+#' 
 #' # Multivariable input
 #' pd <- partial_dep(fit, v = c("Species", "Petal.Width"), X = iris)
 #' pd
@@ -66,6 +75,12 @@
 #' # MODEL TWO: Multi-response linear regression
 #' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width + Species, data = iris)
 #' pd <- partial_dep(fit, v = "Petal.Width", X = iris)
+#' pd
+#' 
+#' # Multivariate, multivariable, and BY
+#' pd <- partial_dep(
+#'   fit, v = c("Petal.Width", "Petal.Length"), X = iris, BY = iris$Species
+#' )
 #' pd
 #'  
 #' # MODEL THREE: Gamma GLM -> pass options to predict() via ...
@@ -81,7 +96,8 @@ partial_dep <- function(object, ...) {
 
 #' @describeIn partial_dep Default method.
 #' @export
-partial_dep.default <- function(object, v, X, pred_fun = stats::predict,
+partial_dep.default <- function(object, v, X, pred_fun = stats::predict, 
+                                BY = NULL, by_size = 5L,
                                 grid = NULL, grid_size = 36L, trim = c(0.01, 0.99), 
                                 strategy = c("quantile", "uniform"), 
                                 n_max = 1000L, w = NULL, ...) {
@@ -93,6 +109,37 @@ partial_dep.default <- function(object, v, X, pred_fun = stats::predict,
     )
   } else {
     check_grid(g = grid, v = v, X_is_matrix = is.matrix(X))
+  }
+  
+  if (!is.null(BY)) {
+    if (length(BY) != nrow(X)) {
+      stop("BY variable must have same length as X.")
+    }
+    by_values <- unique(BY)
+    if (is.numeric(BY) && length(by_values) > by_size) {
+      BY <- cut(BY, breaks = by_size)
+      by_values <- unique(BY)
+    }
+    
+    pd_list <- stats::setNames(vector("list", length = length(by_values)), by_values)
+    for (b in by_values) {
+      out <- partial_dep.default(
+        object = object, 
+        v = v, 
+        X = X[BY %in% b, , drop = FALSE], 
+        pred_fun = pred_fun,
+        grid = grid,
+        n_max = n_max, 
+        w = if (!is.null(w)) w[BY %in% b], 
+        ...
+      )
+      pd_list[[b]] <- out[["pd"]]
+    }
+    pd <- do.call(rbind, c(pd_list, list(make.row.names = FALSE)))
+    BY_rep <- rep(by_values, each = nrow(out[["pd"]]))
+    out[["pd"]] <- cbind.data.frame(BY = BY_rep, pd)
+    out[["BY"]] <- TRUE
+    return(out)
   }
   
   # Reduce size of X (and w)
@@ -119,25 +166,20 @@ partial_dep.default <- function(object, v, X, pred_fun = stats::predict,
     K <- ncol(pd)
     colnames(pd) <- if (K == 1L) "y" else paste0("y", seq_len(K))
   }
-  
-  # Organize output
   if (!is.data.frame(grid) && !is.matrix(grid)) {
     grid <- stats::setNames(as.data.frame(grid), v)
   }
   structure(
-    list(
-      pd = cbind.data.frame(grid, pd),
-      v = v,
-      pred_names = colnames(pd)
-    ),
+    list(pd = cbind.data.frame(grid, pd), v = v, pred_names = colnames(pd), BY = FALSE), 
     class = "pd"
-  )
+  ) 
 }
 
 #' @describeIn partial_dep Method for "ranger" models.
 #' @export
 partial_dep.ranger <- function(object, v, X, 
-                      pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions, 
+                      pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
+                      BY = NULL, by_size = 5L,
                       grid = NULL, grid_size = 36L, trim = c(0.01, 0.99), 
                       strategy = c("quantile", "uniform"), 
                       n_max = 1000L, w = NULL, ...) {
@@ -146,6 +188,8 @@ partial_dep.ranger <- function(object, v, X,
     v = v,
     X = X,
     pred_fun = pred_fun,
+    BY = BY,
+    by_size = by_size,
     grid = grid,
     grid_size = grid_size,
     trim = trim,
@@ -159,7 +203,8 @@ partial_dep.ranger <- function(object, v, X,
 #' @describeIn partial_dep Method for "mlr3" models.
 #' @export
 partial_dep.Learner <- function(object, v, X, 
-                       pred_fun = function(m, X) m$predict_newdata(X)$response, 
+                       pred_fun = function(m, X) m$predict_newdata(X)$response,
+                       BY = NULL, by_size = 5L,
                        grid = NULL, grid_size = 36L, trim = c(0.01, 0.99),
                        strategy = c("quantile", "uniform"), 
                        n_max = 1000L, w = NULL, ...) {
@@ -168,6 +213,8 @@ partial_dep.Learner <- function(object, v, X,
     v = v,
     X = X,
     pred_fun = pred_fun,
+    BY = BY,
+    by_size = by_size,
     grid = grid,
     grid_size = grid_size,
     trim = trim,

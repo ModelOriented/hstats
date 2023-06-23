@@ -248,11 +248,3 @@ postprocess <- function(num, denom = 1, normalize = TRUE, squared = TRUE,
   x
 }
 
-# 
-# combine_by <- function(x, to_numeric) {
-#   x <- lapply(names(x), function(nm) data.frame(by = nm, x[[nm]]))
-#   if (to_numeric) {
-#     x[["by"]] <- as.numeric(x[["by"]])
-#   }
-#   do.call(rbind, x)
-# }
