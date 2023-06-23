@@ -6,10 +6,11 @@
 #' For discrete `z` (non-numeric, or numeric with at most `grid_size` unique values), 
 #' this is simply `sort(unique(z))`.
 #' 
-#' Otherwise, if `strategy = "quantile"` (default), the evaluation points are computed
+#' Otherwise, if `strategy = "uniform"` (default), the evaluation points are the 
+#' result of [pretty()] over the trimmed range of `z`.
+#' If `strategy = "quantile"`, the evaluation points are computed
 #' as quantiles over a regular grid of probabilities from `trim[1]` to `trim[2]`. 
-#' If `strategy = "uniform"`, the evaluation points are the result of [pretty()] over
-#' the trimmed range of `z`. Set `trim = c(0, 1)` for no trimming.
+#' Set `trim = c(0, 1)` for no trimming.
 #' 
 #' Quantiles are calculated based on the inverse of the ECDF, i.e., with
 #' `stats::quantile(..., type = 1`).
@@ -19,7 +20,7 @@
 #' @param trim A non-discrete numeric `z` is trimmed at these quantile probabilities
 #'   before calculations. Set to `c(0, 1)` for no trimming.
 #' @param strategy How to find evaluation points of non-discrete numeric columns? 
-#'   Either "quantile" or "uniform" (via [pretty()]), see description of 
+#'   Either "uniform" (via [pretty()]) or "quantile", see description of 
 #'   [univariate_grid()].
 #' @returns A vector/factor of evaluation points.
 #' @export
@@ -31,7 +32,7 @@
 #' univariate_grid(x, grid_size = 5)                        # Quantile binning
 #' univariate_grid(x, grid_size = 3, strategy = "uniform")  # Uniform pretty
 univariate_grid <- function(z, grid_size = 36L, trim = c(0.01, 0.99), 
-                            strategy = c("quantile", "uniform")) {
+                            strategy = c("uniform", "quantile")) {
   strategy <- match.arg(strategy)
   uni <- unique(z)
   if (!is.numeric(z) || length(uni) <= grid_size) {
@@ -66,7 +67,7 @@ univariate_grid <- function(z, grid_size = 36L, trim = c(0.01, 0.99),
 #' multivariate_grid(iris$Species)  # Works also in the univariate case
 #' @export
 multivariate_grid <- function(x, grid_size = 36L, trim = c(0.01, 0.99),
-                              strategy = c("quantile", "uniform")) {
+                              strategy = c("uniform", "quantile")) {
   strategy <- match.arg(strategy)
   p <- NCOL(x)
   if (p == 1L) {

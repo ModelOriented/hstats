@@ -8,7 +8,7 @@ multivariate_grid(
   x,
   grid_size = 36L,
   trim = c(0.01, 0.99),
-  strategy = c("quantile", "uniform")
+  strategy = c("uniform", "quantile")
 )
 }
 \arguments{
@@ -21,7 +21,7 @@ multivariate_grid(
 before calculations. Set to \code{c(0, 1)} for no trimming.}
 
 \item{strategy}{How to find evaluation points of non-discrete numeric columns?
-Either "quantile" or "uniform" (via \code{\link[=pretty]{pretty()}}), see description of
+Either "uniform" (via \code{\link[=pretty]{pretty()}}) or "quantile", see description of
 \code{\link[=univariate_grid]{univariate_grid()}}.}
 }
 \value{
