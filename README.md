@@ -91,10 +91,10 @@ fit <- xgb.train(
 
 ### Analyze interactions 
 
-We will now do two things:
+We will
 
-1. Call `interact()` for the expensive crunching.
-2. Get statistics with `summary()`.
+1. call `interact()` for the expensive crunching and
+2. get statistics with `summary()`.
 
 ```r
 # 2-3 seconds on simple laptop - a random forest will take 1-2 minutes
@@ -137,17 +137,17 @@ LONGITUDE:RAIL_DIST  0.008402545
 OCEAN_DIST:RAIL_DIST 0.007081773
 ```
 
-**Comments:** 
+**Interpretation** 
 
 - About 10% of prediction variability comes from interaction effects.
 - The strongest overall interactions are associated with "OCEAN_DIST" and "LONGITUDE". For instance, we can say that about 6% of prediction variability can be attributed to all interactions of "OCEAN_DISTANCE".
-- About 15.6% of the joint effect variability of above two features come from their pairwise interaction.
+- About 15.6% of the joint effect variability of above two features comes from their pairwise interaction.
 
-**Remarks:**
+**Remarks**
 
 1. Pairwise statistics are calculated only for the features with strongest overall interactions.
 2. The statistics need to repeatedly calculate predictions on $n^2$ rows. That is why {interactML} samples 300 rows by default. To get more robust results, increase this value at the price of slower run time.
-3. Pairwise Friedmans and Popescu's $H^2_{jk}$ measures interaction strength relative to the combined effect of the two features. This does not necessarily show which interactions are strongest. To do so, we study unnormalized statistics:
+3. Pairwise Friedmans and Popescu's $H^2_{jk}$ measures interaction strength relative to the combined effect of the two features. This does not necessarily show which interactions are strongest. To do so, we can study unnormalized statistics:
 
 Strongest pairwise interactions (values on the scale of the response log(price)):
 
@@ -161,7 +161,29 @@ CNTR_DIST:OCEAN_DIST 0.04718950
 LATITUDE:LONGITUDE   0.03807378
 ```
 
-**Comment:** The strongest pairwise interaction remains the one between longitude and distance to the ocean.
+**Interpretation:** The strongest pairwise interaction remains the one between longitude and distance to the ocean.
+
+Let's check a stratified partial dependence plot to get an impression how the interaction looks like:
+
+```r
+library(ggplot2)  # Only "suggested" package to keep the dependency footprint low
+
+pd <- partial_dep(fit, v = "LONGITUDE", X = X_train, BY = log(X_train[, "OCEAN_DIST"]))
+plot(pd, by_name = "log(OCEAN_DIST)")
+```
+
+**Interpretation:** For large distance to the ocean groups, the LONGITUDE effect looks indeed quite different.
+
+![](man/figures/pdp_long_ocean.png)
+
+As a contrast, the following plots shows perfectly parallel lines (additivity in living area):
+
+```r
+pd <- partial_dep(fit, v = "TOT_LVG_AREA", X = X_train, BY = log(X_train[, "OCEAN_DIST"]))
+plot(pd, by_name = "log(OCEAN_DIST)")
+```
+
+![](man/figures/pdp_living_ocean.png)
 
 ## Background
 

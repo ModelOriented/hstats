@@ -8,7 +8,7 @@ univariate_grid(
   z,
   grid_size = 36L,
   trim = c(0.01, 0.99),
-  strategy = c("quantile", "uniform")
+  strategy = c("uniform", "quantile")
 )
 }
 \arguments{
@@ -20,7 +20,7 @@ univariate_grid(
 before calculations. Set to \code{c(0, 1)} for no trimming.}
 
 \item{strategy}{How to find evaluation points of non-discrete numeric columns?
-Either "quantile" or "uniform" (via \code{\link[=pretty]{pretty()}}), see description of
+Either "uniform" (via \code{\link[=pretty]{pretty()}}) or "quantile", see description of
 \code{\link[=univariate_grid]{univariate_grid()}}.}
 }
 \value{
@@ -32,10 +32,11 @@ Finds evaluation grid for any numeric or non-numeric vector \code{z}.
 For discrete \code{z} (non-numeric, or numeric with at most \code{grid_size} unique values),
 this is simply \code{sort(unique(z))}.
 
-Otherwise, if \code{strategy = "quantile"} (default), the evaluation points are computed
+Otherwise, if \code{strategy = "uniform"} (default), the evaluation points are the
+result of \code{\link[=pretty]{pretty()}} over the trimmed range of \code{z}.
+If \code{strategy = "quantile"}, the evaluation points are computed
 as quantiles over a regular grid of probabilities from \code{trim[1]} to \code{trim[2]}.
-If \code{strategy = "uniform"}, the evaluation points are the result of \code{\link[=pretty]{pretty()}} over
-the trimmed range of \code{z}. Set \code{trim = c(0, 1)} for no trimming.
+Set \code{trim = c(0, 1)} for no trimming.
 
 Quantiles are calculated based on the inverse of the ECDF, i.e., with
 \verb{stats::quantile(..., type = 1}).

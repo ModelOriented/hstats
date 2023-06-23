@@ -248,3 +248,22 @@ postprocess <- function(num, denom = 1, normalize = TRUE, squared = TRUE,
   x
 }
 
+#' Stack some Columns
+#' 
+#' Internal function used in the plot method for "pd" objects. The function brings
+#' wide columns `to_stack` (the prediction dimensions) into long form.
+#' 
+#' @noRd
+#' @keywords internal
+#' 
+#' @param data A data.frame.
+#' @param to_stack Column names in `data` to bring from wide to long form.
+#' @returns A data.frame.
+poor_man_stack <- function(data, to_stack) {
+  keep <- setdiff(colnames(data), to_stack)
+  out <- lapply(
+    to_stack, 
+    FUN = function(z) cbind.data.frame(data[keep], y_variable = z, y_value = data[, z])
+  )
+  do.call(rbind, out)
+}

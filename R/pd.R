@@ -40,6 +40,7 @@
 #' @param BY Optional grouping vector. Calculated after detemination of grid, but 
 #'   before subsampling `X` to `n_max` rows (this is done within unique values of `BY`).
 #'   Numeric `BY` with more than `by_size` unique values are binned via [cut()].
+#'   Note that the same grid is used for each `BY` group to easier spot additivity.
 #' @param by_size Numeric `BY` values with more than this number of unique values will
 #'   be binned via [cut()]. Only relevant if `BY` is not `NULL`.
 #' @param n_max If `X` has more than `n_max` rows, a random sample of `n_max` rows is
@@ -60,12 +61,12 @@
 #' @export
 #' @examples
 #' # MODEL ONE: Linear regression
-#' fit <- lm(Sepal.Length ~ ., data = iris)
+#' fit <- lm(Sepal.Length ~ . + Species * Petal.Length, data = iris)
 #' pd <- partial_dep(fit, v = "Species", X = iris)
 #' pd
 #' 
 #' # Stratified by numeric BY variable (which is automatically binned)
-#' pd <- partial_dep(fit, v = "Species", X = iris, BY = iris$Sepal.Width)
+#' pd <- partial_dep(fit, v = "Species", X = iris, BY = iris$Petal.Length)
 #' pd
 #' 
 #' # Multivariable input
@@ -73,8 +74,8 @@
 #' pd
 #' 
 #' # MODEL TWO: Multi-response linear regression
-#' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width + Species, data = iris)
-#' pd <- partial_dep(fit, v = "Petal.Width", X = iris)
+#' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
+#' pd <- partial_dep(fit, v = "Petal.Width", X = iris, BY = iris$Species)
 #' pd
 #' 
 #' # Multivariate, multivariable, and BY
@@ -99,7 +100,7 @@ partial_dep <- function(object, ...) {
 partial_dep.default <- function(object, v, X, pred_fun = stats::predict, 
                                 BY = NULL, by_size = 5L,
                                 grid = NULL, grid_size = 36L, trim = c(0.01, 0.99), 
-                                strategy = c("quantile", "uniform"), 
+                                strategy = c("uniform", "quantile"), 
                                 n_max = 1000L, w = NULL, ...) {
   basic_check(X = X, v = v, pred_fun = pred_fun, w = w)
   
@@ -110,7 +111,7 @@ partial_dep.default <- function(object, v, X, pred_fun = stats::predict,
   } else {
     check_grid(g = grid, v = v, X_is_matrix = is.matrix(X))
   }
-  
+
   if (!is.null(BY)) {
     if (length(BY) != nrow(X)) {
       stop("BY variable must have same length as X.")
@@ -136,7 +137,7 @@ partial_dep.default <- function(object, v, X, pred_fun = stats::predict,
       pd_list[[b]] <- out[["pd"]]
     }
     pd <- do.call(rbind, c(pd_list, list(make.row.names = FALSE)))
-    BY_rep <- rep(by_values, each = nrow(out[["pd"]]))
+    BY_rep <- rep(by_values, times = vapply(pd_list, nrow, FUN.VALUE = 1L))
     out[["pd"]] <- cbind.data.frame(BY = BY_rep, pd)
     out[["BY"]] <- TRUE
     return(out)
@@ -181,7 +182,7 @@ partial_dep.ranger <- function(object, v, X,
                       pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
                       BY = NULL, by_size = 5L,
                       grid = NULL, grid_size = 36L, trim = c(0.01, 0.99), 
-                      strategy = c("quantile", "uniform"), 
+                      strategy = c("uniform", "quantile"), 
                       n_max = 1000L, w = NULL, ...) {
   partial_dep.default(
     object = object,
@@ -206,7 +207,7 @@ partial_dep.Learner <- function(object, v, X,
                        pred_fun = function(m, X) m$predict_newdata(X)$response,
                        BY = NULL, by_size = 5L,
                        grid = NULL, grid_size = 36L, trim = c(0.01, 0.99),
-                       strategy = c("quantile", "uniform"), 
+                       strategy = c("uniform", "quantile"), 
                        n_max = 1000L, w = NULL, ...) {
   partial_dep.default(
     object = object,
@@ -243,3 +244,71 @@ print.pd <- function(x, ...) {
   print(utils::head(x[["pd"]]))
   invisible(x)
 }
+
+#' PDP
+#' 
+#' Plot method for object of class "pd". It supports multivariate predictions and a 
+#' BY variable, but only univariable `v`.
+#'
+#' @param x An object of class "pd".
+#' @param rotate_x Should x axis labels be rotated by 45 degrees?
+#' @param color Color of lines and points.
+#' @param facet_scales Value passed to `facet_wrap(scales = ...)`, only relevant
+#'   for multivariate output.
+#' @param by_name Name of by variable in the color legend. Default is "Group". Only
+#'   relevant if grouped partial dependence was computed via `BY`.
+#' @param ... Further arguments passed to geometries.
+#' @returns An object of class "ggplot".
+#' @export
+#' @examples
+#' 
+#' if (requireNamespace("ggplot2", quietly = TRUE)) {
+#'   fit <- lm(Sepal.Length ~ . + Species * Petal.Length, data = iris)
+#'   plot(partial_dep(fit, v = "Species", X = iris))
+#' 
+#'   # Multi-response linear regression
+#'   fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
+#'   pd <- partial_dep(fit, v = "Petal.Width", X = iris, BY = iris$Species, grid_size = 13)
+#'   plot(pd, by_name = "Species")
+#' }
+#' 
+#' @seealso [partial_dep()]
+plot.pd <- function(x, rotate_x = FALSE, color = "#2b51a1", 
+                    facet_scales = "free_y", by_name = "Group", ...) {
+  v <- x[["v"]]
+  data <- x[["pd"]]
+  pred_names <- x[["pred_names"]]
+
+  if (length(v) > 1L) {
+    stop("No plot method for multivariable case (more than one 'v')")
+  }
+  if (!requireNamespace("ggplot2", quietly = TRUE)) {
+    stop("Please install 'ggplot2' to use plot().")
+  }
+  data <- poor_man_stack(data, to_stack = pred_names)
+  data[["x_variable"]] <- data[[v]]
+  
+  p <- ggplot2::ggplot(data, ggplot2::aes(x = x_variable, y = y_value))
+  if (!x[["BY"]]) {
+    p <- p + 
+      ggplot2::geom_line(color = color, group = 1, ...) +
+      ggplot2::geom_point(color = color, ...)
+  } else {
+    p <- p + 
+      ggplot2::geom_line(ggplot2::aes(color = BY, group = BY), ...) +
+      ggplot2::geom_point(ggplot2::aes(color = BY, group = BY), ...)
+  }
+  
+  if (length(pred_names) > 1L) {
+    p <- p + ggplot2::facet_wrap(~ y_variable, scales = facet_scales)
+  }
+  if (rotate_x) {
+    p <- p + ggplot2::theme(
+      axis.text.x = ggplot2::element_text(angle = 45, hjust = 1, vjust = 1)
+    )  
+  }
+  p + ggplot2::labs(x = v, y = "PD", color = by_name)
+}
+
+# Fix undefined global variable note
+utils::globalVariables(c("x_variable", "y_value", "BY"))

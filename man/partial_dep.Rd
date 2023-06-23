@@ -14,10 +14,12 @@ partial_dep(object, ...)
   v,
   X,
   pred_fun = stats::predict,
+  BY = NULL,
+  by_size = 5L,
   grid = NULL,
   grid_size = 36L,
   trim = c(0.01, 0.99),
-  strategy = c("quantile", "uniform"),
+  strategy = c("uniform", "quantile"),
   n_max = 1000L,
   w = NULL,
   ...
@@ -28,10 +30,12 @@ partial_dep(object, ...)
   v,
   X,
   pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
+  BY = NULL,
+  by_size = 5L,
   grid = NULL,
   grid_size = 36L,
   trim = c(0.01, 0.99),
-  strategy = c("quantile", "uniform"),
+  strategy = c("uniform", "quantile"),
   n_max = 1000L,
   w = NULL,
   ...
@@ -42,10 +46,12 @@ partial_dep(object, ...)
   v,
   X,
   pred_fun = function(m, X) m$predict_newdata(X)$response,
+  BY = NULL,
+  by_size = 5L,
   grid = NULL,
   grid_size = 36L,
   trim = c(0.01, 0.99),
-  strategy = c("quantile", "uniform"),
+  strategy = c("uniform", "quantile"),
   n_max = 1000L,
   w = NULL,
   ...
@@ -68,6 +74,14 @@ model \code{object}, its second argument a data structure like \code{X}. Additio
 \code{\link[stats:predict]{stats::predict()}}, will work in most cases. Note that column names in a resulting
 matrix of predictions will be used as default column names in the results.}
 
+\item{BY}{Optional grouping vector. Calculated after detemination of grid, but
+before subsampling \code{X} to \code{n_max} rows (this is done within unique values of \code{BY}).
+Numeric \code{BY} with more than \code{by_size} unique values are binned via \code{\link[=cut]{cut()}}.
+Note that the same grid is used for each \code{BY} group to easier spot additivity.}
+
+\item{by_size}{Numeric \code{BY} values with more than this number of unique values will
+be binned via \code{\link[=cut]{cut()}}. Only relevant if \code{BY} is not \code{NULL}.}
+
 \item{grid}{Optional evaluation grid in line with \code{v}.}
 
 \item{grid_size}{Controls the approximate grid size. If \code{x} has p columns, then each
@@ -77,7 +91,7 @@ matrix of predictions will be used as default column names in the results.}
 before calculations. Set to \code{c(0, 1)} for no trimming.}
 
 \item{strategy}{How to find evaluation points of non-discrete numeric columns?
-Either "quantile" or "uniform" (via \code{\link[=pretty]{pretty()}}), see description of
+Either "uniform" (via \code{\link[=pretty]{pretty()}}) or "quantile", see description of
 \code{\link[=univariate_grid]{univariate_grid()}}.}
 
 \item{n_max}{If \code{X} has more than \code{n_max} rows, a random sample of \code{n_max} rows is
@@ -133,8 +147,12 @@ of \eqn{\mathbf{x}_{\setminus s}}.
 
 \examples{
 # MODEL ONE: Linear regression
-fit <- lm(Sepal.Length ~ ., data = iris)
+fit <- lm(Sepal.Length ~ . + Species * Petal.Length, data = iris)
 pd <- partial_dep(fit, v = "Species", X = iris)
+pd
+
+# Stratified by numeric BY variable (which is automatically binned)
+pd <- partial_dep(fit, v = "Species", X = iris, BY = iris$Petal.Length)
 pd
 
 # Multivariable input
@@ -142,8 +160,14 @@ pd <- partial_dep(fit, v = c("Species", "Petal.Width"), X = iris)
 pd
 
 # MODEL TWO: Multi-response linear regression
-fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width + Species, data = iris)
-pd <- partial_dep(fit, v = "Petal.Width", X = iris)
+fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
+pd <- partial_dep(fit, v = "Petal.Width", X = iris, BY = iris$Species)
+pd
+
+# Multivariate, multivariable, and BY
+pd <- partial_dep(
+  fit, v = c("Petal.Width", "Petal.Length"), X = iris, BY = iris$Species
+)
 pd
  
 # MODEL THREE: Gamma GLM -> pass options to predict() via ...
