@@ -324,6 +324,3 @@ plot.pd <- function(x, rotate_x = FALSE, color = "#2b51a1",
   }
   p + ggplot2::labs(x = v, y = "PD", color = x[["by_name"]])
 }
-
-# Fix undefined global variable note
-utils::globalVariables(c("x_variable", "y_value", "BY"))

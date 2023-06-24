@@ -27,8 +27,10 @@ H2(object, ...)
 Vector of total interaction strength (one value per prediction dimension).
 }
 \description{
-Proportion of prediction variability coming from interactions extracted from the
-result of \code{\link[=interact]{interact()}}, see Details.
+Proportion of prediction variability unexplained by main effects (extracted from the
+result of \code{\link[=interact]{interact()}}), see Details. The statistic requires \code{v} to represent all
+features of the model. Otherwise, it will also contain effects from features missing
+in \code{v}.
 }
 \details{
 If the model is additive in all features, then the (centered) prediction

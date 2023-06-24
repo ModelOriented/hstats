@@ -1,7 +1,9 @@
 #' Total Interaction Strength
 #' 
-#' Proportion of prediction variability coming from interactions extracted from the
-#' result of [interact()], see Details.
+#' Proportion of prediction variability unexplained by main effects (extracted from the
+#' result of [interact()]), see Details. The statistic requires `v` to represent all
+#' features of the model. Otherwise, it will also contain effects from features missing
+#' in `v`.
 #' 
 #' @details
 #' If the model is additive in all features, then the (centered) prediction 

@@ -1,3 +1,6 @@
+# Fix undefined global variable note
+utils::globalVariables(c("x_variable", "y_value", "BY", "y_variable", "variable_name"))
+
 #' Aligns Predictions
 #' 
 #' Turns predictions into matrix.
@@ -266,6 +269,31 @@ poor_man_stack <- function(data, to_stack) {
     FUN = function(z) cbind.data.frame(data[keep], y_variable = z, y_value = data[, z])
   )
   do.call(rbind, out)
+}
+
+#' Matrix to DF
+#' 
+#' Internal function used in the plot method for "interact" objects. It turns
+#' matrix objects into (long) data.frames.
+#' 
+#' @noRd
+#' @keywords internal
+#' 
+#' @param mat A matrix.
+#' @param id Value of column to be added as "id_name".
+#' @returns A data.frame.
+mat2df <- function(mat, id = "Overall") {
+  pred_names <- colnames(mat)
+  K <- ncol(mat)
+  nm <- rownames(mat)
+  if (is.null(pred_names)) {
+    pred_names <- if (K == 1L) "y" else paste0("y", seq_len(K))
+    colnames(mat) <- pred_names
+  }
+  out <- cbind.data.frame(
+    id_name = id, variable_name = factor(nm, levels = rev(nm)), mat
+  )
+  poor_man_stack(out, to_stack = pred_names)
 }
 
 #' Bin into Quantiles

@@ -4,12 +4,12 @@
 \alias{summary.interact}
 \title{Summary Method}
 \usage{
-\method{summary}{interact}(object, n = 10L, ...)
+\method{summary}{interact}(object, top_m = 10L, ...)
 }
 \arguments{
 \item{object}{An object of class "interact".}
 
-\item{n}{Maximum number of rows of results to print.s}
+\item{top_m}{Maximum number of rows of results to print.}
 
 \item{...}{Further arguments passed from other methods.}
 }

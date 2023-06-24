@@ -135,7 +135,13 @@ LATITUDE:CNTR_DIST   0.029474763
 CNTR_DIST:RAIL_DIST  0.012886536
 LONGITUDE:RAIL_DIST  0.008402545
 OCEAN_DIST:RAIL_DIST 0.007081773
+
+# If {ggplot2} is available, we can also plot the statistics
+plot(inter)
 ```
+
+![](man/figures/interact.png)
+
 
 **Interpretation** 
 
