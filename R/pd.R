@@ -25,6 +25,9 @@
 #' where \eqn{\mathbf{x}_{i\setminus s}} \eqn{i = 1, \dots, n}, are the observed values
 #' of \eqn{\mathbf{x}_{\setminus s}}.
 #' 
+#' A partial dependence plot (PDP) plots the values of \eqn{\hat F_s(\mathbf{x}_s)}
+#' over a grid of evaluation points \eqn{\mathbf{x}_s}.
+#' 
 #' @inheritParams multivariate_grid
 #' @param object Fitted model object.
 #' @param v Vector of feature names.
@@ -37,12 +40,13 @@
 #'   (such as `type = "response"` in a GLM) can be passed via `...`. The default, 
 #'   [stats::predict()], will work in most cases. Note that column names in a resulting
 #'   matrix of predictions will be used as default column names in the results.
-#' @param BY Optional grouping vector. Calculated after detemination of grid, but 
-#'   before subsampling `X` to `n_max` rows (this is done within unique values of `BY`).
-#'   Numeric `BY` with more than `by_size` unique values are binned via [cut()].
-#'   Note that the same grid is used for each `BY` group to easier spot additivity.
-#' @param by_size Numeric `BY` values with more than this number of unique values will
-#'   be binned via [cut()]. Only relevant if `BY` is not `NULL`.
+#' @param BY Optional grouping vector or a column name. The partial dependence
+#'   function is calculated per `BY` group. Each `BY` group
+#'   uses the same evaluation grid to improve assessment of (non-)additivity.
+#'   Numeric `BY` variables with more than `by_size` disjoint values will be 
+#'   binned into `by_size` quantile groups of similar size.
+#' @param by_size Numeric `BY` values with more than `by_size` unique values will
+#'   be binned via [cut()] into quantile groups. Only relevant if `BY` is not `NULL`.
 #' @param n_max If `X` has more than `n_max` rows, a random sample of `n_max` rows is
 #'   selected from `X`. In this case, set a random seed for reproducibility.
 #' @param w Optional vector of case weights for each row of `X`.
@@ -54,7 +58,8 @@
 #'   - `pd`: data.frame representing both the evaluation grid and the corresponding
 #'     partial dependencies.
 #'   - `v`: Same as input `v`.
-#'   - `pred_names`: Vector of column names representing partial dependencies. 
+#'   - `pred_names`: Vector of column names representing partial dependencies.
+#'   - `by_name`: `BY` name used as color legend of the plot method (or `NULL`).
 #' @references
 #'   Friedman, Jerome H. *"Greedy Function Approximation: A Gradient Boosting Machine."* 
 #'     Annals of Statistics 29, no. 5 (2001): 1189-1232.
@@ -113,12 +118,18 @@ partial_dep.default <- function(object, v, X, pred_fun = stats::predict,
   }
 
   if (!is.null(BY)) {
+    if (length(BY) == 1L && BY %in% colnames(X)) {
+      by_name <- BY
+      BY <- X[, BY]
+    } else {
+      by_name = "Group"
+    }
     if (length(BY) != nrow(X)) {
       stop("BY variable must have same length as X.")
     }
     by_values <- unique(BY)
     if (is.numeric(BY) && length(by_values) > by_size) {
-      BY <- cut(BY, breaks = by_size)
+      BY <- qcut(BY, m = by_size)
       by_values <- unique(BY)
     }
     
@@ -139,7 +150,7 @@ partial_dep.default <- function(object, v, X, pred_fun = stats::predict,
     pd <- do.call(rbind, c(pd_list, list(make.row.names = FALSE)))
     BY_rep <- rep(by_values, times = vapply(pd_list, nrow, FUN.VALUE = 1L))
     out[["pd"]] <- cbind.data.frame(BY = BY_rep, pd)
-    out[["BY"]] <- TRUE
+    out[["by_name"]] <- by_name
     return(out)
   }
   
@@ -171,7 +182,12 @@ partial_dep.default <- function(object, v, X, pred_fun = stats::predict,
     grid <- stats::setNames(as.data.frame(grid), v)
   }
   structure(
-    list(pd = cbind.data.frame(grid, pd), v = v, pred_names = colnames(pd), BY = FALSE), 
+    list(
+      pd = cbind.data.frame(grid, pd), 
+      v = v, 
+      pred_names = colnames(pd), 
+      by_name = NULL
+      ), 
     class = "pd"
   ) 
 }
@@ -179,11 +195,11 @@ partial_dep.default <- function(object, v, X, pred_fun = stats::predict,
 #' @describeIn partial_dep Method for "ranger" models.
 #' @export
 partial_dep.ranger <- function(object, v, X, 
-                      pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
-                      BY = NULL, by_size = 5L,
-                      grid = NULL, grid_size = 36L, trim = c(0.01, 0.99), 
-                      strategy = c("uniform", "quantile"), 
-                      n_max = 1000L, w = NULL, ...) {
+                               pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
+                               BY = NULL, by_size = 5L,
+                               grid = NULL, grid_size = 36L, trim = c(0.01, 0.99), 
+                               strategy = c("uniform", "quantile"), 
+                               n_max = 1000L, w = NULL, ...) {
   partial_dep.default(
     object = object,
     v = v,
@@ -204,11 +220,11 @@ partial_dep.ranger <- function(object, v, X,
 #' @describeIn partial_dep Method for "mlr3" models.
 #' @export
 partial_dep.Learner <- function(object, v, X, 
-                       pred_fun = function(m, X) m$predict_newdata(X)$response,
-                       BY = NULL, by_size = 5L,
-                       grid = NULL, grid_size = 36L, trim = c(0.01, 0.99),
-                       strategy = c("uniform", "quantile"), 
-                       n_max = 1000L, w = NULL, ...) {
+                                pred_fun = function(m, X) m$predict_newdata(X)$response,
+                                BY = NULL, by_size = 5L,
+                                grid = NULL, grid_size = 36L, trim = c(0.01, 0.99),
+                                strategy = c("uniform", "quantile"), 
+                                n_max = 1000L, w = NULL, ...) {
   partial_dep.default(
     object = object,
     v = v,
@@ -255,26 +271,25 @@ print.pd <- function(x, ...) {
 #' @param color Color of lines and points.
 #' @param facet_scales Value passed to `facet_wrap(scales = ...)`, only relevant
 #'   for multivariate output.
-#' @param by_name Name of by variable in the color legend. Default is "Group". Only
-#'   relevant if grouped partial dependence was computed via `BY`.
 #' @param ... Further arguments passed to geometries.
 #' @returns An object of class "ggplot".
 #' @export
 #' @examples
-#' 
 #' if (requireNamespace("ggplot2", quietly = TRUE)) {
 #'   fit <- lm(Sepal.Length ~ . + Species * Petal.Length, data = iris)
 #'   plot(partial_dep(fit, v = "Species", X = iris))
 #' 
 #'   # Multi-response linear regression
 #'   fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
-#'   pd <- partial_dep(fit, v = "Petal.Width", X = iris, BY = iris$Species, grid_size = 13)
-#'   plot(pd, by_name = "Species")
+#'   
+#'   # BY = iris$Species also works. This allows to use transformed features.
+#'   pd <- partial_dep(fit, v = "Petal.Width", X = iris, BY = "Species", grid_size = 13)
+#'   plot(pd)
 #' }
 #' 
 #' @seealso [partial_dep()]
 plot.pd <- function(x, rotate_x = FALSE, color = "#2b51a1", 
-                    facet_scales = "free_y", by_name = "Group", ...) {
+                    facet_scales = "free_y", ...) {
   v <- x[["v"]]
   data <- x[["pd"]]
   pred_names <- x[["pred_names"]]
@@ -289,7 +304,7 @@ plot.pd <- function(x, rotate_x = FALSE, color = "#2b51a1",
   data[["x_variable"]] <- data[[v]]
   
   p <- ggplot2::ggplot(data, ggplot2::aes(x = x_variable, y = y_value))
-  if (!x[["BY"]]) {
+  if (is.null(x[["by_name"]])) {
     p <- p + 
       ggplot2::geom_line(color = color, group = 1, ...) +
       ggplot2::geom_point(color = color, ...)
@@ -307,7 +322,7 @@ plot.pd <- function(x, rotate_x = FALSE, color = "#2b51a1",
       axis.text.x = ggplot2::element_text(angle = 45, hjust = 1, vjust = 1)
     )  
   }
-  p + ggplot2::labs(x = v, y = "PD", color = by_name)
+  p + ggplot2::labs(x = v, y = "PD", color = x[["by_name"]])
 }
 
 # Fix undefined global variable note
