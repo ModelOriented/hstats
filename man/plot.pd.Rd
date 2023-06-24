@@ -4,14 +4,7 @@
 \alias{plot.pd}
 \title{PDP}
 \usage{
-\method{plot}{pd}(
-  x,
-  rotate_x = FALSE,
-  color = "#2b51a1",
-  facet_scales = "free_y",
-  by_name = "Group",
-  ...
-)
+\method{plot}{pd}(x, rotate_x = FALSE, color = "#2b51a1", facet_scales = "free_y", ...)
 }
 \arguments{
 \item{x}{An object of class "pd".}
@@ -23,9 +16,6 @@
 \item{facet_scales}{Value passed to \code{facet_wrap(scales = ...)}, only relevant
 for multivariate output.}
 
-\item{by_name}{Name of by variable in the color legend. Default is "Group". Only
-relevant if grouped partial dependence was computed via \code{BY}.}
-
 \item{...}{Further arguments passed to geometries.}
 }
 \value{
@@ -36,15 +26,16 @@ Plot method for object of class "pd". It supports multivariate predictions and a
 BY variable, but only univariable \code{v}.
 }
 \examples{
-
 if (requireNamespace("ggplot2", quietly = TRUE)) {
   fit <- lm(Sepal.Length ~ . + Species * Petal.Length, data = iris)
   plot(partial_dep(fit, v = "Species", X = iris))
 
   # Multi-response linear regression
   fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
-  pd <- partial_dep(fit, v = "Petal.Width", X = iris, BY = iris$Species, grid_size = 13)
-  plot(pd, by_name = "Species")
+  
+  # BY = iris$Species also works. This allows to use transformed features.
+  pd <- partial_dep(fit, v = "Petal.Width", X = iris, BY = "Species", grid_size = 13)
+  plot(pd)
 }
 
 }

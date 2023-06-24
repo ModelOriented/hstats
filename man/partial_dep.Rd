@@ -74,13 +74,14 @@ model \code{object}, its second argument a data structure like \code{X}. Additio
 \code{\link[stats:predict]{stats::predict()}}, will work in most cases. Note that column names in a resulting
 matrix of predictions will be used as default column names in the results.}
 
-\item{BY}{Optional grouping vector. Calculated after detemination of grid, but
-before subsampling \code{X} to \code{n_max} rows (this is done within unique values of \code{BY}).
-Numeric \code{BY} with more than \code{by_size} unique values are binned via \code{\link[=cut]{cut()}}.
-Note that the same grid is used for each \code{BY} group to easier spot additivity.}
+\item{BY}{Optional grouping vector or a column name. The partial dependence
+function is calculated per \code{BY} group. Each \code{BY} group
+uses the same evaluation grid to improve assessment of (non-)additivity.
+Numeric \code{BY} variables with more than \code{by_size} disjoint values will be
+binned into \code{by_size} quantile groups of similar size.}
 
-\item{by_size}{Numeric \code{BY} values with more than this number of unique values will
-be binned via \code{\link[=cut]{cut()}}. Only relevant if \code{BY} is not \code{NULL}.}
+\item{by_size}{Numeric \code{BY} values with more than \code{by_size} unique values will
+be binned via \code{\link[=cut]{cut()}} into quantile groups. Only relevant if \code{BY} is not \code{NULL}.}
 
 \item{grid}{Optional evaluation grid in line with \code{v}.}
 
@@ -106,6 +107,7 @@ A list with additional class "pd" containing the following elements
 partial dependencies.
 \item \code{v}: Same as input \code{v}.
 \item \code{pred_names}: Vector of column names representing partial dependencies.
+\item \code{by_name}: \code{BY} name used as color legend of the plot method (or \code{NULL}).
 }
 }
 \description{
@@ -143,6 +145,9 @@ dependence function
 }
 where \eqn{\mathbf{x}_{i\setminus s}} \eqn{i = 1, \dots, n}, are the observed values
 of \eqn{\mathbf{x}_{\setminus s}}.
+
+A partial dependence plot (PDP) plots the values of \eqn{\hat F_s(\mathbf{x}_s)}
+over a grid of evaluation points \eqn{\mathbf{x}_s}.
 }
 
 \examples{

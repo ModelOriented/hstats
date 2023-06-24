@@ -166,21 +166,21 @@ LATITUDE:LONGITUDE   0.03807378
 Let's check a stratified partial dependence plot to get an impression how the interaction looks like:
 
 ```r
-library(ggplot2)  # Only "suggested" package to keep the dependency footprint low
+library(ggplot2)  # "suggested" package to keep the dependency footprint low
 
-pd <- partial_dep(fit, v = "LONGITUDE", X = X_train, BY = log(X_train[, "OCEAN_DIST"]))
-plot(pd, by_name = "log(OCEAN_DIST)")
+# "BY" can be a column name in X, or any vector of (possibly transformed) values
+pd <- partial_dep(fit, v = "LONGITUDE", X = X_train, BY = "OCEAN_DIST")
+plot(pd)
 ```
 
-**Interpretation:** For large distance to the ocean groups, the LONGITUDE effect looks indeed quite different.
+**Interpretation:** For short distance to the ocean groups, the LONGITUDE effect looks indeed quite different.
 
 ![](man/figures/pdp_long_ocean.png)
 
 As a contrast, the following plots shows perfectly parallel lines (additivity in living area):
 
 ```r
-pd <- partial_dep(fit, v = "TOT_LVG_AREA", X = X_train, BY = log(X_train[, "OCEAN_DIST"]))
-plot(pd, by_name = "log(OCEAN_DIST)")
+plot(partial_dep(fit, v = "TOT_LVG_AREA", X = X_train, BY = "OCEAN_DIST"))
 ```
 
 ![](man/figures/pdp_living_ocean.png)
@@ -199,6 +199,9 @@ $$
 $$
 
 where $\boldsymbol x_{i\setminus s}$, $i = 1, \dots, n$, are the observed values of $\boldsymbol x_{\setminus s}$.
+
+A partial dependence plot (PDP) plots the values of ${\hat F_s(\boldsymbol x_s)$
+over a grid of evaluation points $\boldsymbol x_s$.
 
 ### Overall interaction strength
 
