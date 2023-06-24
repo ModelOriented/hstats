@@ -226,16 +226,16 @@
 <p><strong>Interpretation:</strong> The strongest pairwise interaction remains the one between longitude and distance to the ocean.</p>
 <p>Let’s check a stratified partial dependence plot to get an impression how the interaction looks like:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span>  <span class="co"># Only "suggested" package to keep the dependency footprint low</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span>  <span class="co"># "suggested" package to keep the dependency footprint low</span></span>
 <span></span>
-<span><span class="va">pd</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/partial_dep.html">partial_dep</a></span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="st">"LONGITUDE"</span>, X <span class="op">=</span> <span class="va">X_train</span>, BY <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">X_train</span><span class="op">[</span>, <span class="st">"OCEAN_DIST"</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pd</span>, by_name <span class="op">=</span> <span class="st">"log(OCEAN_DIST)"</span><span class="op">)</span></span></code></pre></div>
-<p><strong>Interpretation:</strong> For large distance to the ocean groups, the LONGITUDE effect looks indeed quite different.</p>
+<span><span class="co"># "BY" can be a column name in X, or any vector of (possibly transformed) values</span></span>
+<span><span class="va">pd</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/partial_dep.html">partial_dep</a></span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="st">"LONGITUDE"</span>, X <span class="op">=</span> <span class="va">X_train</span>, BY <span class="op">=</span> <span class="st">"OCEAN_DIST"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pd</span><span class="op">)</span></span></code></pre></div>
+<p><strong>Interpretation:</strong> For short distance to the ocean groups, the LONGITUDE effect looks indeed quite different.</p>
 <p><img src="reference/figures/pdp_long_ocean.png"></p>
 <p>As a contrast, the following plots shows perfectly parallel lines (additivity in living area):</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">pd</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/partial_dep.html">partial_dep</a></span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="st">"TOT_LVG_AREA"</span>, X <span class="op">=</span> <span class="va">X_train</span>, BY <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">X_train</span><span class="op">[</span>, <span class="st">"OCEAN_DIST"</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pd</span>, by_name <span class="op">=</span> <span class="st">"log(OCEAN_DIST)"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="reference/partial_dep.html">partial_dep</a></span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="st">"TOT_LVG_AREA"</span>, X <span class="op">=</span> <span class="va">X_train</span>, BY <span class="op">=</span> <span class="st">"OCEAN_DIST"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="reference/figures/pdp_living_ocean.png"></p>
 </div>
 </div>
@@ -251,6 +251,7 @@
   \hat F_s(\boldsymbol x_s) = \frac{1}{n} \sum_{i = 1}^n F(\boldsymbol x_s, \boldsymbol x_{i \setminus s}),
 $$</span></p>
 <p>where <span class="math inline"><strong>x</strong><sub><em>i</em> \ <em>s</em></sub></span>, <span class="math inline"><em>i</em> = 1, …, <em>n</em></span>, are the observed values of <span class="math inline"><strong>x</strong><sub>\<em>s</em></sub></span>.</p>
+<p>A partial dependence plot (PDP) plots the values of <span class="math inline">${\hat F_s(\boldsymbol x_s)$</span> over a grid of evaluation points <span class="math inline"><strong>x</strong><sub><em>s</em></sub></span>.</p>
 </div>
 <div class="section level3">
 <h3 id="overall-interaction-strength">Overall interaction strength<a class="anchor" aria-label="anchor" href="#overall-interaction-strength"></a>

@@ -138,15 +138,16 @@ matrix of predictions will be used as default column names in the results.</p></
 
 
 <dt>BY</dt>
-<dd><p>Optional grouping vector. Calculated after detemination of grid, but
-before subsampling <code>X</code> to <code>n_max</code> rows (this is done within unique values of <code>BY</code>).
-Numeric <code>BY</code> with more than <code>by_size</code> unique values are binned via <code><a href="https://rdrr.io/r/base/cut.html" class="external-link">cut()</a></code>.
-Note that the same grid is used for each <code>BY</code> group to easier spot additivity.</p></dd>
+<dd><p>Optional grouping vector or a column name. The partial dependence
+function is calculated per <code>BY</code> group. Each <code>BY</code> group
+uses the same evaluation grid to improve assessment of (non-)additivity.
+Numeric <code>BY</code> variables with more than <code>by_size</code> disjoint values will be
+binned into <code>by_size</code> quantile groups of similar size.</p></dd>
 
 
 <dt>by_size</dt>
-<dd><p>Numeric <code>BY</code> values with more than this number of unique values will
-be binned via <code><a href="https://rdrr.io/r/base/cut.html" class="external-link">cut()</a></code>. Only relevant if <code>BY</code> is not <code>NULL</code>.</p></dd>
+<dd><p>Numeric <code>BY</code> values with more than <code>by_size</code> unique values will
+be binned via <code><a href="https://rdrr.io/r/base/cut.html" class="external-link">cut()</a></code> into quantile groups. Only relevant if <code>BY</code> is not <code>NULL</code>.</p></dd>
 
 
 <dt>grid</dt>
@@ -186,6 +187,7 @@ selected from <code>X</code>. In this case, set a random seed for reproducibilit
 partial dependencies.</p></li>
 <li><p><code>v</code>: Same as input <code>v</code>.</p></li>
 <li><p><code>pred_names</code>: Vector of column names representing partial dependencies.</p></li>
+<li><p><code>by_name</code>: <code>BY</code> name used as color legend of the plot method (or <code>NULL</code>).</p></li>
 </ul></div>
     <div id="methods-by-class-">
     <h2>Methods (by class)</h2>
@@ -216,6 +218,8 @@ dependence function</p>
 $$
 where \(\mathbf{x}_{i\setminus s}\) \(i = 1, \dots, n\), are the observed values
 of \(\mathbf{x}_{\setminus s}\).</p>
+<p>A partial dependence plot (PDP) plots the values of \(\hat F_s(\mathbf{x}_s)\)
+over a grid of evaluation points \(\mathbf{x}_s\).</p>
     </div>
     <div id="references">
     <h2>References</h2>
@@ -241,13 +245,13 @@ Annals of Statistics 29, no. 5 (2001): 1189-1232.</p>
 <span class="r-in"><span><span class="va">pd</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> First partial dependence rows (use x$pd to extract all)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             BY    Species        y</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 (0.994,2.18]     setosa 5.006000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 (0.994,2.18] versicolor 4.522112</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 (0.994,2.18]  virginica 3.544445</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4  (4.54,5.72]     setosa 5.782591</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5  (4.54,5.72] versicolor 6.504613</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6  (4.54,5.72]  virginica 6.222711</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          BY    Species        y</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1   [1,1.5]     setosa 4.975705</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2   [1,1.5] versicolor 4.466946</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3   [1,1.5]  virginica 3.474929</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 (1.5,3.9]     setosa 5.116463</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 (1.5,3.9] versicolor 4.990916</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6 (1.5,3.9]  virginica 4.219998</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Multivariable input</span></span></span>
 <span class="r-in"><span><span class="va">pd</span> <span class="op">&lt;-</span> <span class="fu">partial_dep</span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Species"</span>, <span class="st">"Petal.Width"</span><span class="op">)</span>, X <span class="op">=</span> <span class="va">iris</span><span class="op">)</span></span></span>
