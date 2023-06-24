@@ -56,14 +56,20 @@
 #' inter <- interact(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
 #' H2_j(inter)
 #' 
-#' \dontrun{
-#' H2_j(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
+#' # As a barplot
+#' if (requireNamespace("ggplot2", quietly = TRUE)) {
+#'   plot(inter, stat = 1)
+#' }
 #' 
 #' # MODEL TWO: Multi-response linear regression
 #' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
 #' v <- c("Petal.Length", "Petal.Width", "Species")
 #' inter <- interact(fit, v = v, X = iris, verbose = FALSE)
 #' H2_j(inter)
+#' 
+#' # As a barplot
+#' if (requireNamespace("ggplot2", quietly = TRUE)) {
+#'   plot(inter, stat = 1)
 #' }
 H2_j <- function(object, ...) {
   UseMethod("H2_j")

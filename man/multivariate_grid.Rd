@@ -17,8 +17,8 @@ multivariate_grid(
 \item{grid_size}{Controls the approximate grid size. If \code{x} has p columns, then each
 (non-discrete) column will be reduced to about the p-th root of \code{grid_size} values.}
 
-\item{trim}{A non-discrete numeric \code{z} is trimmed at these quantile probabilities
-before calculations. Set to \code{c(0, 1)} for no trimming.}
+\item{trim}{A non-discrete numeric variable is trimmed at these quantile
+probabilities before calculations. Set to \code{c(0, 1)} for no trimming.}
 
 \item{strategy}{How to find evaluation points of non-discrete numeric columns?
 Either "uniform" (via \code{\link[=pretty]{pretty()}}) or "quantile", see description of
@@ -35,4 +35,7 @@ Combinations are then formed by calling \code{\link[=expand.grid]{expand.grid()}
 \examples{
 multivariate_grid(iris[1:2], grid_size = 4)
 multivariate_grid(iris$Species)  # Works also in the univariate case
+}
+\seealso{
+\code{\link[=univariate_grid]{univariate_grid()}}
 }

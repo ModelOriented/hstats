@@ -23,7 +23,8 @@ The package
 - supports multivariate predictions,
 - respects case weights, and
 - works with both data.frames and matrices (e.g., for XGBoost).
-- Furthermore, different variants of the original statistics in [2] are available.
+
+Furthermore, different variants of the original statistics in [2] are available.
 
 Note: The {gbm} package offers a model-specific implementation of some of the statistics. Since it uses the weighted tree-traversal method of [1] to estimate partial dependence functions, the results are typically slightly different.
 
@@ -41,7 +42,7 @@ We are going to model logarithmic sales prices as a function of geographic featu
 
 What can we say about interactions? Can we verify additivity in non-geographic features?
 
-### Fit XGBoost model
+### Fit model
 
 ```r
 library(interactML)
@@ -71,6 +72,7 @@ X_valid <- data.matrix(miami[-ix, x])
 dtrain <- xgb.DMatrix(X_train, label = y_train)
 dvalid <- xgb.DMatrix(X_valid, label = y_valid)
 
+# Fit
 params <- list(
   learning_rate = 0.2,
   objective = "reg:squarederror",
@@ -91,10 +93,10 @@ fit <- xgb.train(
 
 ### Analyze interactions 
 
-We will
+To analyze interactions, we will
 
 1. call `interact()` for the expensive crunching and
-2. get statistics with `summary()`.
+2. get statistics with `summary()` and/or `plot()`.
 
 ```r
 # 2-3 seconds on simple laptop - a random forest will take 1-2 minutes
@@ -106,7 +108,7 @@ system.time(
 summary(inter)
 
 # Output
-Proportion of prediction variability explained by interactions
+Proportion of prediction variability unexplained by main effects of v
 0.09602024 
 
 Strongest overall interactions
@@ -140,12 +142,11 @@ OCEAN_DIST:RAIL_DIST 0.007081773
 plot(inter)
 ```
 
-![](man/figures/interact.png)
-
+![](man/figures/interact.svg)
 
 **Interpretation** 
 
-- About 10% of prediction variability comes from interaction effects.
+- About 10% of prediction variability is unexplained by the sum of all main effects.
 - The strongest overall interactions are associated with "OCEAN_DIST" and "LONGITUDE". For instance, we can say that about 6% of prediction variability can be attributed to all interactions of "OCEAN_DISTANCE".
 - About 15.6% of the joint effect variability of above two features comes from their pairwise interaction.
 
@@ -165,23 +166,28 @@ LATITUDE:OCEAN_DIST  0.04797644
 LONGITUDE:CNTR_DIST  0.04796194
 CNTR_DIST:OCEAN_DIST 0.04718950
 LATITUDE:LONGITUDE   0.03807378
+
+# Again, we can use plot() to visualize these values 
+# (stat = 2 focusses on pairwise stats)
+plot(inter, stat = 2, normalize = FALSE, squared = FALSE, top_m = 5)
 ```
+
+![](man/figures/interact_pairwise.svg)
 
 **Interpretation:** The strongest pairwise interaction remains the one between longitude and distance to the ocean.
 
 Let's check a stratified partial dependence plot to get an impression how the interaction looks like:
 
 ```r
-library(ggplot2)  # "suggested" package to keep the dependency footprint low
-
 # "BY" can be a column name in X, or any vector of (possibly transformed) values
+# Numeric features are quantile binned into groups of similar size
 pd <- partial_dep(fit, v = "LONGITUDE", X = X_train, BY = "OCEAN_DIST")
-plot(pd)
+plot(pd)  # Requires {ggplot2}
 ```
 
 **Interpretation:** For short distance to the ocean groups, the LONGITUDE effect looks indeed quite different.
 
-![](man/figures/pdp_long_ocean.png)
+![](man/figures/pdp_long_ocean.svg)
 
 As a contrast, the following plots shows perfectly parallel lines (additivity in living area):
 
@@ -189,7 +195,7 @@ As a contrast, the following plots shows perfectly parallel lines (additivity in
 plot(partial_dep(fit, v = "TOT_LVG_AREA", X = X_train, BY = "OCEAN_DIST"))
 ```
 
-![](man/figures/pdp_living_ocean.png)
+![](man/figures/pdp_living_ocean.svg)
 
 ## Background
 
@@ -206,7 +212,7 @@ $$
 
 where $\boldsymbol x_{i\setminus s}$, $i = 1, \dots, n$, are the observed values of $\boldsymbol x_{\setminus s}$.
 
-A partial dependence plot (PDP) plots the values of ${\hat F_s(\boldsymbol x_s)$
+A partial dependence plot (PDP) plots the values of $\hat F_s(\boldsymbol x_s)$
 over a grid of evaluation points $\boldsymbol x_s$.
 
 ### Overall interaction strength
@@ -280,13 +286,13 @@ $$
 	F(\boldsymbol x) = \sum_{j}^{p} F_j(x_j).
 $$
 
-To measure the relative amount of variability explained by all interactions, we can therefore study the test statistic of total interaction strength
+To measure the relative amount of variability unexplained by all main effects, we can therefore study the test statistic of total interaction strength
 
 $$
   H^2 = \frac{\frac{1}{n} \sum_{i = 1}^n \left[F(\boldsymbol x_i) - \sum_{j = 1}^p\hat F_j(x_{ij})\right]^2}{\frac{1}{n} \sum_{i = 1}^n\left[F(\boldsymbol x_i)\right]^2}.
 $$
 
-It equals the variability of the predictions unexplained by the main effects. A value of 0 would mean there are no interaction effects at all.
+A value of 0 would mean there are no interaction effects at all.
 
 ### Workflow
 

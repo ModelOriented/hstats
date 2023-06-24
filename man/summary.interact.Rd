@@ -19,16 +19,6 @@ A list of resulting matrices.
 \description{
 Summary method for "interact" object.
 }
-\examples{
-fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
-inter <- interact(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
-summary(inter)
-
-# summary() returns list of statistics
-s <- summary(inter)
-s$H2_j  # same as H2_j(inter)
-
-}
 \seealso{
-\code{\link[=interact]{interact()}}
+See \code{\link[=interact]{interact()}} for examples.
 }

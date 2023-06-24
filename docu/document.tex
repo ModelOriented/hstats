@@ -9,7 +9,7 @@
 \section{Background}
 \subsection{Partial dependence}
 Let $F: R^p \to R$ denote the prediction function that maps the $p$-dimensional feature vector $\mathbf{x} = (x_1, \dots, x_p)$ to its prediction.
-Furthermore, let $F_s(\mathbf{x}_s) = E_{\mathbf{x}_{\setminus s}}(F(\mathbf{x}_s, \mathbf{x}_{\setminus s}))$ be the partial dependence function of $F$ on the feature subset $\mathbf{x}_s$, where $s \subseteq \{1, \dots, p\}$, as introduced in [1]. Here, the expectation runs over the joint marginal distribution of features $\mathbf{x}_{\setminus s}$ not in $\mathbf{x}_s$.
+Furthermore, let $F_s(\mathbf{x}_s) = E_{\mathbf{x}_{\setminus s}}(F(\mathbf{x}_s, \mathbf{x}_{\setminus s}))$ be the partial dependence function of $F$ on the feature subset $\mathbf{x}_s$, where $s \subseteq \{1, \dots, p\}$, as introduced in \cite{friedman2001}. Here, the expectation runs over the joint marginal distribution of features $\mathbf{x}_{\setminus s}$ not in $\mathbf{x}_s$.
 
 Given data, $F_s(\mathbf{x}_s)$ can be estimated by the empirical partial dependence function
 $$
@@ -18,7 +18,7 @@ $$
 where $\mathbf{x}_{i\setminus s}$, $i = 1, \dots, n$, are the observed values of $\mathbf{x}_{\setminus s}$.
 
 \subsection{Overall interaction strength}
-In [2], Friedman and Popescu introduced different statistics to measure interaction strength. Closely following their notation, we will summarize the main ideas. 
+In \cite{friedman2008}, Friedman and Popescu introduced different statistics to measure interaction strength. Closely following their notation, we will summarize the main ideas. 
 
 If there are no interactions involving $x_j$, we can decompose the prediction function $F$ into the sum of the partial dependence $F_j$ on $x_j$ and the partial dependence $F_{\setminus j}$ on all other features $\mathbf{x}_{\setminus j}$, i.e.,
 $$
@@ -39,7 +39,7 @@ $$
 \end{enumerate}
 
 \subsection{Pairwise interaction strength}
-Again following [2], if there are no interaction effects between features $x_j$ and $x_k$, their two-dimensional partial dependence function $F_{jk}$ can be written as the sum of the univariate partial dependencies, i.e.,
+Again following \cite{friedman2008}, if there are no interaction effects between features $x_j$ and $x_k$, their two-dimensional partial dependence function $F_{jk}$ can be written as the sum of the univariate partial dependencies, i.e.,
 $$
   F_{jk}(x_j, x_k) = F_j(x_j)+ F_k(x_k).
 $$
@@ -59,7 +59,7 @@ $$
 \begin{enumerate}
 	\item Remarks 1--4 of $H^2_{j}$ also apply here.
 	\item $H^2_{jk} = 0$ means there are no interaction effects between $x_j$ and $x_k$. The larger the value, the more of the joint effect of the two features comes from the interaction.
-	\item Since the denominator differs between variable pairs, unlike $H_j$, this test statistic is difficult to compare between variable pairs. If both main effects are very weak, a negligible interaction can get a high $H^2_{jk}$. Therefore, [2] suggests to calculate $H^2_{jk}$ only for {\em important} variables.
+	\item Since the denominator differs between variable pairs, unlike $H_j$, this test statistic is difficult to compare between variable pairs. If both main effects are very weak, a negligible interaction can get a high $H^2_{jk}$. Therefore, \cite{friedman2008} suggests to calculate $H^2_{jk}$ only for {\em important} variables.
 \end{enumerate}
 
 \paragraph{Modification:} To be better able to compare pairwise interaction strength across variable pairs, and to overcome the problem mentioned in the last remark, we suggest as alternative the unnormalized test statistic on the scale of the predictions, i.e., $\sqrt{A_{jk}}$. 
@@ -70,11 +70,11 @@ If the model is additive in all features (no interactions), then
 $$
 	F(\mathbf{x}) = \sum_{j}^{p} F_j(x_j).
 $$
-To measure the relative amount of variability explained by all interactions, we can therefore study the test statistic of total interaction strength
+To measure the relative amount of variability unexplained by all main effects, we can therefore study the test statistic of total interaction strength
 $$
   H^2 = \frac{\frac{1}{n} \sum_{i = 1}^n \big[F(\mathbf{x}_i) - \sum_{j = 1}^p\hat F_j(x_{ij})\big]^2}{\frac{1}{n} \sum_{i = 1}^n\big[F(\mathbf{x}_i)\big]^2}.
 $$
-It equals the variability of the predictions unexplained by the main effects. A value of 0 would mean there are no interaction effects at all.
+A value of 0 would mean there are no interaction effects at all.
 
 \subsection{Workflow}
 Calculation of all $H_j^2$ statistics requires $O(n^2p)$ predictions, while calculating of all pairwise $H_{jk}$ requires $O(n^2 p^2)$ predictions. Therefore, we suggest to reduce the workflow in two important ways:
@@ -83,4 +83,8 @@ Calculation of all $H_j^2$ statistics requires $O(n^2p)$ predictions, while calc
 \item Calculate $H_j^2$ for all features. Then, select a small number $m = O(\sqrt{p})$ of features with highest $H^2_j$ and do pairwise calculations only on this subset.
 \end{itemize}
 This leads to a total number of $O(n'^2 p))$ predictions.
+
+\bibliographystyle{ieeetr}
+\bibliography{biblio}
+
 \end{document}

@@ -25,20 +25,6 @@ An object of class "ggplot".
 Plot method for object of class "pd". It supports multivariate predictions and a
 BY variable, but only univariable \code{v}.
 }
-\examples{
-if (requireNamespace("ggplot2", quietly = TRUE)) {
-  fit <- lm(Sepal.Length ~ . + Species * Petal.Length, data = iris)
-  plot(partial_dep(fit, v = "Species", X = iris))
-
-  # Multi-response linear regression
-  fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
-  
-  # BY = iris$Species also works. This allows to use transformed features.
-  pd <- partial_dep(fit, v = "Petal.Width", X = iris, BY = "Species", grid_size = 13)
-  plot(pd)
-}
-
-}
 \seealso{
-\code{\link[=partial_dep]{partial_dep()}}
+See \code{\link[=partial_dep]{partial_dep()}} for examples.
 }

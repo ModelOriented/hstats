@@ -2,11 +2,11 @@
 #' 
 #' @description
 #' This is the main function of the package. It does the expensive calculations behind
-#' interaction statistics:
-#' - Total interaction strength \eqn{H^2}, a statistic measuring the proportion
-#'   of prediction variability unexplained by main effects, see [H2()] for the definition.
+#' these interaction statistics:
+#' - Total interaction strength \eqn{H^2}, a statistic measuring the proportion of
+#'   prediction variability unexplained by main effects of `v`, see [H2()] for details.
 #' - Friedman and Popescu's \eqn{H^2_j} statistic of overall interaction strength per
-#'   feature, see [H2_j()] for its definition.
+#'   feature, see [H2_j()] for details.
 #' - Friedman and Popescu's \eqn{H^2_{jk}} statistic of pairwise interaction strength,
 #'   see [H2_jk()] for details.
 #'  
@@ -14,9 +14,9 @@
 #'  more flexible functions [H2()], [H2_j()], and [H2_jk()].
 #'  
 #' @inheritParams partial_dep
-#' @param pairwise_m Number of features for which pairwise statistics are calculated.
-#'   The features are selected based on Friedman and Popescu's overall interaction 
-#'   strength \eqn{H^2_j} (rowwise maximum in the multivariate case). 
+#' @param pairwise_m Number of features for which pairwise statistics are to be 
+#'   calculated. The features are selected based on Friedman and Popescu's overall 
+#'   interaction strength \eqn{H^2_j} (rowwise maximum in the multivariate case). 
 #'   Set to `length(v)` to calculate every pair and to 0 to avoid pairwise calculations. 
 #' @param verbose Should a progress bar be shown? The default is `TRUE`.
 #' @returns 
@@ -46,12 +46,22 @@
 #' inter <- interact(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
 #' inter
 #' summary(inter)
+#' if (requireNamespace("ggplot2", quietly = TRUE)) {
+#'   plot(inter)
+#'   
+#'   # Absolute pairwise interaction strengths
+#'   plot(inter, stat = 2, normalize = FALSE, squared = FALSE)
+#'   H2_jk(inter, normalize = FALSE, squared = FALSE)  # Same as number
+#' }
 #' 
 #' # MODEL TWO: Multi-response linear regression
 #' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
 #' v <- c("Petal.Length", "Petal.Width", "Species")
 #' inter <- interact(fit, v = v, X = iris, verbose = FALSE)
 #' summary(inter)
+#' if (requireNamespace("ggplot2", quietly = TRUE)) {
+#'   plot(inter)
+#' }
 #'
 #' # MODEL THREE: Gamma GLM with log link
 #' fit <- glm(Sepal.Length ~ ., data = iris, family = Gamma(link = log))
@@ -65,7 +75,6 @@
 #'   fit, v = names(iris[-1]), X = iris, type = "response", verbose = FALSE
 #' )
 #' summary(inter)
-#' 
 interact <- function(object, ...) {
   UseMethod("interact")
 }
@@ -235,11 +244,7 @@ interact.Learner <- function(object, v, X,
 #' @param ... Further arguments passed from other methods.
 #' @returns Invisibly, the input is returned.
 #' @export
-#' @examples
-#' fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
-#' inter <- interact(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
-#' inter 
-#' @seealso [interact()]
+#' @seealso See [interact()] for examples.
 print.interact <- function(x, ...) {
   cat("'interact' object. Run summary() to get interaction statistics.\n")
   invisible(x)
@@ -254,22 +259,13 @@ print.interact <- function(x, ...) {
 #' @param ... Further arguments passed from other methods.
 #' @returns A list of resulting matrices.
 #' @export
-#' @examples
-#' fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
-#' inter <- interact(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
-#' summary(inter)
-#' 
-#' # summary() returns list of statistics
-#' s <- summary(inter)
-#' s$H2_j  # same as H2_j(inter)
-#' 
-#' @seealso [interact()]
+#' @seealso See [interact()] for examples.
 summary.interact <- function(object, top_m = 10L, ...) {
   h2 <- H2(object)
   h2_j <- H2_j(object)
   h2_jk <- H2_jk(object)
   
-  cat("Proportion of prediction variability explained by interactions\n")
+  cat("Proportion of prediction variability unexplained by main effects of v\n")
   print(h2)
   cat("\n")
   
@@ -296,21 +292,7 @@ summary.interact <- function(object, top_m = 10L, ...) {
 #' @param ... Further arguments passed to statistics [H2_j()] and [H2_jk()].
 #' @returns An object of class "ggplot".
 #' @export
-#' @examples
-#' if (requireNamespace("ggplot2", quietly = TRUE)) {
-#'   # MODEL ONE: Linear regression
-#'   fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
-#'   inter <- interact(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
-#'   plot(inter)
-#' 
-#'   # MODEL TWO: Multi-response linear regression
-#'   fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
-#'   v <- c("Petal.Length", "Petal.Width", "Species")
-#'   inter <- interact(fit, v = v, X = iris, verbose = FALSE)
-#'   plot(inter, stat = 1)
-#' }
-#' 
-#' @seealso [interact()]
+#' @seealso See [interact()] for examples.
 plot.interact <- function(x, stat = 1:2, top_m = 10L, fill = "#2b51a1", ...) {
   if (!requireNamespace("ggplot2", quietly = TRUE)) {
     stop("Please install 'ggplot2' to use plot().")
@@ -324,20 +306,19 @@ plot.interact <- function(x, stat = 1:2, top_m = 10L, fill = "#2b51a1", ...) {
     if (2L %in% stat) mat2df(h2_jk, id = "Pairwise")
   )
 
-  p <- ggplot2::ggplot(data, ggplot2::aes(x = y_value, y = variable_name)) +
+  p <- ggplot2::ggplot(data, ggplot2::aes(x = value_, y = variable_)) +
     ggplot2::ylab(ggplot2::element_blank()) +
-    ggplot2::xlab("Value of statistic")
+    ggplot2::xlab("Value")
   
   if (length(stat) == 2L) {
-    p <- p + ggplot2::facet_wrap(~ id_name, scales = "free")
+    p <- p + ggplot2::facet_wrap(~ id_, scales = "free")
   }
-  
   if (ncol(h2_j) == 1L) {
     p + ggplot2::geom_bar(fill = fill, stat = "identity")
   } else {
     p + 
       ggplot2::geom_bar(
-        ggplot2::aes(fill = y_variable), stat = "identity", position = "dodge"
+        ggplot2::aes(fill = varying_), stat = "identity", position = "dodge"
       ) + 
       ggplot2::labs(fill = "Dim")
   }

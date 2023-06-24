@@ -17,11 +17,6 @@ Invisibly, the input is returned.
 \description{
 Print method for object of class "interact".
 }
-\examples{
-fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
-inter <- interact(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
-inter 
-}
 \seealso{
-\code{\link[=interact]{interact()}}
+See \code{\link[=interact]{interact()}} for examples.
 }
