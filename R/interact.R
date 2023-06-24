@@ -250,7 +250,7 @@ print.interact <- function(x, ...) {
 #' Summary method for "interact" object.
 #'
 #' @param object An object of class "interact".
-#' @param n Maximum number of rows of results to print.s
+#' @param top_m Maximum number of rows of results to print.
 #' @param ... Further arguments passed from other methods.
 #' @returns A list of resulting matrices.
 #' @export
@@ -264,7 +264,7 @@ print.interact <- function(x, ...) {
 #' s$H2_j  # same as H2_j(inter)
 #' 
 #' @seealso [interact()]
-summary.interact <- function(object, n = 10L, ...) {
+summary.interact <- function(object, top_m = 10L, ...) {
   h2 <- H2(object)
   h2_j <- H2_j(object)
   h2_jk <- H2_jk(object)
@@ -274,12 +274,71 @@ summary.interact <- function(object, n = 10L, ...) {
   cat("\n")
   
   cat("Strongest overall interactions\n")
-  print(utils::head(h2_j, n))
+  print(utils::head(h2_j, top_m))
   cat("\n")
   
   cat("Strongest relative pairwise interactions\n")
   cat("(only for features with strong overall interactions)\n")
-  print(utils::head(h2_jk, n))
+  print(utils::head(h2_jk, top_m))
   cat("\n")
   invisible(list(H2 = h2, H2_j = h2_j, H2_jk = h2_jk))
+}
+
+#' Plot Interaction Statistics
+#' 
+#' Plot method for object of class "interact".
+#'
+#' @param x An object of class "interact".
+#' @param stat Which statistic(s) to be shown? Default is `1:2`, i.e., show both
+#'   \eqn{H^2_j} (1) and \eqn{H^2_{jk}} (2).
+#' @param top_m Maximum number of rows of results to plot.
+#' @param fill Color of bars (univariate case).
+#' @param ... Further arguments passed to statistics [H2_j()] and [H2_jk()].
+#' @returns An object of class "ggplot".
+#' @export
+#' @examples
+#' if (requireNamespace("ggplot2", quietly = TRUE)) {
+#'   # MODEL ONE: Linear regression
+#'   fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
+#'   inter <- interact(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
+#'   plot(inter)
+#' 
+#'   # MODEL TWO: Multi-response linear regression
+#'   fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
+#'   v <- c("Petal.Length", "Petal.Width", "Species")
+#'   inter <- interact(fit, v = v, X = iris, verbose = FALSE)
+#'   plot(inter, stat = 1)
+#' }
+#' 
+#' @seealso [interact()]
+plot.interact <- function(x, stat = 1:2, top_m = 10L, fill = "#2b51a1", ...) {
+  if (!requireNamespace("ggplot2", quietly = TRUE)) {
+    stop("Please install 'ggplot2' to use plot().")
+  }
+  
+  h2_j <- H2_j(x, top_m = top_m, ...)
+  h2_jk <- H2_jk(x, top_m = top_m, ...)
+  
+  data <- rbind.data.frame(
+    if (1L %in% stat) mat2df(h2_j, id = "Overall"),
+    if (2L %in% stat) mat2df(h2_jk, id = "Pairwise")
+  )
+
+  p <- ggplot2::ggplot(data, ggplot2::aes(x = y_value, y = variable_name)) +
+    ggplot2::ylab(ggplot2::element_blank()) +
+    ggplot2::xlab("Value of statistic")
+  
+  if (length(stat) == 2L) {
+    p <- p + ggplot2::facet_wrap(~ id_name, scales = "free")
+  }
+  
+  if (ncol(h2_j) == 1L) {
+    p + ggplot2::geom_bar(fill = fill, stat = "identity")
+  } else {
+    p + 
+      ggplot2::geom_bar(
+        ggplot2::aes(fill = y_variable), stat = "identity", position = "dodge"
+      ) + 
+      ggplot2::labs(fill = "Dim")
+  }
 }
