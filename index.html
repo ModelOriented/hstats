@@ -94,8 +94,8 @@
 <li>supports multivariate predictions,</li>
 <li>respects case weights, and</li>
 <li>works with both data.frames and matrices (e.g., for XGBoost).</li>
-<li>Furthermore, different variants of the original statistics in [2] are available.</li>
 </ul>
+<p>Furthermore, different variants of the original statistics in [2] are available.</p>
 <p>Note: The {gbm} package offers a model-specific implementation of some of the statistics. Since it uses the weighted tree-traversal method of [1] to estimate partial dependence functions, the results are typically slightly different.</p>
 </div>
 <div class="section level2">
@@ -111,7 +111,7 @@
 <p>We are going to model logarithmic sales prices as a function of geographic features and other features like living area and building age. The model is fitted with XGBoost using interaction constraints to produce a model additive in all non-geographic features.</p>
 <p>What can we say about interactions? Can we verify additivity in non-geographic features?</p>
 <div class="section level3">
-<h3 id="fit-xgboost-model">Fit XGBoost model<a class="anchor" aria-label="anchor" href="#fit-xgboost-model"></a>
+<h3 id="fit-model">Fit model<a class="anchor" aria-label="anchor" href="#fit-model"></a>
 </h3>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/mayer79/interactML" class="external-link">interactML</a></span><span class="op">)</span></span>
@@ -141,6 +141,7 @@
 <span><span class="va">dtrain</span> <span class="op">&lt;-</span> <span class="fu">xgb.DMatrix</span><span class="op">(</span><span class="va">X_train</span>, label <span class="op">=</span> <span class="va">y_train</span><span class="op">)</span></span>
 <span><span class="va">dvalid</span> <span class="op">&lt;-</span> <span class="fu">xgb.DMatrix</span><span class="op">(</span><span class="va">X_valid</span>, label <span class="op">=</span> <span class="va">y_valid</span><span class="op">)</span></span>
 <span></span>
+<span><span class="co"># Fit</span></span>
 <span><span class="va">params</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>  learning_rate <span class="op">=</span> <span class="fl">0.2</span>,</span>
 <span>  objective <span class="op">=</span> <span class="st">"reg:squarederror"</span>,</span>
@@ -160,10 +161,10 @@
 <div class="section level3">
 <h3 id="analyze-interactions">Analyze interactions<a class="anchor" aria-label="anchor" href="#analyze-interactions"></a>
 </h3>
-<p>We will</p>
+<p>To analyze interactions, we will</p>
 <ol style="list-style-type: decimal">
 <li>call <code><a href="reference/interact.html">interact()</a></code> for the expensive crunching and</li>
-<li>get statistics with <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>.</li>
+<li>get statistics with <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> and/or <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code>.</li>
 </ol>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 2-3 seconds on simple laptop - a random forest will take 1-2 minutes</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
@@ -174,7 +175,7 @@
 <span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(inter)</span>
 <span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Output</span></span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>Proportion of prediction variability explained by interactions</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>Proportion of prediction variability unexplained by main effects of v</span>
 <span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="fl">0.09602024</span> </span>
 <span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>Strongest overall interactions</span>
@@ -206,10 +207,10 @@
 <span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a><span class="co"># If {ggplot2} is available, we can also plot the statistics</span></span>
 <span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(inter)</span></code></pre></div>
-<p><img src="reference/figures/interact.png"></p>
+<p><img src="reference/figures/interact.svg"></p>
 <p><strong>Interpretation</strong></p>
 <ul>
-<li>About 10% of prediction variability comes from interaction effects.</li>
+<li>About 10% of prediction variability is unexplained by the sum of all main effects.</li>
 <li>The strongest overall interactions are associated with “OCEAN_DIST” and “LONGITUDE”. For instance, we can say that about 6% of prediction variability can be attributed to all interactions of “OCEAN_DISTANCE”.</li>
 <li>About 15.6% of the joint effect variability of above two features comes from their pairwise interaction.</li>
 </ul>
@@ -226,21 +227,25 @@
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>LATITUDE<span class="sc">:</span>OCEAN_DIST  <span class="fl">0.04797644</span></span>
 <span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>LONGITUDE<span class="sc">:</span>CNTR_DIST  <span class="fl">0.04796194</span></span>
 <span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>CNTR_DIST<span class="sc">:</span>OCEAN_DIST <span class="fl">0.04718950</span></span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>LATITUDE<span class="sc">:</span>LONGITUDE   <span class="fl">0.03807378</span></span></code></pre></div>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>LATITUDE<span class="sc">:</span>LONGITUDE   <span class="fl">0.03807378</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Again, we can use plot() to visualize these values </span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co"># (stat = 2 focusses on pairwise stats)</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(inter, <span class="at">stat =</span> <span class="dv">2</span>, <span class="at">normalize =</span> <span class="cn">FALSE</span>, <span class="at">squared =</span> <span class="cn">FALSE</span>, <span class="at">top_m =</span> <span class="dv">5</span>)</span></code></pre></div>
+<p><img src="reference/figures/interact_pairwise.svg"></p>
 <p><strong>Interpretation:</strong> The strongest pairwise interaction remains the one between longitude and distance to the ocean.</p>
 <p>Let’s check a stratified partial dependence plot to get an impression how the interaction looks like:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span>  <span class="co"># "suggested" package to keep the dependency footprint low</span></span>
-<span></span>
-<span><span class="co"># "BY" can be a column name in X, or any vector of (possibly transformed) values</span></span>
+<code class="sourceCode R"><span><span class="co"># "BY" can be a column name in X, or any vector of (possibly transformed) values</span></span>
+<span><span class="co"># Numeric features are quantile binned into groups of similar size</span></span>
 <span><span class="va">pd</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/partial_dep.html">partial_dep</a></span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="st">"LONGITUDE"</span>, X <span class="op">=</span> <span class="va">X_train</span>, BY <span class="op">=</span> <span class="st">"OCEAN_DIST"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pd</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pd</span><span class="op">)</span>  <span class="co"># Requires {ggplot2}</span></span></code></pre></div>
 <p><strong>Interpretation:</strong> For short distance to the ocean groups, the LONGITUDE effect looks indeed quite different.</p>
-<p><img src="reference/figures/pdp_long_ocean.png"></p>
+<p><img src="reference/figures/pdp_long_ocean.svg"></p>
 <p>As a contrast, the following plots shows perfectly parallel lines (additivity in living area):</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="reference/partial_dep.html">partial_dep</a></span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="st">"TOT_LVG_AREA"</span>, X <span class="op">=</span> <span class="va">X_train</span>, BY <span class="op">=</span> <span class="st">"OCEAN_DIST"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="reference/figures/pdp_living_ocean.png"></p>
+<p><img src="reference/figures/pdp_living_ocean.svg"></p>
 </div>
 </div>
 <div class="section level2">
@@ -255,7 +260,7 @@
   \hat F_s(\boldsymbol x_s) = \frac{1}{n} \sum_{i = 1}^n F(\boldsymbol x_s, \boldsymbol x_{i \setminus s}),
 $$</span></p>
 <p>where <span class="math inline"><strong>x</strong><sub><em>i</em> \ <em>s</em></sub></span>, <span class="math inline"><em>i</em> = 1, …, <em>n</em></span>, are the observed values of <span class="math inline"><strong>x</strong><sub>\<em>s</em></sub></span>.</p>
-<p>A partial dependence plot (PDP) plots the values of <span class="math inline">${\hat F_s(\boldsymbol x_s)$</span> over a grid of evaluation points <span class="math inline"><strong>x</strong><sub><em>s</em></sub></span>.</p>
+<p>A partial dependence plot (PDP) plots the values of <span class="math inline"><em>F̂</em><sub><em>s</em></sub>(<strong>x</strong><sub><em>s</em></sub>)</span> over a grid of evaluation points <span class="math inline"><strong>x</strong><sub><em>s</em></sub></span>.</p>
 </div>
 <div class="section level3">
 <h3 id="overall-interaction-strength">Overall interaction strength<a class="anchor" aria-label="anchor" href="#overall-interaction-strength"></a>
@@ -313,11 +318,11 @@ $$</span></p>
 <p><span class="math display">$$
     F(\boldsymbol x) = \sum_{j}^{p} F_j(x_j).
 $$</span></p>
-<p>To measure the relative amount of variability explained by all interactions, we can therefore study the test statistic of total interaction strength</p>
+<p>To measure the relative amount of variability unexplained by all main effects, we can therefore study the test statistic of total interaction strength</p>
 <p><span class="math display">$$
   H^2 = \frac{\frac{1}{n} \sum_{i = 1}^n \left[F(\boldsymbol x_i) - \sum_{j = 1}^p\hat F_j(x_{ij})\right]^2}{\frac{1}{n} \sum_{i = 1}^n\left[F(\boldsymbol x_i)\right]^2}.
 $$</span></p>
-<p>It equals the variability of the predictions unexplained by the main effects. A value of 0 would mean there are no interaction effects at all.</p>
+<p>A value of 0 would mean there are no interaction effects at all.</p>
 </div>
 <div class="section level3">
 <h3 id="workflow">Workflow<a class="anchor" aria-label="anchor" href="#workflow"></a>

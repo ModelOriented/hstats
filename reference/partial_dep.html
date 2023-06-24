@@ -146,8 +146,8 @@ binned into <code>by_size</code> quantile groups of similar size.</p></dd>
 
 
 <dt>by_size</dt>
-<dd><p>Numeric <code>BY</code> values with more than <code>by_size</code> unique values will
-be binned via <code><a href="https://rdrr.io/r/base/cut.html" class="external-link">cut()</a></code> into quantile groups. Only relevant if <code>BY</code> is not <code>NULL</code>.</p></dd>
+<dd><p>Numeric <code>BY</code> variables with more than <code>by_size</code> unique values will
+be binned into quantile groups. Only relevant if <code>BY</code> is not <code>NULL</code>.</p></dd>
 
 
 <dt>grid</dt>
@@ -160,8 +160,8 @@ be binned via <code><a href="https://rdrr.io/r/base/cut.html" class="external-li
 
 
 <dt>trim</dt>
-<dd><p>A non-discrete numeric <code>z</code> is trimmed at these quantile probabilities
-before calculations. Set to <code>c(0, 1)</code> for no trimming.</p></dd>
+<dd><p>A non-discrete numeric variable is trimmed at these quantile
+probabilities before calculations. Set to <code>c(0, 1)</code> for no trimming.</p></dd>
 
 
 <dt>strategy</dt>
@@ -183,11 +183,11 @@ selected from <code>X</code>. In this case, set a random seed for reproducibilit
     <h2>Value</h2>
     
 
-<p>A list with additional class "pd" containing the following elements</p><ul><li><p><code>pd</code>: data.frame representing both the evaluation grid and the corresponding
-partial dependencies.</p></li>
+<p>A list with additional class "pd" containing the following elements</p><ul><li><p><code>pd</code>: data.frame representing the evaluation grid and the corresponding
+partial dependencies. (And the optional <code>BY</code> variable.)</p></li>
 <li><p><code>v</code>: Same as input <code>v</code>.</p></li>
 <li><p><code>pred_names</code>: Vector of column names representing partial dependencies.</p></li>
-<li><p><code>by_name</code>: <code>BY</code> name used as color legend of the plot method (or <code>NULL</code>).</p></li>
+<li><p><code>by_name</code>: Name of the <code>BY</code> column in the resulting data.frame.</p></li>
 </ul></div>
     <div id="methods-by-class-">
     <h2>Methods (by class)</h2>
@@ -239,21 +239,29 @@ Annals of Statistics 29, no. 5 (2001): 1189-1232.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1     setosa 5.476540</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2 versicolor 5.748857</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 3  virginica 5.207491</span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"ggplot2"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pd</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-plt img"><img src="partial_dep-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Stratified by numeric BY variable (which is automatically binned)</span></span></span>
 <span class="r-in"><span><span class="va">pd</span> <span class="op">&lt;-</span> <span class="fu">partial_dep</span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="st">"Species"</span>, X <span class="op">=</span> <span class="va">iris</span>, BY <span class="op">=</span> <span class="va">iris</span><span class="op">$</span><span class="va">Petal.Length</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">pd</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> First partial dependence rows (use x$pd to extract all)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          BY    Species        y</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       Group    Species        y</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1   [1,1.5]     setosa 4.975705</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2   [1,1.5] versicolor 4.466946</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 3   [1,1.5]  virginica 3.474929</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 4 (1.5,3.9]     setosa 5.116463</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 5 (1.5,3.9] versicolor 4.990916</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 6 (1.5,3.9]  virginica 4.219998</span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"ggplot2"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pd</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-plt img"><img src="partial_dep-2.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Multivariable input</span></span></span>
+<span class="r-in"><span><span class="co"># Multivariable input (no plots available)</span></span></span>
 <span class="r-in"><span><span class="va">pd</span> <span class="op">&lt;-</span> <span class="fu">partial_dep</span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Species"</span>, <span class="st">"Petal.Width"</span><span class="op">)</span>, X <span class="op">=</span> <span class="va">iris</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">pd</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> First partial dependence rows (use x$pd to extract all)</span>
@@ -268,32 +276,36 @@ Annals of Statistics 29, no. 5 (2001): 1189-1232.</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># MODEL TWO: Multi-response linear regression</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">iris</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span> <span class="op">~</span> <span class="va">Petal.Length</span> <span class="op">+</span> <span class="va">Petal.Width</span> <span class="op">*</span> <span class="va">Species</span>, data <span class="op">=</span> <span class="va">iris</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">pd</span> <span class="op">&lt;-</span> <span class="fu">partial_dep</span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="st">"Petal.Width"</span>, X <span class="op">=</span> <span class="va">iris</span>, BY <span class="op">=</span> <span class="va">iris</span><span class="op">$</span><span class="va">Species</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">pd</span> <span class="op">&lt;-</span> <span class="fu">partial_dep</span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="st">"Petal.Width"</span>, X <span class="op">=</span> <span class="va">iris</span>, BY <span class="op">=</span> <span class="st">"Species"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">pd</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> First partial dependence rows (use x$pd to extract all)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       BY Petal.Width Sepal.Length Sepal.Width</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 setosa         0.1     4.945174    3.316740</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 setosa         0.2     4.986836    3.392946</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 setosa         0.3     5.028497    3.469151</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 setosa         0.4     5.070159    3.545356</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5 setosa         0.5     5.111821    3.621561</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6 setosa         0.6     5.153483    3.697766</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Species Petal.Width Sepal.Length Sepal.Width</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  setosa         0.1     4.945174    3.316740</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  setosa         0.2     4.986836    3.392946</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3  setosa         0.3     5.028497    3.469151</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4  setosa         0.4     5.070159    3.545356</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5  setosa         0.5     5.111821    3.621561</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6  setosa         0.6     5.153483    3.697766</span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"ggplot2"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pd</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-plt img"><img src="partial_dep-3.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Multivariate, multivariable, and BY</span></span></span>
 <span class="r-in"><span><span class="va">pd</span> <span class="op">&lt;-</span> <span class="fu">partial_dep</span><span class="op">(</span></span></span>
-<span class="r-in"><span>  <span class="va">fit</span>, v <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Petal.Width"</span>, <span class="st">"Petal.Length"</span><span class="op">)</span>, X <span class="op">=</span> <span class="va">iris</span>, BY <span class="op">=</span> <span class="va">iris</span><span class="op">$</span><span class="va">Species</span></span></span>
+<span class="r-in"><span>  <span class="va">fit</span>, v <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Petal.Width"</span>, <span class="st">"Petal.Length"</span><span class="op">)</span>, X <span class="op">=</span> <span class="va">iris</span>, BY <span class="op">=</span> <span class="st">"Species"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">pd</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> First partial dependence rows (use x$pd to extract all)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       BY Petal.Width Petal.Length Sepal.Length Sepal.Width</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 setosa         0.0            1     4.469355    3.177012</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 setosa         0.5            1     4.677664    3.558038</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 setosa         1.0            1     4.885973    3.939064</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 setosa         1.5            1     5.094282    4.320090</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5 setosa         2.0            1     5.302591    4.701116</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6 setosa         2.5            1     5.510900    5.082142</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Species Petal.Width Petal.Length Sepal.Length Sepal.Width</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  setosa         0.0            1     4.469355    3.177012</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  setosa         0.5            1     4.677664    3.558038</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3  setosa         1.0            1     4.885973    3.939064</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4  setosa         1.5            1     5.094282    4.320090</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5  setosa         2.0            1     5.302591    4.701116</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6  setosa         2.5            1     5.510900    5.082142</span>
 <span class="r-in"><span> </span></span>
 <span class="r-in"><span><span class="co"># MODEL THREE: Gamma GLM -&gt; pass options to predict() via ...</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm</a></span><span class="op">(</span></span></span>
