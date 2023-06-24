@@ -24,21 +24,6 @@ An object of class "ggplot".
 \description{
 Plot method for object of class "interact".
 }
-\examples{
-if (requireNamespace("ggplot2", quietly = TRUE)) {
-  # MODEL ONE: Linear regression
-  fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
-  inter <- interact(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
-  plot(inter)
-
-  # MODEL TWO: Multi-response linear regression
-  fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
-  v <- c("Petal.Length", "Petal.Width", "Species")
-  inter <- interact(fit, v = v, X = iris, verbose = FALSE)
-  plot(inter, stat = 1)
-}
-
-}
 \seealso{
-\code{\link[=interact]{interact()}}
+See \code{\link[=interact]{interact()}} for examples.
 }

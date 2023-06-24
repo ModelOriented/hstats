@@ -61,18 +61,31 @@
 #' inter <- interact(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
 #' 
 #' # Proportion of joint effect coming from pairwise interaction
-#' # (only for features with strong overall interactions)
+#' # (only for features with strongest overall interactions)
 #' H2_jk(inter)
 #' 
-#' # Absolute measure as alternative
-#' H2_jk(inter, normalize = FALSE, squared = FALSE)  
+#' # As a barplot (okay, a single bar is not too beautiful...)
+#' if (requireNamespace("ggplot2", quietly = TRUE)) {
+#'   plot(inter, stat = 2)
+#' }
 #' 
-#' \dontrun{
+#' # Absolute measure as alternative
+#' H2_jk(inter, normalize = FALSE, squared = FALSE)
+#' 
+#' # Again as barplot
+#' if (requireNamespace("ggplot2", quietly = TRUE)) {
+#'   plot(inter, stat = 2, normalize = FALSE, squared = FALSE)
+#' }
+#' 
 #' # MODEL TWO: Multi-response linear regression
 #' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
 #' v <- c("Petal.Length", "Petal.Width", "Species")
 #' inter <- interact(fit, v = v, X = iris, verbose = FALSE)
 #' H2_jk(inter)
+#' 
+#' # Barplot
+#' if (requireNamespace("ggplot2", quietly = TRUE)) {
+#'   plot(inter, stat = 2)
 #' }
 H2_jk <- function(object, ...) {
   UseMethod("H2_jk")

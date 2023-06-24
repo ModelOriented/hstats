@@ -60,9 +60,6 @@ fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
 inter <- interact(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
 H2(inter)
 
-\dontrun{
-H2(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
-
 # MODEL TWO: Multi-response linear regression
 fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
 v <- c("Petal.Length", "Petal.Width", "Species")
@@ -73,7 +70,6 @@ H2(inter)
 fit <- lm(Sepal.Length ~ ., data = iris)
 inter <- interact(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
 H2(inter)
-}
 }
 \seealso{
 \code{\link[=interact]{interact()}}, \code{\link[=H2_j]{H2_j()}}, \code{\link[=H2_jk]{H2_jk()}}

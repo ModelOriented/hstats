@@ -1,5 +1,5 @@
 # Fix undefined global variable note
-utils::globalVariables(c("x_variable", "y_value", "BY", "y_variable", "variable_name"))
+utils::globalVariables(c("varying_", "value_", "id_", "variable_", "by_", "v_"))
 
 #' Aligns Predictions
 #' 
@@ -261,12 +261,14 @@ postprocess <- function(num, denom = 1, normalize = TRUE, squared = TRUE,
 #' 
 #' @param data A data.frame.
 #' @param to_stack Column names in `data` to bring from wide to long form.
-#' @returns A data.frame.
+#' @returns 
+#'   A data.frame with variables not in `to_stack`, a column "varying_" with
+#'   the column name from `to_stack`, and finally a column "value_" with stacked values.
 poor_man_stack <- function(data, to_stack) {
   keep <- setdiff(colnames(data), to_stack)
   out <- lapply(
     to_stack, 
-    FUN = function(z) cbind.data.frame(data[keep], y_variable = z, y_value = data[, z])
+    FUN = function(z) cbind.data.frame(data[keep], varying_ = z, value_ = data[, z])
   )
   do.call(rbind, out)
 }
@@ -280,7 +282,7 @@ poor_man_stack <- function(data, to_stack) {
 #' @keywords internal
 #' 
 #' @param mat A matrix.
-#' @param id Value of column to be added as "id_name".
+#' @param id Value of column to be added as "id_".
 #' @returns A data.frame.
 mat2df <- function(mat, id = "Overall") {
   pred_names <- colnames(mat)
@@ -290,9 +292,7 @@ mat2df <- function(mat, id = "Overall") {
     pred_names <- if (K == 1L) "y" else paste0("y", seq_len(K))
     colnames(mat) <- pred_names
   }
-  out <- cbind.data.frame(
-    id_name = id, variable_name = factor(nm, levels = rev(nm)), mat
-  )
+  out <- cbind.data.frame(id_ = id, variable_ = factor(nm, levels = rev(nm)), mat)
   poor_man_stack(out, to_stack = pred_names)
 }
 

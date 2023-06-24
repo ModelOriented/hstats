@@ -17,12 +17,13 @@
 #' 
 #' @param z A vector/factor.
 #' @param grid_size Approximate grid size.
-#' @param trim A non-discrete numeric `z` is trimmed at these quantile probabilities
-#'   before calculations. Set to `c(0, 1)` for no trimming.
+#' @param trim A non-discrete numeric variable is trimmed at these quantile 
+#'   probabilities before calculations. Set to `c(0, 1)` for no trimming.
 #' @param strategy How to find evaluation points of non-discrete numeric columns? 
 #'   Either "uniform" (via [pretty()]) or "quantile", see description of 
 #'   [univariate_grid()].
 #' @returns A vector/factor of evaluation points.
+#' @seealso [multivariate_grid()]
 #' @export
 #' @examples
 #' univariate_grid(iris$Species)
@@ -62,6 +63,7 @@ univariate_grid <- function(z, grid_size = 36L, trim = c(0.01, 0.99),
 #' @param grid_size Controls the approximate grid size. If `x` has p columns, then each
 #'   (non-discrete) column will be reduced to about the p-th root of `grid_size` values.
 #' @returns A vector, matrix, or data.frame with evaluation points.
+#' @seealso [univariate_grid()]
 #' @examples
 #' multivariate_grid(iris[1:2], grid_size = 4)
 #' multivariate_grid(iris$Species)  # Works also in the univariate case

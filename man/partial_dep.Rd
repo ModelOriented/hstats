@@ -80,16 +80,16 @@ uses the same evaluation grid to improve assessment of (non-)additivity.
 Numeric \code{BY} variables with more than \code{by_size} disjoint values will be
 binned into \code{by_size} quantile groups of similar size.}
 
-\item{by_size}{Numeric \code{BY} values with more than \code{by_size} unique values will
-be binned via \code{\link[=cut]{cut()}} into quantile groups. Only relevant if \code{BY} is not \code{NULL}.}
+\item{by_size}{Numeric \code{BY} variables with more than \code{by_size} unique values will
+be binned into quantile groups. Only relevant if \code{BY} is not \code{NULL}.}
 
 \item{grid}{Optional evaluation grid in line with \code{v}.}
 
 \item{grid_size}{Controls the approximate grid size. If \code{x} has p columns, then each
 (non-discrete) column will be reduced to about the p-th root of \code{grid_size} values.}
 
-\item{trim}{A non-discrete numeric \code{z} is trimmed at these quantile probabilities
-before calculations. Set to \code{c(0, 1)} for no trimming.}
+\item{trim}{A non-discrete numeric variable is trimmed at these quantile
+probabilities before calculations. Set to \code{c(0, 1)} for no trimming.}
 
 \item{strategy}{How to find evaluation points of non-discrete numeric columns?
 Either "uniform" (via \code{\link[=pretty]{pretty()}}) or "quantile", see description of
@@ -103,11 +103,11 @@ selected from \code{X}. In this case, set a random seed for reproducibility.}
 \value{
 A list with additional class "pd" containing the following elements
 \itemize{
-\item \code{pd}: data.frame representing both the evaluation grid and the corresponding
-partial dependencies.
+\item \code{pd}: data.frame representing the evaluation grid and the corresponding
+partial dependencies. (And the optional \code{BY} variable.)
 \item \code{v}: Same as input \code{v}.
 \item \code{pred_names}: Vector of column names representing partial dependencies.
-\item \code{by_name}: \code{BY} name used as color legend of the plot method (or \code{NULL}).
+\item \code{by_name}: Name of the \code{BY} column in the resulting data.frame.
 }
 }
 \description{
@@ -155,23 +155,32 @@ over a grid of evaluation points \eqn{\mathbf{x}_s}.
 fit <- lm(Sepal.Length ~ . + Species * Petal.Length, data = iris)
 pd <- partial_dep(fit, v = "Species", X = iris)
 pd
+if (requireNamespace("ggplot2", quietly = TRUE)) {
+  plot(pd)
+}
 
 # Stratified by numeric BY variable (which is automatically binned)
 pd <- partial_dep(fit, v = "Species", X = iris, BY = iris$Petal.Length)
 pd
+if (requireNamespace("ggplot2", quietly = TRUE)) {
+  plot(pd)
+}
 
-# Multivariable input
+# Multivariable input (no plots available)
 pd <- partial_dep(fit, v = c("Species", "Petal.Width"), X = iris)
 pd
 
 # MODEL TWO: Multi-response linear regression
 fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
-pd <- partial_dep(fit, v = "Petal.Width", X = iris, BY = iris$Species)
+pd <- partial_dep(fit, v = "Petal.Width", X = iris, BY = "Species")
 pd
+if (requireNamespace("ggplot2", quietly = TRUE)) {
+  plot(pd)
+}
 
 # Multivariate, multivariable, and BY
 pd <- partial_dep(
-  fit, v = c("Petal.Width", "Petal.Length"), X = iris, BY = iris$Species
+  fit, v = c("Petal.Width", "Petal.Length"), X = iris, BY = "Species"
 )
 pd
  

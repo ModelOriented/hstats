@@ -17,11 +17,6 @@ Invisibly, the input is returned.
 \description{
 Print method for object of class "pd".
 }
-\examples{
-fit <- lm(Sepal.Length ~ ., data = iris)
-pd <- partial_dep(fit, v = "Species", X = iris)
-pd
-}
 \seealso{
-\code{\link[=partial_dep]{partial_dep()}}
+See \code{\link[=partial_dep]{partial_dep()}} for examples.
 }

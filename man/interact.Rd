@@ -94,7 +94,7 @@ dependence functions are available.
 }
 \description{
 This is the main function of the package. It does the expensive calculations behind
-interaction statistics:
+these interaction statistics:
 \itemize{
 \item Total interaction strength \eqn{H^2}, a statistic measuring the proportion of
 prediction variability unexplained by main effects of \code{v}, see \code{\link[=H2]{H2()}} for details.
@@ -122,12 +122,22 @@ fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
 inter <- interact(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
 inter
 summary(inter)
+if (requireNamespace("ggplot2", quietly = TRUE)) {
+  plot(inter)
+  
+  # Absolute pairwise interaction strengths
+  plot(inter, stat = 2, normalize = FALSE, squared = FALSE)
+  H2_jk(inter, normalize = FALSE, squared = FALSE)  # Same as number
+}
 
 # MODEL TWO: Multi-response linear regression
 fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
 v <- c("Petal.Length", "Petal.Width", "Species")
 inter <- interact(fit, v = v, X = iris, verbose = FALSE)
 summary(inter)
+if (requireNamespace("ggplot2", quietly = TRUE)) {
+  plot(inter)
+}
 
 # MODEL THREE: Gamma GLM with log link
 fit <- glm(Sepal.Length ~ ., data = iris, family = Gamma(link = log))
@@ -141,7 +151,6 @@ inter <- interact(
   fit, v = names(iris[-1]), X = iris, type = "response", verbose = FALSE
 )
 summary(inter)
-
 }
 \references{
 Friedman, Jerome H., and Bogdan E. Popescu. \emph{"Predictive Learning via Rule Ensembles."}

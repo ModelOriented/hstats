@@ -16,8 +16,8 @@ univariate_grid(
 
 \item{grid_size}{Approximate grid size.}
 
-\item{trim}{A non-discrete numeric \code{z} is trimmed at these quantile probabilities
-before calculations. Set to \code{c(0, 1)} for no trimming.}
+\item{trim}{A non-discrete numeric variable is trimmed at these quantile
+probabilities before calculations. Set to \code{c(0, 1)} for no trimming.}
 
 \item{strategy}{How to find evaluation points of non-discrete numeric columns?
 Either "uniform" (via \code{\link[=pretty]{pretty()}}) or "quantile", see description of
@@ -48,4 +48,7 @@ univariate_grid(rev(iris$Species))                       # Same
 x <- iris$Sepal.Width
 univariate_grid(x, grid_size = 5)                        # Quantile binning
 univariate_grid(x, grid_size = 3, strategy = "uniform")  # Uniform pretty
+}
+\seealso{
+\code{\link[=multivariate_grid]{multivariate_grid()}}
 }
