@@ -62,9 +62,9 @@ model \code{object}, its second argument a data structure like \code{X}. Additio
 \code{\link[stats:predict]{stats::predict()}}, will work in most cases. Note that column names in a resulting
 matrix of predictions will be used as default column names in the results.}
 
-\item{pairwise_m}{Number of features for which pairwise statistics are calculated.
-The features are selected based on Friedman and Popescu's overall interaction
-strength \eqn{H^2_j} (rowwise maximum in the multivariate case).
+\item{pairwise_m}{Number of features for which pairwise statistics are to be
+calculated. The features are selected based on Friedman and Popescu's overall
+interaction strength \eqn{H^2_j} (rowwise maximum in the multivariate case).
 Set to \code{length(v)} to calculate every pair and to 0 to avoid pairwise calculations.}
 
 \item{n_max}{If \code{X} has more than \code{n_max} rows, a random sample of \code{n_max} rows is
@@ -96,10 +96,10 @@ dependence functions are available.
 This is the main function of the package. It does the expensive calculations behind
 interaction statistics:
 \itemize{
-\item Total interaction strength \eqn{H^2}, a statistic measuring the proportion
-of prediction variability unexplained by main effects, see \code{\link[=H2]{H2()}} for the definition.
+\item Total interaction strength \eqn{H^2}, a statistic measuring the proportion of
+prediction variability unexplained by main effects of \code{v}, see \code{\link[=H2]{H2()}} for details.
 \item Friedman and Popescu's \eqn{H^2_j} statistic of overall interaction strength per
-feature, see \code{\link[=H2_j]{H2_j()}} for its definition.
+feature, see \code{\link[=H2_j]{H2_j()}} for details.
 \item Friedman and Popescu's \eqn{H^2_{jk}} statistic of pairwise interaction strength,
 see \code{\link[=H2_jk]{H2_jk()}} for details.
 }

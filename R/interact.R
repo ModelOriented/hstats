@@ -3,10 +3,10 @@
 #' @description
 #' This is the main function of the package. It does the expensive calculations behind
 #' interaction statistics:
-#' - Total interaction strength \eqn{H^2}, a statistic measuring the proportion
-#'   of prediction variability unexplained by main effects, see [H2()] for the definition.
+#' - Total interaction strength \eqn{H^2}, a statistic measuring the proportion of
+#'   prediction variability unexplained by main effects of `v`, see [H2()] for details.
 #' - Friedman and Popescu's \eqn{H^2_j} statistic of overall interaction strength per
-#'   feature, see [H2_j()] for its definition.
+#'   feature, see [H2_j()] for details.
 #' - Friedman and Popescu's \eqn{H^2_{jk}} statistic of pairwise interaction strength,
 #'   see [H2_jk()] for details.
 #'  
@@ -14,9 +14,9 @@
 #'  more flexible functions [H2()], [H2_j()], and [H2_jk()].
 #'  
 #' @inheritParams partial_dep
-#' @param pairwise_m Number of features for which pairwise statistics are calculated.
-#'   The features are selected based on Friedman and Popescu's overall interaction 
-#'   strength \eqn{H^2_j} (rowwise maximum in the multivariate case). 
+#' @param pairwise_m Number of features for which pairwise statistics are to be 
+#'   calculated. The features are selected based on Friedman and Popescu's overall 
+#'   interaction strength \eqn{H^2_j} (rowwise maximum in the multivariate case). 
 #'   Set to `length(v)` to calculate every pair and to 0 to avoid pairwise calculations. 
 #' @param verbose Should a progress bar be shown? The default is `TRUE`.
 #' @returns 
@@ -269,7 +269,7 @@ summary.interact <- function(object, top_m = 10L, ...) {
   h2_j <- H2_j(object)
   h2_jk <- H2_jk(object)
   
-  cat("Proportion of prediction variability explained by interactions\n")
+  cat("Proportion of prediction variability unexplained by main effects of v\n")
   print(h2)
   cat("\n")
   

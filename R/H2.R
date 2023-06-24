@@ -1,9 +1,7 @@
 #' Total Interaction Strength
 #' 
-#' Proportion of prediction variability unexplained by main effects (extracted from the
-#' result of [interact()]), see Details. The statistic requires `v` to represent all
-#' features of the model. Otherwise, it will also contain effects from features missing
-#' in `v`.
+#' Proportion of prediction variability unexplained by main effects of `v` 
+#' (extracted from the result of [interact()]), see Details. 
 #' 
 #' @details
 #' If the model is additive in all features, then the (centered) prediction 
@@ -13,14 +11,13 @@
 #'   F(\mathbf{x}) = \sum_{j}^{p} F_j(x_j)
 #' }
 #' (check [partial_dep()] for all definitions).
-#' To measure the relative amount of variability explained by all interactions, 
+#' To measure the relative amount of variability unexplained by all main effects, 
 #' we can therefore study the test statistic of total interaction strength
 #' \deqn{
 #'   H^2 = \frac{\frac{1}{n} \sum_{i = 1}^n \big[F(\mathbf{x}_i) - 
 #'   \sum_{j = 1}^p\hat F_j(x_{ij})\big]^2}{\frac{1}{n} 
 #'   \sum_{i = 1}^n\big[F(\mathbf{x}_i)\big]^2}.
 #' }
-#' It equals the variability of the predictions unexplained by the main effects. 
 #' A value of 0 would mean there are no interaction effects at all.
 #' 
 #' @inheritParams H2_j
