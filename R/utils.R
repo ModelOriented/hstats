@@ -105,7 +105,7 @@ rowmean <- function(x, ngroups, w = NULL) {
   ugrid <- unique(grid)
   if (NROW(ugrid) == NROW(grid)) {
     # No optimization done
-    return(list(grid = grid))
+    return(list(grid = grid, reindex = NULL))
   }
   out <- list(grid = ugrid)
   if (NCOL(grid) >= 2L) {  # Non-vector case

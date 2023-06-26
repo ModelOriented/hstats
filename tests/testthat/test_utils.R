@@ -89,6 +89,23 @@ test_that(".compress_X() works for matrices", {
   expect_equal(out_w2$w, c(9, 6))
 })
 
+
+test_that(".compress_X() leaves X unchanged if unique", {
+  X <- data.frame(a = 1:5, b = rep(1, times = 5))
+  out <- .compress_X(X, v = "b")
+  expect_equal(length(out), 2L)
+  expect_equal(out$X, X)
+  expect_equal(out$w, NULL)
+})
+
+test_that(".compress_X() leaves X unchanged if not exactly 1 non-grid variable", {
+  X <- data.frame(a = 1:5, b = rep(1, times = 5), c = rep(2, times = 5))
+  out <- .compress_X(X, v = "a")
+  expect_equal(length(out), 2L)
+  expect_equal(out$X, X)
+  expect_equal(out$w, NULL)
+})
+
 test_that(".compress_grid() works for vectors", {
   g <- c(5, 5, 1, 1, 1)
   out <- .compress_grid(g)
@@ -114,4 +131,13 @@ test_that(".compress_grid() works for data.frames", {
   rownames(g_out) <- 1:5
   expect_equal(g_out, g)
 })
+
+test_that(".compress_grid() leaves grid unchanged if unique", {
+  g <- data.frame(a = 1:5, b = rep(1, times = 5))
+  out <- .compress_grid(g)
+  expect_equal(length(out), 2L)
+  expect_equal(out$grid, g)
+  expect_equal(out$reindex, NULL)
+})
+
 
