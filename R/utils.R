@@ -99,15 +99,16 @@ rowmean <- function(x, ngroups, w = NULL) {
 #' @inheritParams pd_raw
 #' @returns 
 #'   A list with `grid` (possibly compressed) and the optional `reindex` vector
-#'   used to map PD values back to the original grid rows.
-.compress_grid <- function(grid, v) {
+#'   used to map compressed grid values back to the original grid rows. The original
+#'   grid equals the compressed grid at indices `reindex`.
+.compress_grid <- function(grid) {
   ugrid <- unique(grid)
   if (NROW(ugrid) == NROW(grid)) {
     # No optimization done
     return(list(grid = grid))
   }
   out <- list(grid = ugrid)
-  if (length(v) >= 2L) {  # Non-vector case
+  if (NCOL(grid) >= 2L) {  # Non-vector case
     grid <- apply(grid, MARGIN = 1L, FUN = paste, collapse = "_:_")
     ugrid <- apply(ugrid, MARGIN = 1L, FUN = paste, collapse = "_:_")
     if (anyDuplicated(ugrid)) {

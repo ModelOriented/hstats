@@ -19,7 +19,7 @@ pd_raw <- function(object, v, X, grid, pred_fun = stats::predict,
   # Try different compressions
   p <- length(v)
   D1 <- p == 1L
-  if (compress_X && p >= ncol(X) - 1L) {
+  if (compress_X && p == ncol(X) - 1L) {
     # Removes duplicates in X[, not_v] and compensates via w
     cmp_X <- .compress_X(X = X, v = v, w = w)
     X <- cmp_X[["X"]]
@@ -28,7 +28,7 @@ pd_raw <- function(object, v, X, grid, pred_fun = stats::predict,
   
   if (compress_grid) {
     # Removes duplicates in grid and returns reindex vector to match to original grid
-    cmp_grid <- .compress_grid(grid = grid, v = v)
+    cmp_grid <- .compress_grid(grid = grid)
     grid <- cmp_grid[["grid"]]
   }
   
