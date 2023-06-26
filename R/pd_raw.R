@@ -53,7 +53,7 @@ pd_raw <- function(object, v, X, grid, pred_fun = stats::predict,
   
   # Calculate predictions and aggregate results
   pred <- align_pred(pred_fun(object, X_pred, ...))
-  pd <- rowmean(pred, ngroups = n_grid, w = w)
+  pd <- wrowmean(pred, ngroups = n_grid, w = w)
   
   # Map back to grid order
   if (compress_grid && !is.null(reindex <- cmp_grid[["reindex"]])) {

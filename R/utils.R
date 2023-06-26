@@ -31,7 +31,7 @@ align_pred <- function(x) {
 #' @param ngroups Number of groups of fixed length `NROW(x) / ngroups`.
 #' @param w Optional vector with case weights of length `NROW(x) / ngroups`.
 #' @returns A (g x K) matrix, where g is the grid size, and K = NCOL(x).
-rowmean <- function(x, ngroups, w = NULL) {
+wrowmean <- function(x, ngroups, w = NULL) {
   p <- NCOL(x)
   n_bg <- NROW(x) %/% ngroups
   g <- rep(seq_len(ngroups), each = n_bg)
