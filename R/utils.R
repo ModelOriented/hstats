@@ -151,7 +151,8 @@ wcenter <- function(x, w = NULL) {
   if (!is.matrix(x)) {
     x <- as.matrix(x)
   }
-  sweep(x, MARGIN = 2L, STATS = wcolMeans(x, w = w))
+  # sweep(x, MARGIN = 2L, STATS = wcolMeans(x, w = w))  # Slower
+  x - matrix(wcolMeans(x, w = w), nrow = nrow(x), ncol = ncol(x), byrow = TRUE)
 }
 
 #' Basic Checks
