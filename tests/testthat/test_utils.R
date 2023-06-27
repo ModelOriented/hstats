@@ -140,4 +140,62 @@ test_that(".compress_grid() leaves grid unchanged if unique", {
   expect_equal(out$reindex, NULL)
 })
 
+test_that("wcolMeans() works", {
+  x <- cbind(a = 1:6, b = 6:1)
+  x_df <- as.data.frame(x)
+  expect_equal(wcolMeans(x), colMeans(x))
+  expect_equal(wcolMeans(x_df), colMeans(x_df))
+  
+  # Weighted case
+  expect_equal(wcolMeans(x, w = rep(2, times = 6L)), colMeans(x))
+  
+  w <- c(1, 1, 2, 2, 3, 3)
+  xpected <- c(a = weighted.mean(1:6, w), b = weighted.mean(6:1, w))
+  expect_equal(wcolMeans(x, w = w), xpected)
+})
+
+
+test_that("wcenter() works for matrices with > 1 columns", {
+  x <- cbind(a = 1:6, b = 6:1)
+  expect_equal(wcenter(x), cbind(a = 1:6 - mean(1:6), b = 6:1 - mean(6:1)))
+
+  # Weighted case
+  expect_equal(wcenter(x), wcenter(x, w = rep(2, 6L)))
+  
+  w <- c(1, 1, 2, 2, 3, 3)
+  xpected <- cbind(a = 1:6 - weighted.mean(1:6, w), b = 6:1 - weighted.mean(6:1, w))
+  expect_equal(wcenter(x, w = w), xpected)
+})
+
+test_that("wcenter() works for matrices with 1 column", {
+  x <- cbind(a = 1:6)
+  expect_equal(wcenter(x), cbind(a = 1:6 - mean(1:6)))
+  
+  # Weighted case
+  expect_equal(wcenter(x), wcenter(x, w = rep(2, 6L)))
+  
+  w <- c(1, 1, 2, 2, 3, 3)
+  xpected <- cbind(a = 1:6 - weighted.mean(1:6, w))
+  expect_equal(wcenter(x, w = w), xpected)
+})
+
+test_that("wcenter() works for vectors", {
+  x <- 1:6
+  expect_equal(wcenter(x), cbind(1:6 - mean(1:6)))
+  
+  # Weighted case
+  expect_equal(wcenter(x), wcenter(x, w = rep(2, 6L)))
+  
+  w <- c(1, 1, 2, 2, 3, 3)
+  xpected <- cbind(1:6 - weighted.mean(1:6, w))
+  expect_equal(wcenter(x, w = w), xpected)
+})
+
+test_that("basic_checks fire some errors", {
+  expect_error(basic_check(X = 1:3, v = "a", pred_fun = predict, w = NULL))
+  expect_error(basic_check(X = iris[0], v = "a", pred_fun = predict, w = NULL))
+  expect_error(basic_check(X = iris, v = "a", pred_fun = predict, w = NULL))
+  expect_error(basic_check(X = iris, v = "Species", pred_fun = "mean", w = NULL))
+  expect_error(basic_check(X = iris, v = "Species", pred_fun = predict, w = 1:3))
+})
 
