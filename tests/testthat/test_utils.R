@@ -199,3 +199,16 @@ test_that("basic_checks fire some errors", {
   expect_error(basic_check(X = iris, v = "Species", pred_fun = predict, w = 1:3))
 })
 
+test_that(".zap_small() works for vector input", {
+  expect_equal(.zap_small(1:3), 1:3)
+  expect_equal(.zap_small(c(1:3, NA)), c(1:3, 0))
+  expect_equal(.zap_small(c(0.001, 1), eps = 0.01), c(0, 1))
+})
+
+test_that(".zap_small() works for matrix input", {
+  X <- cbind(a = 1:3, b = 3:1)
+  expect_equal(.zap_small(X), X)
+  expect_equal(.zap_small(rbind(X, c(NA, NA))), rbind(X, c(0, 0)))
+  expect_equal(.zap_small(cbind(0.001, 1), eps = 0.01), cbind(0, 1))
+})
+
