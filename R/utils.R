@@ -183,11 +183,14 @@ basic_check <- function(X, v, pred_fun, w) {
 #' @keywords internal
 #' 
 #' @inheritParams H2_j
-#' @param num Numerator of statistic.
-#' @param denom Denominator of statistic.
+#' @param num Matrix of statistic.
+#' @param denom Denominator of statistic (a matrix or vector compatible with `num`).
 #' @returns Matrix of statistics.
 postprocess <- function(num, denom = 1, normalize = TRUE, squared = TRUE, 
                         sort = TRUE, top_m = Inf, eps = 1e-8) {
+  if (!is.matrix(num)) {
+    stop("'num' must be a matrix.")
+  }
   out <- .zap_small(num, eps = eps)
   if (normalize) {
     out <- out / denom
@@ -234,6 +237,9 @@ postprocess <- function(num, denom = 1, normalize = TRUE, squared = TRUE,
 #'   A data.frame with variables not in `to_stack`, a column "varying_" with
 #'   the column name from `to_stack`, and finally a column "value_" with stacked values.
 poor_man_stack <- function(data, to_stack) {
+  if (!is.data.frame(data)) {
+    stop("'data' must be a data.frame.")
+  }
   keep <- setdiff(colnames(data), to_stack)
   out <- lapply(
     to_stack, 
@@ -254,6 +260,9 @@ poor_man_stack <- function(data, to_stack) {
 #' @param id Value of column to be added as "id_".
 #' @returns A data.frame.
 mat2df <- function(mat, id = "Overall") {
+  if (!is.matrix(mat)) {
+    stop("'mat' must be a matrix.")
+  }
   pred_names <- colnames(mat)
   K <- ncol(mat)
   nm <- rownames(mat)
