@@ -175,39 +175,6 @@ basic_check <- function(X, v, pred_fun, w) {
   TRUE
 }
 
-#' Raw H2 Overall
-#' 
-#' Function used to calculate Friedman and Popescu's overall H-squared. It is separated
-#' from the main H2_j function because it is used within interaction_statistics
-#' to select the variables for pairwise calculations.
-#' 
-#' @noRd
-#' @keywords internal
-#' 
-#' @param F_j List of empirical PD values per feature.
-#' @param F_not_j List of empirical PD values of all features except j.
-#' @param f Predictions.
-#' @param mean_f2 Weighted average of f^2.
-#' @param w Optional case weights.
-#' @inheritParams H2_j
-H2_j_raw <- function(F_j, F_not_j, f, mean_f2, w = NULL, normalize = TRUE, 
-                     squared = TRUE, sort = TRUE, top_m = Inf, eps = 1e-8, ...) {
-  v <- names(F_j)
-  num <- matrix(nrow = length(v), ncol = ncol(f), dimnames = list(v, colnames(f)))
-  for (z in v) {
-    num[z, ] <- wcolMeans((f - F_j[[z]] - F_not_j[[z]])^2, w = w)
-  }
-  postprocess(
-    num = num,
-    denom = mean_f2,
-    normalize = normalize, 
-    squared = squared, 
-    sort = sort, 
-    top_m = top_m, 
-    eps = eps
-  )
-}
-
 #' Postprocessing of Statistics
 #' 
 #' Function to apply typical postprocessing steps to a Friedman-Popescu type statistic.
