@@ -31,7 +31,7 @@ align_pred <- function(x) {
 #' @param ngroups Number of groups of fixed length `NROW(x) / ngroups`.
 #' @param w Optional vector with case weights of length `NROW(x) / ngroups`.
 #' @returns A (g x K) matrix, where g is the grid size, and K = NCOL(x).
-rowmean <- function(x, ngroups, w = NULL) {
+wrowmean <- function(x, ngroups, w = NULL) {
   p <- NCOL(x)
   n_bg <- NROW(x) %/% ngroups
   g <- rep(seq_len(ngroups), each = n_bg)
@@ -99,15 +99,16 @@ rowmean <- function(x, ngroups, w = NULL) {
 #' @inheritParams pd_raw
 #' @returns 
 #'   A list with `grid` (possibly compressed) and the optional `reindex` vector
-#'   used to map PD values back to the original grid rows.
-.compress_grid <- function(grid, v) {
+#'   used to map compressed grid values back to the original grid rows. The original
+#'   grid equals the compressed grid at indices `reindex`.
+.compress_grid <- function(grid) {
   ugrid <- unique(grid)
   if (NROW(ugrid) == NROW(grid)) {
     # No optimization done
-    return(list(grid = grid))
+    return(list(grid = grid, reindex = NULL))
   }
   out <- list(grid = ugrid)
-  if (length(v) >= 2L) {  # Non-vector case
+  if (NCOL(grid) >= 2L) {  # Non-vector case
     grid <- apply(grid, MARGIN = 1L, FUN = paste, collapse = "_:_")
     ugrid <- apply(ugrid, MARGIN = 1L, FUN = paste, collapse = "_:_")
     if (anyDuplicated(ugrid)) {
@@ -150,7 +151,8 @@ wcenter <- function(x, w = NULL) {
   if (!is.matrix(x)) {
     x <- as.matrix(x)
   }
-  sweep(x, MARGIN = 2L, STATS = wcolMeans(x, w = w))
+  # sweep(x, MARGIN = 2L, STATS = wcolMeans(x, w = w))  # Slower
+  x - matrix(wcolMeans(x, w = w), nrow = nrow(x), ncol = ncol(x), byrow = TRUE)
 }
 
 #' Basic Checks
@@ -173,39 +175,6 @@ basic_check <- function(X, v, pred_fun, w) {
   TRUE
 }
 
-#' Raw H2 Overall
-#' 
-#' Function used to calculate Friedman and Popescu's overall H-squared. It is separated
-#' from the main H2_j function because it is used within interaction_statistics
-#' to select the variables for pairwise calculations.
-#' 
-#' @noRd
-#' @keywords internal
-#' 
-#' @param F_j List of empirical PD values per feature.
-#' @param F_not_j List of empirical PD values of all features except j.
-#' @param f Predictions.
-#' @param mean_f2 Weighted average of f^2.
-#' @param w Optional case weights.
-#' @inheritParams H2_j
-H2_j_raw <- function(F_j, F_not_j, f, mean_f2, w = NULL, normalize = TRUE, 
-                     squared = TRUE, sort = TRUE, top_m = Inf, eps = 1e-8, ...) {
-  v <- names(F_j)
-  num <- matrix(nrow = length(v), ncol = ncol(f), dimnames = list(v, colnames(f)))
-  for (z in v) {
-    num[z, ] <- wcolMeans((f - F_j[[z]] - F_not_j[[z]])^2, w = w)
-  }
-  postprocess(
-    num = num,
-    denom = mean_f2,
-    normalize = normalize, 
-    squared = squared, 
-    sort = sort, 
-    top_m = top_m, 
-    eps = eps
-  )
-}
-
 #' Postprocessing of Statistics
 #' 
 #' Function to apply typical postprocessing steps to a Friedman-Popescu type statistic.
@@ -214,9 +183,9 @@ H2_j_raw <- function(F_j, F_not_j, f, mean_f2, w = NULL, normalize = TRUE,
 #' @keywords internal
 #' 
 #' @inheritParams H2_j
-#' @param num Numerator of statistic.
-#' @param denom Denominator of statistic.
-#' @returns Matrix of statistics.
+#' @param num Matrix or vector of statistic.
+#' @param denom Denominator of statistic (a matrix or vector compatible with `num`).
+#' @returns Matrix or vector of statistics.
 postprocess <- function(num, denom = 1, normalize = TRUE, squared = TRUE, 
                         sort = TRUE, top_m = Inf, eps = 1e-8) {
   out <- .zap_small(num, eps = eps)
@@ -227,7 +196,11 @@ postprocess <- function(num, denom = 1, normalize = TRUE, squared = TRUE,
     out <- sqrt(out)
   }
   if (sort) {
-    out <- out[order(-rowSums(out)), , drop = FALSE]
+    if (is.matrix(out)) {
+      out <- out[order(-rowSums(out)), , drop = FALSE]
+    } else {
+      out <- sort(out, decreasing = TRUE)
+    }
   }
   utils::head(out, n = top_m)
 }
@@ -265,6 +238,9 @@ postprocess <- function(num, denom = 1, normalize = TRUE, squared = TRUE,
 #'   A data.frame with variables not in `to_stack`, a column "varying_" with
 #'   the column name from `to_stack`, and finally a column "value_" with stacked values.
 poor_man_stack <- function(data, to_stack) {
+  if (!is.data.frame(data)) {
+    stop("'data' must be a data.frame.")
+  }
   keep <- setdiff(colnames(data), to_stack)
   out <- lapply(
     to_stack, 
@@ -285,6 +261,9 @@ poor_man_stack <- function(data, to_stack) {
 #' @param id Value of column to be added as "id_".
 #' @returns A data.frame.
 mat2df <- function(mat, id = "Overall") {
+  if (!is.matrix(mat)) {
+    stop("'mat' must be a matrix.")
+  }
   pred_names <- colnames(mat)
   K <- ncol(mat)
   nm <- rownames(mat)
