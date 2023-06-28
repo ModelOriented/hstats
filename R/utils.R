@@ -188,9 +188,6 @@ basic_check <- function(X, v, pred_fun, w) {
 #' @returns Matrix of statistics.
 postprocess <- function(num, denom = 1, normalize = TRUE, squared = TRUE, 
                         sort = TRUE, top_m = Inf, eps = 1e-8) {
-  if (!is.matrix(num)) {
-    stop("'num' must be a matrix.")
-  }
   out <- .zap_small(num, eps = eps)
   if (normalize) {
     out <- out / denom
@@ -199,7 +196,11 @@ postprocess <- function(num, denom = 1, normalize = TRUE, squared = TRUE,
     out <- sqrt(out)
   }
   if (sort) {
-    out <- out[order(-rowSums(out)), , drop = FALSE]
+    if (is.matrix(out)) {
+      out <- out[order(-rowSums(out)), , drop = FALSE]
+    } else {
+      out <- sort(out, decreasing = TRUE)
+    }
   }
   utils::head(out, n = top_m)
 }

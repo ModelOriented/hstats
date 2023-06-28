@@ -199,8 +199,7 @@ test_that("basic_checks fire some errors", {
   expect_error(basic_check(X = iris, v = "Species", pred_fun = predict, w = 1:3))
 })
 
-test_that("postprocess() works", {
-  expect_error(postprocess(num = 1:3))
+test_that("postprocess() works for matrix input", {
   num <- cbind(a = 1:3, b = c(1, 1, 1))
   denom <- cbind(a = 1:3, b = 1:3)
   
@@ -211,20 +210,16 @@ test_that("postprocess() works", {
   expect_equal(postprocess(num = num, squared = FALSE), sqrt(num[3:1, ]))
 })
 
-postprocess <- function(num, denom = 1, normalize = TRUE, squared = TRUE, 
-                        sort = TRUE, top_m = Inf, eps = 1e-8) {
-  out <- .zap_small(num, eps = eps)
-  if (normalize) {
-    out <- out / denom
-  }
-  if (!squared) {
-    out <- sqrt(out)
-  }
-  if (sort) {
-    out <- out[order(-rowSums(out)), , drop = FALSE]
-  }
-  utils::head(out, n = top_m)
-}
+test_that("postprocess() works for vector input", {
+  num <- 1:3
+  denom <- c(2, 4, 6)
+  
+  expect_equal(postprocess(num = num), 3:1)
+  expect_equal(postprocess(num = num, denom = denom), num / denom)
+  expect_equal(postprocess(num = num, sort = FALSE), num)
+  expect_equal(postprocess(num = num, sort = FALSE, top_m = 2), num[1:2])
+  expect_equal(postprocess(num = num, squared = FALSE), sqrt(num[3:1]))
+})
 
 test_that(".zap_small() works for vector input", {
   expect_equal(.zap_small(1:3), 1:3)
