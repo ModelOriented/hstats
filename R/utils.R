@@ -183,9 +183,9 @@ basic_check <- function(X, v, pred_fun, w) {
 #' @keywords internal
 #' 
 #' @inheritParams H2_j
-#' @param num Matrix of statistic.
+#' @param num Matrix or vector of statistic.
 #' @param denom Denominator of statistic (a matrix or vector compatible with `num`).
-#' @returns Matrix of statistics.
+#' @returns Matrix or vector of statistics.
 postprocess <- function(num, denom = 1, normalize = TRUE, squared = TRUE, 
                         sort = TRUE, top_m = Inf, eps = 1e-8) {
   out <- .zap_small(num, eps = eps)
