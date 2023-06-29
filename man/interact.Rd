@@ -104,7 +104,12 @@ feature, see \code{\link[=H2_j]{H2_j()}} for details.
 see \code{\link[=H2_jk]{H2_jk()}} for details.
 }
 
-Instead of getting these statistics via \code{summary()}, you can obtain them via the
+Furthermore, it allows to calculate an experimental partial dependence based
+measure of feature importance, \eqn{\textrm{PDI}_j}. It equals the proportion of
+prediction variability unexplained by other features, see \code{\link[=PDI_j]{PDI_j()}} for details.
+(This statistic is not shown by \code{summary()} or \code{plot()}.)
+
+Instead of using \code{summary()}, interaction statistics can also be obtained via the
 more flexible functions \code{\link[=H2]{H2()}}, \code{\link[=H2_j]{H2_j()}}, and \code{\link[=H2_jk]{H2_jk()}}.
 }
 \section{Methods (by class)}{

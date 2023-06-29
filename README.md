@@ -228,7 +228,7 @@ $$
 Correspondingly, Friedman and Popescu's $H^2_j$ statistic of overall interaction strength is given by
 
 $$
-	H_{j}^2 = \frac{\frac{1}{n} \sum_{i = 1}^n\big[F(\boldsymbol x_i) - \hat F_j(x_{ij}) - \hat F_{\setminus j}(\boldsymbol x_{i\setminus k})\big]^2}{\frac{1}{n} \sum_{i = 1}^n\big[F(\boldsymbol x_i)\big]^2}.
+	H_{j}^2 = \frac{\frac{1}{n} \sum_{i = 1}^n\big[F(\boldsymbol x_i) - \hat F_j(x_{ij}) - \hat F_{\setminus j}(\boldsymbol x_{i\setminus j})\big]^2}{\frac{1}{n} \sum_{i = 1}^n\big[F(\boldsymbol x_i)\big]^2}.
 $$
 
 **Remarks**
@@ -303,6 +303,24 @@ Calculation of all $H_j^2$ statistics requires $O(n^2 p)$ predictions, while cal
 
 This leads to a total number of $O(n'^2 p)$ predictions.
 
+### Variable importance (experimental)
+
+[4] proposed the standard deviation of the partial dependence function as a measure of variable importance (for continuous predictors). 
+
+Since the partial dependence function suppresses interaction effects, we propose a different measure in the spirit of the interaction statistics above: If $x_j$ has no effects, the (centered) prediction function $F$ equals the (centered) partial dependence $F_{\setminus j}$ on all other features $\boldsymbol x_{\setminus j}$, i.e.,
+
+$$
+	F(\boldsymbol x) = F_{\setminus j}(\boldsymbol x_{\setminus j}).
+$$
+
+Therefore, the following measure of variable importance follows:
+
+$$
+	PDI_{j}^2 = \frac{\frac{1}{n} \sum_{i = 1}^n\big[F(\boldsymbol x_i) - \hat F_{\setminus j}(\boldsymbol x_{i\setminus j})\big]^2}{\frac{1}{n} \sum_{i = 1}^n\big[F(\boldsymbol x_i)\big]^2}.
+$$
+
+It differs from $H^2_j$ only by not subtracting the main effect of the $j$-th feature in the numerator. It can be read as the proportion of prediction variability unexplained by all other features. As such, it measures variable importance of the $j$-th feature, including its interaction effects.
+
 ## References
 
 1. Friedman, Jerome H. *"Greedy Function Approximation: A Gradient Boosting Machine."* 
@@ -310,3 +328,5 @@ This leads to a total number of $O(n'^2 p)$ predictions.
 2. Friedman, Jerome H., and Bogdan E. Popescu. *"Predictive Learning via Rule Ensembles."*
   The Annals of Applied Statistics 2, no. 3 (2008): 916-54.
 3. Mayer, Michael, Steven C. Bourassa, Martin Hoesli, and Donato Scognamiglio. *"Machine Learning Applications to Land and Structure Valuation."* Journal of Risk and Financial Management 15, no. 5 (2022): 193.
+4. Greenwell, Brandon M., Bradley C. Boehmke, and Andrew J. McCarthy. 
+*A Simple and Effective Model-Based Variable Importance Measure.* Arxiv (2018).

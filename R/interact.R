@@ -9,9 +9,14 @@
 #'   feature, see [H2_j()] for details.
 #' - Friedman and Popescu's \eqn{H^2_{jk}} statistic of pairwise interaction strength,
 #'   see [H2_jk()] for details.
+#' 
+#' Furthermore, it allows to calculate an experimental partial dependence based
+#' measure of feature importance, \eqn{\textrm{PDI}_j}. It equals the proportion of
+#' prediction variability unexplained by other features, see [PDI_j()] for details.
+#' (This statistic is not shown by `summary()` or `plot()`.) 
 #'  
-#'  Instead of getting these statistics via `summary()`, you can obtain them via the 
-#'  more flexible functions [H2()], [H2_j()], and [H2_jk()].
+#' Instead of using `summary()`, interaction statistics can also be obtained via the 
+#' more flexible functions [H2()], [H2_j()], and [H2_jk()].
 #'  
 #' @inheritParams partial_dep
 #' @param pairwise_m Number of features for which pairwise statistics are to be 
