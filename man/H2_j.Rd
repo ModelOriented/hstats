@@ -57,7 +57,7 @@ Correspondingly, Friedman and Popescu's \eqn{H^2_j} statistic of overall interac
 strength is given by
 \deqn{
   H_{j}^2 = \frac{\frac{1}{n} \sum_{i = 1}^n\big[F(\mathbf{x}_i) - 
-  \hat F_j(x_{ij}) - \hat F_{\setminus j}(\mathbf{x}_{i\setminus k})
+  \hat F_j(x_{ij}) - \hat F_{\setminus j}(\mathbf{x}_{i\setminus j})
   \big]^2}{\frac{1}{n} \sum_{i = 1}^n\big[F(\mathbf{x}_i)\big]^2}
 }
 (check \code{\link[=partial_dep]{partial_dep()}} for all definitions).

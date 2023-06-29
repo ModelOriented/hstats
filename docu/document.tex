@@ -6,8 +6,7 @@
 
 \begin{document}
 
-\section{Background}
-\subsection{Partial dependence}
+\section{Partial dependence}
 Let $F: R^p \to R$ denote the prediction function that maps the $p$-dimensional feature vector $\mathbf{x} = (x_1, \dots, x_p)$ to its prediction.
 Furthermore, let $F_s(\mathbf{x}_s) = E_{\mathbf{x}_{\setminus s}}(F(\mathbf{x}_s, \mathbf{x}_{\setminus s}))$ be the partial dependence function of $F$ on the feature subset $\mathbf{x}_s$, where $s \subseteq \{1, \dots, p\}$, as introduced in \cite{friedman2001}. Here, the expectation runs over the joint marginal distribution of features $\mathbf{x}_{\setminus s}$ not in $\mathbf{x}_s$.
 
@@ -16,6 +15,8 @@ $$
   \hat F_s(\mathbf{x}_s) = \frac{1}{n} \sum_{i = 1}^n F(\mathbf{x}_s, \mathbf{x}_{i\setminus s}),
 $$
 where $\mathbf{x}_{i\setminus s}$, $i = 1, \dots, n$, are the observed values of $\mathbf{x}_{\setminus s}$.
+
+\section{Interaction statistics}
 
 \subsection{Overall interaction strength}
 In \cite{friedman2008}, Friedman and Popescu introduced different statistics to measure interaction strength. Closely following their notation, we will summarize the main ideas. 
@@ -26,7 +27,7 @@ $$
 $$
 Correspondingly, Friedman and Popescu's $H^2_j$ statistic of overall interaction strength is given by
 $$
-	H_{j}^2 = \frac{\frac{1}{n} \sum_{i = 1}^n\big[F(\mathbf{x}_i) - \hat F_j(x_{ij}) - \hat F_{\setminus j}(\mathbf{x}_{i\setminus k})\big]^2}{\frac{1}{n} \sum_{i = 1}^n\big[F(\mathbf{x}_i)\big]^2}.
+	H_{j}^2 = \frac{\frac{1}{n} \sum_{i = 1}^n\big[F(\mathbf{x}_i) - \hat F_j(x_{ij}) - \hat F_{\setminus j}(\mathbf{x}_{i\setminus j})\big]^2}{\frac{1}{n} \sum_{i = 1}^n\big[F(\mathbf{x}_i)\big]^2}.
 $$
 \paragraph{Remarks}
 \begin{enumerate}
@@ -83,6 +84,20 @@ Calculation of all $H_j^2$ statistics requires $O(n^2p)$ predictions, while calc
 \item Calculate $H_j^2$ for all features. Then, select a small number $m = O(\sqrt{p})$ of features with highest $H^2_j$ and do pairwise calculations only on this subset.
 \end{itemize}
 This leads to a total number of $O(n'^2 p))$ predictions.
+
+\section{Variable importance}
+
+\cite{greenwell2018} proposed the standard deviation of the partial dependence function as a measure of variable importance (for continuous predictors). 
+
+Since the partial dependence function suppresses interaction effects, we propose a different measure in the spirit of the interaction statistics above: If $x_j$ has no effects, the (centered) prediction function $F$ equals the (centered) partial dependence $F_{\setminus j}$ on all other features $\mathbf{x}_{\setminus j}$, i.e.,
+$$
+	F(\mathbf{x}) = F_{\setminus j}(\mathbf{x}_{\setminus j}).
+$$
+Therefore, the following measure of variable importance follows:
+$$
+	\textrm{PDI}_{j}^2 = \frac{\frac{1}{n} \sum_{i = 1}^n\big[F(\mathbf{x}_i) - \hat F_{\setminus j}(\mathbf{x}_{i\setminus j})\big]^2}{\frac{1}{n} \sum_{i = 1}^n\big[F(\mathbf{x}_i)\big]^2}.
+$$
+It differs from $H^2_j$ only by not subtracting the main effect of the $j$-th feature in the numerator. It can be read as the proportion of prediction variability unexplained by all other features. As such, it measures variable importance of the $j$-th feature, including its interaction effects. 
 
 \bibliographystyle{ieeetr}
 \bibliography{biblio}
