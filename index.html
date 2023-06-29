@@ -270,7 +270,7 @@ $$</span></p>
 <p><span class="math display"><em>F</em>(<strong>x</strong>) = <em>F</em><sub><em>j</em></sub>(<em>x</em><sub><em>j</em></sub>) + <em>F</em><sub>\<em>j</em></sub>(<strong>x</strong><sub>\<em>j</em></sub>).</span></p>
 <p>Correspondingly, Friedman and Popescu’s <span class="math inline"><em>H</em><sub><em>j</em></sub><sup>2</sup></span> statistic of overall interaction strength is given by</p>
 <p><span class="math display">$$
-    H_{j}^2 = \frac{\frac{1}{n} \sum_{i = 1}^n\big[F(\boldsymbol x_i) - \hat F_j(x_{ij}) - \hat F_{\setminus j}(\boldsymbol x_{i\setminus k})\big]^2}{\frac{1}{n} \sum_{i = 1}^n\big[F(\boldsymbol x_i)\big]^2}.
+    H_{j}^2 = \frac{\frac{1}{n} \sum_{i = 1}^n\big[F(\boldsymbol x_i) - \hat F_j(x_{ij}) - \hat F_{\setminus j}(\boldsymbol x_{i\setminus j})\big]^2}{\frac{1}{n} \sum_{i = 1}^n\big[F(\boldsymbol x_i)\big]^2}.
 $$</span></p>
 <p><strong>Remarks</strong></p>
 <ol style="list-style-type: decimal">
@@ -334,6 +334,18 @@ $$</span></p>
 </ol>
 <p>This leads to a total number of <span class="math inline"><em>O</em>(<em>n</em>′<sup>2</sup><em>p</em>)</span> predictions.</p>
 </div>
+<div class="section level3">
+<h3 id="variable-importance-experimental">Variable importance (experimental)<a class="anchor" aria-label="anchor" href="#variable-importance-experimental"></a>
+</h3>
+<p>[4] proposed the standard deviation of the partial dependence function as a measure of variable importance (for continuous predictors).</p>
+<p>Since the partial dependence function suppresses interaction effects, we propose a different measure in the spirit of the interaction statistics above: If <span class="math inline"><em>x</em><sub><em>j</em></sub></span> has no effects, the (centered) prediction function <span class="math inline"><em>F</em></span> equals the (centered) partial dependence <span class="math inline"><em>F</em><sub>\<em>j</em></sub></span> on all other features <span class="math inline"><strong>x</strong><sub>\<em>j</em></sub></span>, i.e.,</p>
+<p><span class="math display"><em>F</em>(<strong>x</strong>) = <em>F</em><sub>\<em>j</em></sub>(<strong>x</strong><sub>\<em>j</em></sub>).</span></p>
+<p>Therefore, the following measure of variable importance follows:</p>
+<p><span class="math display">$$
+    PDI_{j}^2 = \frac{\frac{1}{n} \sum_{i = 1}^n\big[F(\boldsymbol x_i) - \hat F_{\setminus j}(\boldsymbol x_{i\setminus j})\big]^2}{\frac{1}{n} \sum_{i = 1}^n\big[F(\boldsymbol x_i)\big]^2}.
+$$</span></p>
+<p>It differs from <span class="math inline"><em>H</em><sub><em>j</em></sub><sup>2</sup></span> only by not subtracting the main effect of the <span class="math inline"><em>j</em></span>-th feature in the numerator. It can be read as the proportion of prediction variability unexplained by all other features. As such, it measures variable importance of the <span class="math inline"><em>j</em></span>-th feature, including its interaction effects.</p>
+</div>
 </div>
 <div class="section level2">
 <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
@@ -342,6 +354,7 @@ $$</span></p>
 <li>Friedman, Jerome H. <em>“Greedy Function Approximation: A Gradient Boosting Machine.”</em> Annals of Statistics 29, no. 5 (2001): 1189-1232.</li>
 <li>Friedman, Jerome H., and Bogdan E. Popescu. <em>“Predictive Learning via Rule Ensembles.”</em> The Annals of Applied Statistics 2, no. 3 (2008): 916-54.</li>
 <li>Mayer, Michael, Steven C. Bourassa, Martin Hoesli, and Donato Scognamiglio. <em>“Machine Learning Applications to Land and Structure Valuation.”</em> Journal of Risk and Financial Management 15, no. 5 (2022): 193.</li>
+<li>Greenwell, Brandon M., Bradley C. Boehmke, and Andrew J. McCarthy. <em>A Simple and Effective Model-Based Variable Importance Measure.</em> Arxiv (2018).</li>
 </ol>
 </div>
 </div>

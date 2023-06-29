@@ -9,7 +9,11 @@ Friedman and Popescu's \(H^2_{jk}\) statistic of pairwise interaction strength,
 see H2_jk() for details.
 
 
-Instead of getting these statistics via summary(), you can obtain them via the
+Furthermore, it allows to calculate an experimental partial dependence based
+measure of feature importance, \(\textrm{PDI}_j\). It equals the proportion of
+prediction variability unexplained by other features, see PDI_j() for details.
+(This statistic is not shown by summary() or plot().)
+Instead of using summary(), interaction statistics can also be obtained via the
 more flexible functions H2(), H2_j(), and H2_jk()."><meta property="og:image" content="/logo.png"><!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
@@ -67,7 +71,11 @@ prediction variability unexplained by main effects of <code>v</code>, see <code>
 feature, see <code><a href="H2_j.html">H2_j()</a></code> for details.</p></li>
 <li><p>Friedman and Popescu's \(H^2_{jk}\) statistic of pairwise interaction strength,
 see <code><a href="H2_jk.html">H2_jk()</a></code> for details.</p></li>
-</ul><p>Instead of getting these statistics via <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>, you can obtain them via the
+</ul><p>Furthermore, it allows to calculate an experimental partial dependence based
+measure of feature importance, \(\textrm{PDI}_j\). It equals the proportion of
+prediction variability unexplained by other features, see <code><a href="PDI_j.html">PDI_j()</a></code> for details.
+(This statistic is not shown by <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> or <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code>.)</p>
+<p>Instead of using <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>, interaction statistics can also be obtained via the
 more flexible functions <code><a href="H2.html">H2()</a></code>, <code><a href="H2_j.html">H2_j()</a></code>, and <code><a href="H2_jk.html">H2_jk()</a></code>.</p>
     </div>
 
