@@ -15,15 +15,17 @@ H2_jk(object, ...)
   normalize = TRUE,
   squared = TRUE,
   sort = TRUE,
-  top_m = Inf,
+  top_m = 15L,
   eps = 1e-08,
+  plot = TRUE,
+  fill = "#2b51a1",
   ...
 )
 }
 \arguments{
 \item{object}{Object of class "interact".}
 
-\item{...}{Further parameters passed to predict function (only for default method).}
+\item{...}{Further parameters passed to \code{geom_bar()}.}
 
 \item{normalize}{Should statistic be normalized? Default is \code{TRUE}.}
 
@@ -32,17 +34,24 @@ H2_jk(object, ...)
 \item{sort}{Should results be sorted by the size of the statistic? Default is \code{TRUE}.
 Multioutput predictions are sorted by row means.}
 
-\item{top_m}{How many statistics should be shown? By default \code{Inf} (show all).}
+\item{top_m}{How many statistics should be shown? By default \code{15}.
+Set to \code{Inf} to show all.}
 
 \item{eps}{Threshold below which numerator values are set to 0.}
+
+\item{plot}{Should results be plotted? Default is \code{TRUE}. Set to \code{FALSE} to get
+the results as matrix.}
+
+\item{fill}{Color of bar (only for univariate statistics).}
 }
 \value{
-Matrix of interactions statistics (one row per variable pair, one column per
-prediction dimension).
+A "ggplot" object (if \code{plot = TRUE}) or a matrix of statistics
+(one row per variable, one column per prediction dimension).
 }
 \description{
 Friedman and Popescu's statistics of pairwise interaction strength extracted from the
-result of \code{\link[=interact]{interact()}}, see Details.
+result of \code{\link[=interact]{interact()}}, see Details. By default, the results are plotted as a
+barplot. Set \code{plot = FALSE} to get a matrix of values instead.
 }
 \details{
 Following Friedman and Popescu (2008), if there are no interaction effects between
@@ -59,13 +68,14 @@ interaction strength is defined as
 }
 where
 \deqn{
-   A_{jk} = \frac{1}{n} \sum_{i = 1}^n\big[\hat F_{jk}(x_{ij}, x_{ik}) - \hat F_j(x_{ij}) - \hat F_k(x_{ik})\big]^2
+   A_{jk} = \frac{1}{n} \sum_{i = 1}^n\big[\hat F_{jk}(x_{ij}, x_{ik}) - 
+   \hat F_j(x_{ij}) - \hat F_k(x_{ik})\big]^2
 }
 and
 \deqn{
   B_{jk} = \frac{1}{n} \sum_{i = 1}^n\big[\hat F_{jk}(x_{ij}, x_{ik})\big]^2
 }
-(check \code{\link[=partial_dep]{partial_dep()}} for all definitions).
+(check \code{\link[=PDP]{PDP()}} for all definitions).
 
 \strong{Remarks:}
 \enumerate{
@@ -98,37 +108,23 @@ rather for those features with \emph{strongest overall interactions}.
 
 }}
 \examples{
-# MODEL ONE: Linear regression
+# MODEL 1: Linear regression
 fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
 inter <- interact(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
 
 # Proportion of joint effect coming from pairwise interaction
-# (only for features with strongest overall interactions)
+# (for features with strongest overall interactions)
 H2_jk(inter)
-
-# As a barplot (okay, a single bar is not too beautiful...)
-if (requireNamespace("ggplot2", quietly = TRUE)) {
-  plot(inter, stat = 2)
-}
+H2_jk(inter, plot = FALSE)
 
 # Absolute measure as alternative
 H2_jk(inter, normalize = FALSE, squared = FALSE)
 
-# Again as barplot
-if (requireNamespace("ggplot2", quietly = TRUE)) {
-  plot(inter, stat = 2, normalize = FALSE, squared = FALSE)
-}
-
-# MODEL TWO: Multi-response linear regression
+# MODEL 2: Multi-response linear regression
 fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
 v <- c("Petal.Length", "Petal.Width", "Species")
 inter <- interact(fit, v = v, X = iris, verbose = FALSE)
 H2_jk(inter)
-
-# Barplot
-if (requireNamespace("ggplot2", quietly = TRUE)) {
-  plot(inter, stat = 2)
-}
 }
 \references{
 Friedman, Jerome H., and Bogdan E. Popescu. \emph{"Predictive Learning via Rule Ensembles."}

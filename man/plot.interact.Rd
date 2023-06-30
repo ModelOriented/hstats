@@ -2,9 +2,9 @@
 % Please edit documentation in R/interact.R
 \name{plot.interact}
 \alias{plot.interact}
-\title{Plot Interaction Statistics}
+\title{Plot Method for "interact" Object}
 \usage{
-\method{plot}{interact}(x, stat = 1:2, top_m = 10L, fill = "#2b51a1", ...)
+\method{plot}{interact}(x, stat = 1:2, top_m = 15L, fill = "#2b51a1", ...)
 }
 \arguments{
 \item{x}{An object of class "interact".}

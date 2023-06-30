@@ -19,7 +19,9 @@ use_description(
     Description = "Fast, model-agnostic implementation of interaction strength statistics
     introduced in Friedman, J.H. and Popescu, B.E. (2008) <doi:10.1214/07-AOAS148>.
     The package supports multivariate predictions and can deal with case weights. 
-    Furthermore, different variants of the original statistics are provided.",
+    Furthermore, different variants of the original statistics are provided.
+    The shape of the interactions can be investigated by stratified partial dependence
+    plots.",
     `Authors@R` = 
     "person('Michael', family='Mayer', role=c('aut', 'cre'), email='mayermichael79@gmail.com')",
     Depends = "R (>= 3.2.0)",
@@ -30,8 +32,7 @@ use_description(
   
 use_package("stats", "Imports")
 use_package("utils", "Imports")
-
-use_package("ggplot2", "Suggests")
+use_package("ggplot2", "Imports")
 
 use_gpl_license(2)
 

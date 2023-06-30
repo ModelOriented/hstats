@@ -10,7 +10,7 @@
 #' \deqn{
 #'   F(\mathbf{x}) = \sum_{j}^{p} F_j(x_j)
 #' }
-#' (check [partial_dep()] for all definitions).
+#' (check [PDP()] for all definitions).
 #' To measure the relative amount of variability unexplained by all main effects, 
 #' we can therefore study the test statistic of total interaction strength
 #' \deqn{
@@ -18,25 +18,26 @@
 #'   \sum_{j = 1}^p\hat F_j(x_{ij})\big]^2}{\frac{1}{n} 
 #'   \sum_{i = 1}^n\big[F(\mathbf{x}_i)\big]^2}.
 #' }
-#' A value of 0 would mean there are no interaction effects at all.
+#' A value of 0 means there are no interaction effects at all.
 #' 
 #' @inheritParams H2_j
+#' @param ... Currently unused.
 #' @returns Vector of total interaction strength (one value per prediction dimension).
 #' @export
 #' @seealso [interact()], [H2_j()], [H2_jk()]
 #' @examples
-#' # MODEL ONE: Linear regression
+#' # MODEL 1: Linear regression
 #' fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
 #' inter <- interact(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
 #' H2(inter)
 #' 
-#' # MODEL TWO: Multi-response linear regression
+#' # MODEL 2: Multi-response linear regression
 #' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
 #' v <- c("Petal.Length", "Petal.Width", "Species")
 #' inter <- interact(fit, v = v, X = iris, verbose = FALSE)
 #' H2(inter)
 #' 
-#' # MODEL THREE: No interactions
+#' # MODEL 3: No interactions
 #' fit <- lm(Sepal.Length ~ ., data = iris)
 #' inter <- interact(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
 #' H2(inter)
@@ -52,8 +53,7 @@ H2.default <- function(object, ...) {
 
 #' @describeIn H2 Total interaction strength from "interact" object.
 #' @export
-H2.interact <- function(object, normalize = TRUE, 
-                                       squared = TRUE, eps = 1e-8, ...) {
+H2.interact <- function(object, normalize = TRUE, squared = TRUE, eps = 1e-8, ...) {
   postprocess(
     num = with(object, wcolMeans((f - Reduce("+", F_j))^2, w = w)),
     denom = object[["mean_f2"]],

@@ -93,53 +93,17 @@ fit <- xgb.train(
 
 ### Analyze interactions 
 
-To analyze interactions, we will
-
-1. call `interact()` for the expensive crunching and
-2. get statistics with `summary()` and/or `plot()`.
-
 ```r
 # 2-3 seconds on simple laptop - a random forest will take 1-2 minutes
 set.seed(1)
 system.time(
   inter <- interact(fit, v = x, X = X_train)
 )
+inter
+# Proportion of prediction variability unexplained by main effects of v
+# [1] 0.09602024
 
-summary(inter)
-
-# Output
-Proportion of prediction variability unexplained by main effects of v
-0.09602024 
-
-Strongest overall interactions
-                         [,1]
-OCEAN_DIST        0.062639450
-LONGITUDE         0.045194768
-LATITUDE          0.029151873
-CNTR_DIST         0.027695769
-RAIL_DIST         0.003805603
-HWY_DIST          0.003484982
-TOT_LVG_AREA      0.000000000
-LND_SQFOOT        0.000000000
-structure_quality 0.000000000
-age               0.000000000
-
-Strongest relative pairwise interactions
-(only for features with strong overall interactions)
-                            [,1]
-LONGITUDE:OCEAN_DIST 0.156475264
-LONGITUDE:CNTR_DIST  0.122113602
-LATITUDE:LONGITUDE   0.076213847
-LATITUDE:OCEAN_DIST  0.061130256
-CNTR_DIST:OCEAN_DIST 0.040675335
-LATITUDE:RAIL_DIST   0.030786973
-LATITUDE:CNTR_DIST   0.029474763
-CNTR_DIST:RAIL_DIST  0.012886536
-LONGITUDE:RAIL_DIST  0.008402545
-OCEAN_DIST:RAIL_DIST 0.007081773
-
-# If {ggplot2} is available, we can also plot the statistics
-plot(inter)
+plot(inter)  # Or summary(inter) for numeric output
 ```
 
 ![](man/figures/interact.svg)
@@ -156,46 +120,39 @@ plot(inter)
 2. The statistics need to repeatedly calculate predictions on $n^2$ rows. That is why {interactML} samples 300 rows by default. To get more robust results, increase this value at the price of slower run time.
 3. Pairwise Friedmans and Popescu's $H^2_{jk}$ measures interaction strength relative to the combined effect of the two features. This does not necessarily show which interactions are strongest. To do so, we can study unnormalized statistics:
 
-Strongest pairwise interactions (values on the scale of the response log(price)):
+The strongest pairwise interaction (now on the scale of log(price)) remains the one between longitude and distance to the ocean:
 
 ```r
 H2_jk(inter, normalize = FALSE, squared = FALSE, top_m = 5)
-                           [,1]
-LONGITUDE:OCEAN_DIST 0.08279401
-LATITUDE:OCEAN_DIST  0.04797644
-LONGITUDE:CNTR_DIST  0.04796194
-CNTR_DIST:OCEAN_DIST 0.04718950
-LATITUDE:LONGITUDE   0.03807378
-
-# Again, we can use plot() to visualize these values 
-# (stat = 2 focusses on pairwise stats)
-plot(inter, stat = 2, normalize = FALSE, squared = FALSE, top_m = 5)
 ```
 
 ![](man/figures/interact_pairwise.svg)
 
-**Interpretation:** The strongest pairwise interaction remains the one between longitude and distance to the ocean.
-
-Let's check a stratified partial dependence plot to get an impression how the interaction looks like:
+A stratified partial dependence plot (PDP) shows that LONGITUDE effects differ strongly by distance to the ocean:
 
 ```r
-# "BY" can be a column name in X, or any vector of (possibly transformed) values
-# Numeric features are quantile binned into groups of similar size
-pd <- partial_dep(fit, v = "LONGITUDE", X = X_train, BY = "OCEAN_DIST")
-plot(pd)  # Requires {ggplot2}
+PDP(fit, v = "LONGITUDE", X = X_train, BY = "OCEAN_DIST")
 ```
-
-**Interpretation:** For short distance to the ocean groups, the LONGITUDE effect looks indeed quite different.
 
 ![](man/figures/pdp_long_ocean.svg)
 
-As a contrast, the following plots shows perfectly parallel lines (additivity in living area):
+As a contrast, the following PDP shows perfectly parallel lines (additivity in living area):
 
 ```r
-plot(partial_dep(fit, v = "TOT_LVG_AREA", X = X_train, BY = "OCEAN_DIST"))
+PDP(fit, v = "TOT_LVG_AREA", X = X_train, BY = "OCEAN_DIST")
 ```
 
 ![](man/figures/pdp_living_ocean.svg)
+
+### Variable importance
+
+In the spirit of [2], and related to [4], we can extract from the "interact" objects a partial dependence based variable importance measure. It is rather experimental, so use it with care (Details below):
+
+```r
+PDI2_j(inter)
+```
+
+![](man/figures/importance.svg)
 
 ## Background
 
@@ -215,7 +172,9 @@ where $\boldsymbol x_{i\setminus s}$, $i = 1, \dots, n$, are the observed values
 A partial dependence plot (PDP) plots the values of $\hat F_s(\boldsymbol x_s)$
 over a grid of evaluation points $\boldsymbol x_s$.
 
-### Overall interaction strength
+### Interactions
+
+#### Overall interaction strength
 
 In [2], Friedman and Popescu introduced different statistics to measure interaction strength. Closely following their notation, we will summarize the main ideas. 
 
@@ -240,7 +199,7 @@ $$
 5. $H^2_j = 0$ means there are no interactions associated with $x_j$. The higher the value, the more prediction variability comes from interactions with $x_j$.
 6. Since the denominator is the same for all features, the values of the test statistics can be compared across features.
 
-### Pairwise interaction strength
+#### Pairwise interaction strength
 
 Again following [2], if there are no interaction effects between features $x_j$ and $x_k$, their two-dimensional partial dependence function $F_{jk}$ can be written as the sum of the univariate partial dependencies, i.e.,
 
@@ -278,7 +237,7 @@ To be better able to compare pairwise interaction strength across variable pairs
 
 Furthermore, we do pairwise calculations not for the most *important* features but rather for those features with *strongest overall interactions*.
 
-### Total interaction strength of all variables together
+#### Total interaction strength of all variables together
 
 If the model is additive in all features (no interactions), then
 
@@ -292,9 +251,9 @@ $$
   H^2 = \frac{\frac{1}{n} \sum_{i = 1}^n \left[F(\boldsymbol x_i) - \sum_{j = 1}^p\hat F_j(x_{ij})\right]^2}{\frac{1}{n} \sum_{i = 1}^n\left[F(\boldsymbol x_i)\right]^2}.
 $$
 
-A value of 0 would mean there are no interaction effects at all.
+A value of 0 means there are no interaction effects at all.
 
-### Workflow
+#### Workflow
 
 Calculation of all $H_j^2$ statistics requires $O(n^2 p)$ predictions, while calculating of all pairwise $H_{jk}$ requires $O(n^2 p^2$ predictions. Therefore, we suggest to reduce the workflow in two important ways:
 
