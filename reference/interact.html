@@ -10,8 +10,8 @@ see H2_jk() for details.
 
 
 Furthermore, it allows to calculate an experimental partial dependence based
-measure of feature importance, \(\textrm{PDI}_j\). It equals the proportion of
-prediction variability unexplained by other features, see PDI_j() for details.
+measure of feature importance, \(\textrm{PDI}_j^2\). It equals the proportion of
+prediction variability unexplained by other features, see PDI2_j() for details.
 (This statistic is not shown by summary() or plot().)
 Instead of using summary(), interaction statistics can also be obtained via the
 more flexible functions H2(), H2_j(), and H2_jk()."><meta property="og:image" content="/logo.png"><!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
@@ -72,8 +72,8 @@ feature, see <code><a href="H2_j.html">H2_j()</a></code> for details.</p></li>
 <li><p>Friedman and Popescu's \(H^2_{jk}\) statistic of pairwise interaction strength,
 see <code><a href="H2_jk.html">H2_jk()</a></code> for details.</p></li>
 </ul><p>Furthermore, it allows to calculate an experimental partial dependence based
-measure of feature importance, \(\textrm{PDI}_j\). It equals the proportion of
-prediction variability unexplained by other features, see <code><a href="PDI_j.html">PDI_j()</a></code> for details.
+measure of feature importance, \(\textrm{PDI}_j^2\). It equals the proportion of
+prediction variability unexplained by other features, see <code><a href="PDI2_j.html">PDI2_j()</a></code> for details.
 (This statistic is not shown by <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> or <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code>.)</p>
 <p>Instead of using <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>, interaction statistics can also be obtained via the
 more flexible functions <code><a href="H2.html">H2()</a></code>, <code><a href="H2_j.html">H2_j()</a></code>, and <code><a href="H2_jk.html">H2_jk()</a></code>.</p>
@@ -208,11 +208,17 @@ resulting object.</p></div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># MODEL ONE: Linear regression</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># MODEL 1: Linear regression</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="va">Sepal.Length</span> <span class="op">~</span> <span class="va">.</span> <span class="op">+</span> <span class="va">Petal.Width</span><span class="op">:</span><span class="va">Species</span>, data <span class="op">=</span> <span class="va">iris</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">inter</span> <span class="op">&lt;-</span> <span class="fu">interact</span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">iris</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span>, X <span class="op">=</span> <span class="va">iris</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">inter</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 'interact' object. Run summary() to get interaction statistics.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 'interact' object. Run plot() or summary() for details.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Proportion of prediction variability unexplained by main effects of v:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.0502364</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">inter</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="interact-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">inter</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Proportion of prediction variability unexplained by main effects of v</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.0502364</span>
@@ -229,20 +235,17 @@ resulting object.</p></div>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                           [,1]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Width:Species 0.05546172</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"ggplot2"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">inter</span><span class="op">)</span></span></span>
 <span class="r-in"><span>  </span></span>
-<span class="r-in"><span>  <span class="co"># Absolute pairwise interaction strengths</span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">inter</span>, stat <span class="op">=</span> <span class="fl">2</span>, normalize <span class="op">=</span> <span class="cn">FALSE</span>, squared <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="H2_jk.html">H2_jk</a></span><span class="op">(</span><span class="va">inter</span>, normalize <span class="op">=</span> <span class="cn">FALSE</span>, squared <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>  <span class="co"># Same as number</span></span></span>
-<span class="r-in"><span><span class="op">}</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                          [,1]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Width:Species 0.1726312</span>
+<span class="r-in"><span><span class="co"># Absolute pairwise interaction strengths</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="H2_jk.html">H2_jk</a></span><span class="op">(</span><span class="va">inter</span>, normalize <span class="op">=</span> <span class="cn">FALSE</span>, squared <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="interact-2.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># MODEL TWO: Multi-response linear regression</span></span></span>
+<span class="r-in"><span><span class="co"># MODEL 2: Multi-response linear regression</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">iris</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span> <span class="op">~</span> <span class="va">Petal.Length</span> <span class="op">+</span> <span class="va">Petal.Width</span> <span class="op">*</span> <span class="va">Species</span>, data <span class="op">=</span> <span class="va">iris</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">v</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Petal.Length"</span>, <span class="st">"Petal.Width"</span>, <span class="st">"Species"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">inter</span> <span class="op">&lt;-</span> <span class="fu">interact</span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="va">v</span>, X <span class="op">=</span> <span class="va">iris</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">inter</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="interact-3.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">inter</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Proportion of prediction variability unexplained by main effects of v</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Sepal.Length  Sepal.Width </span>
@@ -259,12 +262,8 @@ resulting object.</p></div>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                     Sepal.Length Sepal.Width</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Width:Species   0.02937378  0.01637166</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"ggplot2"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">inter</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">}</span></span></span>
-<span class="r-plt img"><img src="interact-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># MODEL THREE: Gamma GLM with log link</span></span></span>
+<span class="r-in"><span><span class="co"># MODEL 3: Gamma GLM with log link</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm</a></span><span class="op">(</span><span class="va">Sepal.Length</span> <span class="op">~</span> <span class="va">.</span>, data <span class="op">=</span> <span class="va">iris</span>, family <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/family.html" class="external-link">Gamma</a></span><span class="op">(</span>link <span class="op">=</span> <span class="va">log</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># No interactions for additive features, at least on link scale</span></span></span>
@@ -279,10 +278,6 @@ resulting object.</p></div>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Length    0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Width     0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Species         0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Strongest relative pairwise interactions</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> (only for features with strong overall interactions)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      [,1]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># On original scale, we have interactions everywhere...</span></span></span>

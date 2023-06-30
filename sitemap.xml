@@ -25,7 +25,10 @@
     <loc>/reference/H2_jk.html</loc>
   </url>
   <url>
-    <loc>/reference/PDI_j.html</loc>
+    <loc>/reference/PDI2_j.html</loc>
+  </url>
+  <url>
+    <loc>/reference/PDP.html</loc>
   </url>
   <url>
     <loc>/reference/index.html</loc>
@@ -37,19 +40,10 @@
     <loc>/reference/multivariate_grid.html</loc>
   </url>
   <url>
-    <loc>/reference/partial_dep.html</loc>
-  </url>
-  <url>
     <loc>/reference/plot.interact.html</loc>
   </url>
   <url>
-    <loc>/reference/plot.pd.html</loc>
-  </url>
-  <url>
     <loc>/reference/print.interact.html</loc>
-  </url>
-  <url>
-    <loc>/reference/print.pd.html</loc>
   </url>
   <url>
     <loc>/reference/summary.interact.html</loc>
