@@ -18,7 +18,8 @@
 #' }
 #' where
 #' \deqn{
-#'    A_{jk} = \frac{1}{n} \sum_{i = 1}^n\big[\hat F_{jk}(x_{ij}, x_{ik}) - \hat F_j(x_{ij}) - \hat F_k(x_{ik})\big]^2
+#'    A_{jk} = \frac{1}{n} \sum_{i = 1}^n\big[\hat F_{jk}(x_{ij}, x_{ik}) - 
+#'    \hat F_j(x_{ij}) - \hat F_k(x_{ik})\big]^2
 #' }
 #' and
 #' \deqn{
@@ -49,44 +50,28 @@
 #' rather for those features with *strongest overall interactions*.
 #' 
 #' @inheritParams H2_j
-#' @returns 
-#'   Matrix of interactions statistics (one row per variable pair, one column per
-#'   prediction dimension).
+#' @inherit H2_j return
 #' @inherit interact references
 #' @export
 #' @seealso [interact()], [H2()], [H2_j()]
 #' @examples
-#' # MODEL ONE: Linear regression
+#' # MODEL 1: Linear regression
 #' fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
 #' inter <- interact(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
 #' 
 #' # Proportion of joint effect coming from pairwise interaction
-#' # (only for features with strongest overall interactions)
+#' # (for features with strongest overall interactions)
 #' H2_jk(inter)
-#' 
-#' # As a barplot (okay, a single bar is not too beautiful...)
-#' if (requireNamespace("ggplot2", quietly = TRUE)) {
-#'   plot(inter, stat = 2)
-#' }
+#' H2_jk(inter, plot = FALSE)
 #' 
 #' # Absolute measure as alternative
 #' H2_jk(inter, normalize = FALSE, squared = FALSE)
 #' 
-#' # Again as barplot
-#' if (requireNamespace("ggplot2", quietly = TRUE)) {
-#'   plot(inter, stat = 2, normalize = FALSE, squared = FALSE)
-#' }
-#' 
-#' # MODEL TWO: Multi-response linear regression
+#' # MODEL 2: Multi-response linear regression
 #' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
 #' v <- c("Petal.Length", "Petal.Width", "Species")
 #' inter <- interact(fit, v = v, X = iris, verbose = FALSE)
 #' H2_jk(inter)
-#' 
-#' # Barplot
-#' if (requireNamespace("ggplot2", quietly = TRUE)) {
-#'   plot(inter, stat = 2)
-#' }
 H2_jk <- function(object, ...) {
   UseMethod("H2_jk")
 }
@@ -100,14 +85,14 @@ H2_jk.default <- function(object, ...) {
 #' @describeIn H2_jk Pairwise interaction strength from "interact" object.
 #' @export
 H2_jk.interact <- function(object, normalize = TRUE, squared = TRUE, sort = TRUE, 
-                           top_m = Inf, eps = 1e-8, ...) {
+                           top_m = Inf, eps = 1e-8, plot = TRUE, fill = "#2b51a1", 
+                           ...) {
   combs <- object[["combs"]]
   n_combs <- length(combs)
   nms <- colnames(object[["f"]])
   p <- ncol(object[["f"]])
-  num <- denom <- matrix(
-    nrow = n_combs, ncol = p, dimnames = list(names(combs), nms)
-  )
+  num <- denom <- matrix(nrow = n_combs, ncol = p, dimnames = list(names(combs), nms))
+  
   for (i in seq_len(n_combs)) {
     z <- combs[[i]]
     num[i, ] <- with(
@@ -115,7 +100,7 @@ H2_jk.interact <- function(object, normalize = TRUE, squared = TRUE, sort = TRUE
     )
     denom[i, ] <- if (normalize) with(object, wcolMeans(F_jk[[i]]^2, w = w)) else 1
   }
-  postprocess(
+  out <- postprocess(
     num = num,
     denom = denom,
     normalize = normalize, 
@@ -124,4 +109,5 @@ H2_jk.interact <- function(object, normalize = TRUE, squared = TRUE, sort = TRUE
     top_m = top_m, 
     eps = eps
   )
+  if (plot) plot_istat(out, fill = fill, ...) else out
 }

@@ -1,4 +1,4 @@
-#' PD based Importance (Experimental)
+#' PD Bases Importance (Experimental)
 #' 
 #' Experimental variable importance method based on partial dependence functions. 
 #' While related to Greenwell et al., our suggestion measures not only main effect
@@ -24,47 +24,49 @@
 #' the \eqn{j}-th feature, including its interaction effects (check [partial_dep()] 
 #' for all definitions).
 #' 
+#' Remarks 1 to 4 of [H2_j()] also apply here.
+#' 
 #' @inheritParams H2_j
-#' @returns 
-#'   Matrix of importance statistics (one row per variable, one column per
-#'   prediction dimension).
+#' @inherit H2_j return
 #' @seealso [interact()], [H2_j()]
 #' @references
 #'   Greenwell, Brandon M., Bradley C. Boehmke, and Andrew J. McCarthy.  
 #'     *A Simple and Effective Model-Based Variable Importance Measure.* Arxiv (2018).
 #' @export
 #' @examples
-#' # MODEL ONE: Linear regression
+#' # MODEL 1: Linear regression
 #' fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
 #' inter <- interact(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
-#' PDI_j(inter)
+#' PDI2_j(inter)
+#' PDI2_j(inter, plot = FALSE)
 #' 
-#' # MODEL TWO: Multi-response linear regression
+#' # MODEL 2: Multi-response linear regression
 #' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
 #' v <- c("Petal.Length", "Petal.Width", "Species")
 #' inter <- interact(fit, v = v, X = iris, verbose = FALSE)
-#' PDI_j(inter)
-PDI_j <- function(object, ...) {
-  UseMethod("PDI_j")
+#' PDI2_j(inter)
+PDI2_j <- function(object, ...) {
+  UseMethod("PDI2_j")
 }
 
-#' @describeIn PDI_j Default method of PD based feature importance.
+#' @describeIn PDI2_j Default method of PD based feature importance.
 #' @export
-PDI_j.default <- function(object, ...) {
+PDI2_j.default <- function(object, ...) {
   stop("No default method implemented.")
 }
 
-#' @describeIn PDI_j PD based feature importance from "interact" object.
+#' @describeIn PDI2_j PD based feature importance from "interact" object.
 #' @export
-PDI_j.interact <- function(object, normalize = TRUE, squared = TRUE, 
-                                   sort = TRUE, top_m = Inf, eps = 1e-8, ...) {
+PDI2_j.interact <- function(object, normalize = TRUE, squared = TRUE, sort = TRUE, 
+                            top_m = Inf, eps = 1e-8, plot = TRUE, fill = "#2b51a1", 
+                            ...) {
   f <- object[["f"]]
   v <- object[["v"]]
   num <- matrix(nrow = length(v), ncol = ncol(f), dimnames = list(v, colnames(f)))
   for (z in v) {
     num[z, ] <- with(object, wcolMeans((f - F_not_j[[z]])^2, w = w))
   }
-  postprocess(
+  out <- postprocess(
     num = num,
     denom = object[["mean_f2"]],
     normalize = normalize, 
@@ -73,4 +75,5 @@ PDI_j.interact <- function(object, normalize = TRUE, squared = TRUE,
     top_m = top_m, 
     eps = eps
   )
+  if (plot) plot_istat(out, fill = fill, ...) else out
 }

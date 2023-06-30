@@ -105,7 +105,7 @@ see \code{\link[=H2_jk]{H2_jk()}} for details.
 }
 
 Furthermore, it allows to calculate an experimental partial dependence based
-measure of feature importance, \eqn{\textrm{PDI}_j}. It equals the proportion of
+measure of feature importance, \eqn{\textrm{PDI}_j^2}. It equals the proportion of
 prediction variability unexplained by other features, see \code{\link[=PDI_j]{PDI_j()}} for details.
 (This statistic is not shown by \code{summary()} or \code{plot()}.)
 
@@ -122,29 +122,24 @@ more flexible functions \code{\link[=H2]{H2()}}, \code{\link[=H2_j]{H2_j()}}, an
 
 }}
 \examples{
-# MODEL ONE: Linear regression
+# MODEL 1: Linear regression
 fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
 inter <- interact(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
 inter
+plot(inter)
 summary(inter)
-if (requireNamespace("ggplot2", quietly = TRUE)) {
-  plot(inter)
   
-  # Absolute pairwise interaction strengths
-  plot(inter, stat = 2, normalize = FALSE, squared = FALSE)
-  H2_jk(inter, normalize = FALSE, squared = FALSE)  # Same as number
-}
+# Absolute pairwise interaction strengths
+H2_jk(inter, normalize = FALSE, squared = FALSE)
 
-# MODEL TWO: Multi-response linear regression
+# MODEL 2: Multi-response linear regression
 fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
 v <- c("Petal.Length", "Petal.Width", "Species")
 inter <- interact(fit, v = v, X = iris, verbose = FALSE)
+plot(inter)
 summary(inter)
-if (requireNamespace("ggplot2", quietly = TRUE)) {
-  plot(inter)
-}
 
-# MODEL THREE: Gamma GLM with log link
+# MODEL 3: Gamma GLM with log link
 fit <- glm(Sepal.Length ~ ., data = iris, family = Gamma(link = log))
 
 # No interactions for additive features, at least on link scale

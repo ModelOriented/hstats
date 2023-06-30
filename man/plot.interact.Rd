@@ -2,7 +2,7 @@
 % Please edit documentation in R/interact.R
 \name{plot.interact}
 \alias{plot.interact}
-\title{Plot Interaction Statistics}
+\title{Plot Method for "interact" Objects}
 \usage{
 \method{plot}{interact}(x, stat = 1:2, top_m = 10L, fill = "#2b51a1", ...)
 }

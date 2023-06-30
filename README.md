@@ -96,7 +96,7 @@ fit <- xgb.train(
 To analyze interactions, we will
 
 1. call `interact()` for the expensive crunching and
-2. get statistics with `summary()` and/or `plot()`.
+2. get statistics with `plot()` and/or `summary()`.
 
 ```r
 # 2-3 seconds on simple laptop - a random forest will take 1-2 minutes
@@ -105,6 +105,12 @@ system.time(
   inter <- interact(fit, v = x, X = X_train)
 )
 
+plot(inter)
+```
+
+![](man/figures/interact.svg)
+
+```r
 summary(inter)
 
 # Output
@@ -137,12 +143,7 @@ LATITUDE:CNTR_DIST   0.029474763
 CNTR_DIST:RAIL_DIST  0.012886536
 LONGITUDE:RAIL_DIST  0.008402545
 OCEAN_DIST:RAIL_DIST 0.007081773
-
-# If {ggplot2} is available, we can also plot the statistics
-plot(inter)
 ```
-
-![](man/figures/interact.svg)
 
 **Interpretation** 
 
@@ -160,16 +161,6 @@ Strongest pairwise interactions (values on the scale of the response log(price))
 
 ```r
 H2_jk(inter, normalize = FALSE, squared = FALSE, top_m = 5)
-                           [,1]
-LONGITUDE:OCEAN_DIST 0.08279401
-LATITUDE:OCEAN_DIST  0.04797644
-LONGITUDE:CNTR_DIST  0.04796194
-CNTR_DIST:OCEAN_DIST 0.04718950
-LATITUDE:LONGITUDE   0.03807378
-
-# Again, we can use plot() to visualize these values 
-# (stat = 2 focusses on pairwise stats)
-plot(inter, stat = 2, normalize = FALSE, squared = FALSE, top_m = 5)
 ```
 
 ![](man/figures/interact_pairwise.svg)
@@ -182,7 +173,7 @@ Let's check a stratified partial dependence plot to get an impression how the in
 # "BY" can be a column name in X, or any vector of (possibly transformed) values
 # Numeric features are quantile binned into groups of similar size
 pd <- partial_dep(fit, v = "LONGITUDE", X = X_train, BY = "OCEAN_DIST")
-plot(pd)  # Requires {ggplot2}
+plot(pd)
 ```
 
 **Interpretation:** For short distance to the ocean groups, the LONGITUDE effect looks indeed quite different.
@@ -196,6 +187,16 @@ plot(partial_dep(fit, v = "TOT_LVG_AREA", X = X_train, BY = "OCEAN_DIST"))
 ```
 
 ![](man/figures/pdp_living_ocean.svg)
+
+### Variable importance
+
+In the spirit of [2], and related to [4], we can extract from the "interact" objects for free a partial dependence based variable importance measure. It is rather experimental, so use it with care (Details below).
+
+```r
+PDI2_j(inter)
+```
+
+![](man/figures/importance.svg)
 
 ## Background
 

@@ -290,3 +290,29 @@ qcut <- function(x, m) {
   g <- stats::quantile(x, probs = p, names = FALSE, type = 1L, na.rm = TRUE)
   cut(x, breaks = unique(g), include.lowest = TRUE)
 }
+
+#' Plots Matrix of Statistics
+#' 
+#' @noRd
+#' @keywords internal
+#'
+#' @param x A matrix of statistics with rownames.
+#' @param fill Color of bar (only for univariate statistics).
+#' @param ... Arguments passed to `geom_bar()`.
+#' @returns An object of class "ggplot".
+plot_istat <- function(x, fill = "#2b51a1", ...) {
+  p <- ggplot2::ggplot(mat2df(x), ggplot2::aes(x = value_, y = variable_)) +
+    ggplot2::ylab(ggplot2::element_blank()) +
+    ggplot2::xlab("Value")
+  
+  if (ncol(x) == 1L) {
+    p + ggplot2::geom_bar(fill = fill, stat = "identity", ...)
+  } else {
+    p + 
+      ggplot2::geom_bar(
+        ggplot2::aes(fill = varying_), stat = "identity", position = "dodge", ...
+      ) + 
+      ggplot2::labs(fill = "Response")
+  }
+}
+

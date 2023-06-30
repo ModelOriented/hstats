@@ -15,7 +15,7 @@ H2(object, ...)
 \arguments{
 \item{object}{Object of class "interact".}
 
-\item{...}{Further parameters passed to predict function (only for default method).}
+\item{...}{Further parameters passed to \code{geom_bar()}.}
 
 \item{normalize}{Should statistic be normalized? Default is \code{TRUE}.}
 
@@ -55,18 +55,18 @@ A value of 0 would mean there are no interaction effects at all.
 
 }}
 \examples{
-# MODEL ONE: Linear regression
+# MODEL 1: Linear regression
 fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
 inter <- interact(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
 H2(inter)
 
-# MODEL TWO: Multi-response linear regression
+# MODEL 2: Multi-response linear regression
 fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
 v <- c("Petal.Length", "Petal.Width", "Species")
 inter <- interact(fit, v = v, X = iris, verbose = FALSE)
 H2(inter)
 
-# MODEL THREE: No interactions
+# MODEL 3: No interactions
 fit <- lm(Sepal.Length ~ ., data = iris)
 inter <- interact(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
 H2(inter)

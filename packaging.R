@@ -30,8 +30,7 @@ use_description(
   
 use_package("stats", "Imports")
 use_package("utils", "Imports")
-
-use_package("ggplot2", "Suggests")
+use_package("ggplot2", "Imports")
 
 use_gpl_license(2)
 
