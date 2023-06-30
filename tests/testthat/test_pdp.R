@@ -248,3 +248,4 @@ test_that("PDP() gives same answer on example as iml 0.11.1", {
   pd2 <- PDP(fit, v = "Sepal.Width", X = iris, grid = 2:4, plot = FALSE)
   expect_equal(iml_sw, pd2$y, tolerance = 0.001)
 })
+

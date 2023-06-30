@@ -76,7 +76,9 @@ To measure the relative amount of variability unexplained by all main effects, w
 $$
   H^2 = \frac{\frac{1}{n} \sum_{i = 1}^n \big[F(\mathbf{x}_i) - \sum_{j = 1}^p\hat F_j(x_{ij})\big]^2}{\frac{1}{n} \sum_{i = 1}^n\big[F(\mathbf{x}_i)\big]^2}.
 $$
-A value of 0 means there are no interaction effects at all. A similar measure using accumulated local effects is discussed in \cite{molnar2020}.
+A value of 0 means there are no interaction effects at all. 
+
+In \cite{zolkowski2023}, $1 - H^2$ is called {\em additivity index}. A similar measure using accumulated local effects is discussed in \cite{molnar2020}.
 
 \subsection{Workflow}
 Calculation of all $H_j^2$ statistics requires $O(n^2p)$ predictions, while calculating of all pairwise $H_{jk}$ requires $O(n^2 p^2)$ predictions. Therefore, we suggest to reduce the workflow in two important ways:

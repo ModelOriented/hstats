@@ -8,6 +8,11 @@ J.~H. Friedman, ``Greedy function approximation: A gradient boosting
 J.~H. Friedman and B.~E. Popescu, ``Predictive learning via rule ensembles,''
   {\em The Annals of Applied Statistics}, vol.~2, no.~3, pp.~916--954, 2008.
 
+\bibitem{zolkowski2023}
+A.~Żółkowski, M.~Krzyziński, and P.~Fijałkowski, ``Methods for extraction
+  of interactions from predictive models,'' Master's thesis, Warsaw University
+  of Technology, 2023.
+
 \bibitem{molnar2020}
 C.~Molnar, G.~Casalicchio, and B.~Bischl, ``Quantifying model complexity via
   functional decomposition for better post-hoc interpretability,'' in {\em
