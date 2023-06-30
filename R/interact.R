@@ -74,7 +74,7 @@
 #' inter <- interact(
 #'   fit, v = names(iris[-1]), X = iris, type = "response", verbose = FALSE
 #' )
-#' summary(inter)
+#' plot(inter)
 interact <- function(object, ...) {
   UseMethod("interact")
 }
@@ -179,8 +179,7 @@ interact.default <- function(object, v, X, pred_fun = stats::predict, pairwise_m
       cat("\n")
     }
   } else {
-    F_jk <- combs <- list()
-    v_pairwise <- character(0L)
+    F_jk <- combs <- v_pairwise <- NULL
   }
   structure(
     list(
@@ -260,7 +259,7 @@ print.interact <- function(x, ...) {
 #' @param object An object of class "interact".
 #' @param top_m Maximum number of rows of results to print.
 #' @param ... Further arguments passed from other methods.
-#' @returns A list of resulting matrices.
+#' @returns A named list of statistics.
 #' @export
 #' @seealso See [interact()] for examples.
 summary.interact <- function(object, top_m = 6L, ...) {
@@ -276,7 +275,7 @@ summary.interact <- function(object, top_m = 6L, ...) {
   print(utils::head(h2_j, top_m))
   cat("\n")
   
-  if (nrow(h2_jk) > 0L) {
+  if (!is.null(h2_jk)) {
     cat("Strongest relative pairwise interactions\n")
     cat("(only for features with strong overall interactions)\n")
     print(utils::head(h2_jk, top_m))
@@ -301,7 +300,7 @@ summary.interact <- function(object, top_m = 6L, ...) {
 plot.interact <- function(x, stat = 1:2, top_m = 15L, fill = "#2b51a1", ...) {
   h2_j <- H2_j(x, top_m = top_m, plot = FALSE, ...)
   h2_jk <- H2_jk(x, top_m = top_m, plot = FALSE, ...)
-  if (nrow(h2_jk) == 0L) {
+  if (is.null(h2_jk)) {
     stat <- 1L
   }
   

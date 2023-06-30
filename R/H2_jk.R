@@ -51,7 +51,10 @@
 #' rather for those features with *strongest overall interactions*.
 #' 
 #' @inheritParams H2_j
-#' @inherit H2_j return
+#' @returns 
+#'   A "ggplot" object (if `plot = TRUE`), or a matrix of statistics 
+#'   (one row per variable, one column per prediction dimension). If no pairwise
+#'   statistics have been calculated, the function returns `NULL`.
 #' @inherit interact references
 #' @export
 #' @seealso [interact()], [H2()], [H2_j()]
@@ -89,12 +92,20 @@ H2_jk.interact <- function(object, normalize = TRUE, squared = TRUE, sort = TRUE
                            top_m = 15L, eps = 1e-8, plot = TRUE, fill = "#2b51a1", 
                            ...) {
   combs <- object[["combs"]]
-  n_combs <- length(combs)
-  nms <- colnames(object[["f"]])
-  p <- ncol(object[["f"]])
-  num <- denom <- matrix(nrow = n_combs, ncol = p, dimnames = list(names(combs), nms))
   
-  for (i in seq_len(n_combs)) {
+  if (is.null(combs)) {
+    return(NULL)
+  }
+  
+  # Note that F_jk are in the same order as combn
+  num <- denom <- with(
+    object,
+    matrix(
+      nrow = length(combs), ncol = ncol(f), dimnames = list(names(combs), colnames(f))
+    )
+  )
+  
+  for (i in seq_along(combs)) {
     z <- combs[[i]]
     num[i, ] <- with(
       object, wcolMeans((F_jk[[i]] - F_j[[z[1L]]] - F_j[[z[2L]]])^2, w = w)

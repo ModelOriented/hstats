@@ -45,8 +45,9 @@ the results as matrix.}
 \item{fill}{Color of bar (only for univariate statistics).}
 }
 \value{
-A "ggplot" object (if \code{plot = TRUE}) or a matrix of statistics
-(one row per variable, one column per prediction dimension).
+A "ggplot" object (if \code{plot = TRUE}), or a matrix of statistics
+(one row per variable, one column per prediction dimension). If no pairwise
+statistics have been calculated, the function returns \code{NULL}.
 }
 \description{
 Friedman and Popescu's statistics of pairwise interaction strength extracted from the
