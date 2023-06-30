@@ -45,8 +45,10 @@ we can therefore study the test statistic of total interaction strength
   \sum_{j = 1}^p\hat F_j(x_{ij})\big]^2}{\frac{1}{n} 
   \sum_{i = 1}^n\big[F(\mathbf{x}_i)\big]^2}.
 }
-A value of 0 means there are no interaction effects at all. A similar measure using
-accumulated local effects is discussed in Molnar et al. (2020).
+A value of 0 means there are no interaction effects at all.
+
+In Żółkowski et al. (2023), \eqn{1 - H^2} is called \emph{additivity index}. A similar measure using
+accumulated local effects is discussed in Molnar (2020).
 }
 \section{Methods (by class)}{
 \itemize{
@@ -73,10 +75,16 @@ inter <- interact(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
 H2(inter)
 }
 \references{
-Molnar, Christoph, Giuseppe Casalicchio, and Bernd Bischl".
+\enumerate{
+\item Żółkowski, Artur, Mateusz Krzyziński, and Paweł Fijałkowski.
+\emph{Methods for extraction of interactions from predictive models.}
+Undergraduate thesis. Faculty of Mathematics and Information Science,
+Warsaw University of Technology (2023).
+\item Molnar, Christoph, Giuseppe Casalicchio, and Bernd Bischl".
 \emph{Quantifying Model Complexity via Functional Decomposition for Better Post-hoc Interpretability},
 in Machine Learning and Knowledge Discovery in Databases,
 Springer International Publishing (2020): 193-204.
+}
 }
 \seealso{
 \code{\link[=interact]{interact()}}, \code{\link[=H2_j]{H2_j()}}, \code{\link[=H2_jk]{H2_jk()}}

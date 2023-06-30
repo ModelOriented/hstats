@@ -253,7 +253,9 @@ $$
   H^2 = \frac{\frac{1}{n} \sum_{i = 1}^n \left[F(\boldsymbol x_i) - \sum_{j = 1}^p\hat F_j(x_{ij})\right]^2}{\frac{1}{n} \sum_{i = 1}^n\left[F(\boldsymbol x_i)\right]^2}.
 $$
 
-A value of 0 means there are no interaction effects at all. A similar measure using accumulated local effects is discussed in [5].
+A value of 0 means there are no interaction effects at all. 
+
+In [5], $1 - H^2$ is called *additivity index*. A similar measure using accumulated local effects is discussed in [6].
 
 #### Workflow
 
@@ -291,4 +293,5 @@ It differs from $H^2_j$ only by not subtracting the main effect of the $j$-th fe
 3. Mayer, Michael, Steven C. Bourassa, Martin Hoesli, and Donato Scognamiglio. *Machine Learning Applications to Land and Structure Valuation."* Journal of Risk and Financial Management 15, no. 5 (2022): 193.
 4. Greenwell, Brandon M., Bradley C. Boehmke, and Andrew J. McCarthy. 
 *A Simple and Effective Model-Based Variable Importance Measure.* Arxiv (2018).
-5. Molnar, Christoph, Giuseppe Casalicchio, and Bernd Bischl". *Quantifying Model Complexity via Functional Decomposition for Better Post-hoc Interpretability*, in Machine Learning and Knowledge Discovery in Databases, Springer International Publishing (2020): 193-204.
+5. Żółkowski, Artur, Mateusz Krzyziński, and Paweł Fijałkowski. *Methods for extraction of interactions from predictive models.* Undergraduate thesis. Faculty of Mathematics and Information Science, Warsaw University of Technology (2023).
+6. Molnar, Christoph, Giuseppe Casalicchio, and Bernd Bischl". *Quantifying Model Complexity via Functional Decomposition for Better Post-hoc Interpretability*, in Machine Learning and Knowledge Discovery in Databases, Springer International Publishing (2020): 193-204.
