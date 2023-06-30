@@ -15,7 +15,7 @@ H2_j(object, ...)
   normalize = TRUE,
   squared = TRUE,
   sort = TRUE,
-  top_m = Inf,
+  top_m = 15L,
   eps = 1e-08,
   plot = FALSE,
   fill = "#2b51a1",
@@ -34,11 +34,12 @@ H2_j(object, ...)
 \item{sort}{Should results be sorted by the size of the statistic? Default is \code{TRUE}.
 Multioutput predictions are sorted by row means.}
 
-\item{top_m}{How many statistics should be shown? By default \code{Inf} (show all).}
+\item{top_m}{How many statistics should be shown? By default \code{15}.
+Set to \code{Inf} to show all.}
 
 \item{eps}{Threshold below which numerator values are set to 0.}
 
-\item{plot}{Should results be plotted (default is \code{TRUE}). Set to \code{FALSE} to get
+\item{plot}{Should results be plotted? Default is \code{TRUE}. Set to \code{FALSE} to get
 the results as matrix.}
 
 \item{fill}{Color of bar (only for univariate statistics).}
@@ -49,7 +50,9 @@ A "ggplot" object (if \code{plot = TRUE}) or a matrix of statistics
 }
 \description{
 Friedman and Popescu's \eqn{H^2_j} statistics of overall interaction strength per
-feature extracted from the result of \code{\link[=interact]{interact()}}, see Details.
+feature extracted from the result of \code{\link[=interact]{interact()}}, see Details. By default, the
+results are plotted as a barplot. Set \code{plot = FALSE} to get a matrix of values
+instead.
 }
 \details{
 The logic of Friedman and Popescu (2008) is as follows:
@@ -67,7 +70,7 @@ strength is given by
   \hat F_j(x_{ij}) - \hat F_{\setminus j}(\mathbf{x}_{i\setminus j})
   \big]^2}{\frac{1}{n} \sum_{i = 1}^n\big[F(\mathbf{x}_i)\big]^2}
 }
-(check \code{\link[=partial_dep]{partial_dep()}} for all definitions).
+(check \code{\link[=PDP]{PDP()}} for all definitions).
 
 \strong{Remarks:}
 \enumerate{

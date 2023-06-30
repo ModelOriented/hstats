@@ -15,7 +15,7 @@ PDI2_j(object, ...)
   normalize = TRUE,
   squared = TRUE,
   sort = TRUE,
-  top_m = Inf,
+  top_m = 15L,
   eps = 1e-08,
   plot = TRUE,
   fill = "#2b51a1",
@@ -34,11 +34,12 @@ PDI2_j(object, ...)
 \item{sort}{Should results be sorted by the size of the statistic? Default is \code{TRUE}.
 Multioutput predictions are sorted by row means.}
 
-\item{top_m}{How many statistics should be shown? By default \code{Inf} (show all).}
+\item{top_m}{How many statistics should be shown? By default \code{15}.
+Set to \code{Inf} to show all.}
 
 \item{eps}{Threshold below which numerator values are set to 0.}
 
-\item{plot}{Should results be plotted (default is \code{TRUE}). Set to \code{FALSE} to get
+\item{plot}{Should results be plotted? Default is \code{TRUE}. Set to \code{FALSE} to get
 the results as matrix.}
 
 \item{fill}{Color of bar (only for univariate statistics).}
@@ -51,7 +52,8 @@ A "ggplot" object (if \code{plot = TRUE}) or a matrix of statistics
 Experimental variable importance method based on partial dependence functions.
 While related to Greenwell et al., our suggestion measures not only main effect
 strength but also interaction effects. It is very closely related to the
-\eqn{H^2_j} statistics, see Details.
+\eqn{H^2_j} statistics, see Details. By default, the results are plotted as a
+barplot. Set \code{plot = FALSE} to get a matrix of values instead.
 }
 \details{
 If \eqn{x_j} has no effects, the (centered) prediction function \eqn{F}
@@ -69,7 +71,7 @@ Therefore, the following measure of variable importance follows:
 It differs from \eqn{H^2_j} only by not subtracting the main effect of the \eqn{j}-th
 feature in the numerator. It can be read as the proportion of prediction variability
 unexplained by all other features. As such, it measures variable importance of
-the \eqn{j}-th feature, including its interaction effects (check \code{\link[=partial_dep]{partial_dep()}}
+the \eqn{j}-th feature, including its interaction effects (check \code{\link[=PDP]{PDP()}}
 for all definitions).
 
 Remarks 1 to 4 of \code{\link[=H2_j]{H2_j()}} also apply here.

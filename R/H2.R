@@ -10,7 +10,7 @@
 #' \deqn{
 #'   F(\mathbf{x}) = \sum_{j}^{p} F_j(x_j)
 #' }
-#' (check [partial_dep()] for all definitions).
+#' (check [PDP()] for all definitions).
 #' To measure the relative amount of variability unexplained by all main effects, 
 #' we can therefore study the test statistic of total interaction strength
 #' \deqn{
@@ -18,9 +18,10 @@
 #'   \sum_{j = 1}^p\hat F_j(x_{ij})\big]^2}{\frac{1}{n} 
 #'   \sum_{i = 1}^n\big[F(\mathbf{x}_i)\big]^2}.
 #' }
-#' A value of 0 would mean there are no interaction effects at all.
+#' A value of 0 means there are no interaction effects at all.
 #' 
 #' @inheritParams H2_j
+#' @param ... Currently unused.
 #' @returns Vector of total interaction strength (one value per prediction dimension).
 #' @export
 #' @seealso [interact()], [H2_j()], [H2_jk()]

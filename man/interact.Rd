@@ -106,7 +106,7 @@ see \code{\link[=H2_jk]{H2_jk()}} for details.
 
 Furthermore, it allows to calculate an experimental partial dependence based
 measure of feature importance, \eqn{\textrm{PDI}_j^2}. It equals the proportion of
-prediction variability unexplained by other features, see \code{\link[=PDI_j]{PDI_j()}} for details.
+prediction variability unexplained by other features, see \code{\link[=PDI2_j]{PDI2_j()}} for details.
 (This statistic is not shown by \code{summary()} or \code{plot()}.)
 
 Instead of using \code{summary()}, interaction statistics can also be obtained via the

@@ -4,7 +4,7 @@
 \alias{summary.interact}
 \title{Summary Method}
 \usage{
-\method{summary}{interact}(object, top_m = 10L, ...)
+\method{summary}{interact}(object, top_m = 6L, ...)
 }
 \arguments{
 \item{object}{An object of class "interact".}

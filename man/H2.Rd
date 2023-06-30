@@ -15,7 +15,7 @@ H2(object, ...)
 \arguments{
 \item{object}{Object of class "interact".}
 
-\item{...}{Further parameters passed to \code{geom_bar()}.}
+\item{...}{Currently unused.}
 
 \item{normalize}{Should statistic be normalized? Default is \code{TRUE}.}
 
@@ -37,7 +37,7 @@ functions \eqn{F_j(x_j)}, i.e.,
 \deqn{
   F(\mathbf{x}) = \sum_{j}^{p} F_j(x_j)
 }
-(check \code{\link[=partial_dep]{partial_dep()}} for all definitions).
+(check \code{\link[=PDP]{PDP()}} for all definitions).
 To measure the relative amount of variability unexplained by all main effects,
 we can therefore study the test statistic of total interaction strength
 \deqn{
@@ -45,7 +45,7 @@ we can therefore study the test statistic of total interaction strength
   \sum_{j = 1}^p\hat F_j(x_{ij})\big]^2}{\frac{1}{n} 
   \sum_{i = 1}^n\big[F(\mathbf{x}_i)\big]^2}.
 }
-A value of 0 would mean there are no interaction effects at all.
+A value of 0 means there are no interaction effects at all.
 }
 \section{Methods (by class)}{
 \itemize{

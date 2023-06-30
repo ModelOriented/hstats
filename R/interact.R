@@ -12,13 +12,13 @@
 #' 
 #' Furthermore, it allows to calculate an experimental partial dependence based
 #' measure of feature importance, \eqn{\textrm{PDI}_j^2}. It equals the proportion of
-#' prediction variability unexplained by other features, see [PDI_j()] for details.
+#' prediction variability unexplained by other features, see [PDI2_j()] for details.
 #' (This statistic is not shown by `summary()` or `plot()`.) 
 #'  
 #' Instead of using `summary()`, interaction statistics can also be obtained via the 
 #' more flexible functions [H2()], [H2_j()], and [H2_jk()].
 #'  
-#' @inheritParams partial_dep
+#' @inheritParams PDP
 #' @param pairwise_m Number of features for which pairwise statistics are to be 
 #'   calculated. The features are selected based on Friedman and Popescu's overall 
 #'   interaction strength \eqn{H^2_j} (rowwise maximum in the multivariate case). 
@@ -246,7 +246,10 @@ interact.Learner <- function(object, v, X,
 #' @export
 #' @seealso See [interact()] for examples.
 print.interact <- function(x, ...) {
-  cat("'interact' object. Run summary() to get interaction statistics.\n")
+  cat("'interact' object. Run plot() or summary() for details.\n\n")
+  cat("Proportion of prediction variability unexplained by main effects of v:\n")
+  print(H2(x))
+  cat("\n")
   invisible(x)
 }
 
@@ -260,10 +263,10 @@ print.interact <- function(x, ...) {
 #' @returns A list of resulting matrices.
 #' @export
 #' @seealso See [interact()] for examples.
-summary.interact <- function(object, top_m = 10L, ...) {
+summary.interact <- function(object, top_m = 6L, ...) {
   h2 <- H2(object)
-  h2_j <- H2_j(object)
-  h2_jk <- H2_jk(object)
+  h2_j <- H2_j(object, top_m = Inf, plot = FALSE)
+  h2_jk <- H2_jk(object, top_m = Inf, plot = FALSE)
   
   cat("Proportion of prediction variability unexplained by main effects of v\n")
   print(h2)
@@ -273,10 +276,12 @@ summary.interact <- function(object, top_m = 10L, ...) {
   print(utils::head(h2_j, top_m))
   cat("\n")
   
-  cat("Strongest relative pairwise interactions\n")
-  cat("(only for features with strong overall interactions)\n")
-  print(utils::head(h2_jk, top_m))
-  cat("\n")
+  if (nrow(h2_jk) > 0L) {
+    cat("Strongest relative pairwise interactions\n")
+    cat("(only for features with strong overall interactions)\n")
+    print(utils::head(h2_jk, top_m))
+    cat("\n")
+  }
   invisible(list(H2 = h2, H2_j = h2_j, H2_jk = h2_jk))
 }
 
@@ -293,9 +298,12 @@ summary.interact <- function(object, top_m = 10L, ...) {
 #' @returns An object of class "ggplot".
 #' @export
 #' @seealso See [interact()] for examples.
-plot.interact <- function(x, stat = 1:2, top_m = 10L, fill = "#2b51a1", ...) {
-  h2_j <- H2_j(x, top_m = top_m, ...)
-  h2_jk <- H2_jk(x, top_m = top_m, ...)
+plot.interact <- function(x, stat = 1:2, top_m = 15L, fill = "#2b51a1", ...) {
+  h2_j <- H2_j(x, top_m = top_m, plot = FALSE, ...)
+  h2_jk <- H2_jk(x, top_m = top_m, plot = FALSE, ...)
+  if (nrow(h2_jk) == 0L) {
+    stat <- 1L
+  }
   
   data <- rbind.data.frame(
     if (1L %in% stat) mat2df(h2_j, id = "Overall"),

@@ -3,7 +3,8 @@
 #' Experimental variable importance method based on partial dependence functions. 
 #' While related to Greenwell et al., our suggestion measures not only main effect
 #' strength but also interaction effects. It is very closely related to the
-#' \eqn{H^2_j} statistics, see Details.
+#' \eqn{H^2_j} statistics, see Details. By default, the results are plotted as a 
+#' barplot. Set `plot = FALSE` to get a matrix of values instead.
 #' 
 #' @details
 #' If \eqn{x_j} has no effects, the (centered) prediction function \eqn{F}
@@ -21,7 +22,7 @@
 #' It differs from \eqn{H^2_j} only by not subtracting the main effect of the \eqn{j}-th 
 #' feature in the numerator. It can be read as the proportion of prediction variability 
 #' unexplained by all other features. As such, it measures variable importance of 
-#' the \eqn{j}-th feature, including its interaction effects (check [partial_dep()] 
+#' the \eqn{j}-th feature, including its interaction effects (check [PDP()] 
 #' for all definitions).
 #' 
 #' Remarks 1 to 4 of [H2_j()] also apply here.
@@ -58,8 +59,8 @@ PDI2_j.default <- function(object, ...) {
 #' @describeIn PDI2_j PD based feature importance from "interact" object.
 #' @export
 PDI2_j.interact <- function(object, normalize = TRUE, squared = TRUE, sort = TRUE, 
-                            top_m = Inf, eps = 1e-8, plot = TRUE, fill = "#2b51a1", 
-                            ...) {
+                            top_m = 15L, eps = 1e-8, plot = TRUE, 
+                            fill = "#2b51a1", ...) {
   f <- object[["f"]]
   v <- object[["v"]]
   num <- matrix(nrow = length(v), ncol = ncol(f), dimnames = list(v, colnames(f)))
@@ -75,5 +76,5 @@ PDI2_j.interact <- function(object, normalize = TRUE, squared = TRUE, sort = TRU
     top_m = top_m, 
     eps = eps
   )
-  if (plot) plot_istat(out, fill = fill, ...) else out
+  if (plot) plot_stat(out, fill = fill, ...) else out
 }

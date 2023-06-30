@@ -1,7 +1,8 @@
 #' Pairwise Interaction Strength
 #' 
 #' Friedman and Popescu's statistics of pairwise interaction strength extracted from the
-#' result of [interact()], see Details.
+#' result of [interact()], see Details. By default, the results are plotted as a
+#' barplot. Set `plot = FALSE` to get a matrix of values instead.
 #' 
 #' @details
 #' Following Friedman and Popescu (2008), if there are no interaction effects between 
@@ -25,7 +26,7 @@
 #' \deqn{
 #'   B_{jk} = \frac{1}{n} \sum_{i = 1}^n\big[\hat F_{jk}(x_{ij}, x_{ik})\big]^2
 #' }
-#' (check [partial_dep()] for all definitions).
+#' (check [PDP()] for all definitions).
 #'
 #' **Remarks:**
 #' 
@@ -85,7 +86,7 @@ H2_jk.default <- function(object, ...) {
 #' @describeIn H2_jk Pairwise interaction strength from "interact" object.
 #' @export
 H2_jk.interact <- function(object, normalize = TRUE, squared = TRUE, sort = TRUE, 
-                           top_m = Inf, eps = 1e-8, plot = TRUE, fill = "#2b51a1", 
+                           top_m = 15L, eps = 1e-8, plot = TRUE, fill = "#2b51a1", 
                            ...) {
   combs <- object[["combs"]]
   n_combs <- length(combs)
@@ -109,5 +110,5 @@ H2_jk.interact <- function(object, normalize = TRUE, squared = TRUE, sort = TRUE
     top_m = top_m, 
     eps = eps
   )
-  if (plot) plot_istat(out, fill = fill, ...) else out
+  if (plot) plot_stat(out, fill = fill, ...) else out
 }

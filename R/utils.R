@@ -1,5 +1,5 @@
 # Fix undefined global variable note
-utils::globalVariables(c("varying_", "value_", "id_", "variable_", "by_", "v_"))
+utils::globalVariables(c("varying_", "value_", "id_", "variable_"))
 
 #' Aligns Predictions
 #' 
@@ -300,7 +300,7 @@ qcut <- function(x, m) {
 #' @param fill Color of bar (only for univariate statistics).
 #' @param ... Arguments passed to `geom_bar()`.
 #' @returns An object of class "ggplot".
-plot_istat <- function(x, fill = "#2b51a1", ...) {
+plot_stat <- function(x, fill = "#2b51a1", ...) {
   p <- ggplot2::ggplot(mat2df(x), ggplot2::aes(x = value_, y = variable_)) +
     ggplot2::ylab(ggplot2::element_blank()) +
     ggplot2::xlab("Value")
@@ -316,3 +316,42 @@ plot_istat <- function(x, fill = "#2b51a1", ...) {
   }
 }
 
+#' Plots PD
+#' 
+#' Plots partial dependencies. It supports multivariate predictions and a BY variable, 
+#' but only univariable `v`.
+#' 
+#' @noRd
+#' @keywords internal
+#' 
+#' @importFrom ggplot2 .data
+#' @inheritParams PDP
+#' @param x A data.frame with grid, the optional BY variable and partial dependencies.
+#' @param ... Arguments passed to geometries.
+#' @returns An object of class "ggplot".
+plot_pd <- function(x, v, pred_names, BY = NULL, rotate_x = FALSE, 
+                    color = "#2b51a1", facet_scales = "free_y", ...) {
+  stopifnot(length(v) == 1L)
+  data <- poor_man_stack(x, to_stack = pred_names)
+  
+  p <- ggplot2::ggplot(data, ggplot2::aes(x = .data[[v]], y = value_))
+  if (is.null(BY)) {
+    p <- p + 
+      ggplot2::geom_line(color = color, group = 1, ...) +
+      ggplot2::geom_point(color = color, ...)
+  } else {
+    p <- p + 
+      ggplot2::geom_line(ggplot2::aes(color = .data[[BY]], group = .data[[BY]])) +
+      ggplot2::geom_point(ggplot2::aes(color = .data[[BY]], group = .data[[BY]]))
+  }
+  
+  if (length(pred_names) > 1L) {
+    p <- p + ggplot2::facet_wrap(~ varying_, scales = facet_scales)
+  }
+  if (rotate_x) {
+    p <- p + ggplot2::theme(
+      axis.text.x = ggplot2::element_text(angle = 45, hjust = 1, vjust = 1)
+    )  
+  }
+  p + ggplot2::labs(x = v, y = "PD", color = BY)
+}
