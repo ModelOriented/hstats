@@ -242,8 +242,10 @@ Furthermore, we do pairwise calculations not for the most *important* features b
 If the model is additive in all features (no interactions), then
 
 $$
-	F(\boldsymbol x) = \sum_{j}^{p} F_j(x_j).
+	F(\boldsymbol x) = \sum_{j}^{p} F_j(x_j),
 $$
+
+i.e., the (centered) predictions can be written as the sum of the (centered) main effects.
 
 To measure the relative amount of variability unexplained by all main effects, we can therefore study the test statistic of total interaction strength
 
@@ -251,7 +253,7 @@ $$
   H^2 = \frac{\frac{1}{n} \sum_{i = 1}^n \left[F(\boldsymbol x_i) - \sum_{j = 1}^p\hat F_j(x_{ij})\right]^2}{\frac{1}{n} \sum_{i = 1}^n\left[F(\boldsymbol x_i)\right]^2}.
 $$
 
-A value of 0 means there are no interaction effects at all.
+A value of 0 means there are no interaction effects at all. A similar measure using accumulated local effects is discussed in [5].
 
 #### Workflow
 
@@ -282,10 +284,11 @@ It differs from $H^2_j$ only by not subtracting the main effect of the $j$-th fe
 
 ## References
 
-1. Friedman, Jerome H. *"Greedy Function Approximation: A Gradient Boosting Machine."* 
+1. Friedman, Jerome H. *Greedy Function Approximation: A Gradient Boosting Machine.* 
   Annals of Statistics 29, no. 5 (2001): 1189-1232.
-2. Friedman, Jerome H., and Bogdan E. Popescu. *"Predictive Learning via Rule Ensembles."*
+2. Friedman, Jerome H., and Bogdan E. Popescu. *Predictive Learning via Rule Ensembles.*
   The Annals of Applied Statistics 2, no. 3 (2008): 916-54.
-3. Mayer, Michael, Steven C. Bourassa, Martin Hoesli, and Donato Scognamiglio. *"Machine Learning Applications to Land and Structure Valuation."* Journal of Risk and Financial Management 15, no. 5 (2022): 193.
+3. Mayer, Michael, Steven C. Bourassa, Martin Hoesli, and Donato Scognamiglio. *Machine Learning Applications to Land and Structure Valuation."* Journal of Risk and Financial Management 15, no. 5 (2022): 193.
 4. Greenwell, Brandon M., Bradley C. Boehmke, and Andrew J. McCarthy. 
 *A Simple and Effective Model-Based Variable Importance Measure.* Arxiv (2018).
+5. Molnar, Christoph, Giuseppe Casalicchio, and Bernd Bischl". *Quantifying Model Complexity via Functional Decomposition for Better Post-hoc Interpretability*, in Machine Learning and Knowledge Discovery in Databases, Springer International Publishing (2020): 193-204.

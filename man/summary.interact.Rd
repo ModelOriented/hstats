@@ -14,7 +14,7 @@
 \item{...}{Further arguments passed from other methods.}
 }
 \value{
-A list of resulting matrices.
+A named list of statistics.
 }
 \description{
 Summary method for "interact" object.

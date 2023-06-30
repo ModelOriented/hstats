@@ -150,7 +150,7 @@ summary(inter)
 inter <- interact(
   fit, v = names(iris[-1]), X = iris, type = "response", verbose = FALSE
 )
-summary(inter)
+plot(inter)
 }
 \references{
 Friedman, Jerome H., and Bogdan E. Popescu. \emph{"Predictive Learning via Rule Ensembles."}

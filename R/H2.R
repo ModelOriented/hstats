@@ -18,13 +18,19 @@
 #'   \sum_{j = 1}^p\hat F_j(x_{ij})\big]^2}{\frac{1}{n} 
 #'   \sum_{i = 1}^n\big[F(\mathbf{x}_i)\big]^2}.
 #' }
-#' A value of 0 means there are no interaction effects at all.
+#' A value of 0 means there are no interaction effects at all. A similar measure using 
+#' accumulated local effects is discussed in Molnar et al. (2020).
 #' 
 #' @inheritParams H2_j
 #' @param ... Currently unused.
 #' @returns Vector of total interaction strength (one value per prediction dimension).
 #' @export
 #' @seealso [interact()], [H2_j()], [H2_jk()]
+#' @references 
+#'   Molnar, Christoph, Giuseppe Casalicchio, and Bernd Bischl". 
+#'   *Quantifying Model Complexity via Functional Decomposition for Better Post-hoc Interpretability*, 
+#'   in Machine Learning and Knowledge Discovery in Databases, 
+#'   Springer International Publishing (2020): 193-204.
 #' @examples
 #' # MODEL 1: Linear regression
 #' fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)

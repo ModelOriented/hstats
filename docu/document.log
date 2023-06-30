@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.24 (MiKTeX 22.3) (preloaded format=pdflatex 2022.5.15)  29 JUN 2023 22:45
+This is pdfTeX, Version 3.141592653-2.6-1.40.24 (MiKTeX 22.3) (preloaded format=pdflatex 2022.5.15)  30 JUN 2023 13:01
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -54,10 +54,10 @@ LaTeX Font Info:    External font `cmex10' loaded for size
 {C:/Users/Michael/AppData/Local/MiKTeX/2.9/fonts/map/pdftex/pdftex.map}] [2] (d
 ocument.bbl [3]) [4] (document.aux) ) 
 Here is how much of TeX's memory you used:
- 452 strings out of 478608
- 8511 string characters out of 2850693
+ 453 strings out of 478608
+ 8523 string characters out of 2850693
  306862 words of memory out of 3000000
- 18680 multiletter control sequences out of 15000+600000
+ 18681 multiletter control sequences out of 15000+600000
  472077 words of font info for 37 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  34i,6n,38p,423b,213s stack positions out of 10000i,1000n,20000p,200000b,80000s
@@ -75,7 +75,7 @@ fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Program Files/MiKTeX 2.9/fonts/ty
 pe1/public/amsfonts/cm/cmsy5.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/publi
 c/amsfonts/cm/cmsy7.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfont
 s/cm/cmti10.pfb>
-Output written on document.pdf (4 pages, 164136 bytes).
+Output written on document.pdf (4 pages, 166941 bytes).
 PDF statistics:
  85 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
