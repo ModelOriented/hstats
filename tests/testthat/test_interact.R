@@ -68,6 +68,18 @@ test_that("Non-additive models show interactions > 0 (two interactions)", {
   expect_s3_class(H2_jk(inter), "ggplot")
 })
 
+test_that("Case weights have an impact", {
+  inter1 <- inter
+  inter1$w <- NULL
+  inter2 <- interact(fit, v = v, X = iris, verbose = FALSE, w = rep(2, times = 150L))
+  inter2[["w"]] <- NULL
+  expect_equal(inter1, inter2)
+  
+  capture_output(inter2 <- interact(fit, v = v, X = iris, w = 1:150))
+  inter2[["w"]] <- NULL
+  expect_false(identical(inter1, inter2))
+})
+
 test_that("print() method does not give error", {
   capture_output(expect_no_error(print(inter)))
 })
@@ -91,6 +103,16 @@ test_that("Stronger interactions get higher statistics", {
     all(H2_j(int2, plot = FALSE, top_m = 2L) > H2_j(int1, plot = FALSE, top_m = 2L))
   )
   expect_true(H2_jk(int2, plot = FALSE) > H2_jk(int1, plot = FALSE))
+})
+
+test_that("subsampling has an effect", {
+  set.seed(1L)
+  out1 <- PDP(fit, v = v, X = iris, plot = FALSE, n_max = 10L, w = 1:150)
+  
+  set.seed(2L)
+  out2 <- PDP(fit, v = v, X = iris, plot = FALSE, n_max = 10L, w = 1:150)
+  
+  expect_false(identical(out1, out2))
 })
 
 #

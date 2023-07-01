@@ -166,10 +166,10 @@ test_that("PDP() with BY is same as stratified application", {
 
 test_that("PDP() does subsampling", {
   set.seed(1L)
-  pd1 <- PDP(fit1, v = "Sepal.Width", X = iris, plot = FALSE, n_max = 10L)
+  pd1 <- PDP(fit1, v = "Sepal.Width", X = iris, plot = FALSE, n_max = 10L, w = 1:150)
 
   set.seed(2L)
-  pd2 <- PDP(fit1, v = "Sepal.Width", X = iris, plot = FALSE, n_max = 10L)
+  pd2 <- PDP(fit1, v = "Sepal.Width", X = iris, plot = FALSE, n_max = 10L, w = 1:150)
   
   expect_false(identical(pd1, pd2))
 })
