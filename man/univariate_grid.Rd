@@ -6,7 +6,7 @@
 \usage{
 univariate_grid(
   z,
-  grid_size = 36L,
+  grid_size = 49L,
   trim = c(0.01, 0.99),
   strategy = c("uniform", "quantile")
 )

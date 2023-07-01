@@ -32,7 +32,7 @@
 #' x <- iris$Sepal.Width
 #' univariate_grid(x, grid_size = 5)                        # Quantile binning
 #' univariate_grid(x, grid_size = 3, strategy = "uniform")  # Uniform pretty
-univariate_grid <- function(z, grid_size = 36L, trim = c(0.01, 0.99), 
+univariate_grid <- function(z, grid_size = 49L, trim = c(0.01, 0.99), 
                             strategy = c("uniform", "quantile")) {
   strategy <- match.arg(strategy)
   uni <- unique(z)
@@ -68,7 +68,7 @@ univariate_grid <- function(z, grid_size = 36L, trim = c(0.01, 0.99),
 #' multivariate_grid(iris[1:2], grid_size = 4)
 #' multivariate_grid(iris$Species)  # Works also in the univariate case
 #' @export
-multivariate_grid <- function(x, grid_size = 36L, trim = c(0.01, 0.99),
+multivariate_grid <- function(x, grid_size = 49L, trim = c(0.01, 0.99),
                               strategy = c("uniform", "quantile")) {
   strategy <- match.arg(strategy)
   p <- NCOL(x)
