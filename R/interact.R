@@ -12,7 +12,7 @@
 #' 
 #' Furthermore, it allows to calculate an experimental partial dependence based
 #' measure of feature importance, \eqn{\textrm{PDI}_j^2}. It equals the proportion of
-#' prediction variability unexplained by other features, see [PDI2_j()] for details.
+#' prediction variability unexplained by other features, see [PDI_j()] for details.
 #' (This statistic is not shown by `summary()` or `plot()`.) 
 #'  
 #' Instead of using `summary()`, interaction statistics can also be obtained via the 
