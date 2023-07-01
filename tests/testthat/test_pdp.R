@@ -5,6 +5,7 @@ g <- 2:1
 test_that("pd_raw() works for simple example", {
   pd <- pd_raw(1, v = "a", X = X, grid = g, pred_fun = pfun)
   expect_equal(pd, cbind(pred = g / 2))
+  capture_output(expect_no_error(print(pd)))
 })
 
 test_that("pd_raw() works on simple example with and without grid compression", {

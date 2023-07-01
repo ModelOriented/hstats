@@ -9,6 +9,7 @@ test_that("Additive models show 0 interactions (univariate)", {
   )
   expect_equal(H2(inter), 0)
   expect_s3_class(H2_j(inter), "ggplot")
+  expect_s3_class(plot(inter), "ggplot")
 })
 
 test_that("Additive models show 0 interactions (multivariate)", {
@@ -24,6 +25,7 @@ test_that("Additive models show 0 interactions (multivariate)", {
   )
   expect_equal(H2(inter), c(Sepal.Length = 0, Sepal.Width = 0))
   expect_s3_class(H2_j(inter), "ggplot")
+  expect_s3_class(plot(inter), "ggplot")
 })
 
 test_that("Non-additive models show interactions > 0 (one interaction)", {
