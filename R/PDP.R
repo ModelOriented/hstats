@@ -2,7 +2,7 @@
 #' 
 #' Estimates the partial dependence function of feature(s) `v` over a 
 #' grid of values. Both multivariate and multivariable situations are supported.
-#' By default, and only in the univariable case, the resulting data is plotted.
+#' By default, the resulting values are plotted.
 #' 
 #' @section Partial Dependence Functions: 
 #' 
@@ -29,38 +29,25 @@
 #' A partial dependence plot (PDP) plots the values of \eqn{\hat F_s(\mathbf{x}_s)}
 #' over a grid of evaluation points \eqn{\mathbf{x}_s}.
 #' 
+#' @inheritParams interact
 #' @inheritParams multivariate_grid
-#' @param object Fitted model object.
-#' @param v Vector of feature names.
-#' @param X A data.frame or matrix serving as background dataset.
 #' @param grid A vector (if `length(v) == 1L`), or a matrix/data.frame otherwise.
 #'   If `NULL`, calculated via [multivariate_grid()].
-#' @param pred_fun Prediction function of the form `function(object, X, ...)`,
-#'   providing K >= 1 numeric predictions per row. Its first argument represents the 
-#'   model `object`, its second argument a data structure like `X`. Additional arguments 
-#'   (such as `type = "response"` in a GLM) can be passed via `...`. The default, 
-#'   [stats::predict()], will work in most cases. Note that column names in a resulting
-#'   matrix of predictions will be used as default column names in the results.
 #' @param BY Optional grouping vector or a column name. The partial dependence
 #'   function is calculated per `BY` group. Each `BY` group
 #'   uses the same evaluation grid to improve assessment of (non-)additivity.
 #'   Numeric `BY` variables with more than `by_size` disjoint values will be 
-#'   binned into `by_size` quantile groups of similar size.
+#'   binned into `by_size` quantile groups of similar size. Subsampling of `X` is done
+#'   within group.
 #' @param by_size Numeric `BY` variables with more than `by_size` unique values will
 #'   be binned into quantile groups. Only relevant if `BY` is not `NULL`.
-#' @param n_max If `X` has more than `n_max` rows, a random sample of `n_max` rows is
-#'   selected from `X`. In this case, set a random seed for reproducibility.
-#' @param w Optional vector of case weights for each row of `X`.
-#' @param grid Optional evaluation grid in line with `v`.
-#' @param plot Should results be plotted? Default is `TRUE` in the univariable case
-#'   and `FALSE` otherwise.
+#' @param plot Should results be plotted? Default is `TRUE` in the univariable case and
+#'   in the bivariable case without `BY`.
 #' @param rotate_x Should x axis labels be rotated by 45 degrees? 
 #'   (Only if `plot = TRUE`.)
-#' @param color Color of lines and points. (Only if `plot = TRUE`.)
+#' @param color Color of lines and points of univariable PDP (without `BY`).
 #' @param facet_scales Value passed to `facet_wrap(scales = ...)`, only relevant
-#'   for multivariate output. (Only if `plot = TRUE`.)
-#' @param ... Additional arguments passed to `pred_fun(object, X, ...)`, 
-#'   for instance `type = "response"` in a [glm()] model.
+#'   for multivariate output and if `plot = TRUE`.
 #' @returns 
 #'   If `plot = TRUE`, a "ggplot" object. Otherwise a data.frame with the evaluation 
 #'   grid, the optional `BY` variable, and the corresponding partial dependencies as
@@ -76,14 +63,15 @@
 #' PDP(fit, v = "Species", X = iris, plot = FALSE)
 #' 
 #' # Stratified by numeric BY variable (which is automatically binned)
-#' PDP(fit, v = "Species", X = iris, BY = iris$Petal.Length)
+#' PDP(fit, v = "Species", X = iris, BY = "Petal.Length")
 #' 
-#' # Multivariable input (no plots available)
-#' PDP(fit, v = c("Species", "Petal.Width"), X = iris)
+#' # Multivariable input
+#' PDP(fit, v = c("Species", "Petal.Width"), X = iris, grid_size = 100L)
 #' 
 #' # MODEL 2: Multi-response linear regression
 #' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
-#' PDP(fit, v = "Petal.Width", X = iris, BY = "Species")
+#' PDP(fit, v = "Petal.Width", X = iris, BY = iris$Species)
+#' PDP(fit, v = c("Species", "Petal.Width"), X = iris, rotate_x = TRUE)
 #' 
 #' # Multivariate, multivariable, and BY (no plot)
 #' PDP(fit, v = c("Petal.Width", "Petal.Length"), X = iris, BY = "Species")
@@ -102,15 +90,15 @@ PDP <- function(object, ...) {
 #' @describeIn PDP Default method.
 #' @export
 PDP.default <- function(object, v, X, pred_fun = stats::predict, 
-                        BY = NULL, by_size = 5L, grid = NULL, grid_size = 36L, 
+                        BY = NULL, by_size = 5L, grid = NULL, grid_size = 49L, 
                         trim = c(0.01, 0.99), strategy = c("uniform", "quantile"), 
-                        n_max = 1000L, w = NULL, plot = length(v) == 1L, 
-                        rotate_x = FALSE, color = "#2b51a1", facet_scales = "free_y",
-                        ...) {
+                        n_max = 1000L, w = NULL, 
+                        plot = (length(v) + !is.null(BY)) <= 2L, rotate_x = FALSE, 
+                        color = "#2b51a1", facet_scales = "free_y", ...) {
   basic_check(X = X, v = v, pred_fun = pred_fun, w = w)
   
-  if (length(v) > 1L && plot) {
-    stop("In multivariable case (more than one 'v'), set 'plot = FALSE'")
+  if (plot && (length(v) + !is.null(BY)) > 2L) {
+    stop("Plots only possible for one variable (any BY) or two variables.")
   }
   
   if (is.null(grid)) {
@@ -205,25 +193,29 @@ PDP.default <- function(object, v, X, pred_fun = stats::predict,
   if (!plot) {
     return(out)
   }
-  plot_pd(
-    out, 
-    v = v, 
-    pred_names = colnames(pd), 
-    rotate_x = rotate_x, 
-    color = color, 
-    facet_scales = facet_scales
-  )
+  if (length(v) == 1L) {
+    plot_pd(
+      out, 
+      v = v, 
+      pred_names = colnames(pd), 
+      rotate_x = rotate_x, 
+      color = color, 
+      facet_scales = facet_scales
+    )
+  } else if (length(v) == 2L) {
+    plot_pd2(out, v = v, pred_names = colnames(pd), rotate_x = rotate_x)
+  }
 }
 
 #' @describeIn PDP Method for "ranger" models.
 #' @export
 PDP.ranger <- function(object, v, X, 
                        pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
-                       BY = NULL, by_size = 5L, grid = NULL, grid_size = 36L, 
+                       BY = NULL, by_size = 5L, grid = NULL, grid_size = 49L, 
                        trim = c(0.01, 0.99), strategy = c("uniform", "quantile"), 
-                       n_max = 1000L, w = NULL, plot = length(v) == 1L, 
-                       rotate_x = FALSE, color = "#2b51a1", facet_scales = "free_y",
-                       ...) {
+                       n_max = 1000L, w = NULL, 
+                       plot = (length(v) + !is.null(BY)) <= 2L, rotate_x = FALSE, 
+                       color = "#2b51a1", facet_scales = "free_y", ...) {
   PDP.default(
     object = object,
     v = v,
@@ -249,11 +241,11 @@ PDP.ranger <- function(object, v, X,
 #' @export
 PDP.Learner <- function(object, v, X, 
                         pred_fun = function(m, X) m$predict_newdata(X)$response,
-                        BY = NULL, by_size = 5L, grid = NULL, grid_size = 36L, 
+                        BY = NULL, by_size = 5L, grid = NULL, grid_size = 49L, 
                         trim = c(0.01, 0.99), strategy = c("uniform", "quantile"), 
-                        n_max = 1000L, w = NULL, plot = length(v) == 1L, 
-                        rotate_x = FALSE, color = "#2b51a1", facet_scales = "free_y",
-                        ...) {
+                        n_max = 1000L, w = NULL, 
+                        plot = (length(v) + !is.null(BY)) <= 2L, rotate_x = FALSE, 
+                        color = "#2b51a1", facet_scales = "free_y", ...) {
   PDP.default(
     object = object,
     v = v,

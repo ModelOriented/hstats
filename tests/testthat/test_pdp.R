@@ -83,7 +83,7 @@ test_that("pd_raw() also works for multioutput situations", {
 })
 
 # Now, PDP()
-fit1 <- lm(Sepal.Length ~ ., data = iris)
+fit1 <- lm(Sepal.Length ~ . + Petal.Width * Species, data = iris)
 fit2 <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
 
 test_that("PDP() returns a ggplot in different situations", {
@@ -99,8 +99,16 @@ test_that("PDP() returns a ggplot in different situations", {
   expect_s3_class(PDP(fit1, v = "Petal.Width", X = iris, BY = "Sepal.Width"), "ggplot")
 })
 
-test_that("PDP() does not plot in multivariable case", {
-  expect_error(PDP(fit1, v = c("Petal.Width", "Species"), X = iris, plot = TRUE))
+test_that("PDP() plots in multivariable case", {
+  expect_s3_class(PDP(fit1, v = c("Petal.Width", "Species"), X = iris), "ggplot")
+})
+
+test_that("PDP() cannot plot with 2 v and BY", {
+  expect_error(
+    PDP(
+      fit1, v = c("Petal.Width", "Species"), X = iris, BY = "Petal.Length", plot = TRUE
+    )
+  )
 })
 
 test_that("PDP() returns the same values as pd_raw()", {
@@ -247,5 +255,27 @@ test_that("PDP() gives same answer on example as iml 0.11.1", {
   iml_sw <- c(5.309279, 5.814375, 6.319470)
   pd2 <- PDP(fit, v = "Sepal.Width", X = iris, grid = 2:4, plot = FALSE)
   expect_equal(iml_sw, pd2$y, tolerance = 0.001)
+})
+
+test_that("PDP() works with vector BY or variable name BY", {
+  pd1 <- PDP(fit1, v = "Sepal.Width", X = iris, plot = FALSE, BY = "Species")
+  pd2 <- PDP(fit1, v = "Sepal.Width", X = iris, plot = FALSE, BY = iris$Species)
+  colnames(pd2)[1L] <- "Species"
+  expect_equal(pd1, pd2)
+})
+
+test_that("PDP() works on matrices and dfs", {
+  X <- data.matrix(iris[1:4])
+  fitdf <- lm(Sepal.Length ~ Sepal.Width + Petal.Width + Petal.Length, data = iris)
+  fitm <- lm(X[, 1] ~ Sepal.Width + Petal.Width + Petal.Length, data = as.data.frame(X))
+  pd1 <- PDP(fitdf, v = "Sepal.Width", X = iris, plot = FALSE)
+  pd2 <- PDP(
+    fitm, 
+    v = "Sepal.Width", 
+    X = X, 
+    plot = FALSE, 
+    pred_fun = function(m, x) predict(m, as.data.frame(x))
+  )
+  expect_equal(pd1, pd2)
 })
 

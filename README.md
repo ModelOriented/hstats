@@ -16,7 +16,7 @@
 
 **What makes a ML model black-box? It's the interactions!**
 
-This package offers a fast, model-agnostic implementation of Friedman and Popescu's statistics of interaction strength [2]. As such, it helps to unveil the darkness of the black-box.
+This package finds and describes them. It offers a fast, model-agnostic implementation of Friedman and Popescu's statistics of interaction strength [2]. As such, it helps to unveil the darkness of the black-box.
 
 The package
 
@@ -279,7 +279,7 @@ $$
 Therefore, the following measure of variable importance follows:
 
 $$
-	\text{PDI}_{j} = \frac{\frac{1}{n} \sum_{i = 1}^n\big[F(\boldsymbol x_i) - \hat F_{\setminus j}(\boldsymbol x_{i\setminus j})\big]^2}{\frac{1}{n} \sum_{i = 1}^n\big[F(\boldsymbol x_i)\big]^2}.
+	\text{Imp}_{j} = \frac{\frac{1}{n} \sum_{i = 1}^n\big[F(\boldsymbol x_i) - \hat F_{\setminus j}(\boldsymbol x_{i\setminus j})\big]^2}{\frac{1}{n} \sum_{i = 1}^n\big[F(\boldsymbol x_i)\big]^2}.
 $$
 
 It differs from $H^2_j$ only by not subtracting the main effect of the $j$-th feature in the numerator. It can be read as the proportion of prediction variability unexplained by all other features. As such, it measures variable importance of the $j$-th feature, including its interaction effects.

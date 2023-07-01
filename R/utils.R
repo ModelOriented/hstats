@@ -316,10 +316,10 @@ plot_stat <- function(x, fill = "#2b51a1", ...) {
   }
 }
 
-#' Plots PD
+#' 1D PDP
 #' 
-#' Plots partial dependencies. It supports multivariate predictions and a BY variable, 
-#' but only univariable `v`.
+#' One-dimensional partial dependence plot, optionally with BY variable. Multivariate
+#' output is dealt with by `facet_wrap()`.
 #' 
 #' @noRd
 #' @keywords internal
@@ -327,6 +327,8 @@ plot_stat <- function(x, fill = "#2b51a1", ...) {
 #' @importFrom ggplot2 .data
 #' @inheritParams PDP
 #' @param x A data.frame with grid, the optional BY variable and partial dependencies.
+#' @param pred_names Column names referring to the prediction dimensions.
+#' @param BY Column name in `x` referring to optional grouping variable.
 #' @param ... Arguments passed to geometries.
 #' @returns An object of class "ggplot".
 plot_pd <- function(x, v, pred_names, BY = NULL, rotate_x = FALSE, 
@@ -334,7 +336,9 @@ plot_pd <- function(x, v, pred_names, BY = NULL, rotate_x = FALSE,
   stopifnot(length(v) == 1L)
   data <- poor_man_stack(x, to_stack = pred_names)
   
-  p <- ggplot2::ggplot(data, ggplot2::aes(x = .data[[v]], y = value_))
+  p <- ggplot2::ggplot(data, ggplot2::aes(x = .data[[v]], y = value_)) +
+    ggplot2::labs(x = v, y = "PD")
+  
   if (is.null(BY)) {
     p <- p + 
       ggplot2::geom_line(color = color, group = 1, ...) +
@@ -342,7 +346,8 @@ plot_pd <- function(x, v, pred_names, BY = NULL, rotate_x = FALSE,
   } else {
     p <- p + 
       ggplot2::geom_line(ggplot2::aes(color = .data[[BY]], group = .data[[BY]])) +
-      ggplot2::geom_point(ggplot2::aes(color = .data[[BY]], group = .data[[BY]]))
+      ggplot2::geom_point(ggplot2::aes(color = .data[[BY]], group = .data[[BY]])) +
+      ggplot2::labs(color = BY)
   }
   
   if (length(pred_names) > 1L) {
@@ -353,5 +358,40 @@ plot_pd <- function(x, v, pred_names, BY = NULL, rotate_x = FALSE,
       axis.text.x = ggplot2::element_text(angle = 45, hjust = 1, vjust = 1)
     )  
   }
-  p + ggplot2::labs(x = v, y = "PD", color = BY)
+  p
 }
+
+#' 2D PDP
+#' 
+#' Plots partial dependency on two features as heat map.
+#' 
+#' @noRd
+#' @keywords internal
+#' 
+#' @importFrom ggplot2 .data
+#' @inheritParams PDP
+#' @param x A data.frame with grid, the optional BY variable and partial dependencies.
+#' @param pred_names Column names in `x` referring to prediction dimensions.
+#' @param ... Arguments passed to geometries.
+#' @returns An object of class "ggplot".
+plot_pd2 <- function(x, v, pred_names, rotate_x = FALSE, ...) {
+  stopifnot(length(v) == 2L)
+  data <- poor_man_stack(x, to_stack = pred_names)
+  
+  p <- ggplot2::ggplot(
+    data, 
+    ggplot2::aes(x = .data[[v[1L]]], y = .data[[v[2L]]], fill = value_)
+  ) + 
+    ggplot2::geom_tile(...)
+
+  if (length(pred_names) > 1L) {
+    p <- p + ggplot2::facet_wrap(~ varying_)
+  }
+  if (rotate_x) {
+    p <- p + ggplot2::theme(
+      axis.text.x = ggplot2::element_text(angle = 45, hjust = 1, vjust = 1)
+    )  
+  }
+  p + ggplot2::labs(fill = "PD")
+}
+

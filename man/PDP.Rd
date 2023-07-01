@@ -17,12 +17,12 @@ PDP(object, ...)
   BY = NULL,
   by_size = 5L,
   grid = NULL,
-  grid_size = 36L,
+  grid_size = 49L,
   trim = c(0.01, 0.99),
   strategy = c("uniform", "quantile"),
   n_max = 1000L,
   w = NULL,
-  plot = length(v) == 1L,
+  plot = (length(v) + !is.null(BY)) <= 2L,
   rotate_x = FALSE,
   color = "#2b51a1",
   facet_scales = "free_y",
@@ -37,12 +37,12 @@ PDP(object, ...)
   BY = NULL,
   by_size = 5L,
   grid = NULL,
-  grid_size = 36L,
+  grid_size = 49L,
   trim = c(0.01, 0.99),
   strategy = c("uniform", "quantile"),
   n_max = 1000L,
   w = NULL,
-  plot = length(v) == 1L,
+  plot = (length(v) + !is.null(BY)) <= 2L,
   rotate_x = FALSE,
   color = "#2b51a1",
   facet_scales = "free_y",
@@ -57,12 +57,12 @@ PDP(object, ...)
   BY = NULL,
   by_size = 5L,
   grid = NULL,
-  grid_size = 36L,
+  grid_size = 49L,
   trim = c(0.01, 0.99),
   strategy = c("uniform", "quantile"),
   n_max = 1000L,
   w = NULL,
-  plot = length(v) == 1L,
+  plot = (length(v) + !is.null(BY)) <= 2L,
   rotate_x = FALSE,
   color = "#2b51a1",
   facet_scales = "free_y",
@@ -90,12 +90,14 @@ matrix of predictions will be used as default column names in the results.}
 function is calculated per \code{BY} group. Each \code{BY} group
 uses the same evaluation grid to improve assessment of (non-)additivity.
 Numeric \code{BY} variables with more than \code{by_size} disjoint values will be
-binned into \code{by_size} quantile groups of similar size.}
+binned into \code{by_size} quantile groups of similar size. Subsampling of \code{X} is done
+within group.}
 
 \item{by_size}{Numeric \code{BY} variables with more than \code{by_size} unique values will
 be binned into quantile groups. Only relevant if \code{BY} is not \code{NULL}.}
 
-\item{grid}{Optional evaluation grid in line with \code{v}.}
+\item{grid}{A vector (if \code{length(v) == 1L}), or a matrix/data.frame otherwise.
+If \code{NULL}, calculated via \code{\link[=multivariate_grid]{multivariate_grid()}}.}
 
 \item{grid_size}{Controls the approximate grid size. If \code{x} has p columns, then each
 (non-discrete) column will be reduced to about the p-th root of \code{grid_size} values.}
@@ -112,16 +114,16 @@ selected from \code{X}. In this case, set a random seed for reproducibility.}
 
 \item{w}{Optional vector of case weights for each row of \code{X}.}
 
-\item{plot}{Should results be plotted? Default is \code{TRUE} in the univariable case
-and \code{FALSE} otherwise.}
+\item{plot}{Should results be plotted? Default is \code{TRUE} in the univariable case and
+in the bivariable case without \code{BY}.}
 
 \item{rotate_x}{Should x axis labels be rotated by 45 degrees?
 (Only if \code{plot = TRUE}.)}
 
-\item{color}{Color of lines and points. (Only if \code{plot = TRUE}.)}
+\item{color}{Color of lines and points of univariable PDP (without \code{BY}).}
 
 \item{facet_scales}{Value passed to \code{facet_wrap(scales = ...)}, only relevant
-for multivariate output. (Only if \code{plot = TRUE}.)}
+for multivariate output and if \code{plot = TRUE}.}
 }
 \value{
 If \code{plot = TRUE}, a "ggplot" object. Otherwise a data.frame with the evaluation
@@ -131,7 +133,7 @@ columns.
 \description{
 Estimates the partial dependence function of feature(s) \code{v} over a
 grid of values. Both multivariate and multivariable situations are supported.
-By default, and only in the univariable case, the resulting data is plotted.
+By default, the resulting values are plotted.
 }
 \section{Methods (by class)}{
 \itemize{
@@ -176,14 +178,15 @@ PDP(fit, v = "Species", X = iris)
 PDP(fit, v = "Species", X = iris, plot = FALSE)
 
 # Stratified by numeric BY variable (which is automatically binned)
-PDP(fit, v = "Species", X = iris, BY = iris$Petal.Length)
+PDP(fit, v = "Species", X = iris, BY = "Petal.Length")
 
-# Multivariable input (no plots available)
-PDP(fit, v = c("Species", "Petal.Width"), X = iris)
+# Multivariable input
+PDP(fit, v = c("Species", "Petal.Width"), X = iris, grid_size = 100L)
 
 # MODEL 2: Multi-response linear regression
 fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
-PDP(fit, v = "Petal.Width", X = iris, BY = "Species")
+PDP(fit, v = "Petal.Width", X = iris, BY = iris$Species)
+PDP(fit, v = c("Species", "Petal.Width"), X = iris, rotate_x = TRUE)
 
 # Multivariate, multivariable, and BY (no plot)
 PDP(fit, v = c("Petal.Width", "Petal.Length"), X = iris, BY = "Species")

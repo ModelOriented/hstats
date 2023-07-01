@@ -15,7 +15,7 @@
 Invisibly, the input is returned.
 }
 \description{
-Print method for object of class "interact".
+Print method for object of class "interact". Shows \eqn{H^2} statistic.
 }
 \seealso{
 See \code{\link[=interact]{interact()}} for examples.

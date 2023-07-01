@@ -1,3 +1,73 @@
+test_that("Additive models get right answer in univariate situation", {
+  fit <- lm(Sepal.Width ~ ., data = iris)
+  v <- setdiff(colnames(iris), "Sepal.Width")
+  inter <- interact(fit, v = v, X = iris, verbose = FALSE)
+  expect_null(H2_jk(inter))
+  expect_equal(
+    H2_j(inter, plot = FALSE), 
+    matrix(c(0, 0, 0, 0), ncol = 1L, dimnames = list(v, NULL))
+  )
+  expect_equal(H2(inter), 0)
+  expect_s3_class(H2_j(inter), "ggplot")
+})
+
+test_that("Additive models get right answer in multivariate situation", {
+  fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width + Species, data = iris)
+  v <- c("Petal.Length", "Petal.Width", "Species")
+  inter <- interact(fit, v = v, X = iris, verbose = FALSE)
+  expect_null(H2_jk(inter))
+  expect_equal(
+    H2_j(inter, plot = FALSE), 
+    matrix(
+      0, ncol = 2L, nrow = 3L, dimnames = list(v, c("Sepal.Length", "Sepal.Width"))
+    )
+  )
+  expect_equal(H2(inter), c(Sepal.Length = 0, Sepal.Width = 0))
+  expect_s3_class(H2_j(inter), "ggplot")
+})
+
+test_that("H-stats detect single pairwise interaction", {
+  fit <- lm(Sepal.Width ~ . + Petal.Length:Petal.Width, data = iris)
+  v <- setdiff(colnames(iris), "Sepal.Width")
+  inter <- interact(fit, v = v, X = iris, verbose = FALSE)
+  
+  expect_true(H2(inter) > 0)
+  
+  out <- H2_j(inter, plot = FALSE)
+  expect_equal(rownames(out[out > 0, , drop = FALSE]), c("Petal.Length", "Petal.Width"))
+
+  out <- H2_jk(inter, plot = FALSE)
+  expect_equal(rownames(out), "Petal.Length:Petal.Width")
+  
+  expect_s3_class(H2_j(inter), "ggplot")
+  expect_s3_class(H2_jk(inter), "ggplot")
+})
+
+test_that("H-stats detect two pairwise interactions", {
+  fit <- lm(
+    Sepal.Width ~ . + Petal.Length:Petal.Width + Petal.Length:Species, data = iris
+  )
+  v <- setdiff(colnames(iris), "Sepal.Width")
+  inter <- interact(fit, v = v, X = iris, verbose = FALSE)
+  
+  expect_true(H2(inter) > 0)
+  
+  out <- H2_j(inter, plot = FALSE, sort = FALSE, normalize = FALSE, squared = FALSE)
+  expect_equal(
+    rownames(out[out > 0, , drop = FALSE]), 
+    c("Petal.Length", "Petal.Width", "Species")
+  )
+  
+  out <- H2_jk(inter, plot = FALSE, sort = FALSE, normalize = FALSE, squared = FALSE)
+  expect_equal(
+    rownames(out[out > 0, , drop = FALSE]), 
+    c("Petal.Length:Petal.Width", "Petal.Length:Species")
+  )
+  
+  expect_s3_class(H2_j(inter), "ggplot")
+  expect_s3_class(H2_jk(inter), "ggplot")
+})
+
 #
 # library(gbm)
 #

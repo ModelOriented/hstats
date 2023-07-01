@@ -12,20 +12,36 @@
 #' 
 #' Furthermore, it allows to calculate an experimental partial dependence based
 #' measure of feature importance, \eqn{\textrm{PDI}_j^2}. It equals the proportion of
-#' prediction variability unexplained by other features, see [PDI_j()] for details.
-#' (This statistic is not shown by `summary()` or `plot()`.) 
+#' prediction variability unexplained by other features, see [pd_importance()] 
+#' for details. (This statistic is not shown by `summary()` or `plot()`.) 
 #'  
 #' Instead of using `summary()`, interaction statistics can also be obtained via the 
 #' more flexible functions [H2()], [H2_j()], and [H2_jk()].
 #'  
-#' @inheritParams PDP
+#' @param object Fitted model object.
+#' @param v Vector of feature names.
+#' @param X A data.frame or matrix serving as background dataset.
+#' @param pred_fun Prediction function of the form `function(object, X, ...)`,
+#'   providing K >= 1 numeric predictions per row. Its first argument represents the 
+#'   model `object`, its second argument a data structure like `X`. Additional arguments 
+#'   (such as `type = "response"` in a GLM) can be passed via `...`. The default, 
+#'   [stats::predict()], will work in most cases. Note that column names in a resulting
+#'   matrix of predictions will be used as default column names in the results.
+#' @param n_max If `X` has more than `n_max` rows, a random sample of `n_max` rows is
+#'   selected from `X`. In this case, set a random seed for reproducibility.
+#' @param w Optional vector of case weights for each row of `X`.
 #' @param pairwise_m Number of features for which pairwise statistics are to be 
 #'   calculated. The features are selected based on Friedman and Popescu's overall 
 #'   interaction strength \eqn{H^2_j} (rowwise maximum in the multivariate case). 
 #'   Set to `length(v)` to calculate every pair and to 0 to avoid pairwise calculations. 
 #' @param verbose Should a progress bar be shown? The default is `TRUE`.
+#' @param ... Additional arguments passed to `pred_fun(object, X, ...)`, 
+#'   for instance `type = "response"` in a [glm()] model.
 #' @returns 
 #'   An object of class "interact" containing these elements:
+#'   - `X`: Input `X` (sampled to `n_max` rows).
+#'   - `w`: Input `w` (sampled to `n_max` values, or `NULL`).
+#'   - `v`: Same as input `v`.
 #'   - `f`: Matrix with (centered) predictions \eqn{F}.
 #'   - `mean_f2`: (Weighted) column means of `f`. Used to normalize most statistics.
 #'   - `F_j`: List of matrices, each representing (centered) 
@@ -34,11 +50,11 @@
 #'     functions \eqn{F_{\setminus j}} of other features.
 #'   - `F_jk`: List of matrices, each representing (centered) bivariate 
 #'     partial dependence functions \eqn{F_{jk}}.
-#'   - `w`: Same as input `w`.
-#'   - `v`: Same as input `v`.
 #'   - `v_pairwise`: Subset of `v` with largest `H2_j` used for pairwise calculations.
 #'   - `combs`: Named list of variable pairs for which pairwise partial 
 #'     dependence functions are available.
+#'   - `K`: Number of columns of prediction matrix.
+#'   - `pred_names`: Column names of prediction matrix.
 #' @references
 #'   Friedman, Jerome H., and Bogdan E. Popescu. *"Predictive Learning via Rule Ensembles."*
 #'     The Annals of Applied Statistics 2, no. 3 (2008): 916-54.
@@ -81,8 +97,8 @@ interact <- function(object, ...) {
 
 #' @describeIn interact Default interact method.
 #' @export
-interact.default <- function(object, v, X, pred_fun = stats::predict, pairwise_m = 5L, 
-                             n_max = 300L, w = NULL, verbose = TRUE, ...) {
+interact.default <- function(object, v, X, pred_fun = stats::predict, n_max = 300L, 
+                             w = NULL, pairwise_m = 5L, verbose = TRUE, ...) {
   basic_check(X = X, v = v, pred_fun = pred_fun, w = w)
   
   # Reduce size of X (and w)
@@ -183,15 +199,18 @@ interact.default <- function(object, v, X, pred_fun = stats::predict, pairwise_m
   }
   structure(
     list(
+      X = X,
+      w = w,
+      v = v,
       f = f,
       mean_f2 = mean_f2,
       F_j = F_j, 
       F_not_j = F_not_j, 
       F_jk = F_jk,
-      w = w,
-      v = v,
       v_pairwise = v_pairwise,
-      combs = combs
+      combs = combs,
+      K = ncol(f),
+      pred_names = colnames(f)
     ), 
     class = "interact"
   )
@@ -201,16 +220,16 @@ interact.default <- function(object, v, X, pred_fun = stats::predict, pairwise_m
 #' @export
 interact.ranger <- function(object, v, X,
                             pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
-                            pairwise_m = 5L, n_max = 300L, w = NULL, 
+                            n_max = 300L, w = NULL, pairwise_m = 5L, 
                             verbose = TRUE, ...) {
   interact.default(
     object = object,
     v = v,
     X = X,
     pred_fun = pred_fun,
-    pairwise_m = pairwise_m,
     n_max = n_max,
     w = w,
+    pairwise_m = pairwise_m,
     verbose = verbose,
     ...
   )
@@ -220,16 +239,16 @@ interact.ranger <- function(object, v, X,
 #' @export
 interact.Learner <- function(object, v, X,
                              pred_fun = function(m, X) m$predict_newdata(X)$response,
-                             pairwise_m = 5L, n_max = 300L, w = NULL, 
+                             n_max = 300L, w = NULL, pairwise_m = 5L,
                              verbose = TRUE, ...) {
   interact.default(
     object = object,
     v = v,
     X = X,
     pred_fun = pred_fun,
-    pairwise_m = pairwise_m,
     n_max = n_max,
     w = w,
+    pairwise_m = pairwise_m,
     verbose = verbose,
     ...
   )
@@ -237,7 +256,7 @@ interact.Learner <- function(object, v, X,
 
 #' Print Method
 #' 
-#' Print method for object of class "interact". 
+#' Print method for object of class "interact". Shows \eqn{H^2} statistic.
 #'
 #' @param x An object of class "interact".
 #' @param ... Further arguments passed from other methods.

@@ -17,7 +17,7 @@ H2_j(object, ...)
   sort = TRUE,
   top_m = 15L,
   eps = 1e-08,
-  plot = FALSE,
+  plot = TRUE,
   fill = "#2b51a1",
   ...
 )

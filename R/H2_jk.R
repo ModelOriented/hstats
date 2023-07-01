@@ -101,7 +101,7 @@ H2_jk.interact <- function(object, normalize = TRUE, squared = TRUE, sort = TRUE
   num <- denom <- with(
     object,
     matrix(
-      nrow = length(combs), ncol = ncol(f), dimnames = list(names(combs), colnames(f))
+      nrow = length(combs), ncol = K, dimnames = list(names(combs), pred_names)
     )
   )
   
