@@ -17,22 +17,35 @@
 pd_raw <- function(object, v, X, grid, pred_fun = stats::predict,
                    w = NULL, compress_X = TRUE, compress_grid = TRUE, ...) {
   # Try different compressions
-  p <- length(v)
-  D1 <- p == 1L
-  if (compress_X && p == ncol(X) - 1L) {
+  if (compress_X && length(v) == ncol(X) - 1L) {
     # Removes duplicates in X[, not_v] and compensates via w
     cmp_X <- .compress_X(X = X, v = v, w = w)
     X <- cmp_X[["X"]]
     w <- cmp_X[["w"]]
   }
-  
   if (compress_grid) {
     # Removes duplicates in grid and returns reindex vector to match to original grid
     cmp_grid <- .compress_grid(grid = grid)
     grid <- cmp_grid[["grid"]]
   }
   
-  # Now, the real work starts
+  # Now, the real work
+  pred <- ice_raw(
+    object, v = v, X = X, grid = grid, pred_fun = pred_fun, pred_only = TRUE, ...
+  )
+  pd <- wrowmean(pred, ngroups = NROW(grid), w = w)
+  
+  # Map back to grid order
+  if (compress_grid && !is.null(reindex <- cmp_grid[["reindex"]])) {
+    return(pd[reindex, , drop = FALSE])
+  }
+  pd
+}
+
+# Helper function. Same arguments as pd_raw(). pred_only distinguishes the output mode:
+# TRUE -> only matrix of predictions. FALSE -> list with predictions and long grid
+ice_raw <- function(object, v, X, grid, pred_fun, pred_only = TRUE, ...) {
+  D1 <- length(v) == 1L
   n <- nrow(X)
   n_grid <- NROW(grid)
   
@@ -51,13 +64,11 @@ pd_raw <- function(object, v, X, grid, pred_fun = stats::predict,
     X_pred[, v] <- grid_pred
   }
   
-  # Calculate predictions and aggregate results
   pred <- align_pred(pred_fun(object, X_pred, ...))
-  pd <- wrowmean(pred, ngroups = n_grid, w = w)
   
-  # Map back to grid order
-  if (compress_grid && !is.null(reindex <- cmp_grid[["reindex"]])) {
-    return(pd[reindex, , drop = FALSE])
+  if (pred_only) {
+    return(pred)
   }
-  pd
+  
+  return(list(pred = pred, grid_pred = grid_pred))
 }
