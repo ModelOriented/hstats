@@ -107,10 +107,10 @@ test_that("Stronger interactions get higher statistics", {
 
 test_that("subsampling has an effect", {
   set.seed(1L)
-  out1 <- PDP(fit, v = v, X = iris, plot = FALSE, n_max = 10L, w = 1:150)
+  out1 <- interact(fit, v = v, X = iris, n_max = 10L, w = 1:150, verbose = FALSE)
   
   set.seed(2L)
-  out2 <- PDP(fit, v = v, X = iris, plot = FALSE, n_max = 10L, w = 1:150)
+  out2 <- interact(fit, v = v, X = iris, n_max = 10L, w = 1:150, verbose = FALSE)
   
   expect_false(identical(out1, out2))
 })

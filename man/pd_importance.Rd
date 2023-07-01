@@ -71,7 +71,7 @@ Therefore, the following measure of variable importance follows:
 It differs from \eqn{H^2_j} only by not subtracting the main effect of the \eqn{j}-th
 feature in the numerator. It can be read as the proportion of prediction variability
 unexplained by all other features. As such, it measures variable importance of
-the \eqn{j}-th feature, including its interaction effects (check \code{\link[=PDP]{PDP()}}
+the \eqn{j}-th feature, including its interaction effects (check \code{\link[=partial_dep]{partial_dep()}}
 for all definitions).
 
 Remarks 1 to 4 of \code{\link[=H2_j]{H2_j()}} also apply here.

@@ -18,12 +18,12 @@
 
 This package helps to
 
-1. **find** them using interaction statistics of Friedman and Popescu [1], and to
+1. **quantify** their strength via statistics of Friedman and Popescu [1], and to
 2. **describe** them via stratified (or two-dimensional) partial dependence plots (PDPs) [2].
 
 {interactML}
 
-- is comparably fast,
+- is comparably fast yet stable,
 - supports multivariate predictions,
 - respects case weights, and
 - works with both data.frames and matrices (e.g., for XGBoost).
@@ -40,7 +40,7 @@ devtools::install_github("mayer79/interactML")
 
 ## Usage
 
-To demonstrate the typical workflow, we use a beautiful house price dataset with about 14,000 transactions from Miami-Dade County available in the {shapviz} package, and analyzed, e.g., in [3]. 
+To demonstrate the typical workflow, we use a beautiful house price dataset with about 14,000 transactions from Miami-Dade County available in the {shapviz} package, and analyzed in [3]. 
 
 We are going to model logarithmic sales prices as a function of geographic features and other features like living area and building age. The model is fitted with XGBoost using interaction constraints to produce a model additive in all non-geographic features.
 
@@ -95,7 +95,7 @@ fit <- xgb.train(
 
 ```
 
-### Find interactions
+### Interaction statistics
 
 ```r
 # 2-3 seconds on simple laptop - a random forest will take 1-2 minutes
@@ -137,15 +137,16 @@ H2_jk(inter, normalize = FALSE, squared = FALSE, top_m = 5)
 Let's study stratified partial dependence plots (PDP) or 2D PDPs to see *how* interactions are looking (OCEAN_DIST groups of similar size):
 
 ```r
-PDP(fit, v = "LONGITUDE", X = X_train, BY = "OCEAN_DIST")
+plot(partial_dep(fit, v = "LONGITUDE", X = X_train, BY = "OCEAN_DIST"))
 ```
 
 ![](man/figures/pdp_long_ocean.svg)
 
-Alternatively, as 2D heatmap:
+Or as heatmap:
 
 ```r
-PDP(fit, v = c("LONGITUDE", "OCEAN_DIST"), X = X_train, grid_size = 1000)
+pd <- partial_dep(fit, v = c("LONGITUDE", "OCEAN_DIST"), X = X_train, grid_size = 1000)
+plot(pd)
 ```
 
 ![](man/figures/pdp_2d.png)
@@ -153,7 +154,7 @@ PDP(fit, v = c("LONGITUDE", "OCEAN_DIST"), X = X_train, grid_size = 1000)
 In contrast, the following PDP shows perfectly parallel lines (additivity in living area):
 
 ```r
-PDP(fit, v = "TOT_LVG_AREA", X = X_train, BY = "OCEAN_DIST")
+plot(partial_dep(fit, v = "TOT_LVG_AREA", X = X_train, BY = "OCEAN_DIST"))
 ```
 
 ![](man/figures/pdp_living_ocean.svg)
@@ -163,7 +164,7 @@ PDP(fit, v = "TOT_LVG_AREA", X = X_train, BY = "OCEAN_DIST")
 In the spirit of [1], and related to [4], we can extract from the "interact" objects a partial dependence based variable importance measure. It is rather experimental, so use it with care (details below):
 
 ```r
-PDI2_j(inter)
+pd_importance(inter)
 ```
 
 ![](man/figures/importance.svg)

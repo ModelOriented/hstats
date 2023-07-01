@@ -10,7 +10,7 @@
 #' \deqn{
 #'   F(\mathbf{x}) = \sum_{j}^{p} F_j(x_j)
 #' }
-#' (check [PDP()] for all definitions).
+#' (check [partial_dep()] for all definitions).
 #' To measure the relative amount of variability unexplained by all main effects, 
 #' we can therefore study the test statistic of total interaction strength
 #' \deqn{

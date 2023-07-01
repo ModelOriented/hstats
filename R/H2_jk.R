@@ -26,7 +26,7 @@
 #' \deqn{
 #'   B_{jk} = \frac{1}{n} \sum_{i = 1}^n\big[\hat F_{jk}(x_{ij}, x_{ik})\big]^2
 #' }
-#' (check [PDP()] for all definitions).
+#' (check [partial_dep()] for all definitions).
 #'
 #' **Remarks:**
 #' 

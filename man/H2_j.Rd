@@ -70,7 +70,7 @@ strength is given by
   \hat F_j(x_{ij}) - \hat F_{\setminus j}(\mathbf{x}_{i\setminus j})
   \big]^2}{\frac{1}{n} \sum_{i = 1}^n\big[F(\mathbf{x}_i)\big]^2}
 }
-(check \code{\link[=PDP]{PDP()}} for all definitions).
+(check \code{\link[=partial_dep]{partial_dep()}} for all definitions).
 
 \strong{Remarks:}
 \enumerate{
