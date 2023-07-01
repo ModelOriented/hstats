@@ -41,6 +41,7 @@ test_that("Non-additive models show interactions > 0 (one interaction)", {
   
   expect_s3_class(H2_j(inter), "ggplot")
   expect_s3_class(H2_jk(inter), "ggplot")
+  expect_s3_class(plot(inter), "ggplot")
 })
 
 fit <- lm(
