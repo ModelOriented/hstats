@@ -76,7 +76,7 @@ and
 \deqn{
   B_{jk} = \frac{1}{n} \sum_{i = 1}^n\big[\hat F_{jk}(x_{ij}, x_{ik})\big]^2
 }
-(check \code{\link[=PDP]{PDP()}} for all definitions).
+(check \code{\link[=partial_dep]{partial_dep()}} for all definitions).
 
 \strong{Remarks:}
 \enumerate{

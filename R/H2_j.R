@@ -21,7 +21,7 @@
 #'   \hat F_j(x_{ij}) - \hat F_{\setminus j}(\mathbf{x}_{i\setminus j})
 #'   \big]^2}{\frac{1}{n} \sum_{i = 1}^n\big[F(\mathbf{x}_i)\big]^2}
 #' }
-#' (check [PDP()] for all definitions).
+#' (check [partial_dep()] for all definitions).
 #' 
 #' **Remarks:**
 #' 
@@ -81,7 +81,7 @@ H2_j.default <- function(object, ...) {
 #' @describeIn H2_j Overall interaction strength from "interact" object.
 #' @export
 H2_j.interact <- function(object, normalize = TRUE, squared = TRUE, sort = TRUE, 
-                          top_m = 15L, eps = 1e-8, plot = FALSE, fill = "#2b51a1", 
+                          top_m = 15L, eps = 1e-8, plot = TRUE, fill = "#2b51a1", 
                           ...) {
   out <- with(
     object,

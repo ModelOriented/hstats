@@ -16,17 +16,21 @@
 
 **What makes a ML model black-box? It's the interactions!**
 
-This package offers a fast, model-agnostic implementation of Friedman and Popescu's statistics of interaction strength [2]. As such, it helps to unveil the darkness of the black-box.
+This package helps to
 
-The package
+1. **quantify** their strength via statistics of Friedman and Popescu [1], and to
+2. **describe** them via stratified (or two-dimensional) partial dependence plots (PDPs) [2].
 
+{interactML}
+
+- is comparably fast yet stable,
 - supports multivariate predictions,
 - respects case weights, and
 - works with both data.frames and matrices (e.g., for XGBoost).
 
-Furthermore, different variants of the original statistics in [2] are available.
+Furthermore, different variants of the original statistics in [1] are available.
 
-Note: The {gbm} package offers a model-specific implementation of some of the statistics. Since it uses the weighted tree-traversal method of [1] to estimate partial dependence functions, the results are typically slightly different.
+Note: The {gbm} package offers a model-specific implementation of some of the statistics. Since it uses the weighted tree-traversal method of [2] to estimate partial dependence functions, the results are typically slightly different.
 
 ## Installation
 
@@ -36,7 +40,7 @@ devtools::install_github("mayer79/interactML")
 
 ## Usage
 
-To demonstrate the typical workflow, we use a beautiful house price dataset with about 14,000 transactions from Miami-Dade County available in the {shapviz} package, and analyzed, e.g., in [3]. 
+To demonstrate the typical workflow, we use a beautiful house price dataset with about 14,000 transactions from Miami-Dade County available in the {shapviz} package, and analyzed in [3]. 
 
 We are going to model logarithmic sales prices as a function of geographic features and other features like living area and building age. The model is fitted with XGBoost using interaction constraints to produce a model additive in all non-geographic features.
 
@@ -91,7 +95,7 @@ fit <- xgb.train(
 
 ```
 
-### Analyze interactions 
+### Interaction statistics
 
 ```r
 # 2-3 seconds on simple laptop - a random forest will take 1-2 minutes
@@ -128,28 +132,39 @@ H2_jk(inter, normalize = FALSE, squared = FALSE, top_m = 5)
 
 ![](man/figures/interact_pairwise.svg)
 
-A stratified partial dependence plot (PDP) shows that LONGITUDE effects differ strongly by distance to the ocean:
+### Describe interactions
+
+Let's study stratified partial dependence plots (PDP) or 2D PDPs to see *how* interactions are looking (OCEAN_DIST groups of similar size):
 
 ```r
-PDP(fit, v = "LONGITUDE", X = X_train, BY = "OCEAN_DIST")
+plot(partial_dep(fit, v = "LONGITUDE", X = X_train, BY = "OCEAN_DIST"))
 ```
 
 ![](man/figures/pdp_long_ocean.svg)
 
-As a contrast, the following PDP shows perfectly parallel lines (additivity in living area):
+Or as heatmap:
 
 ```r
-PDP(fit, v = "TOT_LVG_AREA", X = X_train, BY = "OCEAN_DIST")
+pd <- partial_dep(fit, v = c("LONGITUDE", "OCEAN_DIST"), X = X_train, grid_size = 1000)
+plot(pd)
+```
+
+![](man/figures/pdp_2d.png)
+
+In contrast, the following PDP shows perfectly parallel lines (additivity in living area):
+
+```r
+plot(partial_dep(fit, v = "TOT_LVG_AREA", X = X_train, BY = "OCEAN_DIST"))
 ```
 
 ![](man/figures/pdp_living_ocean.svg)
 
 ### Variable importance
 
-In the spirit of [2], and related to [4], we can extract from the "interact" objects a partial dependence based variable importance measure. It is rather experimental, so use it with care (Details below):
+In the spirit of [1], and related to [4], we can extract from the "interact" objects a partial dependence based variable importance measure. It is rather experimental, so use it with care (details below):
 
 ```r
-PDI2_j(inter)
+pd_importance(inter)
 ```
 
 ![](man/figures/importance.svg)
@@ -159,7 +174,7 @@ PDI2_j(inter)
 ### Partial dependence
 
 Let $F: R^p \to R$ denote the prediction function that maps the $p$-dimensional feature vector $\boldsymbol x = (x_1, \dots, x_p)$ to its prediction.
-Furthermore, let $F_s(\boldsymbol x_s) = E_{\boldsymbol x_{\setminus s}}(F(\boldsymbol x_s, \boldsymbol x_{\setminus s}))$ be the partial dependence function of $F$ on the feature subset $\boldsymbol x_s$, where $s \subseteq \{1, \dots, p\}$, as introduced in [1]. Here, the expectation runs over the joint marginal distribution of features $\boldsymbol x_{\setminus s}$ not in $\boldsymbol x_s$.
+Furthermore, let $F_s(\boldsymbol x_s) = E_{\boldsymbol x_{\setminus s}}(F(\boldsymbol x_s, \boldsymbol x_{\setminus s}))$ be the partial dependence function of $F$ on the feature subset $\boldsymbol x_s$, where $s \subseteq \{1, \dots, p\}$, as introduced in [2]. Here, the expectation runs over the joint marginal distribution of features $\boldsymbol x_{\setminus s}$ not in $\boldsymbol x_s$.
 
 Given data, $F_s(\boldsymbol x_s)$ can be estimated by the empirical partial dependence function
 
@@ -176,7 +191,7 @@ over a grid of evaluation points $\boldsymbol x_s$.
 
 #### Overall interaction strength
 
-In [2], Friedman and Popescu introduced different statistics to measure interaction strength. Closely following their notation, we will summarize the main ideas. 
+In [1], Friedman and Popescu introduced different statistics to measure interaction strength. Closely following their notation, we will summarize the main ideas. 
 
 If there are no interactions involving $x_j$, we can decompose the prediction function $F$ into the sum of the partial dependence $F_j$ on $x_j$ and the partial dependence $F_{\setminus j}$ on all other features $\boldsymbol x_{\setminus j}$, i.e.,
 
@@ -201,7 +216,7 @@ $$
 
 #### Pairwise interaction strength
 
-Again following [2], if there are no interaction effects between features $x_j$ and $x_k$, their two-dimensional partial dependence function $F_{jk}$ can be written as the sum of the univariate partial dependencies, i.e.,
+Again following [1], if there are no interaction effects between features $x_j$ and $x_k$, their two-dimensional partial dependence function $F_{jk}$ can be written as the sum of the univariate partial dependencies, i.e.,
 
 $$
   F_{jk}(x_j, x_k) = F_j(x_j)+ F_k(x_k).
@@ -279,17 +294,17 @@ $$
 Therefore, the following measure of variable importance follows:
 
 $$
-	PDI_{j}^2 = \frac{\frac{1}{n} \sum_{i = 1}^n\big[F(\boldsymbol x_i) - \hat F_{\setminus j}(\boldsymbol x_{i\setminus j})\big]^2}{\frac{1}{n} \sum_{i = 1}^n\big[F(\boldsymbol x_i)\big]^2}.
+	\text{Imp}_{j} = \frac{\frac{1}{n} \sum_{i = 1}^n\big[F(\boldsymbol x_i) - \hat F_{\setminus j}(\boldsymbol x_{i\setminus j})\big]^2}{\frac{1}{n} \sum_{i = 1}^n\big[F(\boldsymbol x_i)\big]^2}.
 $$
 
 It differs from $H^2_j$ only by not subtracting the main effect of the $j$-th feature in the numerator. It can be read as the proportion of prediction variability unexplained by all other features. As such, it measures variable importance of the $j$-th feature, including its interaction effects.
 
 ## References
 
-1. Friedman, Jerome H. *Greedy Function Approximation: A Gradient Boosting Machine.* 
-  Annals of Statistics 29, no. 5 (2001): 1189-1232.
-2. Friedman, Jerome H., and Bogdan E. Popescu. *Predictive Learning via Rule Ensembles.*
+1. Friedman, Jerome H., and Bogdan E. Popescu. *Predictive Learning via Rule Ensembles.*
   The Annals of Applied Statistics 2, no. 3 (2008): 916-54.
+2. Friedman, Jerome H. *Greedy Function Approximation: A Gradient Boosting Machine.* 
+  Annals of Statistics 29, no. 5 (2001): 1189-1232.
 3. Mayer, Michael, Steven C. Bourassa, Martin Hoesli, and Donato Scognamiglio. *Machine Learning Applications to Land and Structure Valuation."* Journal of Risk and Financial Management 15, no. 5 (2022): 193.
 4. Greenwell, Brandon M., Bradley C. Boehmke, and Andrew J. McCarthy. 
 *A Simple and Effective Model-Based Variable Importance Measure.* Arxiv (2018).

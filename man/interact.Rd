@@ -14,9 +14,9 @@ interact(object, ...)
   v,
   X,
   pred_fun = stats::predict,
-  pairwise_m = 5L,
   n_max = 300L,
   w = NULL,
+  pairwise_m = 5L,
   verbose = TRUE,
   ...
 )
@@ -26,9 +26,9 @@ interact(object, ...)
   v,
   X,
   pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
-  pairwise_m = 5L,
   n_max = 300L,
   w = NULL,
+  pairwise_m = 5L,
   verbose = TRUE,
   ...
 )
@@ -38,9 +38,9 @@ interact(object, ...)
   v,
   X,
   pred_fun = function(m, X) m$predict_newdata(X)$response,
-  pairwise_m = 5L,
   n_max = 300L,
   w = NULL,
+  pairwise_m = 5L,
   verbose = TRUE,
   ...
 )
@@ -62,21 +62,24 @@ model \code{object}, its second argument a data structure like \code{X}. Additio
 \code{\link[stats:predict]{stats::predict()}}, will work in most cases. Note that column names in a resulting
 matrix of predictions will be used as default column names in the results.}
 
-\item{pairwise_m}{Number of features for which pairwise statistics are to be
-calculated. The features are selected based on Friedman and Popescu's overall
-interaction strength \eqn{H^2_j} (rowwise maximum in the multivariate case).
-Set to \code{length(v)} to calculate every pair and to 0 to avoid pairwise calculations.}
-
 \item{n_max}{If \code{X} has more than \code{n_max} rows, a random sample of \code{n_max} rows is
 selected from \code{X}. In this case, set a random seed for reproducibility.}
 
 \item{w}{Optional vector of case weights for each row of \code{X}.}
+
+\item{pairwise_m}{Number of features for which pairwise statistics are to be
+calculated. The features are selected based on Friedman and Popescu's overall
+interaction strength \eqn{H^2_j} (rowwise maximum in the multivariate case).
+Set to \code{length(v)} to calculate every pair and to 0 to avoid pairwise calculations.}
 
 \item{verbose}{Should a progress bar be shown? The default is \code{TRUE}.}
 }
 \value{
 An object of class "interact" containing these elements:
 \itemize{
+\item \code{X}: Input \code{X} (sampled to \code{n_max} rows).
+\item \code{w}: Input \code{w} (sampled to \code{n_max} values, or \code{NULL}).
+\item \code{v}: Same as input \code{v}.
 \item \code{f}: Matrix with (centered) predictions \eqn{F}.
 \item \code{mean_f2}: (Weighted) column means of \code{f}. Used to normalize most statistics.
 \item \code{F_j}: List of matrices, each representing (centered)
@@ -85,11 +88,11 @@ partial dependence functions \eqn{F_j}.
 functions \eqn{F_{\setminus j}} of other features.
 \item \code{F_jk}: List of matrices, each representing (centered) bivariate
 partial dependence functions \eqn{F_{jk}}.
-\item \code{w}: Same as input \code{w}.
-\item \code{v}: Same as input \code{v}.
 \item \code{v_pairwise}: Subset of \code{v} with largest \code{H2_j} used for pairwise calculations.
 \item \code{combs}: Named list of variable pairs for which pairwise partial
 dependence functions are available.
+\item \code{K}: Number of columns of prediction matrix.
+\item \code{pred_names}: Column names of prediction matrix.
 }
 }
 \description{
@@ -106,8 +109,8 @@ see \code{\link[=H2_jk]{H2_jk()}} for details.
 
 Furthermore, it allows to calculate an experimental partial dependence based
 measure of feature importance, \eqn{\textrm{PDI}_j^2}. It equals the proportion of
-prediction variability unexplained by other features, see \code{\link[=PDI2_j]{PDI2_j()}} for details.
-(This statistic is not shown by \code{summary()} or \code{plot()}.)
+prediction variability unexplained by other features, see \code{\link[=pd_importance]{pd_importance()}}
+for details. (This statistic is not shown by \code{summary()} or \code{plot()}.)
 
 Instead of using \code{summary()}, interaction statistics can also be obtained via the
 more flexible functions \code{\link[=H2]{H2()}}, \code{\link[=H2_j]{H2_j()}}, and \code{\link[=H2_jk]{H2_jk()}}.

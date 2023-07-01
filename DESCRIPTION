@@ -8,8 +8,8 @@ Description: Fast, model-agnostic implementation of interaction strength
     <doi:10.1214/07-AOAS148>.  The package supports multivariate
     predictions and can deal with case weights.  Furthermore, different
     variants of the original statistics are provided.  The shape of the
-    interactions can be investigated by stratified partial dependence
-    plots.
+    interactions can be investigated by stratified or two-dimensional
+    partial dependence plots.
 License: GPL (>= 2)
 Depends: 
     R (>= 3.2.0)
