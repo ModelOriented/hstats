@@ -23,8 +23,8 @@
     &lt;doi:10.1214/07-AOAS148&gt;.  The package supports multivariate
     predictions and can deal with case weights.  Furthermore, different
     variants of the original statistics are provided.  The shape of the
-    interactions can be investigated by stratified partial dependence
-    plots.">
+    interactions can be investigated by stratified or two-dimensional
+    partial dependence plots.">
 <meta property="og:image" content="/logo.png">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
@@ -90,15 +90,22 @@
 <h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
 </h2>
 <p><strong>What makes a ML model black-box? It’s the interactions!</strong></p>
-<p>This package offers a fast, model-agnostic implementation of Friedman and Popescu’s statistics of interaction strength [2]. As such, it helps to unveil the darkness of the black-box.</p>
-<p>The package</p>
+<p>This package helps to</p>
+<ol style="list-style-type: decimal">
+<li>
+<strong>quantify</strong> their strength via statistics of Friedman and Popescu [1], and to</li>
+<li>
+<strong>describe</strong> them via stratified (or two-dimensional) partial dependence plots (PDPs) [2].</li>
+</ol>
+<p>{interactML}</p>
 <ul>
+<li>is comparably fast yet stable,</li>
 <li>supports multivariate predictions,</li>
 <li>respects case weights, and</li>
 <li>works with both data.frames and matrices (e.g., for XGBoost).</li>
 </ul>
-<p>Furthermore, different variants of the original statistics in [2] are available.</p>
-<p>Note: The {gbm} package offers a model-specific implementation of some of the statistics. Since it uses the weighted tree-traversal method of [1] to estimate partial dependence functions, the results are typically slightly different.</p>
+<p>Furthermore, different variants of the original statistics in [1] are available.</p>
+<p>Note: The {gbm} package offers a model-specific implementation of some of the statistics. Since it uses the weighted tree-traversal method of [2] to estimate partial dependence functions, the results are typically slightly different.</p>
 </div>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
@@ -109,7 +116,7 @@
 <div class="section level2">
 <h2 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a>
 </h2>
-<p>To demonstrate the typical workflow, we use a beautiful house price dataset with about 14,000 transactions from Miami-Dade County available in the {shapviz} package, and analyzed, e.g., in [3].</p>
+<p>To demonstrate the typical workflow, we use a beautiful house price dataset with about 14,000 transactions from Miami-Dade County available in the {shapviz} package, and analyzed in [3].</p>
 <p>We are going to model logarithmic sales prices as a function of geographic features and other features like living area and building age. The model is fitted with XGBoost using interaction constraints to produce a model additive in all non-geographic features.</p>
 <p>What can we say about interactions? Can we verify additivity in non-geographic features?</p>
 <div class="section level3">
@@ -161,7 +168,7 @@
 <span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="analyze-interactions">Analyze interactions<a class="anchor" aria-label="anchor" href="#analyze-interactions"></a>
+<h3 id="interaction-statistics">Interaction statistics<a class="anchor" aria-label="anchor" href="#interaction-statistics"></a>
 </h3>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># 2-3 seconds on simple laptop - a random forest will take 1-2 minutes</span></span>
@@ -191,21 +198,30 @@
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/H2_jk.html">H2_jk</a></span><span class="op">(</span><span class="va">inter</span>, normalize <span class="op">=</span> <span class="cn">FALSE</span>, squared <span class="op">=</span> <span class="cn">FALSE</span>, top_m <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></code></pre></div>
 <p><img src="reference/figures/interact_pairwise.svg"></p>
-<p>A stratified partial dependence plot (PDP) shows that LONGITUDE effects differ strongly by distance to the ocean:</p>
+</div>
+<div class="section level3">
+<h3 id="describe-interactions">Describe interactions<a class="anchor" aria-label="anchor" href="#describe-interactions"></a>
+</h3>
+<p>Let’s study stratified partial dependence plots (PDP) or 2D PDPs to see <em>how</em> interactions are looking (OCEAN_DIST groups of similar size):</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="reference/PDP.html">PDP</a></span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="st">"LONGITUDE"</span>, X <span class="op">=</span> <span class="va">X_train</span>, BY <span class="op">=</span> <span class="st">"OCEAN_DIST"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="reference/partial_dep.html">partial_dep</a></span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="st">"LONGITUDE"</span>, X <span class="op">=</span> <span class="va">X_train</span>, BY <span class="op">=</span> <span class="st">"OCEAN_DIST"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="reference/figures/pdp_long_ocean.svg"></p>
-<p>As a contrast, the following PDP shows perfectly parallel lines (additivity in living area):</p>
+<p>Or as heatmap:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="reference/PDP.html">PDP</a></span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="st">"TOT_LVG_AREA"</span>, X <span class="op">=</span> <span class="va">X_train</span>, BY <span class="op">=</span> <span class="st">"OCEAN_DIST"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">pd</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/partial_dep.html">partial_dep</a></span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"LONGITUDE"</span>, <span class="st">"OCEAN_DIST"</span><span class="op">)</span>, X <span class="op">=</span> <span class="va">X_train</span>, grid_size <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pd</span><span class="op">)</span></span></code></pre></div>
+<p><img src="reference/figures/pdp_2d.png"></p>
+<p>In contrast, the following PDP shows perfectly parallel lines (additivity in living area):</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="reference/partial_dep.html">partial_dep</a></span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="st">"TOT_LVG_AREA"</span>, X <span class="op">=</span> <span class="va">X_train</span>, BY <span class="op">=</span> <span class="st">"OCEAN_DIST"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="reference/figures/pdp_living_ocean.svg"></p>
 </div>
 <div class="section level3">
 <h3 id="variable-importance">Variable importance<a class="anchor" aria-label="anchor" href="#variable-importance"></a>
 </h3>
-<p>In the spirit of [2], and related to [4], we can extract from the “interact” objects a partial dependence based variable importance measure. It is rather experimental, so use it with care (Details below):</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="reference/PDI2_j.html">PDI2_j</a></span><span class="op">(</span><span class="va">inter</span><span class="op">)</span></span></code></pre></div>
+<p>In the spirit of [1], and related to [4], we can extract from the “interact” objects a partial dependence based variable importance measure. It is rather experimental, so use it with care (details below):</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="reference/pd_importance.html">pd_importance</a></span><span class="op">(</span><span class="va">inter</span><span class="op">)</span></span></code></pre></div>
 <p><img src="reference/figures/importance.svg"></p>
 </div>
 </div>
@@ -215,7 +231,7 @@
 <div class="section level3">
 <h3 id="partial-dependence">Partial dependence<a class="anchor" aria-label="anchor" href="#partial-dependence"></a>
 </h3>
-<p>Let <span class="math inline"><em>F</em> : <em>R</em><sup><em>p</em></sup> → <em>R</em></span> denote the prediction function that maps the <span class="math inline"><em>p</em></span>-dimensional feature vector <span class="math inline"><strong>x</strong> = (<em>x</em><sub>1</sub>,…,<em>x</em><sub><em>p</em></sub>)</span> to its prediction. Furthermore, let <span class="math inline"><em>F</em><sub><em>s</em></sub>(<strong>x</strong><sub><em>s</em></sub>) = <em>E</em><sub><strong>x</strong><sub>\<em>s</em></sub></sub>(<em>F</em>(<strong>x</strong><sub><em>s</em></sub>,<strong>x</strong><sub>\<em>s</em></sub>))</span> be the partial dependence function of <span class="math inline"><em>F</em></span> on the feature subset <span class="math inline"><strong>x</strong><sub><em>s</em></sub></span>, where <span class="math inline"><em>s</em> ⊆ {1, …, <em>p</em>}</span>, as introduced in [1]. Here, the expectation runs over the joint marginal distribution of features <span class="math inline"><strong>x</strong><sub>\<em>s</em></sub></span> not in <span class="math inline"><strong>x</strong><sub><em>s</em></sub></span>.</p>
+<p>Let <span class="math inline"><em>F</em> : <em>R</em><sup><em>p</em></sup> → <em>R</em></span> denote the prediction function that maps the <span class="math inline"><em>p</em></span>-dimensional feature vector <span class="math inline"><strong>x</strong> = (<em>x</em><sub>1</sub>,…,<em>x</em><sub><em>p</em></sub>)</span> to its prediction. Furthermore, let <span class="math inline"><em>F</em><sub><em>s</em></sub>(<strong>x</strong><sub><em>s</em></sub>) = <em>E</em><sub><strong>x</strong><sub>\<em>s</em></sub></sub>(<em>F</em>(<strong>x</strong><sub><em>s</em></sub>,<strong>x</strong><sub>\<em>s</em></sub>))</span> be the partial dependence function of <span class="math inline"><em>F</em></span> on the feature subset <span class="math inline"><strong>x</strong><sub><em>s</em></sub></span>, where <span class="math inline"><em>s</em> ⊆ {1, …, <em>p</em>}</span>, as introduced in [2]. Here, the expectation runs over the joint marginal distribution of features <span class="math inline"><strong>x</strong><sub>\<em>s</em></sub></span> not in <span class="math inline"><strong>x</strong><sub><em>s</em></sub></span>.</p>
 <p>Given data, <span class="math inline"><em>F</em><sub><em>s</em></sub>(<strong>x</strong><sub><em>s</em></sub>)</span> can be estimated by the empirical partial dependence function</p>
 <p><span class="math display">$$
   \hat F_s(\boldsymbol x_s) = \frac{1}{n} \sum_{i = 1}^n F(\boldsymbol x_s, \boldsymbol x_{i \setminus s}),
@@ -229,7 +245,7 @@ $$</span></p>
 <div class="section level4">
 <h4 id="overall-interaction-strength">Overall interaction strength<a class="anchor" aria-label="anchor" href="#overall-interaction-strength"></a>
 </h4>
-<p>In [2], Friedman and Popescu introduced different statistics to measure interaction strength. Closely following their notation, we will summarize the main ideas.</p>
+<p>In [1], Friedman and Popescu introduced different statistics to measure interaction strength. Closely following their notation, we will summarize the main ideas.</p>
 <p>If there are no interactions involving <span class="math inline"><em>x</em><sub><em>j</em></sub></span>, we can decompose the prediction function <span class="math inline"><em>F</em></span> into the sum of the partial dependence <span class="math inline"><em>F</em><sub><em>j</em></sub></span> on <span class="math inline"><em>x</em><sub><em>j</em></sub></span> and the partial dependence <span class="math inline"><em>F</em><sub>\<em>j</em></sub></span> on all other features <span class="math inline"><strong>x</strong><sub>\<em>j</em></sub></span>, i.e.,</p>
 <p><span class="math display"><em>F</em>(<strong>x</strong>) = <em>F</em><sub><em>j</em></sub>(<em>x</em><sub><em>j</em></sub>) + <em>F</em><sub>\<em>j</em></sub>(<strong>x</strong><sub>\<em>j</em></sub>).</span></p>
 <p>Correspondingly, Friedman and Popescu’s <span class="math inline"><em>H</em><sub><em>j</em></sub><sup>2</sup></span> statistic of overall interaction strength is given by</p>
@@ -250,7 +266,7 @@ $$</span></p>
 <div class="section level4">
 <h4 id="pairwise-interaction-strength">Pairwise interaction strength<a class="anchor" aria-label="anchor" href="#pairwise-interaction-strength"></a>
 </h4>
-<p>Again following [2], if there are no interaction effects between features <span class="math inline"><em>x</em><sub><em>j</em></sub></span> and <span class="math inline"><em>x</em><sub><em>k</em></sub></span>, their two-dimensional partial dependence function <span class="math inline"><em>F</em><sub><em>j</em><em>k</em></sub></span> can be written as the sum of the univariate partial dependencies, i.e.,</p>
+<p>Again following [1], if there are no interaction effects between features <span class="math inline"><em>x</em><sub><em>j</em></sub></span> and <span class="math inline"><em>x</em><sub><em>k</em></sub></span>, their two-dimensional partial dependence function <span class="math inline"><em>F</em><sub><em>j</em><em>k</em></sub></span> can be written as the sum of the univariate partial dependencies, i.e.,</p>
 <p><span class="math display"><em>F</em><sub><em>j</em><em>k</em></sub>(<em>x</em><sub><em>j</em></sub>,<em>x</em><sub><em>k</em></sub>) = <em>F</em><sub><em>j</em></sub>(<em>x</em><sub><em>j</em></sub>) + <em>F</em><sub><em>k</em></sub>(<em>x</em><sub><em>k</em></sub>).</span></p>
 <p>Correspondingly, Friedman and Popescu’s <span class="math inline"><em>H</em><sub><em>j</em><em>k</em></sub><sup>2</sup></span> statistic of pairwise interaction strength is defined as</p>
 <p><span class="math display">$$
@@ -309,7 +325,7 @@ $$</span></p>
 <p><span class="math display"><em>F</em>(<strong>x</strong>) = <em>F</em><sub>\<em>j</em></sub>(<strong>x</strong><sub>\<em>j</em></sub>).</span></p>
 <p>Therefore, the following measure of variable importance follows:</p>
 <p><span class="math display">$$
-    PDI_{j}^2 = \frac{\frac{1}{n} \sum_{i = 1}^n\big[F(\boldsymbol x_i) - \hat F_{\setminus j}(\boldsymbol x_{i\setminus j})\big]^2}{\frac{1}{n} \sum_{i = 1}^n\big[F(\boldsymbol x_i)\big]^2}.
+    \text{Imp}_{j} = \frac{\frac{1}{n} \sum_{i = 1}^n\big[F(\boldsymbol x_i) - \hat F_{\setminus j}(\boldsymbol x_{i\setminus j})\big]^2}{\frac{1}{n} \sum_{i = 1}^n\big[F(\boldsymbol x_i)\big]^2}.
 $$</span></p>
 <p>It differs from <span class="math inline"><em>H</em><sub><em>j</em></sub><sup>2</sup></span> only by not subtracting the main effect of the <span class="math inline"><em>j</em></span>-th feature in the numerator. It can be read as the proportion of prediction variability unexplained by all other features. As such, it measures variable importance of the <span class="math inline"><em>j</em></span>-th feature, including its interaction effects.</p>
 </div>
@@ -318,8 +334,8 @@ $$</span></p>
 <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
 <ol style="list-style-type: decimal">
-<li>Friedman, Jerome H. <em>Greedy Function Approximation: A Gradient Boosting Machine.</em> Annals of Statistics 29, no. 5 (2001): 1189-1232.</li>
 <li>Friedman, Jerome H., and Bogdan E. Popescu. <em>Predictive Learning via Rule Ensembles.</em> The Annals of Applied Statistics 2, no. 3 (2008): 916-54.</li>
+<li>Friedman, Jerome H. <em>Greedy Function Approximation: A Gradient Boosting Machine.</em> Annals of Statistics 29, no. 5 (2001): 1189-1232.</li>
 <li>Mayer, Michael, Steven C. Bourassa, Martin Hoesli, and Donato Scognamiglio. <em>Machine Learning Applications to Land and Structure Valuation.”</em> Journal of Risk and Financial Management 15, no. 5 (2022): 193.</li>
 <li>Greenwell, Brandon M., Bradley C. Boehmke, and Andrew J. McCarthy. <em>A Simple and Effective Model-Based Variable Importance Measure.</em> Arxiv (2018).</li>
 <li>Żółkowski, Artur, Mateusz Krzyziński, and Paweł Fijałkowski. <em>Methods for extraction of interactions from predictive models.</em> Undergraduate thesis. Faculty of Mathematics and Information Science, Warsaw University of Technology (2023).</li>

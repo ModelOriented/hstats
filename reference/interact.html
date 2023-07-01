@@ -11,8 +11,8 @@ see H2_jk() for details.
 
 Furthermore, it allows to calculate an experimental partial dependence based
 measure of feature importance, \(\textrm{PDI}_j^2\). It equals the proportion of
-prediction variability unexplained by other features, see PDI2_j() for details.
-(This statistic is not shown by summary() or plot().)
+prediction variability unexplained by other features, see pd_importance()
+for details. (This statistic is not shown by summary() or plot().)
 Instead of using summary(), interaction statistics can also be obtained via the
 more flexible functions H2(), H2_j(), and H2_jk()."><meta property="og:image" content="/logo.png"><!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
@@ -73,8 +73,8 @@ feature, see <code><a href="H2_j.html">H2_j()</a></code> for details.</p></li>
 see <code><a href="H2_jk.html">H2_jk()</a></code> for details.</p></li>
 </ul><p>Furthermore, it allows to calculate an experimental partial dependence based
 measure of feature importance, \(\textrm{PDI}_j^2\). It equals the proportion of
-prediction variability unexplained by other features, see <code><a href="PDI2_j.html">PDI2_j()</a></code> for details.
-(This statistic is not shown by <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> or <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code>.)</p>
+prediction variability unexplained by other features, see <code><a href="pd_importance.html">pd_importance()</a></code>
+for details. (This statistic is not shown by <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> or <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code>.)</p>
 <p>Instead of using <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>, interaction statistics can also be obtained via the
 more flexible functions <code><a href="H2.html">H2()</a></code>, <code><a href="H2_j.html">H2_j()</a></code>, and <code><a href="H2_jk.html">H2_jk()</a></code>.</p>
     </div>
@@ -88,9 +88,9 @@ more flexible functions <code><a href="H2.html">H2()</a></code>, <code><a href="
 <span>  <span class="va">v</span>,</span>
 <span>  <span class="va">X</span>,</span>
 <span>  pred_fun <span class="op">=</span> <span class="fu">stats</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span>,</span>
-<span>  pairwise_m <span class="op">=</span> <span class="fl">5L</span>,</span>
 <span>  n_max <span class="op">=</span> <span class="fl">300L</span>,</span>
 <span>  w <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  pairwise_m <span class="op">=</span> <span class="fl">5L</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span>
@@ -101,9 +101,9 @@ more flexible functions <code><a href="H2.html">H2()</a></code>, <code><a href="
 <span>  <span class="va">v</span>,</span>
 <span>  <span class="va">X</span>,</span>
 <span>  pred_fun <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">m</span>, <span class="va">X</span>, <span class="va">...</span><span class="op">)</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">m</span>, <span class="va">X</span>, <span class="va">...</span><span class="op">)</span><span class="op">$</span><span class="va">predictions</span>,</span>
-<span>  pairwise_m <span class="op">=</span> <span class="fl">5L</span>,</span>
 <span>  n_max <span class="op">=</span> <span class="fl">300L</span>,</span>
 <span>  w <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  pairwise_m <span class="op">=</span> <span class="fl">5L</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span>
@@ -114,9 +114,9 @@ more flexible functions <code><a href="H2.html">H2()</a></code>, <code><a href="
 <span>  <span class="va">v</span>,</span>
 <span>  <span class="va">X</span>,</span>
 <span>  pred_fun <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">m</span>, <span class="va">X</span><span class="op">)</span> <span class="va">m</span><span class="op">$</span><span class="fu">predict_newdata</span><span class="op">(</span><span class="va">X</span><span class="op">)</span><span class="op">$</span><span class="va">response</span>,</span>
-<span>  pairwise_m <span class="op">=</span> <span class="fl">5L</span>,</span>
 <span>  n_max <span class="op">=</span> <span class="fl">300L</span>,</span>
 <span>  w <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  pairwise_m <span class="op">=</span> <span class="fl">5L</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -150,13 +150,6 @@ model <code>object</code>, its second argument a data structure like <code>X</co
 matrix of predictions will be used as default column names in the results.</p></dd>
 
 
-<dt>pairwise_m</dt>
-<dd><p>Number of features for which pairwise statistics are to be
-calculated. The features are selected based on Friedman and Popescu's overall
-interaction strength \(H^2_j\) (rowwise maximum in the multivariate case).
-Set to <code>length(v)</code> to calculate every pair and to 0 to avoid pairwise calculations.</p></dd>
-
-
 <dt>n_max</dt>
 <dd><p>If <code>X</code> has more than <code>n_max</code> rows, a random sample of <code>n_max</code> rows is
 selected from <code>X</code>. In this case, set a random seed for reproducibility.</p></dd>
@@ -164,6 +157,13 @@ selected from <code>X</code>. In this case, set a random seed for reproducibilit
 
 <dt>w</dt>
 <dd><p>Optional vector of case weights for each row of <code>X</code>.</p></dd>
+
+
+<dt>pairwise_m</dt>
+<dd><p>Number of features for which pairwise statistics are to be
+calculated. The features are selected based on Friedman and Popescu's overall
+interaction strength \(H^2_j\) (rowwise maximum in the multivariate case).
+Set to <code>length(v)</code> to calculate every pair and to 0 to avoid pairwise calculations.</p></dd>
 
 
 <dt>verbose</dt>
@@ -174,7 +174,10 @@ selected from <code>X</code>. In this case, set a random seed for reproducibilit
     <h2>Value</h2>
     
 
-<p>An object of class "interact" containing these elements:</p><ul><li><p><code>f</code>: Matrix with (centered) predictions \(F\).</p></li>
+<p>An object of class "interact" containing these elements:</p><ul><li><p><code>X</code>: Input <code>X</code> (sampled to <code>n_max</code> rows).</p></li>
+<li><p><code>w</code>: Input <code>w</code> (sampled to <code>n_max</code> values, or <code>NULL</code>).</p></li>
+<li><p><code>v</code>: Same as input <code>v</code>.</p></li>
+<li><p><code>f</code>: Matrix with (centered) predictions \(F\).</p></li>
 <li><p><code>mean_f2</code>: (Weighted) column means of <code>f</code>. Used to normalize most statistics.</p></li>
 <li><p><code>F_j</code>: List of matrices, each representing (centered)
 partial dependence functions \(F_j\).</p></li>
@@ -182,11 +185,11 @@ partial dependence functions \(F_j\).</p></li>
 functions \(F_{\setminus j}\) of other features.</p></li>
 <li><p><code>F_jk</code>: List of matrices, each representing (centered) bivariate
 partial dependence functions \(F_{jk}\).</p></li>
-<li><p><code>w</code>: Same as input <code>w</code>.</p></li>
-<li><p><code>v</code>: Same as input <code>v</code>.</p></li>
 <li><p><code>v_pairwise</code>: Subset of <code>v</code> with largest <code>H2_j</code> used for pairwise calculations.</p></li>
 <li><p><code>combs</code>: Named list of variable pairs for which pairwise partial
 dependence functions are available.</p></li>
+<li><p><code>K</code>: Number of columns of prediction matrix.</p></li>
+<li><p><code>pred_names</code>: Column names of prediction matrix.</p></li>
 </ul></div>
     <div id="methods-by-class-">
     <h2>Methods (by class)</h2>
