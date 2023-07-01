@@ -1,11 +1,12 @@
-#' Barebone Partial Dependence (PD) Function
+#' Barebone Partial Dependence Function
 #' 
-#' Workhorse of the package.
+#' Workhorse of the package, thus optimized for speed.
 #' 
 #' @noRd
 #' @keywords internal
 #' 
 #' @inheritParams partial_dep
+#' @param grid A vector, data.frame or matrix of grid values consistent with `v` and `X`.
 #' @param compress_X If `X` has a single non-`v` column: should duplicates be removed
 #'   and compensated via case weights? Default is `TRUE`.
 #' @param compress_grid Should duplicates in `grid` be removed and PDs mapped back to 
@@ -13,7 +14,6 @@
 #' @returns 
 #'   A matrix of partial dependence values (one column per prediction dimension, 
 #'   one row per grid row, in the same order as `grid`).
-#' @inherit partial_dep references
 pd_raw <- function(object, v, X, grid, pred_fun = stats::predict,
                    w = NULL, compress_X = TRUE, compress_grid = TRUE, ...) {
   # Try different compressions
@@ -42,8 +42,20 @@ pd_raw <- function(object, v, X, grid, pred_fun = stats::predict,
   pd
 }
 
-# Helper function. Same arguments as pd_raw(). pred_only distinguishes the output mode:
-# TRUE -> only matrix of predictions. FALSE -> list with predictions and long grid
+#' Barebone ICE Function
+#' 
+#' Part of the workhorse function `pd_raw()`, thus optimized for speed.
+#' 
+#' @noRd
+#' @keywords internal
+#' 
+#' @inheritParams pd_raw
+#' @param pred_only Logical flag determining the output mode. If `TRUE`, then a matrix
+#'   of predictions. Otherwise, a list with two elements: `pred` (prediction matrix)
+#'   and `grid_pred` (the corresponding grid values in the same mode as the input, 
+#'   but replicated over `X`).
+#' @returns 
+#'   Either a matrix of predictions or a list with predictions and grid.
 ice_raw <- function(object, v, X, grid, pred_fun, pred_only = TRUE, ...) {
   D1 <- length(v) == 1L
   n <- nrow(X)
@@ -64,11 +76,11 @@ ice_raw <- function(object, v, X, grid, pred_fun, pred_only = TRUE, ...) {
     X_pred[, v] <- grid_pred
   }
   
+  # Calculate matrix of predictions
   pred <- align_pred(pred_fun(object, X_pred, ...))
   
   if (pred_only) {
     return(pred)
   }
-  
   return(list(pred = pred, grid_pred = grid_pred))
 }

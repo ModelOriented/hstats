@@ -20,8 +20,6 @@ ice(object, ...)
   trim = c(0.01, 0.99),
   strategy = c("uniform", "quantile"),
   n_max = 100L,
-  w = NULL,
-  center = TRUE,
   ...
 )
 
@@ -36,8 +34,6 @@ ice(object, ...)
   trim = c(0.01, 0.99),
   strategy = c("uniform", "quantile"),
   n_max = 100,
-  w = NULL,
-  center = TRUE,
   ...
 )
 
@@ -52,8 +48,6 @@ ice(object, ...)
   trim = c(0.01, 0.99),
   strategy = c("uniform", "quantile"),
   n_max = 100L,
-  w = NULL,
-  center = TRUE,
   ...
 )
 }
@@ -91,18 +85,16 @@ Either "uniform" (via \code{\link[=pretty]{pretty()}}) or "quantile", see descri
 
 \item{n_max}{If \code{X} has more than \code{n_max} rows, a random sample of \code{n_max} rows is
 selected from \code{X}. In this case, set a random seed for reproducibility.}
-
-\item{w}{Currently unused.}
 }
 \value{
 An object of class "ice" containing these elements:
 \itemize{
 \item \code{ice_curves}: data.frame containing the ice values.
+\item \code{grid}: Vector, matrix or data.frame of grid values.
 \item \code{v}: Same as input \code{v}.
 \item \code{K}: Number of columns of prediction matrix.
 \item \code{pred_names}: Column names of prediction matrix.
 \item \code{BY}: Column name of grouping variable (or \code{NULL}).
-\item \code{center}: Same as input \code{center}.
 }
 }
 \description{
@@ -122,16 +114,18 @@ By default, the resulting values are plotted.
 \examples{
 # MODEL 1: Linear regression
 fit <- lm(Sepal.Length ~ . + Species * Petal.Length, data = iris)
-(ic <- ice(fit, v = "Species", X = iris))
-plot(ic)
+plot(ice(fit, v = "Species", X = iris))
 
 # Stratified by numeric BY variable
-ic <- ice(fit, v = "Species", X = iris, BY = "Petal.Length")
+ic <- ice(fit, v = "Petal.Length", X = iris, BY = "Species")
 plot(ic)
+plot(ic, center = TRUE)
 
 # MODEL 2: Multi-response linear regression
 fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
-plot(ice(fit, v = "Petal.Width", X = iris, BY = iris$Species))
+ic <- ice(fit, v = "Petal.Width", X = iris, BY = iris$Species)
+plot(ic)
+plot(ic, center = TRUE)
 
 # MODEL 3: Gamma GLM -> pass options to predict() via ...
 fit <- glm(
@@ -139,7 +133,8 @@ fit <- glm(
   data = iris,
   family = Gamma(link = log)
 )
-plot(ice(fit, v = "Petal.Width", X = iris, type = "response"))
+plot(ice(fit, v = "Petal.Length", X = iris, BY = "Species"))
+plot(ice(fit, v = "Petal.Length", X = iris, type = "response", BY = "Species"))
 }
 \references{
 Goldstein, A. et al. (2015). Peeking inside the black box: Visualizing statistical

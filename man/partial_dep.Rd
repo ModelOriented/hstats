@@ -174,7 +174,8 @@ plot(pd, rotate_x = TRUE)
 
 # MODEL 2: Multi-response linear regression
 fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
-plot(partial_dep(fit, v = "Petal.Width", X = iris, BY = iris$Species))
+pd <- partial_dep(fit, v = "Petal.Width", X = iris, BY = iris$Species)
+plot(pd, show_points = FALSE)
 plot(partial_dep(fit, v = c("Species", "Petal.Width"), X = iris), rotate_x = TRUE)
 
 # Multivariate, multivariable, and BY (no plot available)
@@ -187,7 +188,8 @@ fit <- glm(
   data = iris, 
   family = Gamma(link = log)
 )
-plot(partial_dep(fit, v = "Species", X = iris, type = "response"))
+plot(partial_dep(fit, v = "Petal.Length", X = iris))
+plot(partial_dep(fit, v = "Petal.Length", X = iris, type = "response"))
 }
 \references{
 Friedman, Jerome H. \emph{"Greedy Function Approximation: A Gradient Boosting Machine."}

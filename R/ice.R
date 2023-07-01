@@ -6,17 +6,14 @@
 #'
 #' @inheritParams partial_dep
 #' @param BY Optional grouping vector or a column name.
-#' @param w Currently unused.
-#' @param center Should ICE curves be centered at some middle grid value? 
-#'   Default is `TRUE`.
 #' @returns
 #'   An object of class "ice" containing these elements:
 #'   - `ice_curves`: data.frame containing the ice values.
+#'   - `grid`: Vector, matrix or data.frame of grid values.
 #'   - `v`: Same as input `v`.
 #'   - `K`: Number of columns of prediction matrix.
 #'   - `pred_names`: Column names of prediction matrix.
 #'   - `BY`: Column name of grouping variable (or `NULL`).
-#'   - `center`: Same as input `center`.
 #' @references
 #'   Goldstein, A. et al. (2015). Peeking inside the black box: Visualizing statistical
 #'     learning with plots of individual conditional expectation.
@@ -26,16 +23,18 @@
 #' @examples
 #' # MODEL 1: Linear regression
 #' fit <- lm(Sepal.Length ~ . + Species * Petal.Length, data = iris)
-#' (ic <- ice(fit, v = "Species", X = iris))
-#' plot(ic)
+#' plot(ice(fit, v = "Species", X = iris))
 #'
 #' # Stratified by numeric BY variable
-#' ic <- ice(fit, v = "Species", X = iris, BY = "Petal.Length")
+#' ic <- ice(fit, v = "Petal.Length", X = iris, BY = "Species")
 #' plot(ic)
+#' plot(ic, center = TRUE)
 #'
 #' # MODEL 2: Multi-response linear regression
 #' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
-#' plot(ice(fit, v = "Petal.Width", X = iris, BY = iris$Species))
+#' ic <- ice(fit, v = "Petal.Width", X = iris, BY = iris$Species)
+#' plot(ic)
+#' plot(ic, center = TRUE)
 #'
 #' # MODEL 3: Gamma GLM -> pass options to predict() via ...
 #' fit <- glm(
@@ -43,7 +42,8 @@
 #'   data = iris,
 #'   family = Gamma(link = log)
 #' )
-#' plot(ice(fit, v = "Petal.Width", X = iris, type = "response"))
+#' plot(ice(fit, v = "Petal.Length", X = iris, BY = "Species"))
+#' plot(ice(fit, v = "Petal.Length", X = iris, type = "response", BY = "Species"))
 ice <- function(object, ...) {
   UseMethod("ice")
 }
@@ -53,41 +53,21 @@ ice <- function(object, ...) {
 ice.default <- function(object, v, X, pred_fun = stats::predict,
                         BY = NULL, grid = NULL, grid_size = 49L,
                         trim = c(0.01, 0.99),
-                        strategy = c("uniform", "quantile"), n_max = 100L,
-                        w = NULL, center = TRUE, ...) {
-  basic_check(X = X, v = v, pred_fun = pred_fun, w = w)
-
-  if (is.null(grid)) {
-    grid <- multivariate_grid(
-      x = X[, v], grid_size = grid_size, trim = trim, strategy = strategy
-    )
-  } else {
-    check_grid(g = grid, v = v, X_is_matrix = is.matrix(X))
-  }
-
-  if (!is.null(BY)) {
-    if (length(BY) == 1L && BY %in% colnames(X)) {
-      by_name <- BY
-      BY <- X[, by_name]
-    } else {
-      by_name = "Group"
-      if (length(BY) != nrow(X)) {
-        stop("BY variable must have same length as X.")
-      }
-    }
-  } else {
-    by_name <- NULL
-  }
-
+                        strategy = c("uniform", "quantile"), n_max = 100L, ...) {
+  basic_check(X = X, v = v, pred_fun = pred_fun)
+  grid <- make_or_check_grid(
+    v = v, X = X, grid = grid, grid_size = grid_size, trim = trim, strategy = strategy
+  )
+  by_out <- make_and_check_by(BY, X = X)
+  BY <- by_out[["BY"]]
+  by_name <- by_out[["by_name"]]
+  
   # Reduce size of X (and w)
   if (nrow(X) > n_max) {
     ix <- sample(nrow(X), n_max)
     X <- X[ix, , drop = FALSE]
     if (!is.null(BY)) {
       BY <- BY[ix]
-    }
-    if (!is.null(w)) {
-      w <- w[ix]
     }
   }
 
@@ -100,6 +80,7 @@ ice.default <- function(object, v, X, pred_fun = stats::predict,
   if (is.null(colnames(pred))) {
     colnames(pred) <- if (K == 1L) "y" else paste0("y", seq_len(K))
   }
+  pred_names <- colnames(pred)
   if (!is.data.frame(grid_pred) && !is.matrix(grid_pred)) {
     grid_pred <- stats::setNames(as.data.frame(grid_pred), v)
   }
@@ -109,12 +90,12 @@ ice.default <- function(object, v, X, pred_fun = stats::predict,
     ice_curves <- cbind.data.frame(BY, ice_curves)
   }
   out <- list(
-    ice_curves = ice_curves, 
+    ice_curves = ice_curves,
+    grid = grid,
     v = v, 
-    K = K, 
-    pred_names = colnames(pred), 
-    BY = by_name,
-    center = center
+    K = K,
+    pred_names = pred_names, 
+    by_name = by_name
   )
   return(structure(out, class = "ice"))
 }
@@ -125,8 +106,7 @@ ice.ranger <- function(object, v, X,
                        pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
                        BY = NULL, grid = NULL, grid_size = 49L,
                        trim = c(0.01, 0.99),
-                       strategy = c("uniform", "quantile"), n_max = 100, w = NULL,
-                       center = TRUE, ...) {
+                       strategy = c("uniform", "quantile"), n_max = 100, ...) {
   ice.default(
     object = object,
     v = v,
@@ -138,8 +118,6 @@ ice.ranger <- function(object, v, X,
     trim = trim,
     strategy = strategy,
     n_max = n_max,
-    w = w,
-    center = center,
     ...
   )
 }
@@ -149,8 +127,7 @@ ice.ranger <- function(object, v, X,
 ice.Learner <- function(object, v, X,
                         pred_fun = function(m, X) m$predict_newdata(X)$response,
                         BY = NULL, grid = NULL, grid_size = 49L, trim = c(0.01, 0.99),
-                        strategy = c("uniform", "quantile"), n_max = 100L,
-                        w = NULL, center = TRUE, ...) {
+                        strategy = c("uniform", "quantile"), n_max = 100L, ...) {
   ice.default(
     object = object,
     v = v,
@@ -162,8 +139,6 @@ ice.Learner <- function(object, v, X,
     trim = trim,
     strategy = strategy,
     n_max = n_max,
-    w = w,
-    center = center,
     ...
   )
 }
@@ -179,7 +154,7 @@ ice.Learner <- function(object, v, X,
 #' @export
 #' @seealso See [ice()] for examples.
 print.ice <- function(x, n = 3L, ...) {
-  cat(if (x[["center"]]) "Centered ", "'ice' object (", nrow(x[["ice_curves"]]), " rows).
+  cat("'ice' object (", nrow(x[["ice_curves"]]), " rows).
       Extract via $ice_curves. Top rows:\n\n", sep = "")
   print(utils::head(x[["ice_curves"]], n))
   invisible(x)
@@ -187,46 +162,51 @@ print.ice <- function(x, n = 3L, ...) {
 
 #' Plots "ice" Object
 #'
-#' Plot method for objects of class "ice". Can do (grouped) line plots or
-#' heatmaps.
+#' Plot method for objects of class "ice".
 #'
 #' @importFrom ggplot2 .data
 #' @inheritParams plot.partial_dep
 #' @param x An object of class "ice".
-#' @param alpha Transparency passed to geometries.
+#' @param center Should curves be centered? Default is `FALSE`.
+#' @param alpha Transparency passed to `ggplot2::geom_line()`.
 #' @export
 #' @returns An object of class "ggplot".
 #' @seealso See [ice()] for examples.
-plot.ice <- function(x, alpha = 0.2, rotate_x = FALSE, color = "#2b51a1",
-                     facet_scales = "free_y", ...) {
+plot.ice <- function(x, center = FALSE, alpha = 0.2, rotate_x = FALSE, 
+                     color = "#2b51a1", facet_scales = "free_y", ...) {
   v <- x[["v"]]
-  BY <- x[["BY"]]
-  K <- x[["K"]]
+  ice_curves <- x[["ice_curves"]]
+  pred_names <- x[["pred_names"]]
+  
   if (length(v) > 1L) {
     stop("Maximal one feature can be plotted.")
   }
-  data <- with(x, poor_man_stack(ice_curves, to_stack = pred_names))
+  if (center) {
+    pos <- trunc((NROW(x[["grid"]]) + 1) / 2)
+    ice_curves[pred_names] <- lapply(
+      ice_curves[pred_names], 
+      function(z) stats::ave(z, ice_curves[["obs_"]], FUN = function(zz) zz - zz[pos])
+    )
+  }
+  data <- poor_man_stack(ice_curves, to_stack = pred_names)
 
   p <- ggplot2::ggplot(data, ggplot2::aes(x = .data[[v]], y = value_, group = obs_)) +
-    ggplot2::labs(x = v, y = "ICE")
+    ggplot2::labs(x = v, y = if (center) "Centered ICE" else "ICE")
 
-  if (is.null(BY)) {
+  by_name <- x[["by_name"]]
+  if (is.null(by_name)) {
     p <- p +
       ggplot2::geom_line(color = color, alpha = alpha, ...)
   } else {
     p <- p +
       ggplot2::geom_line(
-        ggplot2::aes(color = .data[[BY]]), alpha = alpha, ...
+        ggplot2::aes(color = .data[[by_name]]), alpha = alpha, ...
       ) +
-      ggplot2::labs(color = BY)
+      ggplot2::labs(color = by_name) + 
+      ggplot2::guides(color = ggplot2::guide_legend(override.aes = list(alpha = 1)))
   }
-  if (K > 1L) {
+  if (x[["K"]] > 1L) {
     p <- p + ggplot2::facet_wrap(~ varying_, scales = facet_scales)
   }
-  if (rotate_x) {
-    p <- p + ggplot2::theme(
-      axis.text.x = ggplot2::element_text(angle = 45, hjust = 1, vjust = 1)
-    )
-  }
-  p
+  if (rotate_x) p + rotate_x_labs() else p
 }

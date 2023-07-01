@@ -6,6 +6,7 @@
 \usage{
 \method{plot}{ice}(
   x,
+  center = FALSE,
   alpha = 0.2,
   rotate_x = FALSE,
   color = "#2b51a1",
@@ -16,7 +17,9 @@
 \arguments{
 \item{x}{An object of class "ice".}
 
-\item{alpha}{Transparency passed to geometries.}
+\item{center}{Should curves be centered? Default is \code{FALSE}.}
+
+\item{alpha}{Transparency passed to \code{ggplot2::geom_line()}.}
 
 \item{rotate_x}{Should x axis labels be rotated by 45 degrees?}
 
@@ -30,8 +33,7 @@
 An object of class "ggplot".
 }
 \description{
-Plot method for objects of class "ice". Can do (grouped) line plots or
-heatmaps.
+Plot method for objects of class "ice".
 }
 \seealso{
 See \code{\link[=ice]{ice()}} for examples.

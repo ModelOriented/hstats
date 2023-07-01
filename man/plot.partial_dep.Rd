@@ -4,7 +4,14 @@
 \alias{plot.partial_dep}
 \title{Plots "partial_dep" Object}
 \usage{
-\method{plot}{partial_dep}(x, rotate_x = FALSE, color = "#2b51a1", facet_scales = "free_y", ...)
+\method{plot}{partial_dep}(
+  x,
+  rotate_x = FALSE,
+  color = "#2b51a1",
+  facet_scales = "free_y",
+  show_points = FALSE,
+  ...
+)
 }
 \arguments{
 \item{x}{An object of class "partial_dep".}
@@ -14,6 +21,8 @@
 \item{color}{Color of lines and points (in case there is no color/fill aesthetic).}
 
 \item{facet_scales}{Value passed to \code{facet_wrap(scales = ...)}.}
+
+\item{show_points}{Logical flag indicating whether to show points (default) or not.}
 
 \item{...}{Arguments passed to geometries.}
 }
