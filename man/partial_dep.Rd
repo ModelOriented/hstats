@@ -79,7 +79,7 @@ function is calculated per \code{BY} group. Each \code{BY} group
 uses the same evaluation grid to improve assessment of (non-)additivity.
 Numeric \code{BY} variables with more than \code{by_size} disjoint values will be
 binned into \code{by_size} quantile groups of similar size. Subsampling of \code{X} is done
-within group.}
+within group to improve robustness.}
 
 \item{by_size}{Numeric \code{BY} variables with more than \code{by_size} unique values will
 be binned into quantile groups. Only relevant if \code{BY} is not \code{NULL}.}
