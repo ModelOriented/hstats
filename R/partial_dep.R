@@ -38,7 +38,7 @@
 #'   uses the same evaluation grid to improve assessment of (non-)additivity.
 #'   Numeric `BY` variables with more than `by_size` disjoint values will be 
 #'   binned into `by_size` quantile groups of similar size. Subsampling of `X` is done
-#'   within group.
+#'   within group to improve robustness.
 #' @param by_size Numeric `BY` variables with more than `by_size` unique values will
 #'   be binned into quantile groups. Only relevant if `BY` is not `NULL`.
 #' @returns 
@@ -117,10 +117,12 @@ partial_dep.default <- function(object, v, X, pred_fun = stats::predict,
       by_name <- BY
       BY <- X[, by_name]
     } else {
-      by_name = "Group"
-      if (length(BY) != nrow(X)) {
-        stop("BY variable must have same length as X.")
-      }
+      stopifnot(
+        NCOL(BY) == 1L,
+        is.vector(BY) || is.factor(BY),
+        length(BY) == nrow(X)
+      )
+      by_name <- "Group"
     }
     
     # Binning
@@ -145,7 +147,7 @@ partial_dep.default <- function(object, v, X, pred_fun = stats::predict,
       pd_list[[b]] <- out[["pd"]]
     }
     pd <- do.call(rbind, c(pd_list, list(make.row.names = FALSE)))
-    BY_rep <- rep(by_values, times = vapply(pd_list, nrow, FUN.VALUE = 1L))
+    BY_rep <- rep(by_values, each = NROW(grid))
     BY_rep <- stats::setNames(as.data.frame(BY_rep), by_name)
     out[["pd"]] <- cbind.data.frame(BY_rep, pd)
     out[["by_name"]] <- by_name
@@ -164,14 +166,7 @@ partial_dep.default <- function(object, v, X, pred_fun = stats::predict,
 
   # Calculations
   pd <- pd_raw(
-    object = object, 
-    v = v, 
-    X = X, 
-    grid = grid,
-    pred_fun = pred_fun,
-    w = w,
-    compress_grid = FALSE,  # Almost always unique, so we save a check for uniqueness
-    ...
+    object = object, v = v, X = X, grid = grid, pred_fun = pred_fun, w = w, ...
   )
   K <- ncol(pd)
   if (is.null(colnames(pd))) {

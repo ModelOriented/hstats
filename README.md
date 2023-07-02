@@ -53,6 +53,8 @@ library(interactML)
 library(xgboost)
 library(shapviz)
 
+set.seed(1)
+
 # Variable sets
 x_geo <- c("LATITUDE", "LONGITUDE", "CNTR_DIST", "OCEAN_DIST", "RAIL_DIST", "HWY_DIST")
 x_nongeo <- c("TOT_LVG_AREA", "LND_SQFOOT", "structure_quality", "age")
@@ -65,7 +67,6 @@ ic <- c(
 )
 
 # Train/valid split
-set.seed(1)
 ix <- sample(nrow(miami), 0.8 * nrow(miami))
 
 y_train <- log(miami$SALE_PRC[ix])
@@ -134,7 +135,7 @@ H2_jk(inter, normalize = FALSE, squared = FALSE, top_m = 5)
 
 ### Describe interactions
 
-Let's study different plots to understand *how* the strong interaction between distance to the ocean and longitude looks like. We will check the following three visualizations:
+Let's study different plots to understand *how* the strong interaction between distance to the ocean and longitude looks like. We will check the following three visualizations. They all reveal a substantial interaction between the to variables.
 
 1. Stratified PDP
 2. Two-dimensional PDP
@@ -166,7 +167,7 @@ In contrast, no interactions are visible for living area:
 plot(partial_dep(fit, v = "TOT_LVG_AREA", X = X_train, BY = "OCEAN_DIST"))
 ```
 
-![](man/figures/pdp_living_ocean.svg)
+![](man/figures/pdp_parallel.svg)
 
 ```r
 plot(ice(fit, v = "TOT_LVG_AREA", X = X_train, BY = "OCEAN_DIST"))

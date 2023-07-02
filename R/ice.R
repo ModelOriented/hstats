@@ -79,10 +79,14 @@ ice.default <- function(object, v, X, pred_fun = stats::predict,
       by_names <- BY
       BY <- X[, BY]
     } else {
-      n_by <- NCOL(BY)
-      by_names = if (n_by == 1L) "Group" else paste0("Group_", seq_len(n_by))
-      if (NROW(BY) != nrow(X)) {
-        stop("BY variable(s) must have same length as X.")
+      stopifnot(
+        NROW(BY) == nrow(X),
+        NCOL(BY) <= 2L
+      )
+      by_names <- colnames(BY)
+      if (is.null(by_names)) {
+        n_by <- NCOL(BY)
+        by_names = if (n_by == 1L) "Group" else paste0("Group_", seq_len(n_by))
       }
     }
     if (!is.data.frame(BY)) {
