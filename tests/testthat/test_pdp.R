@@ -5,7 +5,6 @@ g <- 2:1
 test_that("pd_raw() works for simple example", {
   pd <- pd_raw(1, v = "a", X = X, grid = g, pred_fun = pfun)
   expect_equal(pd, cbind(pred = g / 2))
-  capture_output(expect_no_error(print(pd)))
 })
 
 test_that("pd_raw() works on simple example with and without grid compression", {
@@ -86,6 +85,11 @@ test_that("pd_raw() also works for multioutput situations", {
 # Now, partial_dep()
 fit1 <- lm(Sepal.Length ~ . + Petal.Width * Species, data = iris)
 fit2 <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
+
+test_that("print method does not give an error", {
+  pd <- partial_dep(fit1, v = "Species", X = iris)
+  capture_output(expect_no_error(print(pd)))
+})
 
 test_that("partial_dep() returns the same values as pd_raw()", {
   g <- rev(univariate_grid(iris$Species))

@@ -6,6 +6,10 @@ test_that("ice() returns same as partial_dep() for one row", {
   ic <- ice(fit1, v = "Species", X = iris[1L, ])$ice_curves[2:3]
   pd <- partial_dep(fit1, v = "Species", X = iris[1L, ])$pd
   expect_equal(ic, pd)
+})
+
+test_that("print method does not give an error", {
+  ic <- ice(fit1, v = "Species", X = iris)
   capture_output(expect_no_error(print(ic)))
 })
 
