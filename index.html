@@ -95,14 +95,14 @@
 <li>
 <strong>quantify</strong> their strength via statistics of Friedman and Popescu [1], and to</li>
 <li>
-<strong>describe</strong> them via stratified (or two-dimensional) partial dependence plots (PDPs) [2].</li>
+<strong>describe</strong> them via partial dependence plots (PDP) [2], or individual conditional expectation plots (ICE) [7].</li>
 </ol>
-<p>{interactML}</p>
+<p>All functions</p>
 <ul>
-<li>is comparably fast yet stable,</li>
-<li>supports multivariate predictions,</li>
-<li>respects case weights, and</li>
-<li>works with both data.frames and matrices (e.g., for XGBoost).</li>
+<li>are comparably fast,</li>
+<li>support multivariate predictions,</li>
+<li>respect case weights, and</li>
+<li>work with both data.frames and matrices (e.g., for XGBoost).</li>
 </ul>
 <p>Furthermore, different variants of the original statistics in [1] are available.</p>
 <p>Note: The {gbm} package offers a model-specific implementation of some of the statistics. Since it uses the weighted tree-traversal method of [2] to estimate partial dependence functions, the results are typically slightly different.</p>
@@ -184,17 +184,17 @@
 <p><img src="reference/figures/interact.svg"></p>
 <p><strong>Interpretation</strong></p>
 <ul>
-<li>About 10% of prediction variability is unexplained by the sum of all main effects.</li>
-<li>The strongest overall interactions are associated with “OCEAN_DIST” and “LONGITUDE”. For instance, we can say that about 6% of prediction variability can be attributed to all interactions of “OCEAN_DISTANCE”.</li>
-<li>About 15.6% of the joint effect variability of above two features comes from their pairwise interaction.</li>
+<li>About 10% of prediction variability is unexplained by the sum of all main effects. The interaction effects seem to be quite important.</li>
+<li>The strongest overall interactions are associated with “OCEAN_DIST”: About 6% of prediction variability can be attributed to its interactions.</li>
+<li>About 15.6% of the joint effect variability of OCEAN_DIST and LONGITUDE comes from their pairwise interaction.</li>
 </ul>
 <p><strong>Remarks</strong></p>
 <ol style="list-style-type: decimal">
-<li>Pairwise statistics are calculated only for the features with strongest overall interactions.</li>
+<li>Pairwise statistics are calculated only for the features with strong overall interactions.</li>
 <li>The statistics need to repeatedly calculate predictions on <span class="math inline"><em>n</em><sup>2</sup></span> rows. That is why {interactML} samples 300 rows by default. To get more robust results, increase this value at the price of slower run time.</li>
-<li>Pairwise Friedmans and Popescu’s <span class="math inline"><em>H</em><sub><em>j</em><em>k</em></sub><sup>2</sup></span> measures interaction strength relative to the combined effect of the two features. This does not necessarily show which interactions are strongest. To do so, we can study unnormalized statistics:</li>
+<li>Pairwise Friedmans and Popescu’s <span class="math inline"><em>H</em><sub><em>j</em><em>k</em></sub><sup>2</sup></span> measures interaction strength relative to the combined effect of the two features. This does not necessarily show which interactions are strongest in absolute numbers. To do so, we can study unnormalized statistics:</li>
 </ol>
-<p>The strongest pairwise interaction (now on the scale of log(price)) remains the one between longitude and distance to the ocean:</p>
+<p>The strongest pairwise interaction remains the one above:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/H2_jk.html">H2_jk</a></span><span class="op">(</span><span class="va">inter</span>, normalize <span class="op">=</span> <span class="cn">FALSE</span>, squared <span class="op">=</span> <span class="cn">FALSE</span>, top_m <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></code></pre></div>
 <p><img src="reference/figures/interact_pairwise.svg"></p>
@@ -202,25 +202,36 @@
 <div class="section level3">
 <h3 id="describe-interactions">Describe interactions<a class="anchor" aria-label="anchor" href="#describe-interactions"></a>
 </h3>
-<p>Let’s study stratified partial dependence plots (PDP) or 2D PDPs to see <em>how</em> interactions are looking (OCEAN_DIST groups of similar size):</p>
+<p>Let’s study different plots to understand <em>how</em> interactions are looking:</p>
+<ol style="list-style-type: decimal">
+<li>Stratified PDP</li>
+<li>Two-dimensional PDP</li>
+<li>Centered ICE plot with colors</li>
+</ol>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="reference/partial_dep.html">partial_dep</a></span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="st">"LONGITUDE"</span>, X <span class="op">=</span> <span class="va">X_train</span>, BY <span class="op">=</span> <span class="st">"OCEAN_DIST"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="reference/figures/pdp_long_ocean.svg"></p>
-<p>Or as heatmap:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pd</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/partial_dep.html">partial_dep</a></span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"LONGITUDE"</span>, <span class="st">"OCEAN_DIST"</span><span class="op">)</span>, X <span class="op">=</span> <span class="va">X_train</span>, grid_size <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pd</span><span class="op">)</span></span></code></pre></div>
 <p><img src="reference/figures/pdp_2d.png"></p>
-<p>In contrast, the following PDP shows perfectly parallel lines (additivity in living area):</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">ic</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/ice.html">ice</a></span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="st">"LONGITUDE"</span>, X <span class="op">=</span> <span class="va">X_train</span>, BY <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">X_train</span><span class="op">[</span>, <span class="st">"OCEAN_DIST"</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">ic</span>, center <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<p><img src="reference/figures/ice.svg"></p>
+<p>In contrast, no interactions are visible for living area:</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="reference/partial_dep.html">partial_dep</a></span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="st">"TOT_LVG_AREA"</span>, X <span class="op">=</span> <span class="va">X_train</span>, BY <span class="op">=</span> <span class="st">"OCEAN_DIST"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="reference/figures/pdp_living_ocean.svg"></p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="reference/ice.html">ice</a></span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="st">"TOT_LVG_AREA"</span>, X <span class="op">=</span> <span class="va">X_train</span>, BY <span class="op">=</span> <span class="st">"OCEAN_DIST"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p><img src="reference/figures/ice_parallel.svg"></p>
 </div>
 <div class="section level3">
 <h3 id="variable-importance">Variable importance<a class="anchor" aria-label="anchor" href="#variable-importance"></a>
 </h3>
 <p>In the spirit of [1], and related to [4], we can extract from the “interact” objects a partial dependence based variable importance measure. It is rather experimental, so use it with care (details below):</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/pd_importance.html">pd_importance</a></span><span class="op">(</span><span class="va">inter</span><span class="op">)</span></span></code></pre></div>
 <p><img src="reference/figures/importance.svg"></p>
 </div>
@@ -237,7 +248,7 @@
   \hat F_s(\boldsymbol x_s) = \frac{1}{n} \sum_{i = 1}^n F(\boldsymbol x_s, \boldsymbol x_{i \setminus s}),
 $$</span></p>
 <p>where <span class="math inline"><strong>x</strong><sub><em>i</em> \ <em>s</em></sub></span>, <span class="math inline"><em>i</em> = 1, …, <em>n</em></span>, are the observed values of <span class="math inline"><strong>x</strong><sub>\<em>s</em></sub></span>.</p>
-<p>A partial dependence plot (PDP) plots the values of <span class="math inline"><em>F̂</em><sub><em>s</em></sub>(<strong>x</strong><sub><em>s</em></sub>)</span> over a grid of evaluation points <span class="math inline"><strong>x</strong><sub><em>s</em></sub></span>.</p>
+<p>A partial dependence plot (PDP) plots the values of <span class="math inline"><em>F̂</em><sub><em>s</em></sub>(<strong>x</strong><sub><em>s</em></sub>)</span> over a grid of evaluation points <span class="math inline"><strong>x</strong><sub><em>s</em></sub></span>. Its disaggregated version is called <em>individual conditional expectation</em> (ICE), see [7].</p>
 </div>
 <div class="section level3">
 <h3 id="interactions">Interactions<a class="anchor" aria-label="anchor" href="#interactions"></a>
@@ -340,6 +351,7 @@ $$</span></p>
 <li>Greenwell, Brandon M., Bradley C. Boehmke, and Andrew J. McCarthy. <em>A Simple and Effective Model-Based Variable Importance Measure.</em> Arxiv (2018).</li>
 <li>Żółkowski, Artur, Mateusz Krzyziński, and Paweł Fijałkowski. <em>Methods for extraction of interactions from predictive models.</em> Undergraduate thesis. Faculty of Mathematics and Information Science, Warsaw University of Technology (2023).</li>
 <li>Molnar, Christoph, Giuseppe Casalicchio, and Bernd Bischl”. <em>Quantifying Model Complexity via Functional Decomposition for Better Post-hoc Interpretability</em>, in Machine Learning and Knowledge Discovery in Databases, Springer International Publishing (2020): 193-204.</li>
+<li>Goldstein, Alex, Adam Kapelner, Justin Bleich, and Emil Pitkin. <em>Peeking inside the black box: Visualizing statistical learning with plots of individual conditional expectation.</em> Journal of Computational and Graphical Statistics, 24, no. 1 (2015): 44-65.</li>
 </ol>
 </div>
 </div>
