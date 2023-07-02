@@ -129,9 +129,9 @@ plot(inter)  # Or summary(inter) for numeric output
 H2_jk(inter, normalize = FALSE, squared = FALSE, top_m = 5)
 ```
 
-Since distance to the ocean and longitude have high values in $H^2_j$, it is not surprising that a strong relative pairwise interaction is translated into a strong absolute one.
-
 ![](man/figures/interact_pairwise.svg)
+
+Since distance to the ocean and longitude have high values in $H^2_j$, it is not surprising that a strong relative pairwise interaction is translated into a strong absolute one.
 
 ### Describe interactions
 
