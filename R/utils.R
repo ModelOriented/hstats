@@ -1,5 +1,5 @@
 # Fix undefined global variable note
-utils::globalVariables(c("varying_", "value_", "id_", "variable_"))
+utils::globalVariables(c("varying_", "value_", "id_", "variable_", "obs_"))
 
 #' Aligns Predictions
 #' 
@@ -164,7 +164,7 @@ wcenter <- function(x, w = NULL) {
 #' 
 #' @inheritParams pd_raw
 #' @returns Error or TRUE
-basic_check <- function(X, v, pred_fun, w) {
+basic_check <- function(X, v, pred_fun, w = NULL) {
   stopifnot(
     is.matrix(X) || is.data.frame(X),
     dim(X) >= c(1L, 1L),
@@ -314,4 +314,16 @@ plot_stat <- function(x, fill = "#2b51a1", ...) {
       ) + 
       ggplot2::labs(fill = "Response")
   }
+}
+
+#' Utility "ggplot" Function
+#' 
+#' @noRd
+#' @keywords internal
+#' 
+#' @returns A theme object.
+rotate_x_labs <- function() {
+  ggplot2::theme(
+    axis.text.x = ggplot2::element_text(angle = 45, hjust = 1, vjust = 1)
+  )
 }

@@ -109,7 +109,7 @@ An object of class "partial_dep" containing these elements:
 \item \code{v}: Same as input \code{v}.
 \item \code{K}: Number of columns of prediction matrix.
 \item \code{pred_names}: Column names of prediction matrix.
-\item \code{BY}: Column name of grouping variable (or \code{NULL}).
+\item \code{by_name}: Column name of grouping variable (or \code{NULL}).
 }
 }
 \description{
@@ -159,7 +159,7 @@ fit <- lm(Sepal.Length ~ . + Species * Petal.Length, data = iris)
 (pd <- partial_dep(fit, v = "Species", X = iris))
 plot(pd)
 
-# Stratified by numeric BY variable (which is automatically binned)
+# Stratified by BY variable (numerics are automatically binned)
 pd <- partial_dep(fit, v = "Species", X = iris, BY = "Petal.Length")
 plot(pd)
 
@@ -174,7 +174,8 @@ plot(pd, rotate_x = TRUE)
 
 # MODEL 2: Multi-response linear regression
 fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
-plot(partial_dep(fit, v = "Petal.Width", X = iris, BY = iris$Species))
+pd <- partial_dep(fit, v = "Petal.Width", X = iris, BY = iris$Species)
+plot(pd, show_points = FALSE)
 plot(partial_dep(fit, v = c("Species", "Petal.Width"), X = iris), rotate_x = TRUE)
 
 # Multivariate, multivariable, and BY (no plot available)
@@ -187,7 +188,8 @@ fit <- glm(
   data = iris, 
   family = Gamma(link = log)
 )
-plot(partial_dep(fit, v = "Species", X = iris, type = "response"))
+plot(partial_dep(fit, v = "Petal.Length", X = iris))
+plot(partial_dep(fit, v = "Petal.Length", X = iris, type = "response"))
 }
 \references{
 Friedman, Jerome H. \emph{"Greedy Function Approximation: A Gradient Boosting Machine."}

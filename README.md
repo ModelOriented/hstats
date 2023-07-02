@@ -19,14 +19,14 @@
 This package helps to
 
 1. **quantify** their strength via statistics of Friedman and Popescu [1], and to
-2. **describe** them via stratified (or two-dimensional) partial dependence plots (PDPs) [2].
+2. **describe** them via partial dependence plots (PDP) [2], or individual conditional expectation plots (ICE) [7].
 
-{interactML}
+All functions
 
-- is comparably fast yet stable,
-- supports multivariate predictions,
-- respects case weights, and
-- works with both data.frames and matrices (e.g., for XGBoost).
+- are comparably fast,
+- support multivariate predictions,
+- respect case weights, and
+- work with both data.frames and matrices (e.g., for XGBoost).
 
 Furthermore, different variants of the original statistics in [1] are available.
 
@@ -114,17 +114,17 @@ plot(inter)  # Or summary(inter) for numeric output
 
 **Interpretation** 
 
-- About 10% of prediction variability is unexplained by the sum of all main effects.
-- The strongest overall interactions are associated with "OCEAN_DIST" and "LONGITUDE". For instance, we can say that about 6% of prediction variability can be attributed to all interactions of "OCEAN_DISTANCE".
-- About 15.6% of the joint effect variability of above two features comes from their pairwise interaction.
+- About 10% of prediction variability is unexplained by the sum of all main effects. The interaction effects seem to be quite important.
+- The strongest overall interactions are associated with "OCEAN_DIST": About 6% of prediction variability can be attributed to its interactions.
+- About 15.6% of the joint effect variability of OCEAN_DIST and LONGITUDE comes from their pairwise interaction.
 
 **Remarks**
 
-1. Pairwise statistics are calculated only for the features with strongest overall interactions.
+1. Pairwise statistics are calculated only for the features with strong overall interactions.
 2. The statistics need to repeatedly calculate predictions on $n^2$ rows. That is why {interactML} samples 300 rows by default. To get more robust results, increase this value at the price of slower run time.
-3. Pairwise Friedmans and Popescu's $H^2_{jk}$ measures interaction strength relative to the combined effect of the two features. This does not necessarily show which interactions are strongest. To do so, we can study unnormalized statistics:
+3. Pairwise Friedmans and Popescu's $H^2_{jk}$ measures interaction strength relative to the combined effect of the two features. This does not necessarily show which interactions are strongest in absolute numbers. To do so, we can study unnormalized statistics:
 
-The strongest pairwise interaction (now on the scale of log(price)) remains the one between longitude and distance to the ocean:
+The strongest pairwise interaction remains the one above:
 
 ```r
 H2_jk(inter, normalize = FALSE, squared = FALSE, top_m = 5)
@@ -134,15 +134,17 @@ H2_jk(inter, normalize = FALSE, squared = FALSE, top_m = 5)
 
 ### Describe interactions
 
-Let's study stratified partial dependence plots (PDP) or 2D PDPs to see *how* interactions are looking (OCEAN_DIST groups of similar size):
+Let's study different plots to understand *how* interactions are looking:
+
+1. Stratified PDP
+2. Two-dimensional PDP
+3. Centered ICE plot with colors
 
 ```r
 plot(partial_dep(fit, v = "LONGITUDE", X = X_train, BY = "OCEAN_DIST"))
 ```
 
 ![](man/figures/pdp_long_ocean.svg)
-
-Or as heatmap:
 
 ```r
 pd <- partial_dep(fit, v = c("LONGITUDE", "OCEAN_DIST"), X = X_train, grid_size = 1000)
@@ -151,13 +153,26 @@ plot(pd)
 
 ![](man/figures/pdp_2d.png)
 
-In contrast, the following PDP shows perfectly parallel lines (additivity in living area):
+```r
+ic <- ice(fit, v = "LONGITUDE", X = X_train, BY = log(X_train[, "OCEAN_DIST"]))
+plot(ic, center = TRUE)
+```
+
+![](man/figures/ice.svg)
+
+In contrast, no interactions are visible for living area:
 
 ```r
 plot(partial_dep(fit, v = "TOT_LVG_AREA", X = X_train, BY = "OCEAN_DIST"))
 ```
 
 ![](man/figures/pdp_living_ocean.svg)
+
+```r
+plot(ice(fit, v = "TOT_LVG_AREA", X = X_train, BY = "OCEAN_DIST"))
+```
+
+![](man/figures/ice_parallel.svg)
 
 ### Variable importance
 
@@ -185,7 +200,8 @@ $$
 where $\boldsymbol x_{i\setminus s}$, $i = 1, \dots, n$, are the observed values of $\boldsymbol x_{\setminus s}$.
 
 A partial dependence plot (PDP) plots the values of $\hat F_s(\boldsymbol x_s)$
-over a grid of evaluation points $\boldsymbol x_s$.
+over a grid of evaluation points $\boldsymbol x_s$. Its disaggregated version is called
+*individual conditional expectation* (ICE), see [7].
 
 ### Interactions
 
@@ -310,3 +326,4 @@ It differs from $H^2_j$ only by not subtracting the main effect of the $j$-th fe
 *A Simple and Effective Model-Based Variable Importance Measure.* Arxiv (2018).
 5. Żółkowski, Artur, Mateusz Krzyziński, and Paweł Fijałkowski. *Methods for extraction of interactions from predictive models.* Undergraduate thesis. Faculty of Mathematics and Information Science, Warsaw University of Technology (2023).
 6. Molnar, Christoph, Giuseppe Casalicchio, and Bernd Bischl". *Quantifying Model Complexity via Functional Decomposition for Better Post-hoc Interpretability*, in Machine Learning and Knowledge Discovery in Databases, Springer International Publishing (2020): 193-204.
+7. Goldstein, Alex, Adam Kapelner, Justin Bleich, and Emil Pitkin. *Peeking inside the black box: Visualizing statistical learning with plots of individual conditional expectation.* Journal of Computational and Graphical Statistics, 24, no. 1 (2015): 44-65.

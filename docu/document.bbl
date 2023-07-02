@@ -4,6 +4,12 @@
 J.~H. Friedman, ``Greedy function approximation: A gradient boosting
   machine.,'' {\em Ann. Statist.}, vol.~29, pp.~1189--1232, 10 2001.
 
+\bibitem{goldstein2015}
+A.~Goldstein, A.~Kapelner, J.~Bleich, and E.~Pitkin, ``Peeking inside the black
+  box: Visualizing statistical learning with plots of individual conditional
+  expectation,'' {\em Journal of Computational and Graphical Statistics},
+  vol.~24, no.~1, pp.~44--65, 2015.
+
 \bibitem{friedman2008}
 J.~H. Friedman and B.~E. Popescu, ``Predictive learning via rule ensembles,''
   {\em The Annals of Applied Statistics}, vol.~2, no.~3, pp.~916--954, 2008.
