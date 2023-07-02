@@ -125,21 +125,23 @@ plot(inter)  # Or summary(inter) for numeric output
 2. The statistics need to repeatedly calculate predictions on $n^2$ rows. That is why {interactML} samples 300 rows by default. To get more robust results, increase this value at the price of slower run time.
 3. Pairwise Friedmans and Popescu's $H^2_{jk}$ measures interaction strength relative to the combined effect of the two features. This does not necessarily show which interactions are strongest in absolute numbers. To do so, we can study unnormalized statistics:
 
-The strongest pairwise interaction remains the one above:
-
 ```r
 H2_jk(inter, normalize = FALSE, squared = FALSE, top_m = 5)
 ```
+
+Since distance to the ocean and longitude have high values in $H^2_j$, it is not surprising that a strong relative pairwise interaction is translated into a strong absolute one.
 
 ![](man/figures/interact_pairwise.svg)
 
 ### Describe interactions
 
-Let's study different plots to understand *how* the strong interaction between distance to the ocean and longitude looks like. We will check the following three visualizations. They all reveal a substantial interaction between the to variables.
+Let's study different plots to understand *how* the strong interaction between distance to the ocean and longitude looks like. We will check the following three visualizations.
 
 1. Stratified PDP
 2. Two-dimensional PDP
 3. Centered ICE plot with colors
+
+They all reveal a substantial interaction between the two variables (which would actually make a lot of sense on a Miami map).
 
 ```r
 plot(partial_dep(fit, v = "LONGITUDE", X = X_train, BY = "OCEAN_DIST"))
