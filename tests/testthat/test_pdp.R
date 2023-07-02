@@ -275,7 +275,7 @@ test_that("Plots give 'ggplot' objects", {
   pd <- partial_dep(fit, v = c(v, "Petal.Length"), X = iris)
   expect_error(plot(pd))
   
-  # NOW multioutput
+  # Now multioutput
   fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
   
   # One v, no by, multivariate
