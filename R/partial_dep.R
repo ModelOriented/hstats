@@ -33,12 +33,12 @@
 #' @inheritParams multivariate_grid
 #' @param grid A vector (if `length(v) == 1L`), or a matrix/data.frame otherwise.
 #'   If `NULL`, calculated via [multivariate_grid()].
-#' @param BY Optional grouping vector or a single column name. The partial dependence
+#' @param BY Optional grouping vector or a column name. The partial dependence
 #'   function is calculated per `BY` group. Each `BY` group
 #'   uses the same evaluation grid to improve assessment of (non-)additivity.
 #'   Numeric `BY` variables with more than `by_size` disjoint values will be 
-#'   binned into `by_size` quantile groups of similar size. Binning is done after
-#'   optional subsampling of the data via `n_max`.
+#'   binned into `by_size` quantile groups of similar size. Subsampling of `X` is done
+#'   within group.
 #' @param by_size Numeric `BY` variables with more than `by_size` unique values will
 #'   be binned into quantile groups. Only relevant if `BY` is not `NULL`.
 #' @returns 
@@ -102,7 +102,7 @@ partial_dep.default <- function(object, v, X, pred_fun = stats::predict,
                                 w = NULL, ...) {
   basic_check(X = X, v = v, pred_fun = pred_fun, w = w)
   
-  # Prepare grid
+  # Care about grid
   if (is.null(grid)) {
     grid <- multivariate_grid(
       x = X[, v], grid_size = grid_size, trim = trim, strategy = strategy
@@ -111,44 +111,19 @@ partial_dep.default <- function(object, v, X, pred_fun = stats::predict,
     check_grid(g = grid, v = v, X_is_matrix = is.matrix(X))
   }
   
-  # Prepare by
+  # The function itself is called per BY group
   if (!is.null(BY)) {
     if (length(BY) == 1L && BY %in% colnames(X)) {
       by_name <- BY
       BY <- X[, by_name]
     } else {
-      stopifnot(
-        NCOL(BY) == 1L, 
-        is.vector(BY) || is.factor(BY)
-      )
-      by_name <- "Group"
+      by_name = "Group"
       if (length(BY) != nrow(X)) {
         stop("BY variable must have same length as X.")
       }
     }
-  } else {
-    by_name <- NULL
-  }
-  
-  # Reduce size of X (and w, and BY)
-  if (nrow(X) > n_max) {
-    ix <- sample(nrow(X), n_max)
-    X <- X[ix, , drop = FALSE]
-    if (!is.null(w)) {
-      w <- w[ix]
-    }
-    if (!is.null(BY)) {
-      BY <- BY[ix]
-    }
-  }
-  
-  # Calculations
-  if (is.null(BY)) {
-    pd <- pd_raw(
-      object = object, v = v, X = X, grid = grid, pred_fun = pred_fun, w = w, ...
-    )
-  } else {
-    # Bin BY (we do it after subsampling to n_max rows)
+    
+    # Binning
     by_values <- unique(BY)
     if (is.numeric(BY) && length(by_values) > by_size) {
       BY <- qcut(BY, m = by_size)
@@ -157,40 +132,62 @@ partial_dep.default <- function(object, v, X, pred_fun = stats::predict,
     
     pd_list <- stats::setNames(vector("list", length = length(by_values)), by_values)
     for (b in by_values) {
-      pd_list[[b]] <- pd_raw(
+      out <- partial_dep.default(
         object = object, 
         v = v, 
         X = X[BY %in% b, , drop = FALSE], 
-        grid = grid,
         pred_fun = pred_fun,
+        grid = grid,
+        n_max = n_max, 
         w = if (!is.null(w)) w[BY %in% b],
         ...
       )
+      pd_list[[b]] <- out[["pd"]]
     }
-    pd <- do.call(rbind, pd_list)
-    BY_rep <- rep(by_values, each = NROW(grid))
+    pd <- do.call(rbind, c(pd_list, list(make.row.names = FALSE)))
+    BY_rep <- rep(by_values, times = vapply(pd_list, nrow, FUN.VALUE = 1L))
     BY_rep <- stats::setNames(as.data.frame(BY_rep), by_name)
+    out[["pd"]] <- cbind.data.frame(BY_rep, pd)
+    out[["by_name"]] <- by_name
+    
+    return(structure(out, class = "partial_dep"))
   }
- 
-  # Fix column names of pd
+  
+  # Reduce size of X (and w)
+  if (nrow(X) > n_max) {
+    ix <- sample(nrow(X), n_max)
+    X <- X[ix, , drop = FALSE]
+    if (!is.null(w)) {
+      w <- w[ix]
+    }
+  }
+
+  # Calculations
+  pd <- pd_raw(
+    object = object, 
+    v = v, 
+    X = X, 
+    grid = grid,
+    pred_fun = pred_fun,
+    w = w,
+    compress_grid = FALSE,  # Almost always unique, so we save a check for uniqueness
+    ...
+  )
   K <- ncol(pd)
   if (is.null(colnames(pd))) {
     colnames(pd) <- if (K == 1L) "y" else paste0("y", seq_len(K))
   }
-  pred_names <- colnames(pd)
-  
-  # Turn grid into data.frame and combine it with predictions
   if (!is.data.frame(grid) && !is.matrix(grid)) {
     grid <- stats::setNames(as.data.frame(grid), v)
   }
-  pd <- cbind.data.frame(grid, pd)
   
-  # Add BY column to the end
-  if (!is.null(BY)) {
-    pd[by_name] <- BY_rep
-  }
-  
-  out <- list(pd = pd, v = v, K = K, pred_names = pred_names, by_name = by_name)
+  out <- list(
+    pd = cbind.data.frame(grid, pd),
+    v = v,
+    K = K,
+    pred_names = colnames(pd),
+    by_name = NULL
+  )
   return(structure(out, class = "partial_dep"))
 }
 

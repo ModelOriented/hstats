@@ -73,23 +73,21 @@ ice.default <- function(object, v, X, pred_fun = stats::predict,
     check_grid(g = grid, v = v, X_is_matrix = is.matrix(X))
   }
   
-  # Prepare by
+  # Prepare BY
   if (!is.null(BY)) {
     if (length(BY) <= 2L && all(BY %in% colnames(X))) {
       by_names <- BY
       BY <- X[, BY]
     } else {
-      stopifnot(
-        NROW(BY) == nrow(X), 
-        NCOL(BY) <= 2L
-      )
-      by_names <- colnames(BY)
-      if (is.null(by_names)) {
-        n_by <- NCOL(BY)
-        by_names <- if (n_by == 1L) "Group" else paste0("Group_", seq_len(n_by))
+      n_by <- NCOL(BY)
+      by_names = if (n_by == 1L) "Group" else paste0("Group_", seq_len(n_by))
+      if (NROW(BY) != nrow(X)) {
+        stop("BY variable(s) must have same length as X.")
       }
     }
-    BY <- stats::setNames(as.data.frame(BY), by_names)
+    if (!is.data.frame(BY)) {
+      BY <- as.data.frame(BY)
+    }
   } else {
     by_names <- NULL
   }
