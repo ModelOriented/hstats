@@ -134,7 +134,7 @@ H2_jk(inter, normalize = FALSE, squared = FALSE, top_m = 5)
 
 ### Describe interactions
 
-Let's study different plots to understand *how* the strong interaction between distance to the ocean and longitude looks like. We will check the following three visualizations:
+Let's study different plots to understand *how* the strong interaction between distance to the ocean and longitude looks like. We will check the following three visualizations. They all reveal a substantial interaction effect.
 
 1. Stratified PDP
 2. Two-dimensional PDP

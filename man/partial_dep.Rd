@@ -74,12 +74,12 @@ model \code{object}, its second argument a data structure like \code{X}. Additio
 \code{\link[stats:predict]{stats::predict()}}, will work in most cases. Note that column names in a resulting
 matrix of predictions will be used as default column names in the results.}
 
-\item{BY}{Optional grouping vector or a column name. The partial dependence
+\item{BY}{Optional grouping vector or a single column name. The partial dependence
 function is calculated per \code{BY} group. Each \code{BY} group
 uses the same evaluation grid to improve assessment of (non-)additivity.
 Numeric \code{BY} variables with more than \code{by_size} disjoint values will be
-binned into \code{by_size} quantile groups of similar size. Subsampling of \code{X} is done
-within group.}
+binned into \code{by_size} quantile groups of similar size. Binning is done after
+optional subsampling of the data via \code{n_max}.}
 
 \item{by_size}{Numeric \code{BY} variables with more than \code{by_size} unique values will
 be binned into quantile groups. Only relevant if \code{BY} is not \code{NULL}.}
