@@ -140,12 +140,12 @@ matrix of predictions will be used as default column names in the results.</p></
 
 
 <dt>BY</dt>
-<dd><p>Optional grouping vector or a single column name. The partial dependence
+<dd><p>Optional grouping vector or a column name. The partial dependence
 function is calculated per <code>BY</code> group. Each <code>BY</code> group
 uses the same evaluation grid to improve assessment of (non-)additivity.
 Numeric <code>BY</code> variables with more than <code>by_size</code> disjoint values will be
-binned into <code>by_size</code> quantile groups of similar size. Binning is done after
-optional subsampling of the data via <code>n_max</code>.</p></dd>
+binned into <code>by_size</code> quantile groups of similar size. Subsampling of <code>X</code> is done
+within group.</p></dd>
 
 
 <dt>by_size</dt>
@@ -274,10 +274,10 @@ Annals of Statistics 29, no. 5 (2001): 1189-1232.</p>
 <span class="r-in"><span><span class="va">pd</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Partial dependence object (126 rows). Extract via $pd. Top rows:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Petal.Width Petal.Length Sepal.Length Sepal.Width Species</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1         0.0            1     4.469355    3.177012  setosa</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2         0.5            1     4.677664    3.558038  setosa</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3         1.0            1     4.885973    3.939064  setosa</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Species Petal.Width Petal.Length Sepal.Length Sepal.Width</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  setosa         0.0            1     4.469355    3.177012</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  setosa         0.5            1     4.677664    3.558038</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3  setosa         1.0            1     4.885973    3.939064</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># MODEL 3: Gamma GLM -&gt; pass options to predict() via ...</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm</a></span><span class="op">(</span></span></span>
