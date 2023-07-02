@@ -128,7 +128,7 @@ test_that("partial_dep() with BY is same as stratified application", {
     partial_dep(fit1, v = "Sepal.Width", X = ir[[2L]], grid = g)$pd,
     partial_dep(fit1, v = "Sepal.Width", X = ir[[3L]], grid = g)$pd
   )
-  pd2 <- data.frame(Species = rep(unique(iris$Species), each = length(g)), pd2)
+  pd2 <- data.frame(pd2, Species = rep(unique(iris$Species), each = length(g)))
   expect_equal(pd1$pd, pd2)
   
   # Multioutput
@@ -140,16 +140,20 @@ test_that("partial_dep() with BY is same as stratified application", {
     partial_dep(fit2, v = "Petal.Width", X = ir[[2L]], grid = g)$pd,
     partial_dep(fit2, v = "Petal.Width", X = ir[[3L]], grid = g)$pd
   )
-  pd2 <- data.frame(Species = rep(unique(iris$Species), each = length(g)), pd2)
+  pd2 <- data.frame(pd2, Species = rep(unique(iris$Species), each = length(g)))
   expect_equal(pd1, pd2)
 })
 
 test_that("partial_dep() does subsampling", {
   set.seed(1L)
-  pd1 <- partial_dep(fit1, v = "Sepal.Width", X = iris, n_max = 10L, w = 1:150)
+  pd1 <- partial_dep(
+    fit1, v = "Sepal.Width", X = iris, n_max = 30L, w = 1:150, BY = "Petal.Width"
+  )
 
   set.seed(2L)
-  pd2 <- partial_dep(fit1, v = "Sepal.Width", X = iris, n_max = 10L, w = 1:150)
+  pd2 <- partial_dep(
+    fit1, v = "Sepal.Width", X = iris, n_max = 30L, w = 1:150, BY = "Petal.Width"
+  )
   
   expect_false(identical(pd1, pd2))
 })
@@ -218,7 +222,7 @@ test_that("partial_dep() reacts on non-constant weights", {
 test_that("partial_dep() works with vector BY or variable name BY", {
   pd1 <- partial_dep(fit1, v = "Sepal.Width", X = iris, BY = "Species")
   pd2 <- partial_dep(fit1, v = "Sepal.Width", X = iris, BY = iris$Species)
-  colnames(pd2$pd)[1L] <- "Species"
+  colnames(pd2$pd)[3L] <- "Species"
   expect_equal(pd1$pd, pd2$pd)
   expect_error(partial_dep(fit1, v = "Sepal.Width", X = iris, BY = iris$Species[1:10]))
 })
