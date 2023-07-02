@@ -202,7 +202,7 @@
 <div class="section level3">
 <h3 id="describe-interactions">Describe interactions<a class="anchor" aria-label="anchor" href="#describe-interactions"></a>
 </h3>
-<p>Let’s study different plots to understand <em>how</em> interactions are looking:</p>
+<p>Let’s study different plots to understand <em>how</em> the strong interaction between distance to the ocean and longitude looks like. We will check the following three visualizations:</p>
 <ol style="list-style-type: decimal">
 <li>Stratified PDP</li>
 <li>Two-dimensional PDP</li>
@@ -336,7 +336,7 @@ $$</span></p>
 <p><span class="math display"><em>F</em>(<strong>x</strong>) = <em>F</em><sub>\<em>j</em></sub>(<strong>x</strong><sub>\<em>j</em></sub>).</span></p>
 <p>Therefore, the following measure of variable importance follows:</p>
 <p><span class="math display">$$
-    \text{Imp}_{j} = \frac{\frac{1}{n} \sum_{i = 1}^n\big[F(\boldsymbol x_i) - \hat F_{\setminus j}(\boldsymbol x_{i\setminus j})\big]^2}{\frac{1}{n} \sum_{i = 1}^n\big[F(\boldsymbol x_i)\big]^2}.
+    Imp_{j} = \frac{\frac{1}{n} \sum_{i = 1}^n\big[F(\boldsymbol x_i) - \hat F_{\setminus j}(\boldsymbol x_{i\setminus j})\big]^2}{\frac{1}{n} \sum_{i = 1}^n\big[F(\boldsymbol x_i)\big]^2}.
 $$</span></p>
 <p>It differs from <span class="math inline"><em>H</em><sub><em>j</em></sub><sup>2</sup></span> only by not subtracting the main effect of the <span class="math inline"><em>j</em></span>-th feature in the numerator. It can be read as the proportion of prediction variability unexplained by all other features. As such, it measures variable importance of the <span class="math inline"><em>j</em></span>-th feature, including its interaction effects.</p>
 </div>
