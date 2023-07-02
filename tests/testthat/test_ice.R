@@ -6,6 +6,7 @@ test_that("ice() returns same as partial_dep() for one row", {
   ic <- ice(fit1, v = "Species", X = iris[1L, ])$ice_curves[2:3]
   pd <- partial_dep(fit1, v = "Species", X = iris[1L, ])$pd
   expect_equal(ic, pd)
+  capture_output(expect_no_error(print(ic)))
 })
 
 test_that("ice() returns the same values as ice_raw()", {
@@ -136,9 +137,19 @@ test_that("Plots give 'ggplot' objects", {
   # One v, no by, univariate
   expect_s3_class(plot(ice(fit, v = "Species", X = iris2)), "ggplot")
   
+  # Two v give error
+  ic <- ice(fit, v = c("Species", "Petal.Width"), X = iris2)
+  expect_error(plot(ic))
+  
   # One v, one by, univariate
   expect_s3_class(
     plot(ice(fit, v = "Species", X = iris2, BY = "Petal.Width")), 
+    "ggplot"
+  )
+  
+  # Centered
+  expect_s3_class(
+    plot(ice(fit, v = "Species", X = iris2, BY = "Petal.Width"), center = TRUE), 
     "ggplot"
   )
   
@@ -148,12 +159,18 @@ test_that("Plots give 'ggplot' objects", {
     "ggplot"
   )
   
-  # NOW multioutput
+  # Now multioutput
   fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
   
   # One v, no by, multivariate
   expect_s3_class(
     plot(ice(fit, v = "Species", X = iris2), color = "red"), 
+    "ggplot"
+  )
+  
+  # Same centered
+  expect_s3_class(
+    plot(ice(fit, v = "Species", X = iris2), center = TRUE), 
     "ggplot"
   )
   

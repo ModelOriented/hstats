@@ -35,6 +35,8 @@ jobs:
             function_exclusions = c(
               "partial_dep\\.Learner",
               "partial_dep\\.ranger",
+              "ice\\.Learner",
+              "ice\\.ranger",
               "interact\\.Learner",
               "interact\\.ranger"
             )
