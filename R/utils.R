@@ -1,5 +1,5 @@
 # Fix undefined global variable note
-utils::globalVariables(c("varying_", "value_", "id_", "variable_"))
+utils::globalVariables(c("varying_", "value_", "id_", "variable_", "obs_"))
 
 #' Aligns Predictions
 #' 
@@ -326,30 +326,4 @@ rotate_x_labs <- function() {
   ggplot2::theme(
     axis.text.x = ggplot2::element_text(angle = 45, hjust = 1, vjust = 1)
   )
-}
-
-#' Aligns BY
-#' 
-#' @noRd
-#' @keywords internal
-#' 
-#' @param BY A vector (or NULL).
-#' @param X A data.frame or matrix.
-#' 
-#' @returns A list with BY vector and by_name.
-make_and_check_by <- function(BY, X) {
-  if (!is.null(BY)) {
-    if (length(BY) == 1L && BY %in% colnames(X)) {
-      by_name <- BY
-      BY <- X[, by_name]
-    } else {
-      by_name = "Group"
-      if (length(BY) != nrow(X)) {
-        stop("BY variable must have same length as X.")
-      }
-    }
-  } else {
-    by_name <- NULL
-  }
-  return(list(BY = BY, by_name = by_name))
 }

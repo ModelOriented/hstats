@@ -97,7 +97,7 @@ H2_jk.interact <- function(object, normalize = TRUE, squared = TRUE, sort = TRUE
     return(NULL)
   }
   
-  # Note that F_jk are in the same order as combn
+  # Note that F_jk are in the same order as combs
   num <- denom <- with(
     object,
     matrix(

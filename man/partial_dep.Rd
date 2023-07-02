@@ -109,7 +109,7 @@ An object of class "partial_dep" containing these elements:
 \item \code{v}: Same as input \code{v}.
 \item \code{K}: Number of columns of prediction matrix.
 \item \code{pred_names}: Column names of prediction matrix.
-\item \code{BY}: Column name of grouping variable (or \code{NULL}).
+\item \code{by_name}: Column name of grouping variable (or \code{NULL}).
 }
 }
 \description{
@@ -159,7 +159,7 @@ fit <- lm(Sepal.Length ~ . + Species * Petal.Length, data = iris)
 (pd <- partial_dep(fit, v = "Species", X = iris))
 plot(pd)
 
-# Stratified by numeric BY variable (which is automatically binned)
+# Stratified by BY variable (numerics are automatically binned)
 pd <- partial_dep(fit, v = "Species", X = iris, BY = "Petal.Length")
 plot(pd)
 

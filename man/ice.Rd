@@ -68,7 +68,11 @@ model \code{object}, its second argument a data structure like \code{X}. Additio
 \code{\link[stats:predict]{stats::predict()}}, will work in most cases. Note that column names in a resulting
 matrix of predictions will be used as default column names in the results.}
 
-\item{BY}{Optional grouping vector or a column name.}
+\item{BY}{Optional grouping vector/matrix/data.frame (up to two columns),
+or up to two column names. Unlike with \code{\link[=partial_dep]{partial_dep()}}, these variables are not
+binned. The first variable is visualized on the color scale, while the second
+one goes into a \code{facet_wrap()}. Thus, make sure that the second variable is
+discrete.}
 
 \item{grid}{A vector (if \code{length(v) == 1L}), or a matrix/data.frame otherwise.
 If \code{NULL}, calculated via \code{\link[=multivariate_grid]{multivariate_grid()}}.}
@@ -94,13 +98,12 @@ An object of class "ice" containing these elements:
 \item \code{v}: Same as input \code{v}.
 \item \code{K}: Number of columns of prediction matrix.
 \item \code{pred_names}: Column names of prediction matrix.
-\item \code{BY}: Column name of grouping variable (or \code{NULL}).
+\item \code{by_names}: Column name(s) of grouping variable(s) (or \code{NULL}).
 }
 }
 \description{
-Estimates the partial dependence function of feature(s) \code{v} over a
-grid of values. Both multivariate and multivariable situations are supported.
-By default, the resulting values are plotted.
+Disaggregated partial dependencies, see reference. The plot method supports
+up to two grouping variables via \code{BY}.
 }
 \section{Methods (by class)}{
 \itemize{
@@ -114,10 +117,16 @@ By default, the resulting values are plotted.
 \examples{
 # MODEL 1: Linear regression
 fit <- lm(Sepal.Length ~ . + Species * Petal.Length, data = iris)
-plot(ice(fit, v = "Species", X = iris))
+plot(ice(fit, v = "Sepal.Width", X = iris))
 
-# Stratified by numeric BY variable
+# Stratified by one variable
 ic <- ice(fit, v = "Petal.Length", X = iris, BY = "Species")
+ic
+plot(ic)
+plot(ic, center = TRUE)
+
+# Stratified by two variables (the second one goes into facets)
+ic <- ice(fit, v = "Petal.Length", X = iris, BY = c("Petal.Width", "Species"))
 plot(ic)
 plot(ic, center = TRUE)
 
@@ -137,8 +146,7 @@ plot(ice(fit, v = "Petal.Length", X = iris, BY = "Species"))
 plot(ice(fit, v = "Petal.Length", X = iris, type = "response", BY = "Species"))
 }
 \references{
-Goldstein, A. et al. (2015). Peeking inside the black box: Visualizing statistical
-learning with plots of individual conditional expectation.
-Journal of Computational and Graphical Statistics, 24:1
-<doi.org/10.1080/10618600.2014.907095>.
+Goldstein, Alex, and Adam Kapelner and Justin Bleich and Emil Pitkin.
+\emph{Peeking inside the black box: Visualizing statistical learning with plots of individual conditional expectation.}
+Journal of Computational and Graphical Statistics, 24, no. 1 (2015): 44-65.
 }

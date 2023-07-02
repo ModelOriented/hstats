@@ -10,7 +10,7 @@
   alpha = 0.2,
   rotate_x = FALSE,
   color = "#2b51a1",
-  facet_scales = "free_y",
+  facet_scales = "fixed",
   ...
 )
 }

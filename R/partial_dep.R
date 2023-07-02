@@ -47,7 +47,7 @@
 #'   - `v`: Same as input `v`.
 #'   - `K`: Number of columns of prediction matrix.
 #'   - `pred_names`: Column names of prediction matrix.
-#'   - `BY`: Column name of grouping variable (or `NULL`).
+#'   - `by_name`: Column name of grouping variable (or `NULL`).
 #' @references
 #'   Friedman, Jerome H. *"Greedy Function Approximation: A Gradient Boosting Machine."* 
 #'     Annals of Statistics 29, no. 5 (2001): 1189-1232.
@@ -58,7 +58,7 @@
 #' (pd <- partial_dep(fit, v = "Species", X = iris))
 #' plot(pd)
 #' 
-#' # Stratified by numeric BY variable (which is automatically binned)
+#' # Stratified by BY variable (numerics are automatically binned)
 #' pd <- partial_dep(fit, v = "Species", X = iris, BY = "Petal.Length")
 #' plot(pd)
 #' 
@@ -101,14 +101,29 @@ partial_dep.default <- function(object, v, X, pred_fun = stats::predict,
                                 strategy = c("uniform", "quantile"), n_max = 1000L, 
                                 w = NULL, ...) {
   basic_check(X = X, v = v, pred_fun = pred_fun, w = w)
-  grid <- make_or_check_grid(
-    v = v, X = X, grid = grid, grid_size = grid_size, trim = trim, strategy = strategy
-  )
+  
+  # Care about grid
+  if (is.null(grid)) {
+    grid <- multivariate_grid(
+      x = X[, v], grid_size = grid_size, trim = trim, strategy = strategy
+    )
+  } else {
+    check_grid(g = grid, v = v, X_is_matrix = is.matrix(X))
+  }
+  
+  # The function itself is called per BY group
   if (!is.null(BY)) {
-    by_out <- make_and_check_by(BY, X = X)
-    BY <- by_out[["BY"]]
-    by_name <- by_out[["by_name"]]
-
+    if (length(BY) == 1L && BY %in% colnames(X)) {
+      by_name <- BY
+      BY <- X[, by_name]
+    } else {
+      by_name = "Group"
+      if (length(BY) != nrow(X)) {
+        stop("BY variable must have same length as X.")
+      }
+    }
+    
+    # Binning
     by_values <- unique(BY)
     if (is.numeric(BY) && length(by_values) > by_size) {
       BY <- qcut(BY, m = by_size)
@@ -134,6 +149,7 @@ partial_dep.default <- function(object, v, X, pred_fun = stats::predict,
     BY_rep <- stats::setNames(as.data.frame(BY_rep), by_name)
     out[["pd"]] <- cbind.data.frame(BY_rep, pd)
     out[["by_name"]] <- by_name
+    
     return(structure(out, class = "partial_dep"))
   }
   
@@ -236,8 +252,7 @@ partial_dep.Learner <- function(object, v, X,
 #' @export
 #' @seealso See [partial_dep()] for examples.
 print.partial_dep <- function(x, n = 3L, ...) {
-  cat("Partial dependence object (", nrow(x[["pd"]]), " rows). 
-      Extract via $pd. Top rows:\n\n", sep = "")
+  cat("Partial dependence object (", nrow(x[["pd"]]), " rows). Extract via $pd. Top rows:\n\n", sep = "")
   print(utils::head(x[["pd"]], n))
   invisible(x)
 }
@@ -258,7 +273,7 @@ print.partial_dep <- function(x, n = 3L, ...) {
 #' @returns An object of class "ggplot".
 #' @seealso See [partial_dep()] for examples.
 plot.partial_dep <- function(x, rotate_x = FALSE, color = "#2b51a1", 
-                             facet_scales = "free_y", show_points = FALSE, ...) {
+                             facet_scales = "free_y", show_points = TRUE, ...) {
   v <- x[["v"]]
   by_name <- x[["by_name"]]
   K <- x[["K"]]
@@ -266,7 +281,7 @@ plot.partial_dep <- function(x, rotate_x = FALSE, color = "#2b51a1",
     stop("Maximal two features can be plotted.")
   }
   if ((K > 1L) + (!is.null(by_name)) + length(v) > 3L) {
-    stop("No plot implemented in this case.")
+    stop("No plot implemented for this case.")
   }
   data <- with(x, poor_man_stack(pd, to_stack = pred_names))
   
@@ -303,10 +318,9 @@ plot.partial_dep <- function(x, rotate_x = FALSE, color = "#2b51a1",
       ggplot2::geom_tile(...) +
       ggplot2::labs(fill = "PD")
     
-    if (K > 1L) {
-      p <- p + ggplot2::facet_wrap(~ varying_, scales = facet_scales)
-    } else if (!is.null(by_name)) {
-      p <- p + ggplot2::facet_wrap(by_name, scales = facet_scales)
+    if (K > 1L || !is.null(by_name)) {  # Only one is possible
+      wrp <- if (K > 1L) "varying_" else by_name
+      p <- p + ggplot2::facet_wrap(wrp, scales = facet_scales)
     }
   }
   if (rotate_x) p + rotate_x_labs() else p

@@ -56,7 +56,8 @@ pd_raw <- function(object, v, X, grid, pred_fun = stats::predict,
 #'   but replicated over `X`).
 #' @returns 
 #'   Either a matrix of predictions or a list with predictions and grid.
-ice_raw <- function(object, v, X, grid, pred_fun, pred_only = TRUE, ...) {
+ice_raw <- function(object, v, X, grid, pred_fun = stats::predict, 
+                    pred_only = TRUE, ...) {
   D1 <- length(v) == 1L
   n <- nrow(X)
   n_grid <- NROW(grid)

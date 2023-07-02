@@ -234,13 +234,6 @@ test_that("partial_dep() gives same answer on example as iml 0.11.1", {
   expect_equal(iml_sw, pd2$y, tolerance = 0.001)
 })
 
-test_that("partial_dep() works with vector BY or variable name BY", {
-  pd1 <- partial_dep(fit1, v = "Sepal.Width", X = iris, BY = "Species")$pd
-  pd2 <- partial_dep(fit1, v = "Sepal.Width", X = iris, BY = iris$Species)$pd
-  colnames(pd2)[1L] <- "Species"
-  expect_equal(pd1, pd2)
-})
-
 test_that("partial_dep() works on matrices and dfs", {
   X <- data.matrix(iris[1:4])
   fitdf <- lm(Sepal.Length ~ Sepal.Width + Petal.Width + Petal.Length, data = iris)
@@ -274,7 +267,7 @@ test_that("Plots give 'ggplot' objects", {
   
   # Two v, with by, univariate
   expect_s3_class(
-    plot(partial_dep(fit, v = v, X = iris, BY = "Petal.Width")), 
+    plot(partial_dep(fit, v = v, X = iris, BY = "Petal.Width"), show_points = FALSE), 
     "ggplot"
   )
   

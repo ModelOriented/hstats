@@ -1,11 +1,14 @@
 #' Individual Conditional Expectations
 #'
-#' Estimates the partial dependence function of feature(s) `v` over a
-#' grid of values. Both multivariate and multivariable situations are supported.
-#' By default, the resulting values are plotted.
+#' Disaggregated partial dependencies, see reference. The plot method supports
+#' up to two grouping variables via `BY`.
 #'
 #' @inheritParams partial_dep
-#' @param BY Optional grouping vector or a column name.
+#' @param BY Optional grouping vector/matrix/data.frame (up to two columns), 
+#'   or up to two column names. Unlike with [partial_dep()], these variables are not
+#'   binned. The first variable is visualized on the color scale, while the second
+#'   one goes into a `facet_wrap()`. Thus, make sure that the second variable is
+#'   discrete.
 #' @returns
 #'   An object of class "ice" containing these elements:
 #'   - `ice_curves`: data.frame containing the ice values.
@@ -13,23 +16,28 @@
 #'   - `v`: Same as input `v`.
 #'   - `K`: Number of columns of prediction matrix.
 #'   - `pred_names`: Column names of prediction matrix.
-#'   - `BY`: Column name of grouping variable (or `NULL`).
+#'   - `by_names`: Column name(s) of grouping variable(s) (or `NULL`).
 #' @references
-#'   Goldstein, A. et al. (2015). Peeking inside the black box: Visualizing statistical
-#'     learning with plots of individual conditional expectation.
-#'     Journal of Computational and Graphical Statistics, 24:1
-#'     <doi.org/10.1080/10618600.2014.907095>.
+#'   Goldstein, Alex, and Adam Kapelner and Justin Bleich and Emil Pitkin.
+#'     *Peeking inside the black box: Visualizing statistical learning with plots of individual conditional expectation.*
+#'     Journal of Computational and Graphical Statistics, 24, no. 1 (2015): 44-65.
 #' @export
 #' @examples
 #' # MODEL 1: Linear regression
 #' fit <- lm(Sepal.Length ~ . + Species * Petal.Length, data = iris)
-#' plot(ice(fit, v = "Species", X = iris))
+#' plot(ice(fit, v = "Sepal.Width", X = iris))
 #'
-#' # Stratified by numeric BY variable
+#' # Stratified by one variable
 #' ic <- ice(fit, v = "Petal.Length", X = iris, BY = "Species")
+#' ic
 #' plot(ic)
 #' plot(ic, center = TRUE)
-#'
+#' 
+#' # Stratified by two variables (the second one goes into facets)
+#' ic <- ice(fit, v = "Petal.Length", X = iris, BY = c("Petal.Width", "Species"))
+#' plot(ic)
+#' plot(ic, center = TRUE)
+#' 
 #' # MODEL 2: Multi-response linear regression
 #' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
 #' ic <- ice(fit, v = "Petal.Width", X = iris, BY = iris$Species)
@@ -55,19 +63,41 @@ ice.default <- function(object, v, X, pred_fun = stats::predict,
                         trim = c(0.01, 0.99),
                         strategy = c("uniform", "quantile"), n_max = 100L, ...) {
   basic_check(X = X, v = v, pred_fun = pred_fun)
-  grid <- make_or_check_grid(
-    v = v, X = X, grid = grid, grid_size = grid_size, trim = trim, strategy = strategy
-  )
-  by_out <- make_and_check_by(BY, X = X)
-  BY <- by_out[["BY"]]
-  by_name <- by_out[["by_name"]]
+  
+  # Prepare grid
+  if (is.null(grid)) {
+    grid <- multivariate_grid(
+      x = X[, v], grid_size = grid_size, trim = trim, strategy = strategy
+    )
+  } else {
+    check_grid(g = grid, v = v, X_is_matrix = is.matrix(X))
+  }
+  
+  # Prepare BY
+  if (!is.null(BY)) {
+    if (length(BY) <= 2L && all(BY %in% colnames(X))) {
+      by_names <- BY
+      BY <- X[, BY]
+    } else {
+      n_by <- NCOL(BY)
+      by_names = if (n_by == 1L) "Group" else paste0("Group_", seq_len(n_by))
+      if (NROW(BY) != nrow(X)) {
+        stop("BY variable(s) must have same length as X.")
+      }
+    }
+    if (!is.data.frame(BY)) {
+      BY <- as.data.frame(BY)
+    }
+  } else {
+    by_names <- NULL
+  }
   
   # Reduce size of X (and w)
   if (nrow(X) > n_max) {
     ix <- sample(nrow(X), n_max)
     X <- X[ix, , drop = FALSE]
     if (!is.null(BY)) {
-      BY <- BY[ix]
+      BY <- BY[ix, , drop = FALSE]
     }
   }
 
@@ -86,16 +116,16 @@ ice.default <- function(object, v, X, pred_fun = stats::predict,
   }
   ice_curves <- cbind.data.frame(obs_ = seq_len(nrow(X)), grid_pred, pred)
   if (!is.null(BY)) {
-    BY <- stats::setNames(as.data.frame(BY), by_name)
-    ice_curves <- cbind.data.frame(BY, ice_curves)
+    ice_curves[by_names] <- BY[rep(seq_len(nrow(BY)), times = NROW(grid)), ]
   }
+  row.names(ice_curves) <- NULL  # could be solved before
   out <- list(
     ice_curves = ice_curves,
     grid = grid,
     v = v, 
     K = K,
     pred_names = pred_names, 
-    by_name = by_name
+    by_names = by_names
   )
   return(structure(out, class = "ice"))
 }
@@ -154,8 +184,7 @@ ice.Learner <- function(object, v, X,
 #' @export
 #' @seealso See [ice()] for examples.
 print.ice <- function(x, n = 3L, ...) {
-  cat("'ice' object (", nrow(x[["ice_curves"]]), " rows).
-      Extract via $ice_curves. Top rows:\n\n", sep = "")
+  cat("'ice' object (", nrow(x[["ice_curves"]]), " rows). Extract via $ice_curves. Top rows:\n\n", sep = "")
   print(utils::head(x[["ice_curves"]], n))
   invisible(x)
 }
@@ -173,13 +202,18 @@ print.ice <- function(x, n = 3L, ...) {
 #' @returns An object of class "ggplot".
 #' @seealso See [ice()] for examples.
 plot.ice <- function(x, center = FALSE, alpha = 0.2, rotate_x = FALSE, 
-                     color = "#2b51a1", facet_scales = "free_y", ...) {
+                     color = "#2b51a1", facet_scales = "fixed", ...) {
   v <- x[["v"]]
+  K <- x[["K"]]
   ice_curves <- x[["ice_curves"]]
   pred_names <- x[["pred_names"]]
+  by_names <- x[["by_names"]]
   
   if (length(v) > 1L) {
-    stop("Maximal one feature can be plotted.")
+    stop("Maximal one feature v can be plotted.")
+  }
+  if ((K > 1L) + length(by_names) > 2L) {
+    stop("Two BY variables and multivariate output has no plot method yet.")
   }
   if (center) {
     pos <- trunc((NROW(x[["grid"]]) + 1) / 2)
@@ -193,20 +227,19 @@ plot.ice <- function(x, center = FALSE, alpha = 0.2, rotate_x = FALSE,
   p <- ggplot2::ggplot(data, ggplot2::aes(x = .data[[v]], y = value_, group = obs_)) +
     ggplot2::labs(x = v, y = if (center) "Centered ICE" else "ICE")
 
-  by_name <- x[["by_name"]]
-  if (is.null(by_name)) {
-    p <- p +
-      ggplot2::geom_line(color = color, alpha = alpha, ...)
+  if (is.null(by_names)) {
+    p <- p + ggplot2::geom_line(color = color, alpha = alpha, ...)
   } else {
     p <- p +
       ggplot2::geom_line(
-        ggplot2::aes(color = .data[[by_name]]), alpha = alpha, ...
+        ggplot2::aes(color = .data[[by_names[1L]]]), alpha = alpha, ...
       ) +
-      ggplot2::labs(color = by_name) + 
+      ggplot2::labs(color = by_names[1L]) + 
       ggplot2::guides(color = ggplot2::guide_legend(override.aes = list(alpha = 1)))
   }
-  if (x[["K"]] > 1L) {
-    p <- p + ggplot2::facet_wrap(~ varying_, scales = facet_scales)
+  if (K > 1L || length(by_names) == 2L) {  # Only one is possible
+    wrp <- if (K > 1L) "varying_" else by_names[2L]
+    p <- p + ggplot2::facet_wrap(wrp, scales = facet_scales)
   }
   if (rotate_x) p + rotate_x_labs() else p
 }

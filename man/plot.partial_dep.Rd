@@ -9,7 +9,7 @@
   rotate_x = FALSE,
   color = "#2b51a1",
   facet_scales = "free_y",
-  show_points = FALSE,
+  show_points = TRUE,
   ...
 )
 }

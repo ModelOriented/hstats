@@ -123,24 +123,3 @@ check_grid <- function(g, v, X_is_matrix) {
   }
   TRUE
 }
-
-#' Makes or Checks Grid
-#' 
-#' Creates grid (if `NULL`) or checks consistency with X and v.
-#' 
-#' @noRd
-#' @keywords internal
-#' 
-#' @inheritParams partial_dep
-#' @returns A grid or an error message.
-make_or_check_grid <- function(v, X, grid, grid_size, trim, strategy) {
-  if (is.null(grid)) {
-    grid <- multivariate_grid(
-      x = X[, v], grid_size = grid_size, trim = trim, strategy = strategy
-    )
-  } else {
-    check_grid(g = grid, v = v, X_is_matrix = is.matrix(X))
-  }
-  grid
-}
-
