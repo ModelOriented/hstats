@@ -119,10 +119,12 @@ partial_dep.default <- function(object, v, X, pred_fun = stats::predict,
     } else {
       stopifnot(
         NCOL(BY) == 1L, 
-        is.vector(BY) || is.factor(BY),
-        length(BY) == nrow(X)
+        is.vector(BY) || is.factor(BY)
       )
       by_name <- "Group"
+      if (length(BY) != nrow(X)) {
+        stop("BY variable must have same length as X.")
+      }
     }
   } else {
     by_name <- NULL
