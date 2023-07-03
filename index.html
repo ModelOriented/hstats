@@ -91,7 +91,7 @@
 </h2>
 <p><strong>What makes a ML model black-box? It’s the interactions!</strong></p>
 <p>This package helps to <strong>quantify</strong> their strength via statistics of Friedman and Popescu [1], and to <strong>describe</strong> them via partial dependence plots [2] and individual conditional expectation plots [7].</p>
-<p>All functions</p>
+<p>The main functions <code><a href="reference/interact.html">interact()</a></code>, <code><a href="reference/partial_dep.html">partial_dep()</a></code>, and <code><a href="reference/ice.html">ice()</a></code></p>
 <ul>
 <li>work for <strong>any model</strong>,</li>
 <li>are <strong>fast</strong>,</li>
@@ -100,6 +100,7 @@
 <li>work with both data.frames and matrices (e.g., for XGBoost).</li>
 </ul>
 <p>Furthermore, different variants of the original statistics in [1] are available.</p>
+<p>DALEX explainers, meta learners (mlr3, tidymodels, caret) and most other models work out-of-the box. In case you need more flexibility, a prediction function <code>pred_fun()</code> can be passed to any of the main functions.</p>
 </div>
 <div class="section level2">
 <h2 id="landscape">Landscape<a class="anchor" aria-label="anchor" href="#landscape"></a>
@@ -250,6 +251,32 @@
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/pd_importance.html">pd_importance</a></span><span class="op">(</span><span class="va">inter</span><span class="op">)</span></span></code></pre></div>
 <p><img src="reference/figures/importance.svg"></p>
+</div>
+<div class="section level3">
+<h3 id="dalex">DALEX<a class="anchor" aria-label="anchor" href="#dalex"></a>
+</h3>
+<p>The main functions work smoothly on DALEX explainers):</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://modeloriented.github.io/DALEX/" class="external-link">DALEX</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/imbs-hl/ranger" class="external-link">ranger</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/mayer79/interactML" class="external-link">interactML</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">ranger</span><span class="op">(</span><span class="va">Sepal.Length</span> <span class="op">~</span> <span class="va">.</span>, data <span class="op">=</span> <span class="va">iris</span><span class="op">)</span></span>
+<span><span class="va">ex</span> <span class="op">&lt;-</span> <span class="fu">explain</span><span class="op">(</span><span class="va">fit</span>, data <span class="op">=</span> <span class="va">iris</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span><span class="op">]</span>, y <span class="op">=</span> <span class="va">iris</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">inter</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/interact.html">interact</a></span><span class="op">(</span><span class="va">ex</span><span class="op">)</span></span>
+<span><span class="va">inter</span>  <span class="co"># Non-additivity index 0.054</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">inter</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Strongest relative interaction</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="reference/ice.html">ice</a></span><span class="op">(</span><span class="va">ex</span>, v <span class="op">=</span> <span class="st">"Sepal.Width"</span>, BY <span class="op">=</span> <span class="st">"Petal.Width"</span><span class="op">)</span>, center <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="reference/partial_dep.html">partial_dep</a></span><span class="op">(</span><span class="va">ex</span>, v <span class="op">=</span> <span class="st">"Sepal.Width"</span>, BY <span class="op">=</span> <span class="st">"Petal.Width"</span><span class="op">)</span>, show_points <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="reference/partial_dep.html">partial_dep</a></span><span class="op">(</span><span class="va">ex</span>, v <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Sepal.Width"</span>, <span class="st">"Petal.Width"</span><span class="op">)</span>, grid_size <span class="op">=</span> <span class="fl">200</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p><img src="reference/figures/dalex_inter.svg"></p>
+<p>Strongest relative interaction shown as ICE plot.</p>
+<p><img src="reference/figures/dalex_ice.svg"></p>
 </div>
 </div>
 <div class="section level2">
