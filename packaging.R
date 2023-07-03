@@ -20,8 +20,8 @@ use_description(
     introduced in Friedman, J.H. and Popescu, B.E. (2008) <doi:10.1214/07-AOAS148>.
     The package supports multivariate predictions and can deal with case weights. 
     Furthermore, different variants of the original statistics are provided.
-    The shape of the interactions can be investigated by stratified or two-dimensional
-    partial dependence plots.",
+    The shape of the interactions can be investigated by partial dependence plots
+    and individual conditional expectations.",
     `Authors@R` = 
     "person('Michael', family='Mayer', role=c('aut', 'cre'), email='mayermichael79@gmail.com')",
     Depends = "R (>= 3.2.0)",

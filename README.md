@@ -16,21 +16,28 @@
 
 **What makes a ML model black-box? It's the interactions!**
 
-This package helps to
-
-1. **quantify** their strength via statistics of Friedman and Popescu [1], and to
-2. **describe** them via partial dependence plots (PDP) [2], or individual conditional expectation plots (ICE) [7].
+This package helps to **quantify** their strength via statistics of Friedman and Popescu [1], and to **describe** them via partial dependence plots [2] and individual conditional expectation plots [7].
 
 All functions
 
-- are comparably fast,
-- support multivariate predictions,
+- work for **any model**,
+- are **fast**,
+- support multivariate predictions (e.g., probabilistic classification),
 - respect case weights, and
 - work with both data.frames and matrices (e.g., for XGBoost).
 
 Furthermore, different variants of the original statistics in [1] are available.
 
-Note: The {gbm} package offers a model-specific implementation of some of the statistics. Since it uses the weighted tree-traversal method of [2] to estimate partial dependence functions, the results are typically slightly different.
+## Landscape
+
+{interactML} is not the first package to explore interactions. Here is an incomplete selection:
+
+- [{gbm}](https://CRAN.R-project.org/package=gbm): Implementation of m-wise interaction statistics of [1] for {gbm} models using the weighted tree-traversal method of [2] to estimate partial dependence functions.
+- [{iml}](https://CRAN.R-project.org/package=iml): Variant of pairwise interaction statistics of [1].
+- [{EIX}](https://CRAN.R-project.org/package=EIX): Interaction statistics extracted from the tree structure of XGBoost and LightGBM.
+- [{randomForestExplainer}](https://CRAN.R-project.org/package=randomForestExplainer): Interaction statistics extracted from the tree structure of random forests.
+- [{vivid}](https://CRAN.R-project.org/package=vivid): Cool visualization of interaction patterns. Partly based on {flashlight}.
+- [{flashlight}](https://CRAN.R-project.org/package=flashlight): Model-agnostic implementation of some statistics of [1]. Planned to switch to the much faster {interactML}.
 
 ## Installation
 
@@ -42,7 +49,7 @@ devtools::install_github("mayer79/interactML")
 
 To demonstrate the typical workflow, we use a beautiful house price dataset with about 14,000 transactions from Miami-Dade County available in the {shapviz} package, and analyzed in [3]. 
 
-We are going to model logarithmic sales prices as a function of geographic features and other features like living area and building age. The model is fitted with XGBoost using interaction constraints to produce a model additive in all non-geographic features.
+We are going to model logarithmic sales prices as a function of geographic features and other features like living area and building age. The model is fitted with XGBoost using interaction constraints to produce a model additive in all non-geographic features for maximal interpretability.
 
 What can we say about interactions? Can we verify additivity in non-geographic features?
 
@@ -118,6 +125,7 @@ plot(inter)  # Or summary(inter) for numeric output
 - About 10% of prediction variability is unexplained by the sum of all main effects. The interaction effects seem to be quite important.
 - The strongest overall interactions are associated with "OCEAN_DIST": About 6% of prediction variability can be attributed to its interactions.
 - About 15.6% of the joint effect variability of OCEAN_DIST and LONGITUDE comes from their pairwise interaction.
+- As desired, non-geographic features do not show any interactions.
 
 **Remarks**
 
