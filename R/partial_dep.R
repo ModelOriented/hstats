@@ -236,6 +236,31 @@ partial_dep.Learner <- function(object, v, X,
   )
 }
 
+#' @describeIn partial_dep Method for DALEX "explainer".
+#' @export
+partial_dep.explainer <- function(object, v, X = object[["data"]], 
+                                  pred_fun = object[["predict_function"]],
+                                  BY = NULL, by_size = 5L, grid = NULL, grid_size = 49L, 
+                                  trim = c(0.01, 0.99), 
+                                  strategy = c("uniform", "quantile"), n_max = 1000L, 
+                                  w = object[["weights"]], ...) {
+  partial_dep.default(
+    object = object[["model"]],
+    v = v,
+    X = X,
+    pred_fun = pred_fun,
+    BY = BY,
+    by_size = by_size,
+    grid = grid,
+    grid_size = grid_size,
+    trim = trim,
+    strategy = strategy,
+    n_max = n_max,
+    w = w,
+    ...
+  )
+}
+
 #' Prints "partial_dep" Object
 #' 
 #' Print method for object of class "partial_dep".

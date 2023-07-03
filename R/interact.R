@@ -254,6 +254,26 @@ interact.Learner <- function(object, v, X,
   )
 }
 
+#' @describeIn interact Method for DALEX "explainer".
+#' @export
+interact.explainer <- function(object, v = colnames(object[["data"]]), 
+                               X = object[["data"]],
+                               pred_fun = object[["predict_function"]],
+                               n_max = 300L, w = object[["weights"]], 
+                               pairwise_m = 5L, verbose = TRUE, ...) {
+  interact.default(
+    object = object[["model"]],
+    v = v,
+    X = X,
+    pred_fun = pred_fun,
+    n_max = n_max,
+    w = w,
+    pairwise_m = pairwise_m,
+    verbose = verbose,
+    ...
+  )
+}
+
 #' Print Method
 #' 
 #' Print method for object of class "interact". Shows \eqn{H^2} statistic.
