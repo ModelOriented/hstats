@@ -23,8 +23,8 @@
     &lt;doi:10.1214/07-AOAS148&gt;.  The package supports multivariate
     predictions and can deal with case weights.  Furthermore, different
     variants of the original statistics are provided.  The shape of the
-    interactions can be investigated by stratified or two-dimensional
-    partial dependence plots.">
+    interactions can be investigated by partial dependence plots and 
+    individual conditional expectations.">
 <meta property="og:image" content="/logo.png">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
@@ -90,22 +90,35 @@
 <h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
 </h2>
 <p><strong>What makes a ML model black-box? It’s the interactions!</strong></p>
-<p>This package helps to</p>
-<ol style="list-style-type: decimal">
-<li>
-<strong>quantify</strong> their strength via statistics of Friedman and Popescu [1], and to</li>
-<li>
-<strong>describe</strong> them via partial dependence plots (PDP) [2], or individual conditional expectation plots (ICE) [7].</li>
-</ol>
+<p>This package helps to <strong>quantify</strong> their strength via statistics of Friedman and Popescu [1], and to <strong>describe</strong> them via partial dependence plots [2] and individual conditional expectation plots [7].</p>
 <p>All functions</p>
 <ul>
-<li>are comparably fast,</li>
-<li>support multivariate predictions,</li>
+<li>work for <strong>any model</strong>,</li>
+<li>are <strong>fast</strong>,</li>
+<li>support multivariate predictions (e.g., probabilistic classification),</li>
 <li>respect case weights, and</li>
 <li>work with both data.frames and matrices (e.g., for XGBoost).</li>
 </ul>
 <p>Furthermore, different variants of the original statistics in [1] are available.</p>
-<p>Note: The {gbm} package offers a model-specific implementation of some of the statistics. Since it uses the weighted tree-traversal method of [2] to estimate partial dependence functions, the results are typically slightly different.</p>
+</div>
+<div class="section level2">
+<h2 id="landscape">Landscape<a class="anchor" aria-label="anchor" href="#landscape"></a>
+</h2>
+<p>{interactML} is not the first package to explore interactions. Here is an incomplete selection:</p>
+<ul>
+<li>
+<a href="https://CRAN.R-project.org/package=gbm" class="external-link">{gbm}</a>: Implementation of m-wise interaction statistics of [1] for {gbm} models using the weighted tree-traversal method of [2] to estimate partial dependence functions.</li>
+<li>
+<a href="https://CRAN.R-project.org/package=iml" class="external-link">{iml}</a>: Variant of pairwise interaction statistics of [1].</li>
+<li>
+<a href="https://CRAN.R-project.org/package=EIX" class="external-link">{EIX}</a>: Interaction statistics extracted from the tree structure of XGBoost and LightGBM.</li>
+<li>
+<a href="https://CRAN.R-project.org/package=randomForestExplainer" class="external-link">{randomForestExplainer}</a>: Interaction statistics extracted from the tree structure of random forests.</li>
+<li>
+<a href="https://CRAN.R-project.org/package=vivid" class="external-link">{vivid}</a>: Cool visualization of interaction patterns. Partly based on {flashlight}.</li>
+<li>
+<a href="https://CRAN.R-project.org/package=flashlight" class="external-link">{flashlight}</a>: Model-agnostic implementation of some statistics of [1]. Planned to switch to the much faster {interactML}.</li>
+</ul>
 </div>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
@@ -117,7 +130,7 @@
 <h2 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a>
 </h2>
 <p>To demonstrate the typical workflow, we use a beautiful house price dataset with about 14,000 transactions from Miami-Dade County available in the {shapviz} package, and analyzed in [3].</p>
-<p>We are going to model logarithmic sales prices as a function of geographic features and other features like living area and building age. The model is fitted with XGBoost using interaction constraints to produce a model additive in all non-geographic features.</p>
+<p>We are going to model logarithmic sales prices as a function of geographic features and other features like living area and building age. The model is fitted with XGBoost using interaction constraints to produce a model additive in all non-geographic features for maximal interpretability.</p>
 <p>What can we say about interactions? Can we verify additivity in non-geographic features?</p>
 <div class="section level3">
 <h3 id="fit-model">Fit model<a class="anchor" aria-label="anchor" href="#fit-model"></a>
@@ -188,6 +201,7 @@
 <li>About 10% of prediction variability is unexplained by the sum of all main effects. The interaction effects seem to be quite important.</li>
 <li>The strongest overall interactions are associated with “OCEAN_DIST”: About 6% of prediction variability can be attributed to its interactions.</li>
 <li>About 15.6% of the joint effect variability of OCEAN_DIST and LONGITUDE comes from their pairwise interaction.</li>
+<li>As desired, non-geographic features do not show any interactions.</li>
 </ul>
 <p><strong>Remarks</strong></p>
 <ol style="list-style-type: decimal">
