@@ -35,10 +35,13 @@ jobs:
             function_exclusions = c(
               "partial_dep\\.Learner",
               "partial_dep\\.ranger",
+              "partial_dep\\.explainer",
               "ice\\.Learner",
               "ice\\.ranger",
+              "ice\\.explainer",
               "interact\\.Learner",
-              "interact\\.ranger"
+              "interact\\.ranger",
+              "interact\\.explainer"
             )
           )
         shell: Rscript {0}

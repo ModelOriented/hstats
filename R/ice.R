@@ -177,6 +177,28 @@ ice.Learner <- function(object, v, X,
   )
 }
 
+#' @describeIn ice Method for DALEX "explainer".
+#' @export
+ice.explainer <- function(object, v = v, X = object[["data"]],
+                          pred_fun = object[["predict_function"]],
+                          BY = NULL, grid = NULL, grid_size = 49L,
+                          trim = c(0.01, 0.99),
+                          strategy = c("uniform", "quantile"), n_max = 100, ...) {
+  ice.default(
+    object = object[["model"]],
+    v = v,
+    X = X,
+    pred_fun = pred_fun,
+    BY = BY,
+    grid = grid,
+    grid_size = grid_size,
+    trim = trim,
+    strategy = strategy,
+    n_max = n_max,
+    ...
+  )
+}
+
 #' Prints "ice" Object
 #'
 #' Print method for object of class "ice".

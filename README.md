@@ -18,7 +18,7 @@
 
 This package helps to **quantify** their strength via statistics of Friedman and Popescu [1], and to **describe** them via partial dependence plots [2] and individual conditional expectation plots [7].
 
-All functions
+The main functions `interact()`, `partial_dep()`, and `ice()`
 
 - work for **any model**,
 - are **fast**,
@@ -27,6 +27,8 @@ All functions
 - work with both data.frames and matrices (e.g., for XGBoost).
 
 Furthermore, different variants of the original statistics in [1] are available.
+
+DALEX explainers, meta learners (mlr3, tidymodels, caret) and most other models work out-of-the box. In case you need more flexibility, a prediction function `pred_fun()` can be passed to any of the main functions.
 
 ## Landscape
 
@@ -194,6 +196,36 @@ pd_importance(inter)
 ```
 
 ![](man/figures/importance.svg)
+
+### DALEX
+
+The main functions work smoothly on DALEX explainers):
+
+```r
+library(DALEX)
+library(ranger)
+library(interactML)
+
+set.seed(1)
+
+fit <- ranger(Sepal.Length ~ ., data = iris)
+ex <- explain(fit, data = iris[-1], y = iris[, 1])
+
+inter <- interact(ex)
+inter  # Non-additivity index 0.054
+plot(inter)
+
+# Strongest relative interaction
+plot(ice(ex, v = "Sepal.Width", BY = "Petal.Width"), center = TRUE)
+plot(partial_dep(ex, v = "Sepal.Width", BY = "Petal.Width"), show_points = FALSE)
+plot(partial_dep(ex, v = c("Sepal.Width", "Petal.Width"), grid_size = 200))
+```
+
+![](man/figures/dalex_inter.svg)
+
+Strongest relative interaction shown as ICE plot.
+
+![](man/figures/dalex_ice.svg)
 
 ## Background
 
