@@ -197,9 +197,9 @@ pd_importance(inter)
 
 ![](man/figures/importance.svg)
 
-### DALEX
+## DALEX
 
-The main functions work smoothly on DALEX explainers):
+The main functions work smoothly on DALEX explainers:
 
 ```r
 library(DALEX)
