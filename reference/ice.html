@@ -100,6 +100,21 @@ up to two grouping variables via <code>BY</code>.</p>
 <span>  strategy <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"uniform"</span>, <span class="st">"quantile"</span><span class="op">)</span>,</span>
 <span>  n_max <span class="op">=</span> <span class="fl">100L</span>,</span>
 <span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for explainer</span></span>
+<span><span class="fu">ice</span><span class="op">(</span></span>
+<span>  <span class="va">object</span>,</span>
+<span>  v <span class="op">=</span> <span class="va">v</span>,</span>
+<span>  X <span class="op">=</span> <span class="va">object</span><span class="op">[[</span><span class="st">"data"</span><span class="op">]</span><span class="op">]</span>,</span>
+<span>  pred_fun <span class="op">=</span> <span class="va">object</span><span class="op">[[</span><span class="st">"predict_function"</span><span class="op">]</span><span class="op">]</span>,</span>
+<span>  BY <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  grid <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  grid_size <span class="op">=</span> <span class="fl">49L</span>,</span>
+<span>  trim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.01</span>, <span class="fl">0.99</span><span class="op">)</span>,</span>
+<span>  strategy <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"uniform"</span>, <span class="st">"quantile"</span><span class="op">)</span>,</span>
+<span>  n_max <span class="op">=</span> <span class="fl">100</span>,</span>
+<span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -169,7 +184,7 @@ selected from <code>X</code>. In this case, set a random seed for reproducibilit
     <h2>Value</h2>
     
 
-<p>An object of class "ice" containing these elements:</p><ul><li><p><code>ice_curves</code>: data.frame containing the ice values.</p></li>
+<p>An object of class "ice" containing these elements:</p><ul><li><p><code>data</code>: data.frame containing the ice values.</p></li>
 <li><p><code>grid</code>: Vector, matrix or data.frame of grid values.</p></li>
 <li><p><code>v</code>: Same as input <code>v</code>.</p></li>
 <li><p><code>K</code>: Number of columns of prediction matrix.</p></li>
@@ -182,6 +197,7 @@ selected from <code>X</code>. In this case, set a random seed for reproducibilit
 <ul><li><p><code>ice(default)</code>: Default method.</p></li>
 <li><p><code>ice(ranger)</code>: Method for "ranger" models.</p></li>
 <li><p><code>ice(Learner)</code>: Method for "mlr3" models.</p></li>
+<li><p><code>ice(explainer)</code>: Method for DALEX "explainer".</p></li>
 </ul></div>
     <div id="references">
     <h2>References</h2>
@@ -200,12 +216,12 @@ Journal of Computational and Graphical Statistics, 24, no. 1 (2015): 44-65.</p>
 <span class="r-in"><span><span class="co"># Stratified by one variable</span></span></span>
 <span class="r-in"><span><span class="va">ic</span> <span class="op">&lt;-</span> <span class="fu">ice</span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="st">"Petal.Length"</span>, X <span class="op">=</span> <span class="va">iris</span>, BY <span class="op">=</span> <span class="st">"Species"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">ic</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 'ice' object (4300 rows). Extract via $ice_curves. Top rows:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 'ice' object (4300 rows). Extract via $data. Top rows:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   obs_ Petal.Length        y    Species</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1    1            1 3.598389 versicolor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2    2            1 2.515470  virginica</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3    3            1 4.717621     setosa</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   obs_ Petal.Length        y   Species</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1    1            1 2.465016 virginica</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2    2            1 4.566260    setosa</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3    3            1 2.521290 virginica</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">ic</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="ice-2.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">ic</span>, center <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>

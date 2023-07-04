@@ -119,6 +119,19 @@ more flexible functions <code><a href="H2.html">H2()</a></code>, <code><a href="
 <span>  pairwise_m <span class="op">=</span> <span class="fl">5L</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for explainer</span></span>
+<span><span class="fu">interact</span><span class="op">(</span></span>
+<span>  <span class="va">object</span>,</span>
+<span>  v <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">object</span><span class="op">[[</span><span class="st">"data"</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>,</span>
+<span>  X <span class="op">=</span> <span class="va">object</span><span class="op">[[</span><span class="st">"data"</span><span class="op">]</span><span class="op">]</span>,</span>
+<span>  pred_fun <span class="op">=</span> <span class="va">object</span><span class="op">[[</span><span class="st">"predict_function"</span><span class="op">]</span><span class="op">]</span>,</span>
+<span>  n_max <span class="op">=</span> <span class="fl">300L</span>,</span>
+<span>  w <span class="op">=</span> <span class="va">object</span><span class="op">[[</span><span class="st">"weights"</span><span class="op">]</span><span class="op">]</span>,</span>
+<span>  pairwise_m <span class="op">=</span> <span class="fl">5L</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -197,6 +210,7 @@ dependence functions are available.</p></li>
 <ul><li><p><code>interact(default)</code>: Default interact method.</p></li>
 <li><p><code>interact(ranger)</code>: Method for "ranger" models.</p></li>
 <li><p><code>interact(Learner)</code>: Method for "mlr3" models.</p></li>
+<li><p><code>interact(explainer)</code>: Method for DALEX "explainer".</p></li>
 </ul></div>
     <div id="references">
     <h2>References</h2>
