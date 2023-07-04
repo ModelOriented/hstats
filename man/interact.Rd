@@ -5,6 +5,7 @@
 \alias{interact.default}
 \alias{interact.ranger}
 \alias{interact.Learner}
+\alias{interact.explainer}
 \title{Calculate Interaction Statistics}
 \usage{
 interact(object, ...)
@@ -40,6 +41,18 @@ interact(object, ...)
   pred_fun = function(m, X) m$predict_newdata(X)$response,
   n_max = 300L,
   w = NULL,
+  pairwise_m = 5L,
+  verbose = TRUE,
+  ...
+)
+
+\method{interact}{explainer}(
+  object,
+  v = colnames(object[["data"]]),
+  X = object[["data"]],
+  pred_fun = object[["predict_function"]],
+  n_max = 300L,
+  w = object[["weights"]],
   pairwise_m = 5L,
   verbose = TRUE,
   ...
@@ -122,6 +135,8 @@ more flexible functions \code{\link[=H2]{H2()}}, \code{\link[=H2_j]{H2_j()}}, an
 \item \code{interact(ranger)}: Method for "ranger" models.
 
 \item \code{interact(Learner)}: Method for "mlr3" models.
+
+\item \code{interact(explainer)}: Method for DALEX "explainer".
 
 }}
 \examples{

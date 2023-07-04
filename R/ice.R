@@ -11,7 +11,7 @@
 #'   discrete.
 #' @returns
 #'   An object of class "ice" containing these elements:
-#'   - `ice_curves`: data.frame containing the ice values.
+#'   - `data`: data.frame containing the ice values.
 #'   - `grid`: Vector, matrix or data.frame of grid values.
 #'   - `v`: Same as input `v`.
 #'   - `K`: Number of columns of prediction matrix.
@@ -124,7 +124,7 @@ ice.default <- function(object, v, X, pred_fun = stats::predict,
   }
   row.names(ice_curves) <- NULL  # could be solved before
   out <- list(
-    ice_curves = ice_curves,
+    data = ice_curves,
     grid = grid,
     v = v, 
     K = K,
@@ -210,8 +210,8 @@ ice.explainer <- function(object, v = v, X = object[["data"]],
 #' @export
 #' @seealso See [ice()] for examples.
 print.ice <- function(x, n = 3L, ...) {
-  cat("'ice' object (", nrow(x[["ice_curves"]]), " rows). Extract via $ice_curves. Top rows:\n\n", sep = "")
-  print(utils::head(x[["ice_curves"]], n))
+  cat("'ice' object (", nrow(x[["data"]]), " rows). Extract via $data. Top rows:\n\n", sep = "")
+  print(utils::head(x[["data"]], n))
   invisible(x)
 }
 
@@ -231,7 +231,7 @@ plot.ice <- function(x, center = FALSE, alpha = 0.2, rotate_x = FALSE,
                      color = "#2b51a1", facet_scales = "fixed", ...) {
   v <- x[["v"]]
   K <- x[["K"]]
-  ice_curves <- x[["ice_curves"]]
+  data <- x[["data"]]
   pred_names <- x[["pred_names"]]
   by_names <- x[["by_names"]]
   
@@ -243,12 +243,12 @@ plot.ice <- function(x, center = FALSE, alpha = 0.2, rotate_x = FALSE,
   }
   if (center) {
     pos <- trunc((NROW(x[["grid"]]) + 1) / 2)
-    ice_curves[pred_names] <- lapply(
-      ice_curves[pred_names], 
-      function(z) stats::ave(z, ice_curves[["obs_"]], FUN = function(zz) zz - zz[pos])
+    data[pred_names] <- lapply(
+      data[pred_names], 
+      function(z) stats::ave(z, data[["obs_"]], FUN = function(zz) zz - zz[pos])
     )
   }
-  data <- poor_man_stack(ice_curves, to_stack = pred_names)
+  data <- poor_man_stack(data, to_stack = pred_names)
 
   p <- ggplot2::ggplot(data, ggplot2::aes(x = .data[[v]], y = value_, group = obs_)) +
     ggplot2::labs(x = v, y = if (center) "Centered ICE" else "ICE")

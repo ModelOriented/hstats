@@ -95,25 +95,25 @@ test_that("partial_dep() returns the same values as pd_raw()", {
   g <- rev(univariate_grid(iris$Species))
   pd1 <- pd_raw(fit1, v = "Species", X = iris, grid = g)
   pd2 <- partial_dep(fit1, v = "Species", X = iris, grid = g)
-  expect_equal(cbind.data.frame(Species = g, y = pd1), pd2$pd)
+  expect_equal(cbind.data.frame(Species = g, y = pd1), pd2$data)
   
   pd1 <- pd_raw(fit2, v = "Species", X = iris, grid = g)
   pd2 <- partial_dep(fit2, v = "Species", X = iris, grid = g)
-  expect_equal(cbind.data.frame(Species = g, pd1), pd2$pd)
+  expect_equal(cbind.data.frame(Species = g, pd1), pd2$data)
 })
 
 test_that("partial_dep() reacts on grid order", {
   g1 <- univariate_grid(iris$Species)
   g2 <- rev(g1)
   
-  pd1 <- partial_dep(fit1, v = "Species", X = iris, grid = g1)$pd
-  pd2 <- partial_dep(fit1, v = "Species", X = iris, grid = g2)$pd
+  pd1 <- partial_dep(fit1, v = "Species", X = iris, grid = g1)$data
+  pd2 <- partial_dep(fit1, v = "Species", X = iris, grid = g2)$data
 
   rownames(pd2) <- 3:1
   expect_equal(pd1, pd2[3:1, ])
   
-  pd1 <- partial_dep(fit2, v = "Species", X = iris, grid = g1)$pd
-  pd2 <- partial_dep(fit2, v = "Species", X = iris, grid = g2)$pd
+  pd1 <- partial_dep(fit2, v = "Species", X = iris, grid = g1)$data
+  pd2 <- partial_dep(fit2, v = "Species", X = iris, grid = g2)$data
   
   rownames(pd2) <- 3:1
   expect_equal(pd1, pd2[3:1, ])
@@ -121,24 +121,24 @@ test_that("partial_dep() reacts on grid order", {
 
 test_that("partial_dep() with BY is same as stratified application", {
   pd1 <- partial_dep(fit1, v = "Sepal.Width", X = iris, BY = "Species")
-  g <- unique(pd1$pd$Sepal.Width)
+  g <- unique(pd1$data$Sepal.Width)
   ir <- split(iris, iris$Species)
   pd2 <- rbind(
-    partial_dep(fit1, v = "Sepal.Width", X = ir[[1L]], grid = g)$pd,
-    partial_dep(fit1, v = "Sepal.Width", X = ir[[2L]], grid = g)$pd,
-    partial_dep(fit1, v = "Sepal.Width", X = ir[[3L]], grid = g)$pd
+    partial_dep(fit1, v = "Sepal.Width", X = ir[[1L]], grid = g)$data,
+    partial_dep(fit1, v = "Sepal.Width", X = ir[[2L]], grid = g)$data,
+    partial_dep(fit1, v = "Sepal.Width", X = ir[[3L]], grid = g)$data
   )
   pd2 <- data.frame(Species = rep(unique(iris$Species), each = length(g)), pd2)
-  expect_equal(pd1$pd, pd2)
+  expect_equal(pd1$data, pd2)
   
   # Multioutput
-  pd1 <- partial_dep(fit2, v = "Petal.Width", X = iris, BY = "Species")$pd
+  pd1 <- partial_dep(fit2, v = "Petal.Width", X = iris, BY = "Species")$data
   g <- unique(pd1$Petal.Width)
   ir <- split(iris, iris$Species)
   pd2 <- rbind(
-    partial_dep(fit2, v = "Petal.Width", X = ir[[1L]], grid = g)$pd,
-    partial_dep(fit2, v = "Petal.Width", X = ir[[2L]], grid = g)$pd,
-    partial_dep(fit2, v = "Petal.Width", X = ir[[3L]], grid = g)$pd
+    partial_dep(fit2, v = "Petal.Width", X = ir[[1L]], grid = g)$data,
+    partial_dep(fit2, v = "Petal.Width", X = ir[[2L]], grid = g)$data,
+    partial_dep(fit2, v = "Petal.Width", X = ir[[3L]], grid = g)$data
   )
   pd2 <- data.frame(Species = rep(unique(iris$Species), each = length(g)), pd2)
   expect_equal(pd1, pd2)
@@ -218,8 +218,8 @@ test_that("partial_dep() reacts on non-constant weights", {
 test_that("partial_dep() works with vector BY or variable name BY", {
   pd1 <- partial_dep(fit1, v = "Sepal.Width", X = iris, BY = "Species")
   pd2 <- partial_dep(fit1, v = "Sepal.Width", X = iris, BY = iris$Species)
-  colnames(pd2$pd)[1L] <- "Species"
-  expect_equal(pd1$pd, pd2$pd)
+  colnames(pd2$data)[1L] <- "Species"
+  expect_equal(pd1$data, pd2$data)
   expect_error(partial_dep(fit1, v = "Sepal.Width", X = iris, BY = iris$Species[1:10]))
 })
 
@@ -230,11 +230,11 @@ test_that("partial_dep() gives same answer on example as iml 0.11.1", {
   # FeatureEffect$new(mod, feature = "Sepal.Width", method = "pdp", grid.points = 2:4)$results
   
   iml_species <- c(6.847179, 5.737053, 5.260083)
-  pd1 <- partial_dep(fit, v = "Species", X = iris)$pd
+  pd1 <- partial_dep(fit, v = "Species", X = iris)$data
   expect_equal(iml_species, pd1$y, tolerance = 0.001)
   
   iml_sw <- c(5.309279, 5.814375, 6.319470)
-  pd2 <- partial_dep(fit, v = "Sepal.Width", X = iris, grid = 2:4)$pd
+  pd2 <- partial_dep(fit, v = "Sepal.Width", X = iris, grid = 2:4)$data
   expect_equal(iml_sw, pd2$y, tolerance = 0.001)
 })
 
