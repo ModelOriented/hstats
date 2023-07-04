@@ -43,7 +43,7 @@
 #'   be binned into quantile groups. Only relevant if `BY` is not `NULL`.
 #' @returns 
 #'   An object of class "partial_dep" containing these elements:
-#'   - `pd`: data.frame containing the partial dependencies.
+#'   - `data`: data.frame containing the partial dependencies.
 #'   - `v`: Same as input `v`.
 #'   - `K`: Number of columns of prediction matrix.
 #'   - `pred_names`: Column names of prediction matrix.
@@ -144,12 +144,12 @@ partial_dep.default <- function(object, v, X, pred_fun = stats::predict,
         w = if (!is.null(w)) w[BY %in% b],
         ...
       )
-      pd_list[[b]] <- out[["pd"]]
+      pd_list[[b]] <- out[["data"]]
     }
     pd <- do.call(rbind, c(pd_list, list(make.row.names = FALSE)))
     BY_rep <- rep(by_values, each = NROW(grid))
     BY_rep <- stats::setNames(as.data.frame(BY_rep), by_name)
-    out[["pd"]] <- cbind.data.frame(BY_rep, pd)
+    out[["data"]] <- cbind.data.frame(BY_rep, pd)
     out[["by_name"]] <- by_name
     
     return(structure(out, class = "partial_dep"))
@@ -177,7 +177,7 @@ partial_dep.default <- function(object, v, X, pred_fun = stats::predict,
   }
   
   out <- list(
-    pd = cbind.data.frame(grid, pd),
+    data = cbind.data.frame(grid, pd),
     v = v,
     K = K,
     pred_names = colnames(pd),
@@ -272,8 +272,8 @@ partial_dep.explainer <- function(object, v, X = object[["data"]],
 #' @export
 #' @seealso See [partial_dep()] for examples.
 print.partial_dep <- function(x, n = 3L, ...) {
-  cat("Partial dependence object (", nrow(x[["pd"]]), " rows). Extract via $pd. Top rows:\n\n", sep = "")
-  print(utils::head(x[["pd"]], n))
+  cat("Partial dependence object (", nrow(x[["data"]]), " rows). Extract via $data. Top rows:\n\n", sep = "")
+  print(utils::head(x[["data"]], n))
   invisible(x)
 }
 
@@ -303,7 +303,7 @@ plot.partial_dep <- function(x, rotate_x = FALSE, color = "#2b51a1",
   if ((K > 1L) + (!is.null(by_name)) + length(v) > 3L) {
     stop("No plot implemented for this case.")
   }
-  data <- with(x, poor_man_stack(pd, to_stack = pred_names))
+  data <- with(x, poor_man_stack(data, to_stack = pred_names))
   
   # Line plots
   if (length(v) == 1L) {

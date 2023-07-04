@@ -5,6 +5,7 @@
 \alias{ice.default}
 \alias{ice.ranger}
 \alias{ice.Learner}
+\alias{ice.explainer}
 \title{Individual Conditional Expectations}
 \usage{
 ice(object, ...)
@@ -50,6 +51,20 @@ ice(object, ...)
   n_max = 100L,
   ...
 )
+
+\method{ice}{explainer}(
+  object,
+  v = v,
+  X = object[["data"]],
+  pred_fun = object[["predict_function"]],
+  BY = NULL,
+  grid = NULL,
+  grid_size = 49L,
+  trim = c(0.01, 0.99),
+  strategy = c("uniform", "quantile"),
+  n_max = 100,
+  ...
+)
 }
 \arguments{
 \item{object}{Fitted model object.}
@@ -93,7 +108,7 @@ selected from \code{X}. In this case, set a random seed for reproducibility.}
 \value{
 An object of class "ice" containing these elements:
 \itemize{
-\item \code{ice_curves}: data.frame containing the ice values.
+\item \code{data}: data.frame containing the ice values.
 \item \code{grid}: Vector, matrix or data.frame of grid values.
 \item \code{v}: Same as input \code{v}.
 \item \code{K}: Number of columns of prediction matrix.
@@ -112,6 +127,8 @@ up to two grouping variables via \code{BY}.
 \item \code{ice(ranger)}: Method for "ranger" models.
 
 \item \code{ice(Learner)}: Method for "mlr3" models.
+
+\item \code{ice(explainer)}: Method for DALEX "explainer".
 
 }}
 \examples{

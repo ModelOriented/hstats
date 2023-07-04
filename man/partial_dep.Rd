@@ -5,6 +5,7 @@
 \alias{partial_dep.default}
 \alias{partial_dep.ranger}
 \alias{partial_dep.Learner}
+\alias{partial_dep.explainer}
 \title{Partial Dependence Plot}
 \usage{
 partial_dep(object, ...)
@@ -56,6 +57,22 @@ partial_dep(object, ...)
   w = NULL,
   ...
 )
+
+\method{partial_dep}{explainer}(
+  object,
+  v,
+  X = object[["data"]],
+  pred_fun = object[["predict_function"]],
+  BY = NULL,
+  by_size = 5L,
+  grid = NULL,
+  grid_size = 49L,
+  trim = c(0.01, 0.99),
+  strategy = c("uniform", "quantile"),
+  n_max = 1000L,
+  w = object[["weights"]],
+  ...
+)
 }
 \arguments{
 \item{object}{Fitted model object.}
@@ -105,7 +122,7 @@ selected from \code{X}. In this case, set a random seed for reproducibility.}
 \value{
 An object of class "partial_dep" containing these elements:
 \itemize{
-\item \code{pd}: data.frame containing the partial dependencies.
+\item \code{data}: data.frame containing the partial dependencies.
 \item \code{v}: Same as input \code{v}.
 \item \code{K}: Number of columns of prediction matrix.
 \item \code{pred_names}: Column names of prediction matrix.
@@ -124,6 +141,8 @@ By default, the resulting values are plotted.
 \item \code{partial_dep(ranger)}: Method for "ranger" models.
 
 \item \code{partial_dep(Learner)}: Method for "mlr3" models.
+
+\item \code{partial_dep(explainer)}: Method for DALEX "explainer".
 
 }}
 \section{Partial Dependence Functions}{

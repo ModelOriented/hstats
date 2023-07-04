@@ -3,8 +3,8 @@ fit2 <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = i
 iris2 <- iris[c(1:10, 50:60, 100:110), ]
 
 test_that("ice() returns same as partial_dep() for one row", {
-  ic <- ice(fit1, v = "Species", X = iris[1L, ])$ice_curves[2:3]
-  pd <- partial_dep(fit1, v = "Species", X = iris[1L, ])$pd
+  ic <- ice(fit1, v = "Species", X = iris[1L, ])$data[2:3]
+  pd <- partial_dep(fit1, v = "Species", X = iris[1L, ])$data
   expect_equal(ic, pd)
 })
 
@@ -16,12 +16,12 @@ test_that("print method does not give an error", {
 test_that("ice() returns the same values as ice_raw()", {
   g <- rev(univariate_grid(iris$Species))
   ic1 <- c(ice_raw(fit1, v = "Species", X = iris2, grid = g))
-  ic2 <- ice(fit1, v = "Species", X = iris2, grid = g)$ice_curves$y
+  ic2 <- ice(fit1, v = "Species", X = iris2, grid = g)$data$y
   expect_equal(ic1, ic2)
   
   ic1 <- ice_raw(fit2, v = "Species", X = iris2, grid = g)
   rownames(ic1) <- NULL
-  ic2 <- ice(fit2, v = "Species", X = iris2, grid = g)$ice_curves[, colnames(ic1)]
+  ic2 <- ice(fit2, v = "Species", X = iris2, grid = g)$data[, colnames(ic1)]
   expect_equal(ic1, as.matrix(ic2))
 })
 
@@ -29,15 +29,15 @@ test_that("ice() reacts on grid order", {
   g1 <- univariate_grid(iris$Species)
   g2 <- rev(g1)
   
-  ic1 <- ice(fit1, v = "Species", X = iris2[1L, ], grid = g1)$ice_curves
-  ic2 <- ice(fit1, v = "Species", X = iris2[1L, ], grid = g2)$ice_curves
+  ic1 <- ice(fit1, v = "Species", X = iris2[1L, ], grid = g1)$data
+  ic2 <- ice(fit1, v = "Species", X = iris2[1L, ], grid = g2)$data
 
   rownames(ic1) <- 1:3
   rownames(ic2) <- 3:1
   expect_equal(ic1, ic2[3:1, ])
   
-  ic1 <- ice(fit2, v = "Species", X = iris2[1L, ], grid = g1)$ice_curves
-  ic2 <- ice(fit2, v = "Species", X = iris2[1L, ], grid = g2)$ice_curves
+  ic1 <- ice(fit2, v = "Species", X = iris2[1L, ], grid = g1)$data
+  ic2 <- ice(fit2, v = "Species", X = iris2[1L, ], grid = g2)$data
   
   rownames(ic1) <- 1:3
   rownames(ic2) <- 3:1
@@ -106,8 +106,8 @@ test_that("ice() reacts on trim", {
 test_that("ice() works with vector BY or variable name BY", {
   ic1 <- ice(fit1, v = "Sepal.Width", X = iris2, BY = "Species")
   ic2 <- ice(fit1, v = "Sepal.Width", X = iris2, BY = iris2$Species)
-  colnames(ic2$ice_curves)[4L] <- "Species"
-  expect_equal(ic1$ice_curves, ic2$ice_curves)
+  colnames(ic2$data)[4L] <- "Species"
+  expect_equal(ic1$data, ic2$data)
   expect_error(ice(fit1, v = "Sepal.Width", X = iris2, BY = iris$Species[1:10]))
 })
 
@@ -115,8 +115,8 @@ test_that("ice() works with two BY", {
   b <- c("Petal.Width", "Species")
   ic1 <- ice(fit1, v = "Sepal.Width", X = iris2, BY = b)
   ic2 <- ice(fit1, v = "Sepal.Width", X = iris2, BY = iris2[b])
-  colnames(ic2$ice_curves)[4:5] <- b
-  expect_equal(ic1$ice_curves, ic2$ice_curves)
+  colnames(ic2$data)[4:5] <- b
+  expect_equal(ic1$data, ic2$data)
   expect_error(ice(fit1, v = "Sepal.Width", X = iris2, BY = iris[1:10, b]))
 })
 
