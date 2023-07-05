@@ -184,13 +184,19 @@ basic_check <- function(X, v, pred_fun, w = NULL) {
 #' 
 #' @inheritParams H2_j
 #' @param num Matrix or vector of statistic.
-#' @param denom Denominator of statistic (a matrix or vector compatible with `num`).
+#' @param denom Denominator of statistic (a matrix, number, or vector compatible with `num`).
 #' @returns Matrix or vector of statistics.
 postprocess <- function(num, denom = 1, normalize = TRUE, squared = TRUE, 
                         sort = TRUE, top_m = Inf, eps = 1e-8) {
   out <- .zap_small(num, eps = eps)
   if (normalize) {
-    out <- out / denom
+    if (length(denom) == 1L || length(num) == length(denom)) {
+      out <- out / denom
+    } else if (length(denom) == ncol(num)) {
+      out <- sweep(out, MARGIN = 2L, STATS = denom, FUN = "/")
+    } else {
+      stop("Normalization error")
+    }
   }
   if (!squared) {
     out <- sqrt(out)
