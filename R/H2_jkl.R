@@ -76,22 +76,22 @@
 #' v <- c("Petal.Length", "Petal.Width", "Species")
 #' inter <- interact(fit, v = v, X = iris, verbose = FALSE)
 #' H2_jk(inter)
-H2_jk <- function(object, ...) {
-  UseMethod("H2_jk")
+H2_jkl <- function(object, ...) {
+  UseMethod("H2_jkl")
 }
 
-#' @describeIn H2_jk Default pairwise interaction strength.
+#' @describeIn H2_jkl Default pairwise interaction strength.
 #' @export
-H2_jk.default <- function(object, ...) {
+H2_jkl.default <- function(object, ...) {
   stop("No default method implemented.")
 }
 
-#' @describeIn H2_jk Pairwise interaction strength from "interact" object.
+#' @describeIn H2_jkl Pairwise interaction strength from "interact" object.
 #' @export
-H2_jk.interact <- function(object, normalize = TRUE, squared = TRUE, sort = TRUE, 
-                           top_m = 15L, eps = 1e-8, plot = TRUE, fill = "#2b51a1", 
+H2_jkl.interact <- function(object, normalize = TRUE, squared = TRUE, sort = TRUE, 
+                            top_m = 15L, eps = 1e-8, plot = TRUE, fill = "#2b51a1", 
                            ...) {
-  combs <- object[["combs2"]]
+  combs <- object[["combs3"]]
   
   if (is.null(combs)) {
     return(NULL)
@@ -107,10 +107,15 @@ H2_jk.interact <- function(object, normalize = TRUE, squared = TRUE, sort = TRUE
   
   for (i in seq_along(combs)) {
     z <- combs[[i]]
+    zz <- sapply(utils::combn(z, 2L, simplify = FALSE), paste, collapse = ":")
+
     num[i, ] <- with(
-      object, wcolMeans((F_jk[[i]] - F_j[[z[1L]]] - F_j[[z[2L]]])^2, w = w)
+      object, 
+      wcolMeans(
+        (F_jkl[[i]] - Reduce("+", F_jk[zz]) + Reduce("+", F_j[z]))^2, w = w
+      )
     )
-    denom[i, ] <- if (normalize) with(object, wcolMeans(F_jk[[i]]^2, w = w)) else 1
+    denom[i, ] <- if (normalize) with(object, wcolMeans(F_jkl[[i]]^2, w = w)) else 1
   }
   out <- postprocess(
     num = num,

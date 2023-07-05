@@ -33,7 +33,9 @@
 #' @param pairwise_m Number of features for which pairwise statistics are to be 
 #'   calculated. The features are selected based on Friedman and Popescu's overall 
 #'   interaction strength \eqn{H^2_j} (rowwise maximum in the multivariate case). 
-#'   Set to `length(v)` to calculate every pair and to 0 to avoid pairwise calculations. 
+#'   Set to `length(v)` to calculate every pair and to 0 to avoid pairwise calculations.
+#' @param threeway_m Same as `pairwise_m`, but controlling the number of features for
+#'   which threeway interactions should be calculated. Not larger than `pairwise_m`.
 #' @param verbose Should a progress bar be shown? The default is `TRUE`.
 #' @param ... Additional arguments passed to `pred_fun(object, X, ...)`, 
 #'   for instance `type = "response"` in a [glm()] model.
@@ -63,7 +65,10 @@
 #'   resulting object.
 #' @examples
 #' # MODEL 1: Linear regression
-#' fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
+#' fit <- lm(
+#'   Sepal.Length ~ Petal.Width*Species*Petal.Length, 
+#'   data = iris
+#' )
 #' inter <- interact(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
 #' inter
 #' plot(inter)
@@ -98,8 +103,10 @@ interact <- function(object, ...) {
 #' @describeIn interact Default interact method.
 #' @export
 interact.default <- function(object, v, X, pred_fun = stats::predict, n_max = 300L, 
-                             w = NULL, pairwise_m = 5L, verbose = TRUE, ...) {
+                             w = NULL, pairwise_m = 5L, threeway_m = pairwise_m,
+                             verbose = TRUE, ...) {
   basic_check(X = X, v = v, pred_fun = pred_fun, w = w)
+  stopifnot(threeway_m <= pairwise_m)
   
   # Reduce size of X (and w)
   if (nrow(X) > n_max) {
@@ -156,48 +163,8 @@ interact.default <- function(object, v, X, pred_fun = stats::predict, n_max = 30
     cat("\n")
   }
   
-  # Pairwise stats are calculated only for subset of features with large interactions
-  h2_j <- H2_j_raw(
-    F_j = F_j, 
-    F_not_j = F_not_j, 
-    f = f, 
-    mean_f2 = mean_f2, 
-    w = w, 
-    normalize = TRUE, 
-    sort = FALSE
-  )
-  rowwise_max <- apply(h2_j, MARGIN = 1L, FUN = max)
-  rowwise_max <- rowwise_max[rowwise_max > 0]
-  if (min(pairwise_m, length(rowwise_max)) >= 2L) {
-    v_pairwise <- v[v %in% names(utils::head(sort(-rowwise_max), pairwise_m))]
-    combs <- utils::combn(v_pairwise, 2L, simplify = FALSE)
-    n_combs <- length(combs)
-    F_jk <- vector("list", length = n_combs)
-    names(F_jk) <- names(combs) <- sapply(combs, paste, collapse = ":")
-    
-    show_bar <- verbose && n_combs >= 2L
-    if (show_bar) {
-      cat("Pairwise calculations...\n")
-      pb <- utils::txtProgressBar(1L, max = n_combs, style = 3)
-    }
-  
-    for (i in seq_len(n_combs)) {
-      z <- combs[[i]]
-      F_jk[[i]] <- wcenter(
-        pd_raw(object, v = z, X = X, grid = X[, z], pred_fun = pred_fun, w = w, ...),
-        w = w
-      )
-      if (show_bar) {
-        utils::setTxtProgressBar(pb, i)
-      }
-    }
-    if (show_bar) {
-      cat("\n")
-    }
-  } else {
-    F_jk <- combs <- v_pairwise <- NULL
-  }
-  structure(
+  # Initialize output
+  out <- structure(
     list(
       X = X,
       w = w,
@@ -206,14 +173,38 @@ interact.default <- function(object, v, X, pred_fun = stats::predict, n_max = 30
       mean_f2 = mean_f2,
       F_j = F_j, 
       F_not_j = F_not_j, 
-      F_jk = F_jk,
-      v_pairwise = v_pairwise,
-      combs = combs,
       K = ncol(f),
-      pred_names = colnames(f)
+      pred_names = colnames(f),
+      v_pairwise = NULL,
+      combs2 = NULL,
+      F_jk = NULL,
+      v_threeway = NULL,
+      combs3 = NULL,
+      F_jkl = NULL
     ), 
     class = "interact"
   )
+  
+  # 2+way stats are calculated only for subset of features with large interactions
+  h2_j <- H2_j(out, normalize = TRUE, sort = FALSE, plot = FALSE)
+  r <- apply(h2_j, MARGIN = 1L, FUN = max)
+  r <- r[r > 0]
+  
+  if (min(pairwise_m, length(r)) >= 2L) {
+    out[["v_pairwise"]] <- v2 <- v[v %in% names(utils::head(sort(-r), pairwise_m))]
+    out[c("combs2", "F_jk")] <- mway(
+      object, v = v2, X = X, pred_fun = pred_fun, w = w, way = 2L, verbose = verbose, ...
+    )
+  }
+  
+  # Threeway interactions
+  if (min(threeway_m, length(r)) >= 3L) {
+    out[["v_threeway"]] <- v3 <- v[v %in% names(utils::head(sort(-r), threeway_m))]
+    out[c("combs3", "F_jkl")] <- mway(
+      object, v = v2, X = X, pred_fun = pred_fun, w = w, way = 3L, verbose = verbose, ...
+    )
+  }
+  out
 }
 
 #' @describeIn interact Method for "ranger" models.

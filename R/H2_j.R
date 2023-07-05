@@ -83,55 +83,20 @@ H2_j.default <- function(object, ...) {
 H2_j.interact <- function(object, normalize = TRUE, squared = TRUE, sort = TRUE, 
                           top_m = 15L, eps = 1e-8, plot = TRUE, fill = "#2b51a1", 
                           ...) {
-  out <- with(
-    object,
-    H2_j_raw(
-      F_j = F_j,
-      F_not_j = F_not_j, 
-      f = f, 
-      mean_f2 = mean_f2, 
-      w = w,
-      normalize = normalize,
-      squared = squared,
-      sort = sort,
-      top_m = top_m,
-      eps = eps
-    )
+  num <- with(
+    object, matrix(nrow = length(v), ncol = K, dimnames = list(v, pred_names))
   )
-  if (plot) plot_stat(out, fill = fill, ...) else out
-}
-
-
-#' Raw H2 Overall
-#' 
-#' Function used to calculate Friedman and Popescu's overall H-squared. 
-#' It is separated from the main H2_j function because it is used within `interact()`
-#' to select the variables for pairwise calculations.
-#' 
-#' @noRd
-#' @keywords internal
-#' 
-#' @inheritParams H2_j
-#' @param F_j List of empirical PD values per feature.
-#' @param F_not_j List of empirical PD values of all features except j.
-#' @param f Predictions.
-#' @param mean_f2 Weighted average of f^2.
-#' @param w Optional case weights.
-#' @returns Matrix of results.
-H2_j_raw <- function(F_j, F_not_j, f, mean_f2, w = NULL, normalize = TRUE, 
-                     squared = TRUE, sort = TRUE, top_m = Inf, eps = 1e-8, ...) {
-  v <- names(F_j)
-  num <- matrix(nrow = length(v), ncol = ncol(f), dimnames = list(v, colnames(f)))
-  for (z in v) {
-    num[z, ] <- wcolMeans((f - F_j[[z]] - F_not_j[[z]])^2, w = w)
+  for (z in object[["v"]]) {
+    num[z, ] <- with(object, wcolMeans((f - F_j[[z]] - F_not_j[[z]])^2, w = w))
   }
-  postprocess(
+  out <- postprocess(
     num = num,
-    denom = mean_f2,
+    denom = object[["mean_f2"]],
     normalize = normalize, 
     squared = squared, 
     sort = sort, 
     top_m = top_m, 
     eps = eps
   )
+  if (plot) plot_stat(out, fill = fill, ...) else out
 }
