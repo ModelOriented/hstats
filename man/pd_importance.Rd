@@ -74,7 +74,7 @@ unexplained by all other features. As such, it measures variable importance of
 the \eqn{j}-th feature, including its interaction effects (check \code{\link[=partial_dep]{partial_dep()}}
 for all definitions).
 
-Remarks 1 to 4 of \code{\link[=H2_j]{H2_j()}} also apply here.
+Remarks 1 to 4 of \code{\link[=H2_overall]{H2_overall()}} also apply here.
 }
 \section{Methods (by class)}{
 \itemize{
@@ -102,5 +102,5 @@ Greenwell, Brandon M., Bradley C. Boehmke, and Andrew J. McCarthy.
 \emph{A Simple and Effective Model-Based Variable Importance Measure.} Arxiv (2018).
 }
 \seealso{
-\code{\link[=interact]{interact()}}, \code{\link[=H2_j]{H2_j()}}
+\code{\link[=interact]{interact()}}, \code{\link[=H2_overall]{H2_overall()}}
 }

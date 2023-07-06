@@ -54,35 +54,35 @@
 #'   A "ggplot" object (if `plot = TRUE`) or a matrix of statistics 
 #'   (one row per variable, one column per prediction dimension).
 #' @inherit interact references
-#' @seealso [interact()], [H2()], [H2_jk()]
+#' @seealso [interact()], [H2()], [H2_pairwise()], [H2_threeway()]
 #' @export
 #' @examples
 #' # MODEL 1: Linear regression
 #' fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
 #' inter <- interact(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
-#' H2_j(inter)
-#' H2_j(inter, plot = FALSE)
+#' H2_overall(inter)
+#' H2_overall(inter, plot = FALSE)
 #' 
 #' # MODEL 2: Multi-response linear regression
 #' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
 #' v <- c("Petal.Length", "Petal.Width", "Species")
 #' inter <- interact(fit, v = v, X = iris, verbose = FALSE)
-#' H2_j(inter)
-H2_j <- function(object, ...) {
-  UseMethod("H2_j")
+#' H2_overall(inter)
+H2_overall <- function(object, ...) {
+  UseMethod("H2_overall")
 }
 
-#' @describeIn H2_j Default method of overall interaction strength.
+#' @describeIn H2_overall Default method of overall interaction strength.
 #' @export
-H2_j.default <- function(object, ...) {
+H2_overall.default <- function(object, ...) {
   stop("No default method implemented.")
 }
 
-#' @describeIn H2_j Overall interaction strength from "interact" object.
+#' @describeIn H2_overall Overall interaction strength from "interact" object.
 #' @export
-H2_j.interact <- function(object, normalize = TRUE, squared = TRUE, sort = TRUE, 
-                          top_m = 15L, eps = 1e-8, plot = TRUE, fill = "#2b51a1", 
-                          ...) {
+H2_overall.interact <- function(object, normalize = TRUE, squared = TRUE, sort = TRUE, 
+                                top_m = 15L, eps = 1e-8, plot = TRUE, fill = "#2b51a1", 
+                                ...) {
   num <- with(
     object, matrix(nrow = length(v), ncol = K, dimnames = list(v, pred_names))
   )

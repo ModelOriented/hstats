@@ -6,9 +6,9 @@
 #' - Total interaction strength \eqn{H^2}, a statistic measuring the proportion of
 #'   prediction variability unexplained by main effects of `v`, see [H2()] for details.
 #' - Friedman and Popescu's \eqn{H^2_j} statistic of overall interaction strength per
-#'   feature, see [H2_j()] for details.
+#'   feature, see [H2_overall()] for details.
 #' - Friedman and Popescu's \eqn{H^2_{jk}} statistic of pairwise interaction strength,
-#'   see [H2_jk()] for details.
+#'   see [H2_pairwise()] for details.
 #' 
 #' Furthermore, it allows to calculate an experimental partial dependence based
 #' measure of feature importance, \eqn{\textrm{PDI}_j^2}. It equals the proportion of
@@ -16,7 +16,7 @@
 #' for details. (This statistic is not shown by `summary()` or `plot()`.) 
 #'  
 #' Instead of using `summary()`, interaction statistics can also be obtained via the 
-#' more flexible functions [H2()], [H2_j()], and [H2_jk()].
+#' more flexible functions [H2()], [H2_overall()], and [H2_pairwise()].
 #'  
 #' @param object Fitted model object.
 #' @param v Vector of feature names.
@@ -52,7 +52,7 @@
 #'     functions \eqn{F_{\setminus j}} of other features.
 #'   - `F_jk`: List of matrices, each representing (centered) bivariate 
 #'     partial dependence functions \eqn{F_{jk}}.
-#'   - `v_pairwise`: Subset of `v` with largest `H2_j` used for pairwise calculations.
+#'   - `v_pairwise`: Subset of `v` with largest `H2_overall` used for pairwise calculations.
 #'   - `combs`: Named list of variable pairs for which pairwise partial 
 #'     dependence functions are available.
 #'   - `K`: Number of columns of prediction matrix.
@@ -61,8 +61,8 @@
 #'   Friedman, Jerome H., and Bogdan E. Popescu. *"Predictive Learning via Rule Ensembles."*
 #'     The Annals of Applied Statistics 2, no. 3 (2008): 916-54.
 #' @export
-#' @seealso [H2()], [H2_j()], and [H2_jk()] for specific statistics calculated from the
-#'   resulting object.
+#' @seealso [H2()], [H2_overall()], [H2_pairwise()] and [H2_threeway()] for specific 
+#'   statistics calculated from the resulting object.
 #' @examples
 #' # MODEL 1: Linear regression
 #' fit <- lm(
@@ -75,7 +75,7 @@
 #' summary(inter)
 #'   
 #' # Absolute pairwise interaction strengths
-#' H2_jk(inter, normalize = FALSE, squared = FALSE)
+#' H2_pairwise(inter, normalize = FALSE, squared = FALSE)
 #' 
 #' # MODEL 2: Multi-response linear regression
 #' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
@@ -186,7 +186,7 @@ interact.default <- function(object, v, X, pred_fun = stats::predict, n_max = 30
   )
   
   # 2+way stats are calculated only for subset of features with large interactions
-  h2_j <- H2_j(out, normalize = TRUE, sort = FALSE, plot = FALSE)
+  h2_j <- H2_overall(out, normalize = TRUE, sort = FALSE, plot = FALSE)
   r <- apply(h2_j, MARGIN = 1L, FUN = max)
   r <- r[r > 0]
   
@@ -293,25 +293,28 @@ print.interact <- function(x, ...) {
 #' @export
 #' @seealso See [interact()] for examples.
 summary.interact <- function(object, top_m = 6L, ...) {
-  h2 <- H2(object)
-  h2_j <- H2_j(object, top_m = Inf, plot = FALSE)
-  h2_jk <- H2_jk(object, top_m = Inf, plot = FALSE)
+  out <- list(
+    H2 = H2(object), 
+    H2_overall = H2_overall(object, top_m = Inf, plot = FALSE), 
+    H2_pairwise = H2_pairwise(object, top_m = Inf, plot = FALSE), 
+    H2_threeway = H2_threeway(object, top_m = Inf, plot = FALSE)
+  )
   
-  cat("Proportion of prediction variability unexplained by main effects of v\n")
-  print(h2)
-  cat("\n")
+  addon <- "(only for features with strong overall interactions)"
+  txt <- c(
+    H2 = "Proportion of prediction variability unexplained by main effects of v",
+    H2_overall = "Strongest overall interactions", 
+    H2_pairwise = paste0("Strongest relative pairwise interactions\n", addon),
+    H2_threeway = paste0("Strongest relative three-way interactions\n", addon)
+  )
   
-  cat("Strongest overall interactions\n")
-  print(utils::head(h2_j, top_m))
-  cat("\n")
-  
-  if (!is.null(h2_jk)) {
-    cat("Strongest relative pairwise interactions\n")
-    cat("(only for features with strong overall interactions)\n")
-    print(utils::head(h2_jk, top_m))
+  for (nm in names(out)) {
+    cat(txt[[nm]])
+    cat("\n")
+    print(out[[nm]])
     cat("\n")
   }
-  invisible(list(H2 = h2, H2_j = h2_j, H2_jk = h2_jk))
+  invisible(out)
 }
 
 #' Plot Method for "interact" Object
@@ -323,13 +326,13 @@ summary.interact <- function(object, top_m = 6L, ...) {
 #'   \eqn{H^2_j} (1) and \eqn{H^2_{jk}} (2).
 #' @param top_m Maximum number of rows of results to plot.
 #' @param fill Color of bars (univariate case).
-#' @param ... Further arguments passed to statistics [H2_j()] and [H2_jk()].
+#' @param ... Further arguments passed to statistics [H2_overall()] and [H2_pairwise()].
 #' @returns An object of class "ggplot".
 #' @export
 #' @seealso See [interact()] for examples.
 plot.interact <- function(x, stat = 1:2, top_m = 15L, fill = "#2b51a1", ...) {
-  h2_j <- H2_j(x, top_m = top_m, plot = FALSE, ...)
-  h2_jk <- H2_jk(x, top_m = top_m, plot = FALSE, ...)
+  h2_j <- H2_overall(x, top_m = top_m, plot = FALSE, ...)
+  h2_jk <- H2_pairwise(x, top_m = top_m, plot = FALSE, ...)
   if (is.null(h2_jk)) {
     stat <- 1L
   }

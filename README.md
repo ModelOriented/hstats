@@ -136,7 +136,7 @@ plot(inter)  # Or summary(inter) for numeric output
 3. Pairwise Friedmans and Popescu's $H^2_{jk}$ measures interaction strength relative to the combined effect of the two features. This does not necessarily show which interactions are strongest in absolute numbers. To do so, we can study unnormalized statistics:
 
 ```r
-H2_jk(inter, normalize = FALSE, squared = FALSE, top_m = 5)
+H2_pairwise(inter, normalize = FALSE, squared = FALSE, top_m = 5)
 ```
 
 ![](man/figures/interact_pairwise.svg)
@@ -357,6 +357,19 @@ $$
 $$
 
 It differs from $H^2_j$ only by not subtracting the main effect of the $j$-th feature in the numerator. It can be read as the proportion of prediction variability unexplained by all other features. As such, it measures variable importance of the $j$-th feature, including its interaction effects.
+
+## Limitations
+
+Friedman and Popescu's interaction statistics are as good or bad as the required partial dependence estimates. One of the consequences is that relative statistics can become larger than one. This happens when variability of partial dependence becomes higher than prediction variability, e.g., with models than agressively extrapolate outside the observed feature space:
+
+```r
+fit <- lm(Sepal.Length ~ Petal.Width*Species*Petal.Length, data = iris)
+inter <- interact(fit, v = names(iris[-1]), X = iris)
+
+# Output
+Proportion of prediction variability unexplained by main effects of v:
+[1] 37.65177
+```
 
 ## References
 

@@ -30,7 +30,7 @@
 #'
 #' **Remarks:**
 #' 
-#' 1. Remarks 1 to 4 of [H2_j()] also apply here.
+#' 1. Remarks 1 to 4 of [H2_overall()] also apply here.
 #' 2. \eqn{H^2_{jk} = 0} means there are no interaction effects between \eqn{x_j}
 #'   and \eqn{x_k}. The larger the value, the more of the joint effect of the two 
 #'   features comes from the interaction.
@@ -50,14 +50,14 @@
 #' Furthermore, we do pairwise calculations not for the most *important* features but 
 #' rather for those features with *strongest overall interactions*.
 #' 
-#' @inheritParams H2_j
+#' @inheritParams H2_overall
 #' @returns 
 #'   A "ggplot" object (if `plot = TRUE`), or a matrix of statistics 
 #'   (one row per variable, one column per prediction dimension). If no pairwise
 #'   statistics have been calculated, the function returns `NULL`.
 #' @inherit interact references
 #' @export
-#' @seealso [interact()], [H2()], [H2_j()]
+#' @seealso [interact()], [H2()], [H2_overall()], [H2_threeway()]
 #' @examples
 #' # MODEL 1: Linear regression
 #' fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
@@ -65,32 +65,32 @@
 #' 
 #' # Proportion of joint effect coming from pairwise interaction
 #' # (for features with strongest overall interactions)
-#' H2_jk(inter)
-#' H2_jk(inter, plot = FALSE)
+#' H2_pairwise(inter)
+#' H2_pairwise(inter, plot = FALSE)
 #' 
 #' # Absolute measure as alternative
-#' H2_jk(inter, normalize = FALSE, squared = FALSE)
+#' H2_pairwise(inter, normalize = FALSE, squared = FALSE)
 #' 
 #' # MODEL 2: Multi-response linear regression
 #' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
 #' v <- c("Petal.Length", "Petal.Width", "Species")
 #' inter <- interact(fit, v = v, X = iris, verbose = FALSE)
-#' H2_jk(inter)
-H2_jk <- function(object, ...) {
-  UseMethod("H2_jk")
+#' H2_pairwise(inter)
+H2_pairwise <- function(object, ...) {
+  UseMethod("H2_pairwise")
 }
 
-#' @describeIn H2_jk Default pairwise interaction strength.
+#' @describeIn H2_pairwise Default pairwise interaction strength.
 #' @export
-H2_jk.default <- function(object, ...) {
+H2_pairwise.default <- function(object, ...) {
   stop("No default method implemented.")
 }
 
-#' @describeIn H2_jk Pairwise interaction strength from "interact" object.
+#' @describeIn H2_pairwise Pairwise interaction strength from "interact" object.
 #' @export
-H2_jk.interact <- function(object, normalize = TRUE, squared = TRUE, sort = TRUE, 
-                           top_m = 15L, eps = 1e-8, plot = TRUE, fill = "#2b51a1", 
-                           ...) {
+H2_pairwise.interact <- function(object, normalize = TRUE, squared = TRUE, sort = TRUE, 
+                                 top_m = 15L, eps = 1e-8, plot = TRUE, fill = "#2b51a1", 
+                                 ...) {
   combs <- object[["combs2"]]
   
   if (is.null(combs)) {

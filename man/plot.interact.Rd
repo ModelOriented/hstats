@@ -16,7 +16,7 @@
 
 \item{fill}{Color of bars (univariate case).}
 
-\item{...}{Further arguments passed to statistics \code{\link[=H2_j]{H2_j()}} and \code{\link[=H2_jk]{H2_jk()}}.}
+\item{...}{Further arguments passed to statistics \code{\link[=H2_overall]{H2_overall()}} and \code{\link[=H2_pairwise]{H2_pairwise()}}.}
 }
 \value{
 An object of class "ggplot".
