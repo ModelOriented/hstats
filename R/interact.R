@@ -75,7 +75,7 @@
 #' summary(inter)
 #'   
 #' # Absolute pairwise interaction strengths
-#' H2_pairwise(inter, normalize = FALSE, squared = FALSE)
+#' H2_pairwise(inter, normalize = FALSE, squared = FALSE, plot = FALSE)
 #' 
 #' # MODEL 2: Multi-response linear regression
 #' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
@@ -119,13 +119,13 @@ interact.default <- function(object, v, X, pred_fun = stats::predict, n_max = 30
   
   # Predictions ("F" in Friedman and Popescu) always calculated (cheap)
   f <- wcenter(align_pred(pred_fun(object, X, ...)), w = w)
-  mean_f2 <- wcolMeans(f^2, w = w)
+  mean_f2 <- wcolMeans(f^2, w = w)  # A vector
   
   # Initialize first progress bar
   p <- length(v)
   show_bar <- verbose && p >= 2L
   if (show_bar) {
-    cat("Univariable calculations...\n")
+    cat("1-way calculations...\n")
     pb <- utils::txtProgressBar(1L, max = p, style = 3)
   }
   
@@ -186,22 +186,20 @@ interact.default <- function(object, v, X, pred_fun = stats::predict, n_max = 30
   )
   
   # 2+way stats are calculated only for subset of features with large interactions
-  h2_j <- H2_overall(out, normalize = TRUE, sort = FALSE, plot = FALSE)
-  r <- apply(h2_j, MARGIN = 1L, FUN = max)
-  r <- r[r > 0]
+  H <- H2_overall(out, normalize = FALSE, sort = FALSE, plot = FALSE)
   
-  if (min(pairwise_m, length(r)) >= 2L) {
-    out[["v_pairwise"]] <- v2 <- v[v %in% names(utils::head(sort(-r), pairwise_m))]
+  out[["v_pairwise"]] <- v2 <- get_v(H, m = pairwise_m)
+  if (min(pairwise_m, length(v2)) >= 2L) {
     out[c("combs2", "F_jk")] <- mway(
-      object, v = v2, X = X, pred_fun = pred_fun, w = w, way = 2L, verbose = verbose, ...
+      object, v = v2, X = X, pred_fun = pred_fun, w = w, way = 2L, verb = verbose, ...
     )
   }
   
   # Threeway interactions
-  if (min(threeway_m, length(r)) >= 3L) {
-    out[["v_threeway"]] <- v3 <- v[v %in% names(utils::head(sort(-r), threeway_m))]
+  out[["v_threeway"]] <- v3 <- get_v(H, m = threeway_m)
+  if (min(threeway_m, length(v3)) >= 3L) {
     out[c("combs3", "F_jkl")] <- mway(
-      object, v = v2, X = X, pred_fun = pred_fun, w = w, way = 3L, verbose = verbose, ...
+      object, v = v3, X = X, pred_fun = pred_fun, w = w, way = 3L, verb = verbose, ...
     )
   }
   out
@@ -299,6 +297,7 @@ summary.interact <- function(object, top_m = 6L, ...) {
     H2_pairwise = H2_pairwise(object, top_m = Inf, plot = FALSE), 
     H2_threeway = H2_threeway(object, top_m = Inf, plot = FALSE)
   )
+  out <- out[sapply(out, Negate(is.null))]
   
   addon <- "(only for features with strong overall interactions)"
   txt <- c(
@@ -323,33 +322,40 @@ summary.interact <- function(object, top_m = 6L, ...) {
 #'
 #' @param x An object of class "interact".
 #' @param stat Which statistic(s) to be shown? Default is `1:2`, i.e., show both
-#'   \eqn{H^2_j} (1) and \eqn{H^2_{jk}} (2).
+#'   \eqn{H^2_j} (1) and \eqn{H^2_{jk}} (2). To also show three-way interactions,
+#'   include the value 3.
 #' @param top_m Maximum number of rows of results to plot.
 #' @param fill Color of bars (univariate case).
-#' @param ... Further arguments passed to statistics [H2_overall()] and [H2_pairwise()].
+#' @param ... Further arguments passed to statistics, e.g., `normalize = FALSE`.
 #' @returns An object of class "ggplot".
 #' @export
 #' @seealso See [interact()] for examples.
 plot.interact <- function(x, stat = 1:2, top_m = 15L, fill = "#2b51a1", ...) {
-  h2_j <- H2_overall(x, top_m = top_m, plot = FALSE, ...)
-  h2_jk <- H2_pairwise(x, top_m = top_m, plot = FALSE, ...)
-  if (is.null(h2_jk)) {
-    stat <- 1L
+  dat <- list()
+  if (1 %in% stat) {
+    dat[[1L]] <- mat2df(
+      H2_overall(x, top_m = top_m, plot = FALSE, ...), id = "Overall"
+    )
   }
-  
-  data <- rbind.data.frame(
-    if (1L %in% stat) mat2df(h2_j, id = "Overall"),
-    if (2L %in% stat) mat2df(h2_jk, id = "Pairwise")
-  )
-
-  p <- ggplot2::ggplot(data, ggplot2::aes(x = value_, y = variable_)) +
+  if (2 %in% stat) {
+    dat[[2L]] <- mat2df(
+      H2_pairwise(x, top_m = top_m, plot = FALSE, ...), id = "Pairwise"
+    )
+  }
+  if (3 %in% stat) {
+    dat[[3L]] <- mat2df(
+      H2_threeway(x, top_m = top_m, plot = FALSE, ...), id = "Three-way"
+    )
+  }
+  dat <- do.call(rbind, dat)
+  p <- ggplot2::ggplot(dat, ggplot2::aes(x = value_, y = variable_)) +
     ggplot2::ylab(ggplot2::element_blank()) +
     ggplot2::xlab("Value")
   
-  if (length(stat) == 2L) {
-    p <- p + ggplot2::facet_wrap(~ id_, scales = "free")
+  if (length(unique(dat[["id_"]])) > 1L) {
+    p <- p + ggplot2::facet_wrap(~ id_, scales = "free", ncol = 2L)
   }
-  if (ncol(h2_j) == 1L) {
+  if (length(unique(dat[["varying_"]])) == 1L) {
     p + ggplot2::geom_bar(fill = fill, stat = "identity")
   } else {
     p + 
