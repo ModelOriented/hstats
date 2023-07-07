@@ -324,7 +324,7 @@ summary.interact <- function(object, top_m = 6L, ...) {
   for (nm in names(out)) {
     cat(txt[[nm]])
     cat("\n")
-    print(out[[nm]])
+    print(utils::head(out[[nm]], top_m))
     cat("\n")
   }
   invisible(out)
