@@ -316,9 +316,9 @@ Furthermore, we do pairwise calculations not for the most *important* features b
 
 [1] also describes a test statistic to measure three-way interactions: in case there are no three-way interactions between features $x_j$, $x_k$ and $x_l$, their three-dimensional partial dependence function $F_{jkl}$ can be decomposed into lower order terms:
 
-\displaylines{
-  F_{jkl}(x_j, x_k, x_l) = F_{jk}(x_j, x_k) + F_{jl}(x_j, x_l) + F_{kl}(x_k, x_l) //- F_j(x_j) - F_k(x_k) - F_l(x_l).
-}
+$$
+  F_{jkl}(x_j, x_k, x_l) = F_{jk}(x_j, x_k) + F_{jl}(x_j, x_l) + F_{kl}(x_k, x_l) - F_j(x_j) - F_k(x_k) - F_l(x_l).
+$$
 
 The squared and scaled difference between the two sides of the equation leads to the statistic
 
@@ -328,9 +328,9 @@ $$
 
 where
 
-\displaylines{
-	C_{jkl} = \hat F_{jk}(x_j, x_k) + \hat F_{jl}(x_j, x_l) + \hat F_{kl}(x_k, x_l) //- \hat F_j(x_j) - \hat F_k(x_k) - \hat F_l(x_l).
-}
+$$
+	C_{jkl} = \hat F_{jk}(x_j, x_k) + \hat F_{jl}(x_j, x_l) + \hat F_{kl}(x_k, x_l) - \hat F_j(x_j) - \hat F_k(x_k) - \hat F_l(x_l).
+$$
 
 Similar remarks as for $H_{jk}$ apply.
 
