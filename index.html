@@ -340,13 +340,11 @@ $$</span></p>
 <h4 id="three-way-interactions">Three-way interactions<a class="anchor" aria-label="anchor" href="#three-way-interactions"></a>
 </h4>
 <p>[1] also describes a test statistic to measure three-way interactions: in case there are no three-way interactions between features <span class="math inline"><em>x</em><sub><em>j</em></sub></span>, <span class="math inline"><em>x</em><sub><em>k</em></sub></span> and <span class="math inline"><em>x</em><sub><em>l</em></sub></span>, their three-dimensional partial dependence function <span class="math inline"><em>F</em><sub><em>j</em><em>k</em><em>l</em></sub></span> can be decomposed into lower order terms:</p>
-<p><span class="math display"><em>F</em><sub><em>j</em><em>k</em><em>l</em></sub>(<em>x</em><sub><em>j</em></sub>,<em>x</em><sub><em>k</em></sub>,<em>x</em><sub><em>l</em></sub>) = <em>F</em><sub><em>j</em><em>k</em></sub>(<em>x</em><sub><em>j</em></sub>,<em>x</em><sub><em>k</em></sub>) + <em>F</em><sub><em>j</em><em>l</em></sub>(<em>x</em><sub><em>j</em></sub>,<em>x</em><sub><em>l</em></sub>) + <em>F</em><sub><em>k</em><em>l</em></sub>(<em>x</em><sub><em>k</em></sub>,<em>x</em><sub><em>l</em></sub>) − <em>F</em><sub><em>j</em></sub>(<em>x</em><sub><em>j</em></sub>) − <em>F</em><sub><em>k</em></sub>(<em>x</em><sub><em>k</em></sub>) − <em>F</em><sub><em>l</em></sub>(<em>x</em><sub><em>l</em></sub>).</span></p>
 <p>The squared and scaled difference between the two sides of the equation leads to the statistic</p>
 <p><span class="math display">$$
   H_{jkl}^2 = \frac{\frac{1}{n} \sum_{i = 1}^n \big[\hat F_{jkl}(x_j, x_k, x_l) - C_{jkl}\big]^2}{\frac{1}{n} \sum_{i = 1}^n \hat F_{jkl}(x_j, x_k, x_l)^2},
 $$</span></p>
 <p>where</p>
-<p><span class="math display"><em>C</em><sub><em>j</em><em>k</em><em>l</em></sub> = <em>F̂</em><sub><em>j</em><em>k</em></sub>(<em>x</em><sub><em>j</em></sub>,<em>x</em><sub><em>k</em></sub>) + <em>F̂</em><sub><em>j</em><em>l</em></sub>(<em>x</em><sub><em>j</em></sub>,<em>x</em><sub><em>l</em></sub>) + <em>F̂</em><sub><em>k</em><em>l</em></sub>(<em>x</em><sub><em>k</em></sub>,<em>x</em><sub><em>l</em></sub>) − <em>F̂</em><sub><em>j</em></sub>(<em>x</em><sub><em>j</em></sub>) − <em>F̂</em><sub><em>k</em></sub>(<em>x</em><sub><em>k</em></sub>) − <em>F̂</em><sub><em>l</em></sub>(<em>x</em><sub><em>l</em></sub>).</span></p>
 <p>Similar remarks as for <span class="math inline"><em>H</em><sub><em>j</em><em>k</em></sub></span> apply.</p>
 </div>
 <div class="section level4">
