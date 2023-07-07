@@ -286,16 +286,16 @@ print.interact <- function(x, ...) {
 #'
 #' @param object An object of class "interact".
 #' @param top_m Maximum number of rows of results to print.
-#' @param ... Further arguments passed from other methods.
+#' @param ... Further arguments passed to statistics, e.g., `normalize = FALSE`.
 #' @returns A named list of statistics.
 #' @export
 #' @seealso See [interact()] for examples.
 summary.interact <- function(object, top_m = 6L, ...) {
   out <- list(
-    H2 = H2(object), 
-    H2_overall = H2_overall(object, top_m = Inf, plot = FALSE), 
-    H2_pairwise = H2_pairwise(object, top_m = Inf, plot = FALSE), 
-    H2_threeway = H2_threeway(object, top_m = Inf, plot = FALSE)
+    H2 = H2(object, ...), 
+    H2_overall = H2_overall(object, top_m = Inf, plot = FALSE, ...), 
+    H2_pairwise = H2_pairwise(object, top_m = Inf, plot = FALSE, ...), 
+    H2_threeway = H2_threeway(object, top_m = Inf, plot = FALSE, ...)
   )
   out <- out[sapply(out, Negate(is.null))]
   

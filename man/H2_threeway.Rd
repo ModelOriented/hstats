@@ -46,13 +46,35 @@ the results as matrix.}
 }
 \value{
 A "ggplot" object (if \code{plot = TRUE}), or a matrix of statistics
-(one row per variable, one column per prediction dimension). If no pairwise
+(one row per variable, one column per prediction dimension). If no three-way
 statistics have been calculated, the function returns \code{NULL}.
 }
 \description{
 Friedman and Popescu's statistics of three-way interaction strength extracted from the
 result of \code{\link[=interact]{interact()}}, see Details. By default, the results are plotted as a
 barplot. Set \code{plot = FALSE} to get a matrix of values instead.
+}
+\details{
+Friedman and Popescu (2008) describe a test statistic to measure three-way
+interactions: in case there are no three-way interactions between features
+\eqn{x_j}, \eqn{x_k} and \eqn{x_l}, their (centered) three-dimensional partial
+dependence function \eqn{F_{jkl}} can be decomposed into lower order terms:
+\deqn{
+  F_{jkl}(x_j, x_k, x_l) = F_{jk}(x_j, x_k) + F_{jl}(x_j, x_l) + F_{kl}(x_k, x_l) - 
+  F_j(x_j) - F_k(x_k) - F_l(x_l).
+}
+The squared and scaled difference between the two sides of the equation leads to
+the statistic
+\deqn{
+  H_{jkl}^2 = \frac{\frac{1}{n} \sum_{i = 1}^n \big[\hat F_{jkl}(x_j, x_k, x_l) - 
+  C_{jkl}\big]^2}{\frac{1}{n} \sum_{i = 1}^n \hat F_{jkl}(x_j, x_k, x_l)^2},
+}
+where
+\deqn{
+  C_{jkl} = \hat F_{jk}(x_j, x_k) + \hat F_{jl}(x_j, x_l) + \hat F_{kl}(x_k, x_l) - 
+  \hat F_j(x_j) - \hat F_k(x_k) - \hat F_l(x_l).
+}
+Similar remarks as for \eqn{H_{jk}} apply.
 }
 \section{Methods (by class)}{
 \itemize{

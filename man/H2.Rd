@@ -46,6 +46,8 @@ we can therefore study the test statistic of total interaction strength
   \sum_{i = 1}^n\big[F(\mathbf{x}_i)\big]^2}.
 }
 A value of 0 means there are no interaction effects at all.
+Due to (typically undesired) extrapolation effects, depending on the model,
+values above 1 may occur.
 
 In Żółkowski et al. (2023), \eqn{1 - H^2} is called \emph{additivity index}.
 A similar measure using accumulated local effects is discussed in Molnar (2020).

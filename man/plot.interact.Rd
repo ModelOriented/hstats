@@ -10,13 +10,14 @@
 \item{x}{An object of class "interact".}
 
 \item{stat}{Which statistic(s) to be shown? Default is \code{1:2}, i.e., show both
-\eqn{H^2_j} (1) and \eqn{H^2_{jk}} (2).}
+\eqn{H^2_j} (1) and \eqn{H^2_{jk}} (2). To also show three-way interactions,
+include the value 3.}
 
 \item{top_m}{Maximum number of rows of results to plot.}
 
 \item{fill}{Color of bars (univariate case).}
 
-\item{...}{Further arguments passed to statistics \code{\link[=H2_overall]{H2_overall()}} and \code{\link[=H2_pairwise]{H2_pairwise()}}.}
+\item{...}{Further arguments passed to statistics, e.g., \code{normalize = FALSE}.}
 }
 \value{
 An object of class "ggplot".

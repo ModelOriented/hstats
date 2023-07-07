@@ -155,7 +155,7 @@ plot(inter)
 summary(inter)
   
 # Absolute pairwise interaction strengths
-H2_pairwise(inter, normalize = FALSE, squared = FALSE)
+H2_pairwise(inter, normalize = FALSE, squared = FALSE, plot = FALSE)
 
 # MODEL 2: Multi-response linear regression
 fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)

@@ -1,35 +1,53 @@
 #' Three-way Interaction Strength
 #' 
-#' Friedman and Popescu's statistics of three-way interaction strength extracted from the
+#' Friedman and Popescu's statistic of three-way interaction strength extracted from the
 #' result of [interact()], see Details. By default, the results are plotted as a
 #' barplot. Set `plot = FALSE` to get a matrix of values instead.
+#' 
+#' @details
+#' Friedman and Popescu (2008) describe a test statistic to measure three-way 
+#' interactions: in case there are no three-way interactions between features 
+#' \eqn{x_j}, \eqn{x_k} and \eqn{x_l}, their (centered) three-dimensional partial 
+#' dependence function \eqn{F_{jkl}} can be decomposed into lower order terms:
+#' \deqn{
+#'   F_{jkl}(x_j, x_k, x_l) = F_{jk}(x_j, x_k) + F_{jl}(x_j, x_l) + F_{kl}(x_k, x_l) - 
+#'   F_j(x_j) - F_k(x_k) - F_l(x_l).
+#' }
+#' The squared and scaled difference between the two sides of the equation leads to 
+#' the statistic
+#' \deqn{
+#'   H_{jkl}^2 = \frac{\frac{1}{n} \sum_{i = 1}^n \big[\hat F_{jkl}(x_j, x_k, x_l) - 
+#'   C_{jkl}\big]^2}{\frac{1}{n} \sum_{i = 1}^n \hat F_{jkl}(x_j, x_k, x_l)^2},
+#' }
+#' where
+#' \deqn{
+#'   C_{jkl} = \hat F_{jk}(x_j, x_k) + \hat F_{jl}(x_j, x_l) + \hat F_{kl}(x_k, x_l) - 
+#'   \hat F_j(x_j) - \hat F_k(x_k) - \hat F_l(x_l).
+#' }
+#' Similar remarks as for [H2_pairwise()] apply.
 #' 
 #' @inheritParams H2_overall
 #' @returns 
 #'   A "ggplot" object (if `plot = TRUE`), or a matrix of statistics 
-#'   (one row per variable, one column per prediction dimension). If no pairwise
+#'   (one row per variable, one column per prediction dimension). If no three-way
 #'   statistics have been calculated, the function returns `NULL`.
 #' @inherit interact references
 #' @export
 #' @seealso [interact()], [H2()], [H2_overall()], [H2_pairwise()]
 #' @examples
 #' # MODEL 1: Linear regression
-#' fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
-#' inter <- interact(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
-#' 
-#' # Proportion of joint effect coming from three-way interaction
-#' # (for features with strongest overall interactions)
-#' H2_threeway(inter)
+#' fit <- lm(uptake ~ Type * Treatment * conc, data = CO2)
+#' inter <- interact(fit, v = names(CO2[2:4]), X = CO2, verbose = FALSE)
 #' H2_threeway(inter, plot = FALSE)
 #' 
-#' # Absolute measure as alternative
-#' H2_threeway(inter, normalize = FALSE, squared = FALSE)
+#' #' # MODEL 2: Multivariate output (taking just twice the same response as example)
+#' fit <- lm(cbind(up = uptake, up2 = 2 * uptake) ~ Type * Treatment * conc, data = CO2)
+#' inter <- interact(fit, v = names(CO2[2:4]), X = CO2, verbose = FALSE)
 #' 
-#' # MODEL 2: Multi-response linear regression
-#' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
-#' v <- c("Petal.Length", "Petal.Width", "Species")
-#' inter <- interact(fit, v = v, X = iris, verbose = FALSE)
-#' H2_threeway(inter)
+#' H2_threeway(inter, plot = FALSE)
+#' 
+#' # On original scale
+#' H2_threeway(inter, plot = FALSE, normalize = FALSE, squared = FALSE)
 H2_threeway <- function(object, ...) {
   UseMethod("H2_threeway")
 }

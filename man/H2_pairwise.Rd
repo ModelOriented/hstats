@@ -80,7 +80,7 @@ and
 
 \strong{Remarks:}
 \enumerate{
-\item Remarks 1 to 4 of \code{\link[=H2_j]{H2_j()}} also apply here.
+\item Remarks 1 to 4 of \code{\link[=H2_overall]{H2_overall()}} also apply here.
 \item \eqn{H^2_{jk} = 0} means there are no interaction effects between \eqn{x_j}
 and \eqn{x_k}. The larger the value, the more of the joint effect of the two
 features comes from the interaction.

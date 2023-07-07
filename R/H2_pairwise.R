@@ -30,7 +30,7 @@
 #'
 #' **Remarks:**
 #' 
-#' 1. Remarks 1 to 4 of [H2_overall()] also apply here.
+#' 1. Remarks 1 to 5 of [H2_overall()] also apply here.
 #' 2. \eqn{H^2_{jk} = 0} means there are no interaction effects between \eqn{x_j}
 #'   and \eqn{x_k}. The larger the value, the more of the joint effect of the two 
 #'   features comes from the interaction.

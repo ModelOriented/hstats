@@ -108,7 +108,7 @@ fit <- xgb.train(
 ### Interaction statistics
 
 ```r
-# 2-3 seconds on simple laptop - a random forest will take 1-2 minutes
+# 3 seconds on simple laptop - a random forest will take 1-2 minutes
 set.seed(1)
 system.time(
   inter <- interact(fit, v = x, X = X_train)
@@ -270,15 +270,16 @@ $$
 2. Partial dependence functions (and $F$) are evaluated over the data distribution. This is different to partial dependence plots, where one uses a fixed grid.
 3. Weighted versions follow by replacing all arithmetic means by corresponding weighted means.
 4. Multivariate predictions can be treated in a component-wise manner.
-5. $H^2_j = 0$ means there are no interactions associated with $x_j$. The higher the value, the more prediction variability comes from interactions with $x_j$.
-6. Since the denominator is the same for all features, the values of the test statistics can be compared across features.
+5. Due to (typically undesired) extrapolation effects, depending on the model, values above 1 may occur.
+6. $H^2_j = 0$ means there are no interactions associated with $x_j$. The higher the value, the more prediction variability comes from interactions with $x_j$.
+7. Since the denominator is the same for all features, the values of the test statistics can be compared across features.
 
 #### Pairwise interaction strength
 
 Again following [1], if there are no interaction effects between features $x_j$ and $x_k$, their two-dimensional partial dependence function $F_{jk}$ can be written as the sum of the univariate partial dependencies, i.e.,
 
 $$
-  F_{jk}(x_j, x_k) = F_j(x_j)+ F_k(x_k).
+  F_{jk}(x_j, x_k) = F_j(x_j) + F_k(x_k).
 $$
 
 Correspondingly, Friedman and Popescu's $H_{jk}^2$ statistic of pairwise interaction strength is defined as
@@ -311,6 +312,28 @@ To be better able to compare pairwise interaction strength across variable pairs
 
 Furthermore, we do pairwise calculations not for the most *important* features but rather for those features with *strongest overall interactions*.
 
+#### Three-way interactions
+
+[1] also describes a test statistic to measure three-way interactions: in case there are no three-way interactions between features $x_j$, $x_k$ and $x_l$, their three-dimensional partial dependence function $F_{jkl}$ can be decomposed into lower order terms:
+
+$$
+  F_{jkl}(x_j, x_k, x_l) = F_{jk}(x_j, x_k) + F_{jl}(x_j, x_l) + F_{kl}(x_k, x_l) - F_j(x_j) - F_k(x_k) - F_l(x_l).
+$$
+
+The squared and scaled difference between the two sides of the equation leads to the statistic
+
+$$
+  H_{jkl}^2 = \frac{\frac{1}{n} \sum_{i = 1}^n \big[\hat F_{jkl}(x_j, x_k, x_l) - C_{jkl}\big]^2}{\frac{1}{n} \sum_{i = 1}^n \hat F_{jkl}(x_j, x_k, x_l)^2},
+$$
+
+where
+
+$$
+	C_{jkl} = \hat F_{jk}(x_j, x_k) + \hat F_{jl}(x_j, x_l) + \hat F_{kl}(x_k, x_l) - \hat F_j(x_j) - \hat F_k(x_k) - \hat F_l(x_l).
+$$
+
+Similar remarks as for $H_{jk}$ apply.
+
 #### Total interaction strength of all variables together
 
 If the model is additive in all features (no interactions), then
@@ -327,7 +350,7 @@ $$
   H^2 = \frac{\frac{1}{n} \sum_{i = 1}^n \left[F(\boldsymbol x_i) - \sum_{j = 1}^p\hat F_j(x_{ij})\right]^2}{\frac{1}{n} \sum_{i = 1}^n\left[F(\boldsymbol x_i)\right]^2}.
 $$
 
-A value of 0 means there are no interaction effects at all. 
+A value of 0 means there are no interaction effects at all. Due to (typically undesired) extrapolation effects, depending on the model, values above 1 may occur.
 
 In [5], $1 - H^2$ is called *additivity index*. A similar measure using accumulated local effects is discussed in [6].
 
@@ -338,7 +361,7 @@ Calculation of all $H_j^2$ statistics requires $O(n^2 p)$ predictions, while cal
 1. Evaluate the statistics only on a subset of the data, e.g., on $n' = 300$ observations.
 2. Calculate $H_j^2$ for all features. Then, select a small number $m = O(\sqrt{p})$ of features with highest $H^2_j$ and do pairwise calculations only on this subset.
 
-This leads to a total number of $O(n'^2 p)$ predictions.
+This leads to a total number of $O(n'^2 p)$ predictions. If also three-way interactions are to be studied, $m$ should be of the order $p^{1/3}$.
 
 ### Variable importance (experimental)
 

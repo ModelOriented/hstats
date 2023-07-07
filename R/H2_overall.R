@@ -32,10 +32,12 @@
 #' 3. Weighted versions follow by replacing all arithmetic means by corresponding
 #'   weighted means.
 #' 4. Multivariate predictions can be treated in a component-wise manner.
-#' 5. \eqn{H^2_j = 0} means there are no interactions associated with \eqn{x_j}. 
+#' 5. Due to (typically undesired) extrapolation effects, depending on the model, 
+#'   values above 1 may occur.
+#' 6. \eqn{H^2_j = 0} means there are no interactions associated with \eqn{x_j}. 
 #'   The higher the value, the more prediction variability comes from interactions 
 #'   with \eqn{x_j}.
-#' 6. Since the denominator is the same for all features, the values of the test 
+#' 7. Since the denominator is the same for all features, the values of the test 
 #'   statistics can be compared across features.
 #' 
 #' @param object Object of class "interact".
