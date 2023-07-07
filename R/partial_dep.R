@@ -96,7 +96,7 @@ partial_dep <- function(object, ...) {
 #' @describeIn partial_dep Default method.
 #' @export
 partial_dep.default <- function(object, v, X, pred_fun = stats::predict, 
-                                BY = NULL, by_size = 5L, grid = NULL, grid_size = 49L, 
+                                BY = NULL, by_size = 4L, grid = NULL, grid_size = 49L, 
                                 trim = c(0.01, 0.99), 
                                 strategy = c("uniform", "quantile"), n_max = 1000L, 
                                 w = NULL, ...) {
@@ -191,7 +191,7 @@ partial_dep.default <- function(object, v, X, pred_fun = stats::predict,
 #' @export
 partial_dep.ranger <- function(object, v, X, 
                                pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
-                               BY = NULL, by_size = 5L, grid = NULL, grid_size = 49L, 
+                               BY = NULL, by_size = 4L, grid = NULL, grid_size = 49L, 
                                trim = c(0.01, 0.99), 
                                strategy = c("uniform", "quantile"), n_max = 1000L, 
                                w = NULL, ...) {
@@ -216,7 +216,7 @@ partial_dep.ranger <- function(object, v, X,
 #' @export
 partial_dep.Learner <- function(object, v, X, 
                                 pred_fun = function(m, X) m$predict_newdata(X)$response,
-                                BY = NULL, by_size = 5L, grid = NULL, grid_size = 49L, 
+                                BY = NULL, by_size = 4L, grid = NULL, grid_size = 49L, 
                                 trim = c(0.01, 0.99), 
                                 strategy = c("uniform", "quantile"), n_max = 1000L, 
                                 w = NULL, ...) {
@@ -241,7 +241,7 @@ partial_dep.Learner <- function(object, v, X,
 #' @export
 partial_dep.explainer <- function(object, v, X = object[["data"]], 
                                   pred_fun = object[["predict_function"]],
-                                  BY = NULL, by_size = 5L, grid = NULL, grid_size = 49L, 
+                                  BY = NULL, by_size = 4L, grid = NULL, grid_size = 49L, 
                                   trim = c(0.01, 0.99), 
                                   strategy = c("uniform", "quantile"), n_max = 1000L, 
                                   w = object[["weights"]], ...) {

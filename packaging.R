@@ -16,13 +16,14 @@ use_description(
   fields = list(
     Title = "Model-Agnostic Interaction Statistics",
     Version = "0.1.0",
-    Description = "Fast, model-agnostic implementation of the interaction statistics
-    introduced in Friedman, J.H. and Popescu, B.E. (2008) <doi:10.1214/07-AOAS148>.
-    This includes interaction strength per feature, feature pair, and feature triple.
+    Description = "Fast, model-agnostic implementation of the partial dependence based 
+    interaction statistics of Friedman, J.H. and Popescu, B.E. (2008) 
+    <doi:10.1214/07-AOAS148>. These statistics allow to quantify 
+    interaction strength per feature, feature pair, and feature triple.
     The package supports multivariate predictions and can deal with case weights. 
     Furthermore, different variants of the original statistics are provided.
-    The shape of the interactions can be investigated by partial dependence plots
-    and individual conditional expectations.",
+    The shape of the interactions can be investigated by partial dependence plots, 
+    or individual conditional expectation plots.",
     `Authors@R` = 
     "person('Michael', family='Mayer', role=c('aut', 'cre'), email='mayermichael79@gmail.com')",
     Depends = "R (>= 3.2.0)",
@@ -64,9 +65,9 @@ use_cran_comments()
 use_github_links() # use this if this project is on github
 
 # Github actions
-use_github_action("check-standard")
-use_github_action("test-coverage")
-use_github_action("pkgdown")
+# use_github_action("check-standard")
+# use_github_action("test-coverage")
+# use_github_action("pkgdown")
 
 #=============================================================================
 # Finish package building (can use fresh session)

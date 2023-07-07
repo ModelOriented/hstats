@@ -157,10 +157,7 @@ more flexible functions \code{\link[=H2]{H2()}}, \code{\link[=H2_overall]{H2_ove
 }}
 \examples{
 # MODEL 1: Linear regression
-fit <- lm(
-  Sepal.Length ~ Petal.Width*Species*Petal.Length, 
-  data = iris
-)
+fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
 inter <- interact(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
 inter
 plot(inter)
@@ -187,7 +184,12 @@ summary(inter)
 inter <- interact(
   fit, v = names(iris[-1]), X = iris, type = "response", verbose = FALSE
 )
-plot(inter)
+
+# All three types use different denominators
+plot(inter, which = 1:3, ncol = 1)
+
+# All statistics on same scale (of predictions)
+plot(inter, which = 1:3, squared = FALSE, normalize = FALSE, facet_scale = "free_y")
 }
 \references{
 Friedman, Jerome H., and Bogdan E. Popescu. \emph{"Predictive Learning via Rule Ensembles."}

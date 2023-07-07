@@ -16,7 +16,7 @@
 
 **What makes a ML model black-box? It's the interactions!**
 
-This package helps to quantify their strength via statistics of Friedman and Popescu [1], and to describe them via partial dependence plots [2] or individual conditional expectation plots [7]. The interaction statistics covers interaction strength **per feature**, **feature pair**, and **feature triple**.
+This package quantifies their strength by statistics of Friedman and Popescu [1], and describes them via partial dependence plots [2], or individual conditional expectation plots [7]. The interaction statistics covers interaction strength **per feature**, **feature pair**, and **feature triple**.
 
 The main functions `interact()`, `partial_dep()`, and `ice()`
 
@@ -30,9 +30,13 @@ Furthermore, different variants of the original statistics in [1] are available.
 
 DALEX explainers, meta learners ({mlr3}, {tidymodels}, {caret}) and most other models work out-of-the box. In case you need more flexibility, a prediction function `pred_fun()` can be passed to any of the main functions.
 
+## Limitation
+
+The statistics in [1] are based on partial dependence estimates and are thus as good or bad as these.
+
 ## Landscape
 
-{interactML} is not the first package to explore interactions. Here is an incomplete selection:
+{interactML} is not the first R package to explore interactions. Here is an incomplete selection:
 
 - [{gbm}](https://CRAN.R-project.org/package=gbm): Implementation of m-wise interaction statistics of [1] for {gbm} models using the weighted tree-traversal method of [2] to estimate partial dependence functions.
 - [{iml}](https://CRAN.R-project.org/package=iml): Variant of pairwise interaction statistics of [1].
@@ -125,10 +129,10 @@ H2_pairwise(inter, normalize = FALSE, squared = FALSE, top_m = 5)
 
 Since distance to the ocean and age have high values in overall interaction strength, it is not surprising that a strong relative pairwise interaction is translated into a strong absolute one.
 
-{interactML} crunches three-way interactions as well. The following plot shows them on comparable scale (`normalize = FALSE` and `squared = FALSE`) besides pairwise statistics. The three-way interactions are weaker than the pairwise interactions, yet not negligible:
+{interactML} crunches three-way interactions as well. The following plot shows them together with the other statistics on prediction scale (`normalize = FALSE` and `squared = FALSE`). The three-way interactions are weaker than the pairwise interactions, yet not negligible:
 
 ```r
-plot(inter, which = 2:3, normalize = FALSE, squared = FALSE, facet_scales = "free_y")
+plot(inter, which = 1:3, normalize = F, squared = F, facet_scales = "free_y", ncol = 1)
 ```
 
 ![](man/figures/inter3.svg)
@@ -164,7 +168,7 @@ plot(ic, center = TRUE)
 
 ![](man/figures/ice.svg)
 
-The last figure tries to visualize the strongest three-way interaction (`TRUE` facet means close to the ocean):
+The last figure tries to visualize the strongest three-way interaction, without much success though:
 
 ```r
 BY <- data.frame(X_train[, c("age", "log_ocean")])
@@ -181,9 +185,17 @@ In the spirit of [1], and related to [4], we can extract from the "interact" obj
 
 ```r
 pd_importance(inter)
+
+# Compared with tree split gain importance
+xgb.plot.importance(xgb.importance(model = fit), measure = "Gain")
 ```
 
 ![](man/figures/importance.svg)
+
+Split gain importance returns same order in this case:
+
+![](man/figures/gain_importance.svg)
+
 
 ## DALEX
 

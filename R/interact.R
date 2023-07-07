@@ -77,10 +77,7 @@
 #'   statistics calculated from the resulting object.
 #' @examples
 #' # MODEL 1: Linear regression
-#' fit <- lm(
-#'   Sepal.Length ~ Petal.Width*Species*Petal.Length, 
-#'   data = iris
-#' )
+#' fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
 #' inter <- interact(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
 #' inter
 #' plot(inter)
@@ -107,7 +104,12 @@
 #' inter <- interact(
 #'   fit, v = names(iris[-1]), X = iris, type = "response", verbose = FALSE
 #' )
-#' plot(inter)
+#' 
+#' # All three types use different denominators
+#' plot(inter, which = 1:3, ncol = 1)
+#' 
+#' # All statistics on same scale (of predictions)
+#' plot(inter, which = 1:3, squared = FALSE, normalize = FALSE, facet_scale = "free_y")
 interact <- function(object, ...) {
   UseMethod("interact")
 }
@@ -374,3 +376,76 @@ plot.interact <- function(x, which = 1:2, top_m = 15L, fill = "#2b51a1",
       ggplot2::labs(fill = "Dim")
   }
 }
+
+# Helper functions used only in this script
+
+#' Pairwise or 3-Way Partial Dependencies
+#' 
+#' Calculates centered partial dependence functions for selected pairwise or three-way
+#' situations.
+#' 
+#' @noRd
+#' @keywords internal
+#' 
+#' @inheritParams interact H Unnormalized, unsorted H_j values.
+#' @param way Pairwise (`way = 2`) or three-way (`way = 3`) interactions.
+#' @param verb Verbose (`TRUE`/`FALSE`).
+#' 
+#' @returns 
+#'   A list with a named list of feature combinations (pairs or triples), and
+#'   corresponding centered partial dependencies.
+mway <- function(object, v, X, pred_fun = stats::predict, w = NULL, 
+                 way = 2L, verb = TRUE, ...) {
+  combs <- utils::combn(v, way, simplify = FALSE)
+  n_combs <- length(combs)
+  F_way <- vector("list", length = n_combs)
+  names(F_way) <- names(combs) <- sapply(combs, paste, collapse = ":")
+  
+  show_bar <- verb && (n_combs >= way)
+  if (show_bar) {
+    cat(way, "way calculations...\n", sep = "-")
+    pb <- utils::txtProgressBar(1L, max = n_combs, style = 3)
+  }
+  
+  for (i in seq_len(n_combs)) {
+    z <- combs[[i]]
+    F_way[[i]] <- wcenter(
+      pd_raw(object, v = z, X = X, grid = X[, z], pred_fun = pred_fun, w = w, ...),
+      w = w
+    )
+    if (show_bar) {
+      utils::setTxtProgressBar(pb, i)
+    }
+  }
+  if (show_bar) {
+    cat("\n")
+  }
+  list(combs, F_way)
+}
+
+#' Get Feature Names
+#' 
+#' This function takes the unsorted and unnormalized H_j matrix and extracts the top
+#' m feature names (unsorted). If H_j has multiple columns, this is done per column and
+#' then the union is returned.
+#' 
+#' @noRd
+#' @keywords internal
+#' 
+#' @param H Unnormalized, unsorted H_j values.
+#' @param m Number of features to pick per column.
+#' 
+#' @returns A vector of feature names.
+get_v <- function(H, m) {
+  # Get largest m positive values per column
+  selector <- function(vv) names(utils::head(sort(-vv[vv > 0]), m))
+  if (NCOL(H) == 1L) {
+    v_cand <- selector(drop(H))
+  } else {
+    v_cand <- Reduce(union, lapply(asplit(H, MARGIN = 2L), FUN = selector))
+  }
+  # Same order as in v
+  v <- rownames(H)
+  v[v %in% v_cand]
+}
+

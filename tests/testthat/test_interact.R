@@ -3,6 +3,7 @@ test_that("Additive models show 0 interactions (univariate)", {
   v <- setdiff(colnames(iris), "Sepal.Width")
   inter <- interact(fit, v = v, X = iris, verbose = FALSE)
   expect_null(H2_pairwise(inter))
+  expect_null(H2_threeway(inter))
   expect_equal(
     H2_overall(inter, plot = FALSE), 
     matrix(c(0, 0, 0, 0), ncol = 1L, dimnames = list(v, NULL))
@@ -17,6 +18,7 @@ test_that("Additive models show 0 interactions (multivariate)", {
   v <- c("Petal.Length", "Petal.Width", "Species")
   inter <- interact(fit, v = v, X = iris, verbose = FALSE)
   expect_null(H2_pairwise(inter))
+  expect_null(H2_threeway(inter))
   expect_equal(
     H2_overall(inter, plot = FALSE), 
     matrix(
@@ -44,6 +46,8 @@ test_that("Non-additive models show interactions > 0 (one interaction)", {
   expect_s3_class(H2_overall(inter), "ggplot")
   expect_s3_class(H2_pairwise(inter), "ggplot")
   expect_s3_class(plot(inter), "ggplot")
+  
+  expect_null(H2_threeway(inter))
 })
 
 fit <- lm(
@@ -69,6 +73,9 @@ test_that("Non-additive models show interactions > 0 (two interactions)", {
   
   expect_s3_class(H2_overall(inter), "ggplot")
   expect_s3_class(H2_pairwise(inter), "ggplot")
+  expect_s3_class(H2_threeway(inter), "ggplot")
+  
+  expect_equal(c(H2_threeway(inter, plot = FALSE)), 0)
 })
 
 test_that("Case weights have an impact", {
@@ -92,6 +99,7 @@ test_that("summary() method returns statistics", {
   expect_equal(s$H2, H2(inter))
   expect_equal(s$H2_overall, H2_overall(inter, plot = FALSE, top_m = Inf))
   expect_equal(s$H2_pairwise, H2_pairwise(inter, plot = FALSE, top_m = Inf))
+  expect_equal(s$H2_threeway, H2_threeway(inter, plot = FALSE, top_m = Inf))
 })
 
 test_that("Stronger interactions get higher statistics", {
@@ -131,7 +139,34 @@ test_that("multivariate results are consistent", {
   expect_equal(2 * out[, "up"], out[, "up2"])
 })
 
-#
+test_that("Three-way interaction is positive in model with such terms", {
+  fit <- lm(uptake ~ Type * Treatment * conc, data = CO2)
+  inter <- interact(fit, v = names(CO2[2:4]), X = CO2, verbose = FALSE)
+  expect_true(H2_threeway(inter, plot = FALSE) > 0)
+})
+
+test_that("Three-way interaction behaves correctly across dimensions", {
+  fit <- lm(cbind(up = uptake, up2 = 2 * uptake) ~ Type * Treatment * conc, data = CO2)
+  inter <- interact(fit, v = names(CO2[2:4]), X = CO2, verbose = FALSE)
+  out <- H2_threeway(inter, plot = FALSE)
+  expect_equal(out[, "up"], out[, "up2"])
+  out <- H2_threeway(inter, plot = FALSE, squared = FALSE, normalize = FALSE)
+  expect_equal(2 * out[, "up"], out[, "up2"])
+})
+
+test_that("get_v() works", {
+  H <- cbind(c(a = 1, b = 3, c = 2, d = 5))
+  expect_equal(get_v(H, 2L), c("b", "d"))
+  expect_equal(get_v(H, 1L), "d")
+  
+  H <- cbind(
+    x = c(a = 1, b = 3, c = 2, d = 5),
+    y = 4:1
+  )
+  expect_equal(get_v(H, 2L), c("a", "b", "d"))
+  expect_equal(get_v(H, 1L), c("a", "d"))
+})
+
 # library(gbm)
 #
 # fit <- gbm(Sepal.Length ~ ., data = iris, interaction.depth = 3, bag.fraction = 1)
