@@ -118,6 +118,19 @@ test_that("subsampling has an effect", {
   expect_false(identical(out1, out2))
 })
 
+test_that("multivariate results are consistent", {
+  fit <- lm(cbind(up = uptake, up2 = 2 * uptake) ~ Type * Treatment * conc, data = CO2)
+  inter <- interact(fit, v = names(CO2[2:4]), X = CO2, verbose = FALSE)
+  
+  # Normalized
+  out <- H2_pairwise(inter, plot = FALSE)
+  expect_equal(out[, "up"], out[, "up2"])
+  
+  # Unnormalized
+  out <- H2_pairwise(inter, plot = FALSE, normalize = FALSE, squared = FALSE)
+  expect_equal(2 * out[, "up"], out[, "up2"])
+})
+
 #
 # library(gbm)
 #

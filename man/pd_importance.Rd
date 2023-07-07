@@ -39,21 +39,20 @@ Set to \code{Inf} to show all.}
 
 \item{eps}{Threshold below which numerator values are set to 0.}
 
-\item{plot}{Should results be plotted? Default is \code{TRUE}. Set to \code{FALSE} to get
-the results as matrix.}
+\item{plot}{Should results be plotted as barplot? Default is \code{FALSE}.}
 
 \item{fill}{Color of bar (only for univariate statistics).}
 }
 \value{
-A "ggplot" object (if \code{plot = TRUE}) or a matrix of statistics
-(one row per variable, one column per prediction dimension).
+A matrix of statistics (one row per variable, one column per prediction dimension),
+or a "ggplot" object (if \code{plot = TRUE}).
 }
 \description{
 Experimental variable importance method based on partial dependence functions.
 While related to Greenwell et al., our suggestion measures not only main effect
 strength but also interaction effects. It is very closely related to the
-\eqn{H^2_j} statistics, see Details. By default, the results are plotted as a
-barplot. Set \code{plot = FALSE} to get a matrix of values instead.
+\eqn{H^2_j} statistics, see Details. By default, the results are plotted as barplot.
+Set \code{plot = FALSE} to get numbers.
 }
 \details{
 If \eqn{x_j} has no effects, the (centered) prediction function \eqn{F}
@@ -95,7 +94,6 @@ fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = ir
 v <- c("Petal.Length", "Petal.Width", "Species")
 inter <- interact(fit, v = v, X = iris, verbose = FALSE)
 pd_importance(inter)
-pd_importance(inter, plot = FALSE)
 }
 \references{
 Greenwell, Brandon M., Bradley C. Boehmke, and Andrew J. McCarthy.

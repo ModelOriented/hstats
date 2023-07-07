@@ -1,8 +1,8 @@
 #' Three-way Interaction Strength
 #' 
 #' Friedman and Popescu's statistic of three-way interaction strength extracted from the
-#' result of [interact()], see Details. By default, the results are plotted as a
-#' barplot. Set `plot = FALSE` to get a matrix of values instead.
+#' result of [interact()], see Details. By default, the results are plotted as barplot.
+#' Set `plot = FALSE` to get numbers.
 #' 
 #' @details
 #' Friedman and Popescu (2008) describe a test statistic to measure three-way 
@@ -28,8 +28,8 @@
 #' 
 #' @inheritParams H2_overall
 #' @returns 
-#'   A "ggplot" object (if `plot = TRUE`), or a matrix of statistics 
-#'   (one row per variable, one column per prediction dimension). If no three-way
+#'   A matrix of statistics (one row per variable, one column per prediction dimension),
+#'   or a "ggplot" object (if `plot = TRUE`). If no three-way
 #'   statistics have been calculated, the function returns `NULL`.
 #' @inherit interact references
 #' @export
@@ -40,14 +40,13 @@
 #' inter <- interact(fit, v = names(CO2[2:4]), X = CO2, verbose = FALSE)
 #' H2_threeway(inter, plot = FALSE)
 #' 
-#' #' # MODEL 2: Multivariate output (taking just twice the same response as example)
+#' #' MODEL 2: Multivariate output (taking just twice the same response as example)
 #' fit <- lm(cbind(up = uptake, up2 = 2 * uptake) ~ Type * Treatment * conc, data = CO2)
 #' inter <- interact(fit, v = names(CO2[2:4]), X = CO2, verbose = FALSE)
-#' 
 #' H2_threeway(inter, plot = FALSE)
 #' 
-#' # On original scale
-#' H2_threeway(inter, plot = FALSE, normalize = FALSE, squared = FALSE)
+#' # Unnormalized H
+#' H2_threeway(inter, normalize = FALSE, squared = FALSE, plot = FALSE)
 H2_threeway <- function(object, ...) {
   UseMethod("H2_threeway")
 }
@@ -61,8 +60,8 @@ H2_threeway.default <- function(object, ...) {
 #' @describeIn H2_threeway Pairwise interaction strength from "interact" object.
 #' @export
 H2_threeway.interact <- function(object, normalize = TRUE, squared = TRUE, sort = TRUE, 
-                                 top_m = 15L, eps = 1e-8, plot = TRUE, fill = "#2b51a1", 
-                           ...) {
+                                 top_m = 15L, eps = 1e-8, plot = TRUE, 
+                                 fill = "#2b51a1", ...) {
   combs <- object[["combs3"]]
   
   if (is.null(combs)) {

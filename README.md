@@ -16,7 +16,7 @@
 
 **What makes a ML model black-box? It's the interactions!**
 
-This package helps to **quantify** their strength via statistics of Friedman and Popescu [1], and to **describe** them via partial dependence plots [2] and individual conditional expectation plots [7].
+This package helps to quantify their strength via statistics of Friedman and Popescu [1], and to describe them via partial dependence plots [2] or individual conditional expectation plots [7]. The interaction statistics covers interaction strength **per feature**, **feature pair**, and **feature triple**.
 
 The main functions `interact()`, `partial_dep()`, and `ice()`
 
@@ -28,7 +28,7 @@ The main functions `interact()`, `partial_dep()`, and `ice()`
 
 Furthermore, different variants of the original statistics in [1] are available.
 
-DALEX explainers, meta learners (mlr3, tidymodels, caret) and most other models work out-of-the box. In case you need more flexibility, a prediction function `pred_fun()` can be passed to any of the main functions.
+DALEX explainers, meta learners ({mlr3}, {tidymodels}, {caret}) and most other models work out-of-the box. In case you need more flexibility, a prediction function `pred_fun()` can be passed to any of the main functions.
 
 ## Landscape
 
@@ -51,9 +51,7 @@ devtools::install_github("mayer79/interactML")
 
 To demonstrate the typical workflow, we use a beautiful house price dataset with about 14,000 transactions from Miami-Dade County available in the {shapviz} package, and analyzed in [3]. 
 
-We are going to model logarithmic sales prices as a function of geographic features and other features like living area and building age. The model is fitted with XGBoost using interaction constraints to produce a model additive in all non-geographic features for maximal interpretability.
-
-What can we say about interactions? Can we verify additivity in non-geographic features?
+We are going to model logarithmic sales prices with XGBoost.
 
 ### Fit model
 
@@ -62,40 +60,25 @@ library(interactML)
 library(xgboost)
 library(shapviz)
 
-set.seed(1)
-
-# Variable sets
-x_geo <- c("LATITUDE", "LONGITUDE", "CNTR_DIST", "OCEAN_DIST", "RAIL_DIST", "HWY_DIST")
-x_nongeo <- c("TOT_LVG_AREA", "LND_SQFOOT", "structure_quality", "age")
-x <- c(x_geo, x_nongeo)
-
-# Build interaction constraint vector
-ic <- c(
-  list(which(x %in% x_geo) - 1),
-  as.list(which(x %in% x_nongeo) - 1)
-)
+colnames(miami) <- tolower(colnames(miami))
+miami$log_ocean <- log(miami$ocean_dist)
+x <- c("log_ocean", "tot_lvg_area", "lnd_sqfoot", "structure_quality", "age", "month_sold")
 
 # Train/valid split
+set.seed(1)
 ix <- sample(nrow(miami), 0.8 * nrow(miami))
 
-y_train <- log(miami$SALE_PRC[ix])
-y_valid <- log(miami$SALE_PRC[-ix])
+y_train <- log(miami$sale_prc[ix])
+y_valid <- log(miami$sale_prc[-ix])
 X_train <- data.matrix(miami[ix, x])
 X_valid <- data.matrix(miami[-ix, x])
 
 dtrain <- xgb.DMatrix(X_train, label = y_train)
 dvalid <- xgb.DMatrix(X_valid, label = y_valid)
 
-# Fit
-params <- list(
-  learning_rate = 0.2,
-  objective = "reg:squarederror",
-  max_depth = 5,
-  interaction_constraints = ic
-)
-
+# Fit via early stopping
 fit <- xgb.train(
-  params = params,
+  params = list(learning_rate = 0.15, objective = "reg:squarederror", max_depth = 5),
   data = dtrain,
   watchlist = list(valid = dvalid),
   early_stopping_rounds = 20,
@@ -115,7 +98,7 @@ system.time(
 )
 inter
 # Proportion of prediction variability unexplained by main effects of v
-# [1] 0.09602024
+# [1] 0.14
 
 plot(inter)  # Or summary(inter) for numeric output
 ```
@@ -124,10 +107,9 @@ plot(inter)  # Or summary(inter) for numeric output
 
 **Interpretation** 
 
-- About 10% of prediction variability is unexplained by the sum of all main effects. The interaction effects seem to be quite important.
-- The strongest overall interactions are associated with "OCEAN_DIST": About 6% of prediction variability can be attributed to its interactions.
-- About 15.6% of the joint effect variability of OCEAN_DIST and LONGITUDE comes from their pairwise interaction.
-- As desired, non-geographic features do not show any interactions.
+- About 14% of prediction variability is unexplained by the sum of all main effects. The interaction effects seem to be important.
+- The strongest overall interactions are associated with "log_ocean" (logarithmic distance to the ocean): About 8% of prediction variability can be attributed to its interactions.
+- About 10% of the joint effect variability of "log_ocean" and "age" comes from their pairwise interaction.
 
 **Remarks**
 
@@ -141,51 +123,57 @@ H2_pairwise(inter, normalize = FALSE, squared = FALSE, top_m = 5)
 
 ![](man/figures/interact_pairwise.svg)
 
-Since distance to the ocean and longitude have high values in $H^2_j$, it is not surprising that a strong relative pairwise interaction is translated into a strong absolute one.
+Since distance to the ocean and age have high values in overall interaction strength, it is not surprising that a strong relative pairwise interaction is translated into a strong absolute one.
 
-### Describe interactions
+{interactML} crunches three-way interactions as well. The following plot shows them on comparable scale (`normalize = FALSE` and `squared = FALSE`) besides pairwise statistics. The three-way interactions are weaker than the pairwise interactions, yet not negligible:
 
-Let's study different plots to understand *how* the strong interaction between distance to the ocean and longitude looks like. We will check the following three visualizations.
+```r
+plot(inter, which = 2:3, normalize = FALSE, squared = FALSE, facet_scales = "free_y")
+```
+
+![](man/figures/inter3.svg)
+
+
+### Describe interaction
+
+Let's study different plots to understand *how* the strong interaction between distance to the ocean and age looks like. We will check the following three visualizations.
 
 1. Stratified PDP
 2. Two-dimensional PDP
 3. Centered ICE plot with colors
 
-They all reveal a substantial interaction between the two variables (which would actually make a lot of sense on a Miami map).
+They all reveal a substantial interaction between the two variables in the sense that the age effect gets weaker the closer to the ocean.
 
 ```r
-plot(partial_dep(fit, v = "LONGITUDE", X = X_train, BY = "OCEAN_DIST"))
+plot(partial_dep(fit, v = "age", X = X_train, BY = "log_ocean"))
 ```
 
-![](man/figures/pdp_long_ocean.svg)
+![](man/figures/pdp_ocean_age.svg)
 
 ```r
-pd <- partial_dep(fit, v = c("LONGITUDE", "OCEAN_DIST"), X = X_train, grid_size = 1000)
+pd <- partial_dep(fit, v = c("age", "log_ocean"), X = X_train, grid_size = 1000)
 plot(pd)
 ```
 
 ![](man/figures/pdp_2d.png)
 
 ```r
-ic <- ice(fit, v = "LONGITUDE", X = X_train, BY = log(X_train[, "OCEAN_DIST"]))
+ic <- ice(fit, v = "age", X = X_train, BY = "log_ocean")
 plot(ic, center = TRUE)
 ```
 
 ![](man/figures/ice.svg)
 
-In contrast, no interactions are visible for living area:
+The last figure tries to visualize the strongest three-way interaction (`TRUE` facet means close to the ocean):
 
 ```r
-plot(partial_dep(fit, v = "TOT_LVG_AREA", X = X_train, BY = "OCEAN_DIST"))
+BY <- data.frame(X_train[, c("age", "log_ocean")])
+BY$log_ocean <- BY$log_ocean < 10
+plot(ice(fit, v = "tot_lvg_area", X = X_train, BY = BY), center = TRUE)
 ```
 
-![](man/figures/pdp_parallel.svg)
+![](man/figures/pdp3.svg)
 
-```r
-plot(ice(fit, v = "TOT_LVG_AREA", X = X_train, BY = "OCEAN_DIST"))
-```
-
-![](man/figures/ice_parallel.svg)
 
 ### Variable importance
 
@@ -270,7 +258,7 @@ $$
 2. Partial dependence functions (and $F$) are evaluated over the data distribution. This is different to partial dependence plots, where one uses a fixed grid.
 3. Weighted versions follow by replacing all arithmetic means by corresponding weighted means.
 4. Multivariate predictions can be treated in a component-wise manner.
-5. Due to (typically undesired) extrapolation effects, depending on the model, values above 1 may occur.
+5. Due to (typically undesired) extrapolation effects of partial dependence functions, depending on the model, values above 1 may occur.
 6. $H^2_j = 0$ means there are no interactions associated with $x_j$. The higher the value, the more prediction variability comes from interactions with $x_j$.
 7. Since the denominator is the same for all features, the values of the test statistics can be compared across features.
 
@@ -350,7 +338,7 @@ $$
   H^2 = \frac{\frac{1}{n} \sum_{i = 1}^n \left[F(\boldsymbol x_i) - \sum_{j = 1}^p\hat F_j(x_{ij})\right]^2}{\frac{1}{n} \sum_{i = 1}^n\left[F(\boldsymbol x_i)\right]^2}.
 $$
 
-A value of 0 means there are no interaction effects at all. Due to (typically undesired) extrapolation effects, depending on the model, values above 1 may occur.
+A value of 0 means there are no interaction effects at all. Due to (typically undesired) extrapolation effects of partial dependence functions, depending on the model, values above 1 may occur.
 
 In [5], $1 - H^2$ is called *additivity index*. A similar measure using accumulated local effects is discussed in [6].
 
@@ -381,18 +369,6 @@ $$
 
 It differs from $H^2_j$ only by not subtracting the main effect of the $j$-th feature in the numerator. It can be read as the proportion of prediction variability unexplained by all other features. As such, it measures variable importance of the $j$-th feature, including its interaction effects.
 
-## Limitations
-
-Friedman and Popescu's interaction statistics are as good or bad as the required partial dependence estimates. One of the consequences is that relative statistics can become larger than one. This happens when variability of partial dependence becomes higher than prediction variability, e.g., with models than agressively extrapolate outside the observed feature space:
-
-```r
-fit <- lm(Sepal.Length ~ Petal.Width*Species*Petal.Length, data = iris)
-inter <- interact(fit, v = names(iris[-1]), X = iris)
-
-# Output
-Proportion of prediction variability unexplained by main effects of v:
-[1] 37.65177
-```
 
 ## References
 

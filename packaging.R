@@ -16,8 +16,9 @@ use_description(
   fields = list(
     Title = "Model-Agnostic Interaction Statistics",
     Version = "0.1.0",
-    Description = "Fast, model-agnostic implementation of interaction strength statistics
+    Description = "Fast, model-agnostic implementation of the interaction statistics
     introduced in Friedman, J.H. and Popescu, B.E. (2008) <doi:10.1214/07-AOAS148>.
+    This includes interaction strength per feature, feature pair, and feature triple.
     The package supports multivariate predictions and can deal with case weights. 
     Furthermore, different variants of the original statistics are provided.
     The shape of the interactions can be investigated by partial dependence plots

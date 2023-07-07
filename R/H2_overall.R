@@ -1,9 +1,8 @@
 #' Overall Interaction Strength
 #' 
 #' Friedman and Popescu's \eqn{H^2_j} statistics of overall interaction strength per 
-#' feature extracted from the result of [interact()], see Details. By default, the
-#' results are plotted as a barplot. Set `plot = FALSE` to get a matrix of values 
-#' instead.
+#' feature extracted from the result of [interact()], see Details. 
+#' By default, the results are plotted as barplot. Set `plot = FALSE` to get numbers.
 #' 
 #' @details
 #' The logic of Friedman and Popescu (2008) is as follows: 
@@ -32,8 +31,8 @@
 #' 3. Weighted versions follow by replacing all arithmetic means by corresponding
 #'   weighted means.
 #' 4. Multivariate predictions can be treated in a component-wise manner.
-#' 5. Due to (typically undesired) extrapolation effects, depending on the model, 
-#'   values above 1 may occur.
+#' 5. Due to (typically undesired) extrapolation effects of partial dependence functions, 
+#'   depending on the model, values above 1 may occur.
 #' 6. \eqn{H^2_j = 0} means there are no interactions associated with \eqn{x_j}. 
 #'   The higher the value, the more prediction variability comes from interactions 
 #'   with \eqn{x_j}.
@@ -48,13 +47,12 @@
 #' @param top_m How many statistics should be shown? By default `15`. 
 #'   Set to `Inf` to show all.
 #' @param eps Threshold below which numerator values are set to 0.
-#' @param plot Should results be plotted? Default is `TRUE`. Set to `FALSE` to get
-#'   the results as matrix.
+#' @param plot Should results be plotted as barplot? Default is `FALSE`.
 #' @param fill Color of bar (only for univariate statistics).
 #' @param ... Further parameters passed to `geom_bar()`.
 #' @returns 
-#'   A "ggplot" object (if `plot = TRUE`) or a matrix of statistics 
-#'   (one row per variable, one column per prediction dimension).
+#'   A matrix of statistics (one row per variable, one column per prediction dimension),
+#'   or a "ggplot" object (if `plot = TRUE`).
 #' @inherit interact references
 #' @seealso [interact()], [H2()], [H2_pairwise()], [H2_threeway()]
 #' @export
@@ -62,14 +60,13 @@
 #' # MODEL 1: Linear regression
 #' fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
 #' inter <- interact(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
-#' H2_overall(inter)
-#' H2_overall(inter, plot = FALSE)
+#' H2_overall(inter, plot = TRUE)
 #' 
 #' # MODEL 2: Multi-response linear regression
 #' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
 #' v <- c("Petal.Length", "Petal.Width", "Species")
 #' inter <- interact(fit, v = v, X = iris, verbose = FALSE)
-#' H2_overall(inter)
+#' H2_overall(inter, plot = TRUE)
 H2_overall <- function(object, ...) {
   UseMethod("H2_overall")
 }

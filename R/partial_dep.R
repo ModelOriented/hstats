@@ -132,8 +132,9 @@ partial_dep.default <- function(object, v, X, pred_fun = stats::predict,
       by_values <- unique(BY)
     }
     
-    pd_list <- stats::setNames(vector("list", length = length(by_values)), by_values)
-    for (b in by_values) {
+    pd_list <- vector("list", length = length(by_values))
+    for (i in seq_along(by_values)) {
+      b <- by_values[i]
       out <- partial_dep.default(
         object = object, 
         v = v, 
@@ -144,7 +145,7 @@ partial_dep.default <- function(object, v, X, pred_fun = stats::predict,
         w = if (!is.null(w)) w[BY %in% b],
         ...
       )
-      pd_list[[b]] <- out[["data"]]
+      pd_list[[i]] <- out[["data"]]
     }
     pd <- do.call(rbind, c(pd_list, list(make.row.names = FALSE)))
     BY_rep <- rep(by_values, each = NROW(grid))
@@ -286,7 +287,7 @@ print.partial_dep <- function(x, n = 3L, ...) {
 #' @param x An object of class "partial_dep".
 #' @param rotate_x Should x axis labels be rotated by 45 degrees?
 #' @param color Color of lines and points (in case there is no color/fill aesthetic).
-#' @param facet_scales Value passed to `facet_wrap(scales = ...)`.
+#' @param facet_scales Value passed to `ggplot2::facet_wrap(scales = ...)`.
 #' @param show_points Logical flag indicating whether to show points (default) or not.
 #' @param ... Arguments passed to geometries.
 #' @export

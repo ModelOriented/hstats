@@ -39,20 +39,19 @@ Set to \code{Inf} to show all.}
 
 \item{eps}{Threshold below which numerator values are set to 0.}
 
-\item{plot}{Should results be plotted? Default is \code{TRUE}. Set to \code{FALSE} to get
-the results as matrix.}
+\item{plot}{Should results be plotted as barplot? Default is \code{FALSE}.}
 
 \item{fill}{Color of bar (only for univariate statistics).}
 }
 \value{
-A "ggplot" object (if \code{plot = TRUE}), or a matrix of statistics
-(one row per variable, one column per prediction dimension). If no three-way
+A matrix of statistics (one row per variable, one column per prediction dimension),
+or a "ggplot" object (if \code{plot = TRUE}). If no three-way
 statistics have been calculated, the function returns \code{NULL}.
 }
 \description{
-Friedman and Popescu's statistics of three-way interaction strength extracted from the
-result of \code{\link[=interact]{interact()}}, see Details. By default, the results are plotted as a
-barplot. Set \code{plot = FALSE} to get a matrix of values instead.
+Friedman and Popescu's statistic of three-way interaction strength extracted from the
+result of \code{\link[=interact]{interact()}}, see Details. By default, the results are plotted as barplot.
+Set \code{plot = FALSE} to get numbers.
 }
 \details{
 Friedman and Popescu (2008) describe a test statistic to measure three-way
@@ -74,7 +73,7 @@ where
   C_{jkl} = \hat F_{jk}(x_j, x_k) + \hat F_{jl}(x_j, x_l) + \hat F_{kl}(x_k, x_l) - 
   \hat F_j(x_j) - \hat F_k(x_k) - \hat F_l(x_l).
 }
-Similar remarks as for \eqn{H_{jk}} apply.
+Similar remarks as for \code{\link[=H2_pairwise]{H2_pairwise()}} apply.
 }
 \section{Methods (by class)}{
 \itemize{
@@ -85,22 +84,17 @@ Similar remarks as for \eqn{H_{jk}} apply.
 }}
 \examples{
 # MODEL 1: Linear regression
-fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
-inter <- interact(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
-
-# Proportion of joint effect coming from three-way interaction
-# (for features with strongest overall interactions)
-H2_threeway(inter)
+fit <- lm(uptake ~ Type * Treatment * conc, data = CO2)
+inter <- interact(fit, v = names(CO2[2:4]), X = CO2, verbose = FALSE)
 H2_threeway(inter, plot = FALSE)
 
-# Absolute measure as alternative
-H2_threeway(inter, normalize = FALSE, squared = FALSE)
+#' MODEL 2: Multivariate output (taking just twice the same response as example)
+fit <- lm(cbind(up = uptake, up2 = 2 * uptake) ~ Type * Treatment * conc, data = CO2)
+inter <- interact(fit, v = names(CO2[2:4]), X = CO2, verbose = FALSE)
+H2_threeway(inter, plot = FALSE)
 
-# MODEL 2: Multi-response linear regression
-fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
-v <- c("Petal.Length", "Petal.Width", "Species")
-inter <- interact(fit, v = v, X = iris, verbose = FALSE)
-H2_threeway(inter)
+# Unnormalized H
+H2_threeway(inter, normalize = FALSE, squared = FALSE, plot = FALSE)
 }
 \references{
 Friedman, Jerome H., and Bogdan E. Popescu. \emph{"Predictive Learning via Rule Ensembles."}

@@ -39,20 +39,19 @@ Set to \code{Inf} to show all.}
 
 \item{eps}{Threshold below which numerator values are set to 0.}
 
-\item{plot}{Should results be plotted? Default is \code{TRUE}. Set to \code{FALSE} to get
-the results as matrix.}
+\item{plot}{Should results be plotted as barplot? Default is \code{FALSE}.}
 
 \item{fill}{Color of bar (only for univariate statistics).}
 }
 \value{
-A "ggplot" object (if \code{plot = TRUE}), or a matrix of statistics
-(one row per variable, one column per prediction dimension). If no pairwise
+A matrix of statistics (one row per variable, one column per prediction dimension),
+or a "ggplot" object (if \code{plot = TRUE}). If no pairwise
 statistics have been calculated, the function returns \code{NULL}.
 }
 \description{
 Friedman and Popescu's statistics of pairwise interaction strength extracted from the
-result of \code{\link[=interact]{interact()}}, see Details. By default, the results are plotted as a
-barplot. Set \code{plot = FALSE} to get a matrix of values instead.
+result of \code{\link[=interact]{interact()}}, see Details. By default, the results are plotted as barplot.
+Set \code{plot = FALSE} to get numbers.
 }
 \details{
 Following Friedman and Popescu (2008), if there are no interaction effects between
@@ -80,7 +79,7 @@ and
 
 \strong{Remarks:}
 \enumerate{
-\item Remarks 1 to 4 of \code{\link[=H2_overall]{H2_overall()}} also apply here.
+\item Remarks 1 to 5 of \code{\link[=H2_overall]{H2_overall()}} also apply here.
 \item \eqn{H^2_{jk} = 0} means there are no interaction effects between \eqn{x_j}
 and \eqn{x_k}. The larger the value, the more of the joint effect of the two
 features comes from the interaction.
@@ -115,11 +114,10 @@ inter <- interact(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
 
 # Proportion of joint effect coming from pairwise interaction
 # (for features with strongest overall interactions)
-H2_pairwise(inter)
 H2_pairwise(inter, plot = FALSE)
 
 # Absolute measure as alternative
-H2_pairwise(inter, normalize = FALSE, squared = FALSE)
+H2_pairwise(inter, normalize = FALSE, squared = FALSE, plot = FALSE)
 
 # MODEL 2: Multi-response linear regression
 fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)

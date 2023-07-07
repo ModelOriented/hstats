@@ -1,8 +1,8 @@
 #' Pairwise Interaction Strength
 #' 
 #' Friedman and Popescu's statistics of pairwise interaction strength extracted from the
-#' result of [interact()], see Details. By default, the results are plotted as a
-#' barplot. Set `plot = FALSE` to get a matrix of values instead.
+#' result of [interact()], see Details. By default, the results are plotted as barplot.
+#' Set `plot = FALSE` to get numbers.
 #' 
 #' @details
 #' Following Friedman and Popescu (2008), if there are no interaction effects between 
@@ -52,8 +52,8 @@
 #' 
 #' @inheritParams H2_overall
 #' @returns 
-#'   A "ggplot" object (if `plot = TRUE`), or a matrix of statistics 
-#'   (one row per variable, one column per prediction dimension). If no pairwise
+#'   A matrix of statistics (one row per variable, one column per prediction dimension),
+#'   or a "ggplot" object (if `plot = TRUE`). If no pairwise
 #'   statistics have been calculated, the function returns `NULL`.
 #' @inherit interact references
 #' @export
@@ -65,11 +65,10 @@
 #' 
 #' # Proportion of joint effect coming from pairwise interaction
 #' # (for features with strongest overall interactions)
-#' H2_pairwise(inter)
 #' H2_pairwise(inter, plot = FALSE)
 #' 
 #' # Absolute measure as alternative
-#' H2_pairwise(inter, normalize = FALSE, squared = FALSE)
+#' H2_pairwise(inter, normalize = FALSE, squared = FALSE, plot = FALSE)
 #' 
 #' # MODEL 2: Multi-response linear regression
 #' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
@@ -89,8 +88,8 @@ H2_pairwise.default <- function(object, ...) {
 #' @describeIn H2_pairwise Pairwise interaction strength from "interact" object.
 #' @export
 H2_pairwise.interact <- function(object, normalize = TRUE, squared = TRUE, sort = TRUE, 
-                                 top_m = 15L, eps = 1e-8, plot = TRUE, fill = "#2b51a1", 
-                                 ...) {
+                                 top_m = 15L, eps = 1e-8, plot = TRUE, 
+                                 fill = "#2b51a1", ...) {
   combs <- object[["combs2"]]
   
   if (is.null(combs)) {

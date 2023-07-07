@@ -9,6 +9,8 @@
 #'   feature, see [H2_overall()] for details.
 #' - Friedman and Popescu's \eqn{H^2_{jk}} statistic of pairwise interaction strength,
 #'   see [H2_pairwise()] for details.
+#' - Friedman and Popescu's \eqn{H^2_{jkl}} statistic of three-way interaction strength,
+#'   see [H2_threeway()] for details.
 #' 
 #' Furthermore, it allows to calculate an experimental partial dependence based
 #' measure of feature importance, \eqn{\textrm{PDI}_j^2}. It equals the proportion of
@@ -16,7 +18,8 @@
 #' for details. (This statistic is not shown by `summary()` or `plot()`.) 
 #'  
 #' Instead of using `summary()`, interaction statistics can also be obtained via the 
-#' more flexible functions [H2()], [H2_overall()], and [H2_pairwise()].
+#' more flexible functions [H2()], [H2_overall()], [H2_pairwise()], and
+#' [H2_threeway()].
 #'  
 #' @param object Fitted model object.
 #' @param v Vector of feature names.
@@ -32,8 +35,10 @@
 #' @param w Optional vector of case weights for each row of `X`.
 #' @param pairwise_m Number of features for which pairwise statistics are to be 
 #'   calculated. The features are selected based on Friedman and Popescu's overall 
-#'   interaction strength \eqn{H^2_j} (rowwise maximum in the multivariate case). 
+#'   interaction strength \eqn{H^2_j}. 
 #'   Set to `length(v)` to calculate every pair and to 0 to avoid pairwise calculations.
+#'   For multivariate predictions, the union of the column-wise strongest variable
+#'   names is taken. This can lead to very long run-times.
 #' @param threeway_m Same as `pairwise_m`, but controlling the number of features for
 #'   which threeway interactions should be calculated. Not larger than `pairwise_m`.
 #' @param verbose Should a progress bar be shown? The default is `TRUE`.
@@ -50,13 +55,20 @@
 #'     partial dependence functions \eqn{F_j}.
 #'   - `F_not_j`: List of matrices with (centered) partial dependence 
 #'     functions \eqn{F_{\setminus j}} of other features.
-#'   - `F_jk`: List of matrices, each representing (centered) bivariate 
-#'     partial dependence functions \eqn{F_{jk}}.
-#'   - `v_pairwise`: Subset of `v` with largest `H2_overall` used for pairwise calculations.
-#'   - `combs`: Named list of variable pairs for which pairwise partial 
-#'     dependence functions are available.
 #'   - `K`: Number of columns of prediction matrix.
 #'   - `pred_names`: Column names of prediction matrix.
+#'   - `v_pairwise`: Subset of `v` with largest `H2_overall` used for pairwise 
+#'     calculations.
+#'   - `combs2`: Named list of variable pairs for which pairwise partial 
+#'     dependence functions are available.
+#'   - `F_jk`: List of matrices, each representing (centered) bivariate 
+#'     partial dependence functions \eqn{F_{jk}}.
+#'   - `v_threeway`: Subset of `v` with largest `H2_overall` used for three-way 
+#'     calculations.
+#'   - `combs3`: Named list of variable triples for which three-way partial 
+#'     dependence functions are available.
+#'   - `F_jkl`: List of matrices, each representing (centered) three-way 
+#'     partial dependence functions \eqn{F_{jkl}}.
 #' @references
 #'   Friedman, Jerome H., and Bogdan E. Popescu. *"Predictive Learning via Rule Ensembles."*
 #'     The Annals of Applied Statistics 2, no. 3 (2008): 916-54.
@@ -321,31 +333,27 @@ summary.interact <- function(object, top_m = 6L, ...) {
 #' Plot method for object of class "interact".
 #'
 #' @param x An object of class "interact".
-#' @param stat Which statistic(s) to be shown? Default is `1:2`, i.e., show both
+#' @param which Which statistic(s) to be shown? Default is `1:2`, i.e., show both
 #'   \eqn{H^2_j} (1) and \eqn{H^2_{jk}} (2). To also show three-way interactions,
-#'   include the value 3.
+#'   use `1:3`.
 #' @param top_m Maximum number of rows of results to plot.
 #' @param fill Color of bars (univariate case).
+#' @param facet_scales Value passed to `ggplot2::facet_wrap(scales = ...)`.
+#' @param ncol Passed to `ggplot2::facet_wrap()`.
 #' @param ... Further arguments passed to statistics, e.g., `normalize = FALSE`.
 #' @returns An object of class "ggplot".
 #' @export
 #' @seealso See [interact()] for examples.
-plot.interact <- function(x, stat = 1:2, top_m = 15L, fill = "#2b51a1", ...) {
+plot.interact <- function(x, which = 1:2, top_m = 15L, fill = "#2b51a1", 
+                          facet_scales = "free", ncol = 2L, ...) {
+  ids <- c("Overall", "Pairwise", "Threeway")
+  funs <- c(H2_overall, H2_pairwise, H2_threeway)
   dat <- list()
-  if (1 %in% stat) {
-    dat[[1L]] <- mat2df(
-      H2_overall(x, top_m = top_m, plot = FALSE, ...), id = "Overall"
-    )
-  }
-  if (2 %in% stat) {
-    dat[[2L]] <- mat2df(
-      H2_pairwise(x, top_m = top_m, plot = FALSE, ...), id = "Pairwise"
-    )
-  }
-  if (3 %in% stat) {
-    dat[[3L]] <- mat2df(
-      H2_threeway(x, top_m = top_m, plot = FALSE, ...), id = "Three-way"
-    )
+  i <- 1L
+  for (f in funs) {
+    if (i %in% which)
+      dat[[i]] <- mat2df(f(x, top_m = top_m, plot = FALSE, ...), id = ids[i])
+    i <- i + 1L
   }
   dat <- do.call(rbind, dat)
   p <- ggplot2::ggplot(dat, ggplot2::aes(x = value_, y = variable_)) +
@@ -353,7 +361,8 @@ plot.interact <- function(x, stat = 1:2, top_m = 15L, fill = "#2b51a1", ...) {
     ggplot2::xlab("Value")
   
   if (length(unique(dat[["id_"]])) > 1L) {
-    p <- p + ggplot2::facet_wrap(~ id_, scales = "free", ncol = 2L)
+    p <- p + 
+      ggplot2::facet_wrap(~ id_, ncol = ncol, scales = facet_scales)
   }
   if (length(unique(dat[["varying_"]])) == 1L) {
     p + ggplot2::geom_bar(fill = fill, stat = "identity")

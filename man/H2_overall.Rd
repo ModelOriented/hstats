@@ -39,20 +39,18 @@ Set to \code{Inf} to show all.}
 
 \item{eps}{Threshold below which numerator values are set to 0.}
 
-\item{plot}{Should results be plotted? Default is \code{TRUE}. Set to \code{FALSE} to get
-the results as matrix.}
+\item{plot}{Should results be plotted as barplot? Default is \code{FALSE}.}
 
 \item{fill}{Color of bar (only for univariate statistics).}
 }
 \value{
-A "ggplot" object (if \code{plot = TRUE}) or a matrix of statistics
-(one row per variable, one column per prediction dimension).
+A matrix of statistics (one row per variable, one column per prediction dimension),
+or a "ggplot" object (if \code{plot = TRUE}).
 }
 \description{
 Friedman and Popescu's \eqn{H^2_j} statistics of overall interaction strength per
-feature extracted from the result of \code{\link[=interact]{interact()}}, see Details. By default, the
-results are plotted as a barplot. Set \code{plot = FALSE} to get a matrix of values
-instead.
+feature extracted from the result of \code{\link[=interact]{interact()}}, see Details.
+By default, the results are plotted as barplot. Set \code{plot = FALSE} to get numbers.
 }
 \details{
 The logic of Friedman and Popescu (2008) is as follows:
@@ -81,6 +79,8 @@ This is different to partial dependence plots, where one uses a fixed grid.
 \item Weighted versions follow by replacing all arithmetic means by corresponding
 weighted means.
 \item Multivariate predictions can be treated in a component-wise manner.
+\item Due to (typically undesired) extrapolation effects of partial dependence functions,
+depending on the model, values above 1 may occur.
 \item \eqn{H^2_j = 0} means there are no interactions associated with \eqn{x_j}.
 The higher the value, the more prediction variability comes from interactions
 with \eqn{x_j}.
@@ -99,14 +99,13 @@ statistics can be compared across features.
 # MODEL 1: Linear regression
 fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
 inter <- interact(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
-H2_overall(inter)
-H2_overall(inter, plot = FALSE)
+H2_overall(inter, plot = TRUE)
 
 # MODEL 2: Multi-response linear regression
 fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
 v <- c("Petal.Length", "Petal.Width", "Species")
 inter <- interact(fit, v = v, X = iris, verbose = FALSE)
-H2_overall(inter)
+H2_overall(inter, plot = TRUE)
 }
 \references{
 Friedman, Jerome H., and Bogdan E. Popescu. \emph{"Predictive Learning via Rule Ensembles."}

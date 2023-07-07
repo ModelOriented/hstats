@@ -36,7 +36,7 @@ $$
 	\item Partial dependence functions (and $F$) are evaluated over the data distribution. This is different to partial dependence plots, where one uses a fixed grid.
 	\item Weighted versions follow by replacing all arithmetic means by corresponding weighted means.
 	\item Multivariate predictions can be treated in a component-wise manner.
-	\item Due to (typically undesired) extrapolation effects, depending on the model, values above 1 may occur.
+	\item Due to (typically undesired) extrapolation effects of partial dependence functions, depending on the model, values above 1 may occur.
 	\item $H^2_j = 0$ means there are no interactions associated with $x_j$. The higher the value, the more prediction variability comes from interactions with $x_j$.
 	\item Since the denominator is the same for all features, the values of the test statistics can be compared across features.
 \end{enumerate}
@@ -93,7 +93,7 @@ To measure the relative amount of variability unexplained by all main effects, w
 $$
   H^2 = \frac{\frac{1}{n} \sum_{i = 1}^n \big[F(\mathbf{x}_i) - \sum_{j = 1}^p\hat F_j(x_{ij})\big]^2}{\frac{1}{n} \sum_{i = 1}^n\big[F(\mathbf{x}_i)\big]^2}.
 $$
-A value of 0 means there are no interaction effects at all. Due to (typically undesired) extrapolation effects, depending on the model, values above 1 may occur.
+A value of 0 means there are no interaction effects at all. Due to (typically undesired) extrapolation effects of partial dependence functions, depending on the model, values above 1 may occur.
 
 In \cite{zolkowski2023}, $1 - H^2$ is called {\em additivity index}. A similar measure using accumulated local effects is discussed in \cite{molnar2020}.
 
