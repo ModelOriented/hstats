@@ -3,8 +3,8 @@
 #' Experimental variable importance method based on partial dependence functions. 
 #' While related to Greenwell et al., our suggestion measures not only main effect
 #' strength but also interaction effects. It is very closely related to the
-#' \eqn{H^2_j} statistics, see Details. By default, the results are plotted as a 
-#' barplot. Set `plot = FALSE` to get a matrix of values instead.
+#' \eqn{H^2_j} statistics, see Details. By default, the results are plotted as barplot.
+#' Set `plot = FALSE` to get numbers.
 #' 
 #' @details
 #' If \eqn{x_j} has no effects, the (centered) prediction function \eqn{F}
@@ -25,11 +25,11 @@
 #' the \eqn{j}-th feature, including its interaction effects (check [partial_dep()] 
 #' for all definitions).
 #' 
-#' Remarks 1 to 4 of [H2_j()] also apply here.
+#' Remarks 1 to 4 of [H2_overall()] also apply here.
 #' 
-#' @inheritParams H2_j
-#' @inherit H2_j return
-#' @seealso [interact()], [H2_j()]
+#' @inheritParams H2_overall
+#' @inherit H2_overall return
+#' @seealso [interact()], [H2_overall()]
 #' @references
 #'   Greenwell, Brandon M., Bradley C. Boehmke, and Andrew J. McCarthy.  
 #'     *A Simple and Effective Model-Based Variable Importance Measure.* Arxiv (2018).
@@ -46,7 +46,6 @@
 #' v <- c("Petal.Length", "Petal.Width", "Species")
 #' inter <- interact(fit, v = v, X = iris, verbose = FALSE)
 #' pd_importance(inter)
-#' pd_importance(inter, plot = FALSE)
 pd_importance <- function(object, ...) {
   UseMethod("pd_importance")
 }

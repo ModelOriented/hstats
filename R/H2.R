@@ -19,15 +19,17 @@
 #'   \sum_{i = 1}^n\big[F(\mathbf{x}_i)\big]^2}.
 #' }
 #' A value of 0 means there are no interaction effects at all. 
+#' Due to (typically undesired) extrapolation effects, depending on the model, 
+#' values above 1 may occur.
 #' 
-#' In Żółkowski et al. (2023), \eqn{1 - H^2} is called *additivity index*. A similar measure using 
-#' accumulated local effects is discussed in Molnar (2020).
+#' In Żółkowski et al. (2023), \eqn{1 - H^2} is called *additivity index*. 
+#' A similar measure using accumulated local effects is discussed in Molnar (2020).
 #' 
-#' @inheritParams H2_j
+#' @inheritParams H2_overall
 #' @param ... Currently unused.
 #' @returns Vector of total interaction strength (one value per prediction dimension).
 #' @export
-#' @seealso [interact()], [H2_j()], [H2_jk()]
+#' @seealso [interact()], [H2_overall()], [H2_pairwise()], [H2_threeway()]
 #' @references 
 #' 1. Żółkowski, Artur, Mateusz Krzyziński, and Paweł Fijałkowski. 
 #'   *Methods for extraction of interactions from predictive models.* 

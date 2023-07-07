@@ -11,7 +11,7 @@
 
 \item{top_m}{Maximum number of rows of results to print.}
 
-\item{...}{Further arguments passed from other methods.}
+\item{...}{Further arguments passed to statistics, e.g., \code{normalize = FALSE}.}
 }
 \value{
 A named list of statistics.

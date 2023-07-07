@@ -265,8 +265,11 @@ poor_man_stack <- function(data, to_stack) {
 #' 
 #' @param mat A matrix.
 #' @param id Value of column to be added as "id_".
-#' @returns A data.frame.
+#' @returns A data.frame, or `NULL`.
 mat2df <- function(mat, id = "Overall") {
+  if (is.null(mat)) {
+    return(NULL)
+  }
   if (!is.matrix(mat)) {
     stop("'mat' must be a matrix.")
   }

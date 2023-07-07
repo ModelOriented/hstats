@@ -18,6 +18,7 @@ interact(object, ...)
   n_max = 300L,
   w = NULL,
   pairwise_m = 5L,
+  threeway_m = pairwise_m,
   verbose = TRUE,
   ...
 )
@@ -82,8 +83,13 @@ selected from \code{X}. In this case, set a random seed for reproducibility.}
 
 \item{pairwise_m}{Number of features for which pairwise statistics are to be
 calculated. The features are selected based on Friedman and Popescu's overall
-interaction strength \eqn{H^2_j} (rowwise maximum in the multivariate case).
-Set to \code{length(v)} to calculate every pair and to 0 to avoid pairwise calculations.}
+interaction strength \eqn{H^2_j}.
+Set to \code{length(v)} to calculate every pair and to 0 to avoid pairwise calculations.
+For multivariate predictions, the union of the column-wise strongest variable
+names is taken. This can lead to very long run-times.}
+
+\item{threeway_m}{Same as \code{pairwise_m}, but controlling the number of features for
+which threeway interactions should be calculated. Not larger than \code{pairwise_m}.}
 
 \item{verbose}{Should a progress bar be shown? The default is \code{TRUE}.}
 }
@@ -99,13 +105,20 @@ An object of class "interact" containing these elements:
 partial dependence functions \eqn{F_j}.
 \item \code{F_not_j}: List of matrices with (centered) partial dependence
 functions \eqn{F_{\setminus j}} of other features.
-\item \code{F_jk}: List of matrices, each representing (centered) bivariate
-partial dependence functions \eqn{F_{jk}}.
-\item \code{v_pairwise}: Subset of \code{v} with largest \code{H2_j} used for pairwise calculations.
-\item \code{combs}: Named list of variable pairs for which pairwise partial
-dependence functions are available.
 \item \code{K}: Number of columns of prediction matrix.
 \item \code{pred_names}: Column names of prediction matrix.
+\item \code{v_pairwise}: Subset of \code{v} with largest \code{H2_overall} used for pairwise
+calculations.
+\item \code{combs2}: Named list of variable pairs for which pairwise partial
+dependence functions are available.
+\item \code{F_jk}: List of matrices, each representing (centered) bivariate
+partial dependence functions \eqn{F_{jk}}.
+\item \code{v_threeway}: Subset of \code{v} with largest \code{H2_overall} used for three-way
+calculations.
+\item \code{combs3}: Named list of variable triples for which three-way partial
+dependence functions are available.
+\item \code{F_jkl}: List of matrices, each representing (centered) three-way
+partial dependence functions \eqn{F_{jkl}}.
 }
 }
 \description{
@@ -115,9 +128,11 @@ these interaction statistics:
 \item Total interaction strength \eqn{H^2}, a statistic measuring the proportion of
 prediction variability unexplained by main effects of \code{v}, see \code{\link[=H2]{H2()}} for details.
 \item Friedman and Popescu's \eqn{H^2_j} statistic of overall interaction strength per
-feature, see \code{\link[=H2_j]{H2_j()}} for details.
+feature, see \code{\link[=H2_overall]{H2_overall()}} for details.
 \item Friedman and Popescu's \eqn{H^2_{jk}} statistic of pairwise interaction strength,
-see \code{\link[=H2_jk]{H2_jk()}} for details.
+see \code{\link[=H2_pairwise]{H2_pairwise()}} for details.
+\item Friedman and Popescu's \eqn{H^2_{jkl}} statistic of three-way interaction strength,
+see \code{\link[=H2_threeway]{H2_threeway()}} for details.
 }
 
 Furthermore, it allows to calculate an experimental partial dependence based
@@ -126,7 +141,8 @@ prediction variability unexplained by other features, see \code{\link[=pd_import
 for details. (This statistic is not shown by \code{summary()} or \code{plot()}.)
 
 Instead of using \code{summary()}, interaction statistics can also be obtained via the
-more flexible functions \code{\link[=H2]{H2()}}, \code{\link[=H2_j]{H2_j()}}, and \code{\link[=H2_jk]{H2_jk()}}.
+more flexible functions \code{\link[=H2]{H2()}}, \code{\link[=H2_overall]{H2_overall()}}, \code{\link[=H2_pairwise]{H2_pairwise()}}, and
+\code{\link[=H2_threeway]{H2_threeway()}}.
 }
 \section{Methods (by class)}{
 \itemize{
@@ -148,7 +164,7 @@ plot(inter)
 summary(inter)
   
 # Absolute pairwise interaction strengths
-H2_jk(inter, normalize = FALSE, squared = FALSE)
+H2_pairwise(inter, normalize = FALSE, squared = FALSE, plot = FALSE)
 
 # MODEL 2: Multi-response linear regression
 fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
@@ -168,13 +184,18 @@ summary(inter)
 inter <- interact(
   fit, v = names(iris[-1]), X = iris, type = "response", verbose = FALSE
 )
-plot(inter)
+
+# All three types use different denominators
+plot(inter, which = 1:3, ncol = 1)
+
+# All statistics on same scale (of predictions)
+plot(inter, which = 1:3, squared = FALSE, normalize = FALSE, facet_scale = "free_y")
 }
 \references{
 Friedman, Jerome H., and Bogdan E. Popescu. \emph{"Predictive Learning via Rule Ensembles."}
 The Annals of Applied Statistics 2, no. 3 (2008): 916-54.
 }
 \seealso{
-\code{\link[=H2]{H2()}}, \code{\link[=H2_j]{H2_j()}}, and \code{\link[=H2_jk]{H2_jk()}} for specific statistics calculated from the
-resulting object.
+\code{\link[=H2]{H2()}}, \code{\link[=H2_overall]{H2_overall()}}, \code{\link[=H2_pairwise]{H2_pairwise()}} and \code{\link[=H2_threeway]{H2_threeway()}} for specific
+statistics calculated from the resulting object.
 }

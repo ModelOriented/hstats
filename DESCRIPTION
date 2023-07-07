@@ -3,13 +3,14 @@ Title: Model-Agnostic Interaction Statistics
 Version: 0.1.0
 Authors@R: 
     person("Michael", "Mayer", , "mayermichael79@gmail.com", role = c("aut", "cre"))
-Description: Fast, model-agnostic implementation of interaction strength
-    statistics introduced in Friedman, J.H. and Popescu, B.E. (2008)
-    <doi:10.1214/07-AOAS148>.  The package supports multivariate
-    predictions and can deal with case weights.  Furthermore, different
-    variants of the original statistics are provided.  The shape of the
-    interactions can be investigated by partial dependence plots and 
-    individual conditional expectations.
+Description: Fast, model-agnostic implementation of the partial dependence
+    based interaction statistics of Friedman, J.H. and Popescu, B.E.
+    (2008) <doi:10.1214/07-AOAS148>. These statistics allow to quantify
+    interaction strength per feature, feature pair, and feature triple.
+    The package supports multivariate predictions and can deal with case
+    weights.  Furthermore, different variants of the original statistics
+    are provided.  The shape of the interactions can be investigated by
+    partial dependence plots, or individual conditional expectation plots.
 License: GPL (>= 2)
 Depends: 
     R (>= 3.2.0)
@@ -23,5 +24,3 @@ Imports:
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
-URL: https://github.com/mayer79/interactML
-BugReports: https://github.com/mayer79/interactML/issues

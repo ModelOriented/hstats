@@ -1,9 +1,8 @@
 #' Overall Interaction Strength
 #' 
 #' Friedman and Popescu's \eqn{H^2_j} statistics of overall interaction strength per 
-#' feature extracted from the result of [interact()], see Details. By default, the
-#' results are plotted as a barplot. Set `plot = FALSE` to get a matrix of values 
-#' instead.
+#' feature extracted from the result of [interact()], see Details. 
+#' By default, the results are plotted as barplot. Set `plot = FALSE` to get numbers.
 #' 
 #' @details
 #' The logic of Friedman and Popescu (2008) is as follows: 
@@ -32,10 +31,12 @@
 #' 3. Weighted versions follow by replacing all arithmetic means by corresponding
 #'   weighted means.
 #' 4. Multivariate predictions can be treated in a component-wise manner.
-#' 5. \eqn{H^2_j = 0} means there are no interactions associated with \eqn{x_j}. 
+#' 5. Due to (typically undesired) extrapolation effects of partial dependence functions, 
+#'   depending on the model, values above 1 may occur.
+#' 6. \eqn{H^2_j = 0} means there are no interactions associated with \eqn{x_j}. 
 #'   The higher the value, the more prediction variability comes from interactions 
 #'   with \eqn{x_j}.
-#' 6. Since the denominator is the same for all features, the values of the test 
+#' 7. Since the denominator is the same for all features, the values of the test 
 #'   statistics can be compared across features.
 #' 
 #' @param object Object of class "interact".
@@ -46,92 +47,55 @@
 #' @param top_m How many statistics should be shown? By default `15`. 
 #'   Set to `Inf` to show all.
 #' @param eps Threshold below which numerator values are set to 0.
-#' @param plot Should results be plotted? Default is `TRUE`. Set to `FALSE` to get
-#'   the results as matrix.
+#' @param plot Should results be plotted as barplot? Default is `FALSE`.
 #' @param fill Color of bar (only for univariate statistics).
 #' @param ... Further parameters passed to `geom_bar()`.
 #' @returns 
-#'   A "ggplot" object (if `plot = TRUE`) or a matrix of statistics 
-#'   (one row per variable, one column per prediction dimension).
+#'   A matrix of statistics (one row per variable, one column per prediction dimension),
+#'   or a "ggplot" object (if `plot = TRUE`).
 #' @inherit interact references
-#' @seealso [interact()], [H2()], [H2_jk()]
+#' @seealso [interact()], [H2()], [H2_pairwise()], [H2_threeway()]
 #' @export
 #' @examples
 #' # MODEL 1: Linear regression
 #' fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
 #' inter <- interact(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
-#' H2_j(inter)
-#' H2_j(inter, plot = FALSE)
+#' H2_overall(inter, plot = TRUE)
 #' 
 #' # MODEL 2: Multi-response linear regression
 #' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
 #' v <- c("Petal.Length", "Petal.Width", "Species")
 #' inter <- interact(fit, v = v, X = iris, verbose = FALSE)
-#' H2_j(inter)
-H2_j <- function(object, ...) {
-  UseMethod("H2_j")
+#' H2_overall(inter, plot = TRUE)
+H2_overall <- function(object, ...) {
+  UseMethod("H2_overall")
 }
 
-#' @describeIn H2_j Default method of overall interaction strength.
+#' @describeIn H2_overall Default method of overall interaction strength.
 #' @export
-H2_j.default <- function(object, ...) {
+H2_overall.default <- function(object, ...) {
   stop("No default method implemented.")
 }
 
-#' @describeIn H2_j Overall interaction strength from "interact" object.
+#' @describeIn H2_overall Overall interaction strength from "interact" object.
 #' @export
-H2_j.interact <- function(object, normalize = TRUE, squared = TRUE, sort = TRUE, 
-                          top_m = 15L, eps = 1e-8, plot = TRUE, fill = "#2b51a1", 
-                          ...) {
-  out <- with(
-    object,
-    H2_j_raw(
-      F_j = F_j,
-      F_not_j = F_not_j, 
-      f = f, 
-      mean_f2 = mean_f2, 
-      w = w,
-      normalize = normalize,
-      squared = squared,
-      sort = sort,
-      top_m = top_m,
-      eps = eps
-    )
+H2_overall.interact <- function(object, normalize = TRUE, squared = TRUE, sort = TRUE, 
+                                top_m = 15L, eps = 1e-8, plot = TRUE, fill = "#2b51a1", 
+                                ...) {
+  num <- with(
+    object, matrix(nrow = length(v), ncol = K, dimnames = list(v, pred_names))
   )
-  if (plot) plot_stat(out, fill = fill, ...) else out
-}
-
-
-#' Raw H2 Overall
-#' 
-#' Function used to calculate Friedman and Popescu's overall H-squared. 
-#' It is separated from the main H2_j function because it is used within `interact()`
-#' to select the variables for pairwise calculations.
-#' 
-#' @noRd
-#' @keywords internal
-#' 
-#' @inheritParams H2_j
-#' @param F_j List of empirical PD values per feature.
-#' @param F_not_j List of empirical PD values of all features except j.
-#' @param f Predictions.
-#' @param mean_f2 Weighted average of f^2.
-#' @param w Optional case weights.
-#' @returns Matrix of results.
-H2_j_raw <- function(F_j, F_not_j, f, mean_f2, w = NULL, normalize = TRUE, 
-                     squared = TRUE, sort = TRUE, top_m = Inf, eps = 1e-8, ...) {
-  v <- names(F_j)
-  num <- matrix(nrow = length(v), ncol = ncol(f), dimnames = list(v, colnames(f)))
-  for (z in v) {
-    num[z, ] <- wcolMeans((f - F_j[[z]] - F_not_j[[z]])^2, w = w)
+  for (z in object[["v"]]) {
+    num[z, ] <- with(object, wcolMeans((f - F_j[[z]] - F_not_j[[z]])^2, w = w))
   }
-  postprocess(
+  out <- postprocess(
     num = num,
-    denom = mean_f2,
+    denom = object[["mean_f2"]],
     normalize = normalize, 
     squared = squared, 
     sort = sort, 
     top_m = top_m, 
     eps = eps
   )
+  if (plot) plot_stat(out, fill = fill, ...) else out
 }

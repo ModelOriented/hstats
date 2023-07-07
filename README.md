@@ -16,7 +16,7 @@
 
 **What makes a ML model black-box? It's the interactions!**
 
-This package helps to **quantify** their strength via statistics of Friedman and Popescu [1], and to **describe** them via partial dependence plots [2] and individual conditional expectation plots [7].
+This package quantifies their strength by statistics of Friedman and Popescu [1], and describes them via partial dependence plots [2], or individual conditional expectation plots [7]. The interaction statistics covers interaction strength **per feature**, **feature pair**, and **feature triple**.
 
 The main functions `interact()`, `partial_dep()`, and `ice()`
 
@@ -28,11 +28,15 @@ The main functions `interact()`, `partial_dep()`, and `ice()`
 
 Furthermore, different variants of the original statistics in [1] are available.
 
-DALEX explainers, meta learners (mlr3, tidymodels, caret) and most other models work out-of-the box. In case you need more flexibility, a prediction function `pred_fun()` can be passed to any of the main functions.
+DALEX explainers, meta learners ({mlr3}, {tidymodels}, {caret}) and most other models work out-of-the box. In case you need more flexibility, a prediction function `pred_fun()` can be passed to any of the main functions.
+
+## Limitation
+
+The statistics in [1] are based on partial dependence estimates and are thus as good or bad as these.
 
 ## Landscape
 
-{interactML} is not the first package to explore interactions. Here is an incomplete selection:
+{interactML} is not the first R package to explore interactions. Here is an incomplete selection:
 
 - [{gbm}](https://CRAN.R-project.org/package=gbm): Implementation of m-wise interaction statistics of [1] for {gbm} models using the weighted tree-traversal method of [2] to estimate partial dependence functions.
 - [{iml}](https://CRAN.R-project.org/package=iml): Variant of pairwise interaction statistics of [1].
@@ -51,9 +55,7 @@ devtools::install_github("mayer79/interactML")
 
 To demonstrate the typical workflow, we use a beautiful house price dataset with about 14,000 transactions from Miami-Dade County available in the {shapviz} package, and analyzed in [3]. 
 
-We are going to model logarithmic sales prices as a function of geographic features and other features like living area and building age. The model is fitted with XGBoost using interaction constraints to produce a model additive in all non-geographic features for maximal interpretability.
-
-What can we say about interactions? Can we verify additivity in non-geographic features?
+We are going to model logarithmic sales prices with XGBoost.
 
 ### Fit model
 
@@ -62,40 +64,25 @@ library(interactML)
 library(xgboost)
 library(shapviz)
 
-set.seed(1)
-
-# Variable sets
-x_geo <- c("LATITUDE", "LONGITUDE", "CNTR_DIST", "OCEAN_DIST", "RAIL_DIST", "HWY_DIST")
-x_nongeo <- c("TOT_LVG_AREA", "LND_SQFOOT", "structure_quality", "age")
-x <- c(x_geo, x_nongeo)
-
-# Build interaction constraint vector
-ic <- c(
-  list(which(x %in% x_geo) - 1),
-  as.list(which(x %in% x_nongeo) - 1)
-)
+colnames(miami) <- tolower(colnames(miami))
+miami$log_ocean <- log(miami$ocean_dist)
+x <- c("log_ocean", "tot_lvg_area", "lnd_sqfoot", "structure_quality", "age", "month_sold")
 
 # Train/valid split
+set.seed(1)
 ix <- sample(nrow(miami), 0.8 * nrow(miami))
 
-y_train <- log(miami$SALE_PRC[ix])
-y_valid <- log(miami$SALE_PRC[-ix])
+y_train <- log(miami$sale_prc[ix])
+y_valid <- log(miami$sale_prc[-ix])
 X_train <- data.matrix(miami[ix, x])
 X_valid <- data.matrix(miami[-ix, x])
 
 dtrain <- xgb.DMatrix(X_train, label = y_train)
 dvalid <- xgb.DMatrix(X_valid, label = y_valid)
 
-# Fit
-params <- list(
-  learning_rate = 0.2,
-  objective = "reg:squarederror",
-  max_depth = 5,
-  interaction_constraints = ic
-)
-
+# Fit via early stopping
 fit <- xgb.train(
-  params = params,
+  params = list(learning_rate = 0.15, objective = "reg:squarederror", max_depth = 5),
   data = dtrain,
   watchlist = list(valid = dvalid),
   early_stopping_rounds = 20,
@@ -108,14 +95,14 @@ fit <- xgb.train(
 ### Interaction statistics
 
 ```r
-# 2-3 seconds on simple laptop - a random forest will take 1-2 minutes
+# 3 seconds on simple laptop - a random forest will take 1-2 minutes
 set.seed(1)
 system.time(
   inter <- interact(fit, v = x, X = X_train)
 )
 inter
 # Proportion of prediction variability unexplained by main effects of v
-# [1] 0.09602024
+# [1] 0.14
 
 plot(inter)  # Or summary(inter) for numeric output
 ```
@@ -124,10 +111,9 @@ plot(inter)  # Or summary(inter) for numeric output
 
 **Interpretation** 
 
-- About 10% of prediction variability is unexplained by the sum of all main effects. The interaction effects seem to be quite important.
-- The strongest overall interactions are associated with "OCEAN_DIST": About 6% of prediction variability can be attributed to its interactions.
-- About 15.6% of the joint effect variability of OCEAN_DIST and LONGITUDE comes from their pairwise interaction.
-- As desired, non-geographic features do not show any interactions.
+- About 14% of prediction variability is unexplained by the sum of all main effects. The interaction effects seem to be important.
+- The strongest overall interactions are associated with "log_ocean" (logarithmic distance to the ocean): About 8% of prediction variability can be attributed to its interactions.
+- About 10% of the joint effect variability of "log_ocean" and "age" comes from their pairwise interaction.
 
 **Remarks**
 
@@ -136,56 +122,62 @@ plot(inter)  # Or summary(inter) for numeric output
 3. Pairwise Friedmans and Popescu's $H^2_{jk}$ measures interaction strength relative to the combined effect of the two features. This does not necessarily show which interactions are strongest in absolute numbers. To do so, we can study unnormalized statistics:
 
 ```r
-H2_jk(inter, normalize = FALSE, squared = FALSE, top_m = 5)
+H2_pairwise(inter, normalize = FALSE, squared = FALSE, top_m = 5)
 ```
 
 ![](man/figures/interact_pairwise.svg)
 
-Since distance to the ocean and longitude have high values in $H^2_j$, it is not surprising that a strong relative pairwise interaction is translated into a strong absolute one.
+Since distance to the ocean and age have high values in overall interaction strength, it is not surprising that a strong relative pairwise interaction is translated into a strong absolute one.
 
-### Describe interactions
+{interactML} crunches three-way interactions as well. The following plot shows them together with the other statistics on prediction scale (`normalize = FALSE` and `squared = FALSE`). The three-way interactions are weaker than the pairwise interactions, yet not negligible:
 
-Let's study different plots to understand *how* the strong interaction between distance to the ocean and longitude looks like. We will check the following three visualizations.
+```r
+plot(inter, which = 1:3, normalize = F, squared = F, facet_scales = "free_y", ncol = 1)
+```
+
+![](man/figures/inter3.svg)
+
+
+### Describe interaction
+
+Let's study different plots to understand *how* the strong interaction between distance to the ocean and age looks like. We will check the following three visualizations.
 
 1. Stratified PDP
 2. Two-dimensional PDP
 3. Centered ICE plot with colors
 
-They all reveal a substantial interaction between the two variables (which would actually make a lot of sense on a Miami map).
+They all reveal a substantial interaction between the two variables in the sense that the age effect gets weaker the closer to the ocean.
 
 ```r
-plot(partial_dep(fit, v = "LONGITUDE", X = X_train, BY = "OCEAN_DIST"))
+plot(partial_dep(fit, v = "age", X = X_train, BY = "log_ocean"))
 ```
 
-![](man/figures/pdp_long_ocean.svg)
+![](man/figures/pdp_ocean_age.svg)
 
 ```r
-pd <- partial_dep(fit, v = c("LONGITUDE", "OCEAN_DIST"), X = X_train, grid_size = 1000)
+pd <- partial_dep(fit, v = c("age", "log_ocean"), X = X_train, grid_size = 1000)
 plot(pd)
 ```
 
 ![](man/figures/pdp_2d.png)
 
 ```r
-ic <- ice(fit, v = "LONGITUDE", X = X_train, BY = log(X_train[, "OCEAN_DIST"]))
+ic <- ice(fit, v = "age", X = X_train, BY = "log_ocean")
 plot(ic, center = TRUE)
 ```
 
 ![](man/figures/ice.svg)
 
-In contrast, no interactions are visible for living area:
+The last figure tries to visualize the strongest three-way interaction, without much success though:
 
 ```r
-plot(partial_dep(fit, v = "TOT_LVG_AREA", X = X_train, BY = "OCEAN_DIST"))
+BY <- data.frame(X_train[, c("age", "log_ocean")])
+BY$log_ocean <- BY$log_ocean < 10
+plot(ice(fit, v = "tot_lvg_area", X = X_train, BY = BY), center = TRUE)
 ```
 
-![](man/figures/pdp_parallel.svg)
+![](man/figures/pdp3.svg)
 
-```r
-plot(ice(fit, v = "TOT_LVG_AREA", X = X_train, BY = "OCEAN_DIST"))
-```
-
-![](man/figures/ice_parallel.svg)
 
 ### Variable importance
 
@@ -193,9 +185,17 @@ In the spirit of [1], and related to [4], we can extract from the "interact" obj
 
 ```r
 pd_importance(inter)
+
+# Compared with tree split gain importance
+xgb.plot.importance(xgb.importance(model = fit), measure = "Gain")
 ```
 
 ![](man/figures/importance.svg)
+
+Split gain importance returns same order in this case:
+
+![](man/figures/gain_importance.svg)
+
 
 ## DALEX
 
@@ -270,15 +270,16 @@ $$
 2. Partial dependence functions (and $F$) are evaluated over the data distribution. This is different to partial dependence plots, where one uses a fixed grid.
 3. Weighted versions follow by replacing all arithmetic means by corresponding weighted means.
 4. Multivariate predictions can be treated in a component-wise manner.
-5. $H^2_j = 0$ means there are no interactions associated with $x_j$. The higher the value, the more prediction variability comes from interactions with $x_j$.
-6. Since the denominator is the same for all features, the values of the test statistics can be compared across features.
+5. Due to (typically undesired) extrapolation effects of partial dependence functions, depending on the model, values above 1 may occur.
+6. $H^2_j = 0$ means there are no interactions associated with $x_j$. The higher the value, the more prediction variability comes from interactions with $x_j$.
+7. Since the denominator is the same for all features, the values of the test statistics can be compared across features.
 
 #### Pairwise interaction strength
 
 Again following [1], if there are no interaction effects between features $x_j$ and $x_k$, their two-dimensional partial dependence function $F_{jk}$ can be written as the sum of the univariate partial dependencies, i.e.,
 
 $$
-  F_{jk}(x_j, x_k) = F_j(x_j)+ F_k(x_k).
+  F_{jk}(x_j, x_k) = F_j(x_j) + F_k(x_k).
 $$
 
 Correspondingly, Friedman and Popescu's $H_{jk}^2$ statistic of pairwise interaction strength is defined as
@@ -311,6 +312,28 @@ To be better able to compare pairwise interaction strength across variable pairs
 
 Furthermore, we do pairwise calculations not for the most *important* features but rather for those features with *strongest overall interactions*.
 
+#### Three-way interactions
+
+[1] also describes a test statistic to measure three-way interactions: in case there are no three-way interactions between features $x_j$, $x_k$ and $x_l$, their three-dimensional partial dependence function $F_{jkl}$ can be decomposed into lower order terms:
+
+$$
+  F_{jkl}(x_j, x_k, x_l) = F_{jk}(x_j, x_k) + F_{jl}(x_j, x_l) + F_{kl}(x_k, x_l) - F_j(x_j) - F_k(x_k) - F_l(x_l).
+$$
+
+The squared and scaled difference between the two sides of the equation leads to the statistic
+
+$$
+  H_{jkl}^2 = \frac{\frac{1}{n} \sum_{i = 1}^n \big[\hat F_{jkl}(x_j, x_k, x_l) - C_{jkl}\big]^2}{\frac{1}{n} \sum_{i = 1}^n \hat F_{jkl}(x_j, x_k, x_l)^2},
+$$
+
+where
+
+$$
+	C_{jkl} = \hat F_{jk}(x_j, x_k) + \hat F_{jl}(x_j, x_l) + \hat F_{kl}(x_k, x_l) - \hat F_j(x_j) - \hat F_k(x_k) - \hat F_l(x_l).
+$$
+
+Similar remarks as for $H_{jk}$ apply.
+
 #### Total interaction strength of all variables together
 
 If the model is additive in all features (no interactions), then
@@ -327,7 +350,7 @@ $$
   H^2 = \frac{\frac{1}{n} \sum_{i = 1}^n \left[F(\boldsymbol x_i) - \sum_{j = 1}^p\hat F_j(x_{ij})\right]^2}{\frac{1}{n} \sum_{i = 1}^n\left[F(\boldsymbol x_i)\right]^2}.
 $$
 
-A value of 0 means there are no interaction effects at all. 
+A value of 0 means there are no interaction effects at all. Due to (typically undesired) extrapolation effects of partial dependence functions, depending on the model, values above 1 may occur.
 
 In [5], $1 - H^2$ is called *additivity index*. A similar measure using accumulated local effects is discussed in [6].
 
@@ -338,7 +361,7 @@ Calculation of all $H_j^2$ statistics requires $O(n^2 p)$ predictions, while cal
 1. Evaluate the statistics only on a subset of the data, e.g., on $n' = 300$ observations.
 2. Calculate $H_j^2$ for all features. Then, select a small number $m = O(\sqrt{p})$ of features with highest $H^2_j$ and do pairwise calculations only on this subset.
 
-This leads to a total number of $O(n'^2 p)$ predictions.
+This leads to a total number of $O(n'^2 p)$ predictions. If also three-way interactions are to be studied, $m$ should be of the order $p^{1/3}$.
 
 ### Variable importance (experimental)
 
@@ -357,6 +380,7 @@ $$
 $$
 
 It differs from $H^2_j$ only by not subtracting the main effect of the $j$-th feature in the numerator. It can be read as the proportion of prediction variability unexplained by all other features. As such, it measures variable importance of the $j$-th feature, including its interaction effects.
+
 
 ## References
 
