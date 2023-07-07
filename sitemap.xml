@@ -19,10 +19,13 @@
     <loc>/reference/H2.html</loc>
   </url>
   <url>
-    <loc>/reference/H2_j.html</loc>
+    <loc>/reference/H2_overall.html</loc>
   </url>
   <url>
-    <loc>/reference/H2_jk.html</loc>
+    <loc>/reference/H2_pairwise.html</loc>
+  </url>
+  <url>
+    <loc>/reference/H2_threeway.html</loc>
   </url>
   <url>
     <loc>/reference/ice.html</loc>

@@ -29,13 +29,7 @@
 <li>
   <a href="../news/index.html">Changelog</a>
 </li>
-      </ul><ul class="nav navbar-nav navbar-right"><li>
-  <a href="https://github.com/mayer79/interactML/" class="external-link">
-    <span class="fab fa-github fa-lg"></span>
-     
-  </a>
-</li>
-      </ul></div><!--/.nav-collapse -->
+      </ul><ul class="nav navbar-nav navbar-right"></ul></div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
 
@@ -45,7 +39,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Total Interaction Strength</h1>
-    <small class="dont-index">Source: <a href="https://github.com/mayer79/interactML/blob/HEAD/R/H2.R" class="external-link"><code>R/H2.R</code></a></small>
+    
     <div class="hidden name"><code>H2.Rd</code></div>
     </div>
 
@@ -108,9 +102,11 @@ $$
   \sum_{j = 1}^p\hat F_j(x_{ij})\big]^2}{\frac{1}{n} 
   \sum_{i = 1}^n\big[F(\mathbf{x}_i)\big]^2}.
 $$
-A value of 0 means there are no interaction effects at all.</p>
-<p>In Żółkowski et al. (2023), \(1 - H^2\) is called <em>additivity index</em>. A similar measure using
-accumulated local effects is discussed in Molnar (2020).</p>
+A value of 0 means there are no interaction effects at all.
+Due to (typically undesired) extrapolation effects, depending on the model,
+values above 1 may occur.</p>
+<p>In Żółkowski et al. (2023), \(1 - H^2\) is called <em>additivity index</em>.
+A similar measure using accumulated local effects is discussed in Molnar (2020).</p>
     </div>
     <div id="methods-by-class-">
     <h2>Methods (by class)</h2>
@@ -132,7 +128,7 @@ Springer International Publishing (2020): 193-204.</p></li>
 </ol></div>
     <div id="see-also">
     <h2>See also</h2>
-    <div class="dont-index"><p><code><a href="interact.html">interact()</a></code>, <code><a href="H2_j.html">H2_j()</a></code>, <code><a href="H2_jk.html">H2_jk()</a></code></p></div>
+    <div class="dont-index"><p><code><a href="interact.html">interact()</a></code>, <code><a href="H2_overall.html">H2_overall()</a></code>, <code><a href="H2_pairwise.html">H2_pairwise()</a></code>, <code><a href="H2_threeway.html">H2_threeway()</a></code></p></div>
     </div>
 
     <div id="ref-examples">

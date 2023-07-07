@@ -4,9 +4,11 @@ these interaction statistics:
 Total interaction strength \(H^2\), a statistic measuring the proportion of
 prediction variability unexplained by main effects of v, see H2() for details.
 Friedman and Popescu's \(H^2_j\) statistic of overall interaction strength per
-feature, see H2_j() for details.
+feature, see H2_overall() for details.
 Friedman and Popescu's \(H^2_{jk}\) statistic of pairwise interaction strength,
-see H2_jk() for details.
+see H2_pairwise() for details.
+Friedman and Popescu's \(H^2_{jkl}\) statistic of three-way interaction strength,
+see H2_threeway() for details.
 
 
 Furthermore, it allows to calculate an experimental partial dependence based
@@ -14,7 +16,8 @@ measure of feature importance, \(\textrm{PDI}_j^2\). It equals the proportion of
 prediction variability unexplained by other features, see pd_importance()
 for details. (This statistic is not shown by summary() or plot().)
 Instead of using summary(), interaction statistics can also be obtained via the
-more flexible functions H2(), H2_j(), and H2_jk()."><meta property="og:image" content="/logo.png"><!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
+more flexible functions H2(), H2_overall(), H2_pairwise(), and
+H2_threeway()."><meta property="og:image" content="/logo.png"><!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]--></head><body data-spy="scroll" data-target="#toc">
@@ -43,13 +46,7 @@ more flexible functions H2(), H2_j(), and H2_jk()."><meta property="og:image" co
 <li>
   <a href="../news/index.html">Changelog</a>
 </li>
-      </ul><ul class="nav navbar-nav navbar-right"><li>
-  <a href="https://github.com/mayer79/interactML/" class="external-link">
-    <span class="fab fa-github fa-lg"></span>
-     
-  </a>
-</li>
-      </ul></div><!--/.nav-collapse -->
+      </ul><ul class="nav navbar-nav navbar-right"></ul></div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
 
@@ -59,7 +56,7 @@ more flexible functions H2(), H2_j(), and H2_jk()."><meta property="og:image" co
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Calculate Interaction Statistics</h1>
-    <small class="dont-index">Source: <a href="https://github.com/mayer79/interactML/blob/HEAD/R/interact.R" class="external-link"><code>R/interact.R</code></a></small>
+    
     <div class="hidden name"><code>interact.Rd</code></div>
     </div>
 
@@ -68,15 +65,18 @@ more flexible functions H2(), H2_j(), and H2_jk()."><meta property="og:image" co
 these interaction statistics:</p><ul><li><p>Total interaction strength \(H^2\), a statistic measuring the proportion of
 prediction variability unexplained by main effects of <code>v</code>, see <code><a href="H2.html">H2()</a></code> for details.</p></li>
 <li><p>Friedman and Popescu's \(H^2_j\) statistic of overall interaction strength per
-feature, see <code><a href="H2_j.html">H2_j()</a></code> for details.</p></li>
+feature, see <code><a href="H2_overall.html">H2_overall()</a></code> for details.</p></li>
 <li><p>Friedman and Popescu's \(H^2_{jk}\) statistic of pairwise interaction strength,
-see <code><a href="H2_jk.html">H2_jk()</a></code> for details.</p></li>
+see <code><a href="H2_pairwise.html">H2_pairwise()</a></code> for details.</p></li>
+<li><p>Friedman and Popescu's \(H^2_{jkl}\) statistic of three-way interaction strength,
+see <code><a href="H2_threeway.html">H2_threeway()</a></code> for details.</p></li>
 </ul><p>Furthermore, it allows to calculate an experimental partial dependence based
 measure of feature importance, \(\textrm{PDI}_j^2\). It equals the proportion of
 prediction variability unexplained by other features, see <code><a href="pd_importance.html">pd_importance()</a></code>
 for details. (This statistic is not shown by <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> or <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code>.)</p>
 <p>Instead of using <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>, interaction statistics can also be obtained via the
-more flexible functions <code><a href="H2.html">H2()</a></code>, <code><a href="H2_j.html">H2_j()</a></code>, and <code><a href="H2_jk.html">H2_jk()</a></code>.</p>
+more flexible functions <code><a href="H2.html">H2()</a></code>, <code><a href="H2_overall.html">H2_overall()</a></code>, <code><a href="H2_pairwise.html">H2_pairwise()</a></code>, and
+<code><a href="H2_threeway.html">H2_threeway()</a></code>.</p>
     </div>
 
     <div id="ref-usage">
@@ -91,6 +91,7 @@ more flexible functions <code><a href="H2.html">H2()</a></code>, <code><a href="
 <span>  n_max <span class="op">=</span> <span class="fl">300L</span>,</span>
 <span>  w <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  pairwise_m <span class="op">=</span> <span class="fl">5L</span>,</span>
+<span>  threeway_m <span class="op">=</span> <span class="va">pairwise_m</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span>
@@ -175,8 +176,15 @@ selected from <code>X</code>. In this case, set a random seed for reproducibilit
 <dt>pairwise_m</dt>
 <dd><p>Number of features for which pairwise statistics are to be
 calculated. The features are selected based on Friedman and Popescu's overall
-interaction strength \(H^2_j\) (rowwise maximum in the multivariate case).
-Set to <code>length(v)</code> to calculate every pair and to 0 to avoid pairwise calculations.</p></dd>
+interaction strength \(H^2_j\).
+Set to <code>length(v)</code> to calculate every pair and to 0 to avoid pairwise calculations.
+For multivariate predictions, the union of the column-wise strongest variable
+names is taken. This can lead to very long run-times.</p></dd>
+
+
+<dt>threeway_m</dt>
+<dd><p>Same as <code>pairwise_m</code>, but controlling the number of features for
+which threeway interactions should be calculated. Not larger than <code>pairwise_m</code>.</p></dd>
 
 
 <dt>verbose</dt>
@@ -196,13 +204,20 @@ Set to <code>length(v)</code> to calculate every pair and to 0 to avoid pairwise
 partial dependence functions \(F_j\).</p></li>
 <li><p><code>F_not_j</code>: List of matrices with (centered) partial dependence
 functions \(F_{\setminus j}\) of other features.</p></li>
-<li><p><code>F_jk</code>: List of matrices, each representing (centered) bivariate
-partial dependence functions \(F_{jk}\).</p></li>
-<li><p><code>v_pairwise</code>: Subset of <code>v</code> with largest <code>H2_j</code> used for pairwise calculations.</p></li>
-<li><p><code>combs</code>: Named list of variable pairs for which pairwise partial
-dependence functions are available.</p></li>
 <li><p><code>K</code>: Number of columns of prediction matrix.</p></li>
 <li><p><code>pred_names</code>: Column names of prediction matrix.</p></li>
+<li><p><code>v_pairwise</code>: Subset of <code>v</code> with largest <code>H2_overall</code> used for pairwise
+calculations.</p></li>
+<li><p><code>combs2</code>: Named list of variable pairs for which pairwise partial
+dependence functions are available.</p></li>
+<li><p><code>F_jk</code>: List of matrices, each representing (centered) bivariate
+partial dependence functions \(F_{jk}\).</p></li>
+<li><p><code>v_threeway</code>: Subset of <code>v</code> with largest <code>H2_overall</code> used for three-way
+calculations.</p></li>
+<li><p><code>combs3</code>: Named list of variable triples for which three-way partial
+dependence functions are available.</p></li>
+<li><p><code>F_jkl</code>: List of matrices, each representing (centered) three-way
+partial dependence functions \(F_{jkl}\).</p></li>
 </ul></div>
     <div id="methods-by-class-">
     <h2>Methods (by class)</h2>
@@ -219,8 +234,8 @@ The Annals of Applied Statistics 2, no. 3 (2008): 916-54.</p>
     </div>
     <div id="see-also">
     <h2>See also</h2>
-    <div class="dont-index"><p><code><a href="H2.html">H2()</a></code>, <code><a href="H2_j.html">H2_j()</a></code>, and <code><a href="H2_jk.html">H2_jk()</a></code> for specific statistics calculated from the
-resulting object.</p></div>
+    <div class="dont-index"><p><code><a href="H2.html">H2()</a></code>, <code><a href="H2_overall.html">H2_overall()</a></code>, <code><a href="H2_pairwise.html">H2_pairwise()</a></code> and <code><a href="H2_threeway.html">H2_threeway()</a></code> for specific
+statistics calculated from the resulting object.</p></div>
     </div>
 
     <div id="ref-examples">
@@ -254,15 +269,16 @@ resulting object.</p></div>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span>  </span></span>
 <span class="r-in"><span><span class="co"># Absolute pairwise interaction strengths</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="H2_jk.html">H2_jk</a></span><span class="op">(</span><span class="va">inter</span>, normalize <span class="op">=</span> <span class="cn">FALSE</span>, squared <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="interact-2.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span><span class="fu"><a href="H2_pairwise.html">H2_pairwise</a></span><span class="op">(</span><span class="va">inter</span>, normalize <span class="op">=</span> <span class="cn">FALSE</span>, squared <span class="op">=</span> <span class="cn">FALSE</span>, plot <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                          [,1]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Width:Species 0.1726312</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># MODEL 2: Multi-response linear regression</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">iris</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span> <span class="op">~</span> <span class="va">Petal.Length</span> <span class="op">+</span> <span class="va">Petal.Width</span> <span class="op">*</span> <span class="va">Species</span>, data <span class="op">=</span> <span class="va">iris</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">v</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Petal.Length"</span>, <span class="st">"Petal.Width"</span>, <span class="st">"Species"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">inter</span> <span class="op">&lt;-</span> <span class="fu">interact</span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="va">v</span>, X <span class="op">=</span> <span class="va">iris</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">inter</span><span class="op">)</span></span></span>
-<span class="r-plt img"><img src="interact-3.png" alt="" width="700" height="433"></span>
+<span class="r-plt img"><img src="interact-2.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">inter</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Proportion of prediction variability unexplained by main effects of v</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Sepal.Length  Sepal.Width </span>
@@ -301,7 +317,13 @@ resulting object.</p></div>
 <span class="r-in"><span><span class="va">inter</span> <span class="op">&lt;-</span> <span class="fu">interact</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="va">fit</span>, v <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">iris</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span>, X <span class="op">=</span> <span class="va">iris</span>, type <span class="op">=</span> <span class="st">"response"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">inter</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># All three types use different denominators</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">inter</span>, which <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, ncol <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="interact-3.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># All statistics on same scale (of predictions)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">inter</span>, which <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, squared <span class="op">=</span> <span class="cn">FALSE</span>, normalize <span class="op">=</span> <span class="cn">FALSE</span>, facet_scale <span class="op">=</span> <span class="st">"free_y"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="interact-4.png" alt="" width="700" height="433"></span>
 </code></pre></div>
     </div>
