@@ -16,20 +16,17 @@
 
 **What makes a ML model black-box? It's the interactions!**
 
-Friedman and Popescu's H statistics [1] quantify different aspects of interaction strength, see [Background](#background) for details.
+Friedman and Popescu's H statistics [1] quantify different aspects of interaction strength, see [Background](#background) for details:
 
 | Statistic   | Short description                        | How to read its value?                                                                                |
 |-------------|------------------------------------------|-------------------------------------------------------------------------------------------------------|
 | $H^2_j$     | Overall interaction strength per feature | Proportion of prediction variability explained by interactions on feature $j$.                        |
 | $H^2_{jk}$  | Pairwise interaction strength            | Proportion of joint effect variability of features $j$ and $k$ coming from their pairwise interaction.|
 | $H^2_{jkl}$ | Three-way interaction strength           | Proportion of joint effect variability of three features coming from their three-way interaction.     |
-| $H^2$       | Non-additivity index ([5], not in [1])   | Proportion of prediction variability unexplained by main effects.                                     |
 
-{interactML} offers these statistics comparably **fast** and for **any model**, even for multi-output models, or models with case weights.
+{interactML} offers these statistics comparably **fast** and for **any model**, even for multi-output models, or models with case weights. Additionally, we provide a global statistic $H^2$ measuring the proportion of prediction variability unexplained by main effects [5], and an experimental feature importance measure.
 
-DALEX explainers, meta learners (mlr3, tidymodels, caret) and most other models work out-of-the box. In case you need more flexibility, a prediction function can be specified. Both data.frame and matrix data structures are supported.
-
-After having identified strong interactions via the main function `interact()`, their shape can be described via partial dependence plots (PDP) or individual conditional expectation plots (ICE).
+The core functions `interact()`, `partial_dep()`, and `ice()` can directly be applied to DALEX explainers, meta learners (mlr3, tidymodels, caret) and most other models. In case you need more flexibility, a prediction function can be specified. Both data.frame and matrix data structures are supported.
 
 ## Limitation
 
