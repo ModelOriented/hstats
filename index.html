@@ -92,21 +92,49 @@
 <h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
 </h2>
 <p><strong>What makes a ML model black-box? It’s the interactions!</strong></p>
-<p>Friedman and Popescu’s H statistics [1] quantify different aspects of interaction strength, including interaction strength</p>
-<ul>
-<li>per feature <span class="math inline"> → <em>H</em><sub><em>j</em></sub><sup>2</sup></span>,</li>
-<li>per feature pair <span class="math inline"> → <em>H</em><sub><em>j</em><em>k</em></sub><sup>2</sup></span>,</li>
-<li>and per feature triple <span class="math inline"> → <em>H</em><sub><em>j</em><em>k</em><em>l</em></sub><sup>2</sup></span>,</li>
-</ul>
-<p>see <a href="#background">Background</a> for details.</p>
+<p>Friedman and Popescu’s H statistics [1] quantify different aspects of interaction strength, see <a href="#background">Background</a> for details.</p>
+<table class="table">
+<colgroup>
+<col width="8%">
+<col width="26%">
+<col width="65%">
+</colgroup>
+<thead><tr class="header">
+<th>Statistic</th>
+<th>Short description</th>
+<th>How to read its value?</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline"><em>H</em><sub><em>j</em></sub><sup>2</sup></span></td>
+<td>Overall interaction strength per feature</td>
+<td>Proportion of prediction variability explained by interactions on feature <span class="math inline"><em>j</em></span>.</td>
+</tr>
+<tr class="even">
+<td><span class="math inline"><em>H</em><sub><em>j</em><em>k</em></sub><sup>2</sup></span></td>
+<td>Pairwise interaction strength</td>
+<td>Proportion of joint effect variability of features <span class="math inline"><em>j</em></span> and <span class="math inline"><em>k</em></span> coming from their pairwise interaction.</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline"><em>H</em><sub><em>j</em><em>k</em><em>l</em></sub><sup>2</sup></span></td>
+<td>Three-way interaction strength</td>
+<td>Proportion of joint effect variability of three features coming from their three-way interaction.</td>
+</tr>
+<tr class="even">
+<td><span class="math inline"><em>H</em><sup>2</sup></span></td>
+<td>Non-additivity index ([5], not in [1])</td>
+<td>Proportion of prediction variability unexplained by main effects.</td>
+</tr>
+</tbody>
+</table>
 <p>{interactML} offers these statistics comparably <strong>fast</strong> and for <strong>any model</strong>, even for multi-output models, or models with case weights.</p>
 <p>DALEX explainers, meta learners (mlr3, tidymodels, caret) and most other models work out-of-the box. In case you need more flexibility, a prediction function can be specified. Both data.frame and matrix data structures are supported.</p>
-<p>After having identified strong interactions via the main function <code><a href="reference/interact.html">interact()</a></code>, their shape can be described via partial dependence plots [2] or individual conditional expectation plots [7].</p>
+<p>After having identified strong interactions via the main function <code><a href="reference/interact.html">interact()</a></code>, their shape can be described via partial dependence plots (PDP) or individual conditional expectation plots (ICE).</p>
 </div>
 <div class="section level2">
 <h2 id="limitation">Limitation<a class="anchor" aria-label="anchor" href="#limitation"></a>
 </h2>
-<p>The H statistics in [1] are based on partial dependence estimates and are thus as good or bad as these. In extreme cases, H statistics intended to be in the range between 0 and 1 can become larger than 1.</p>
+<p>H statistics are based on partial dependence estimates and are thus as good or bad as these. In extreme cases, H statistics intended to be in the range between 0 and 1 can become larger than 1.</p>
 </div>
 <div class="section level2">
 <h2 id="landscape">Landscape<a class="anchor" aria-label="anchor" href="#landscape"></a>
@@ -136,8 +164,7 @@
 <div class="section level2">
 <h2 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a>
 </h2>
-<p>To demonstrate the typical workflow, we use a beautiful house price dataset with about 14,000 transactions from Miami-Dade County available in the {shapviz} package, and analyzed in [3].</p>
-<p>We are going to model logarithmic sales prices with XGBoost.</p>
+<p>To demonstrate the typical workflow, we use a beautiful house price dataset with about 14,000 transactions from Miami-Dade County available in the {shapviz} package, and analyzed in [3]. We are going to model logarithmic sales prices with XGBoost.</p>
 <div class="section level3">
 <h3 id="fit-model">Fit model<a class="anchor" aria-label="anchor" href="#fit-model"></a>
 </h3>
@@ -190,9 +217,12 @@
 <p><img src="reference/figures/interact.svg"></p>
 <p><strong>Interpretation</strong></p>
 <ul>
-<li>About 14% of prediction variability is unexplained by the sum of all main effects. The interaction effects seem to be important.</li>
-<li>The strongest overall interactions are associated with “log_ocean” (logarithmic distance to the ocean): About 8% of prediction variability can be attributed to its interactions.</li>
-<li>About 10% of the joint effect variability of “log_ocean” and “age” comes from their pairwise interaction.</li>
+<li>
+<span class="math inline"><em>H</em><sup>2</sup></span>: About 14% of prediction variability is unexplained by the sum of all main effects. The interaction effects seem to be important.</li>
+<li>
+<span class="math inline"><em>H</em><sub><em>j</em></sub><sup>2</sup></span>: The strongest overall interactions are associated with “log_ocean” (logarithmic distance to the ocean): About 8% of prediction variability can be attributed to its interactions.</li>
+<li>
+<span class="math inline"><em>H</em><sub><em>j</em><em>k</em></sub><sup>2</sup></span>: About 10% of the joint effect variability of “log_ocean” and “age” comes from their pairwise interaction.</li>
 </ul>
 <p><strong>Remarks</strong></p>
 <ol style="list-style-type: decimal">
