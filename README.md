@@ -16,23 +16,23 @@
 
 **What makes a ML model black-box? It's the interactions!**
 
-This package quantifies their strength by statistics of Friedman and Popescu [1], and describes them via partial dependence plots [2], or individual conditional expectation plots [7]. The interaction statistics covers interaction strength **per feature**, **feature pair**, and **feature triple**.
+Friedman and Popescu's H statistics [1] quantify different aspects of interaction strength, including interaction strength 
 
-The main functions `interact()`, `partial_dep()`, and `ice()`
+- per feature $\rightarrow H^2_j$,
+- per feature pair $\rightarrow H^2_{jk}$,
+- and per feature triple $\rightarrow H^2_{jkl}$,
 
-- work for **any model**,
-- are **fast**,
-- support multivariate predictions (e.g., probabilistic classification),
-- respect case weights, and
-- work with both data.frames and matrices (e.g., for XGBoost).
+see [Background](#background) for details.
 
-Furthermore, different variants of the original statistics in [1] are available.
+{interactML} offers these statistics comparably **fast** and for **any model**, even for multi-output models, or models with case weights.
 
-DALEX explainers, meta learners ({mlr3}, {tidymodels}, {caret}) and most other models work out-of-the box. In case you need more flexibility, a prediction function `pred_fun()` can be passed to any of the main functions.
+DALEX explainers, meta learners (mlr3, tidymodels, caret) and most other models work out-of-the box. In case you need more flexibility, a prediction function can be specified. Both data.frame and matrix data structures are supported.
+
+After having identified strong interactions via the main function `interact()`, their shape can be described via partial dependence plots [2] or individual conditional expectation plots [7].
 
 ## Limitation
 
-The statistics in [1] are based on partial dependence estimates and are thus as good or bad as these.
+The H statistics in [1] are based on partial dependence estimates and are thus as good or bad as these. In extreme cases, H statistics intended to be in the range between 0 and 1 can become larger than 1.
 
 ## Landscape
 
@@ -94,6 +94,8 @@ fit <- xgb.train(
 
 ### Interaction statistics
 
+Let's calculate different H statistics via `interact()`:
+
 ```r
 # 3 seconds on simple laptop - a random forest will take 1-2 minutes
 set.seed(1)
@@ -117,9 +119,9 @@ plot(inter)  # Or summary(inter) for numeric output
 
 **Remarks**
 
-1. Pairwise statistics are calculated only for the features with strong overall interactions.
-2. The statistics need to repeatedly calculate predictions on $n^2$ rows. That is why {interactML} samples 300 rows by default. To get more robust results, increase this value at the price of slower run time.
-3. Pairwise Friedmans and Popescu's $H^2_{jk}$ measures interaction strength relative to the combined effect of the two features. This does not necessarily show which interactions are strongest in absolute numbers. To do so, we can study unnormalized statistics:
+1. Pairwise statistics $H^2_{jk}$ are calculated only for the features with strong overall interactions $H^2_j$.
+2. H statistics need to repeatedly calculate predictions on up to $n^2$ rows. That is why {interactML} samples 300 rows by default. To get more robust results, increase this value at the price of slower run time.
+3. Pairwise statistics $H^2_{jk}$ measures interaction strength relative to the combined effect of the two features. This does not necessarily show which interactions are strongest in absolute numbers. To do so, we can study unnormalized statistics:
 
 ```r
 H2_pairwise(inter, normalize = FALSE, squared = FALSE, top_m = 5)
@@ -129,7 +131,7 @@ H2_pairwise(inter, normalize = FALSE, squared = FALSE, top_m = 5)
 
 Since distance to the ocean and age have high values in overall interaction strength, it is not surprising that a strong relative pairwise interaction is translated into a strong absolute one.
 
-{interactML} crunches three-way interactions as well. The following plot shows them together with the other statistics on prediction scale (`normalize = FALSE` and `squared = FALSE`). The three-way interactions are weaker than the pairwise interactions, yet not negligible:
+{interactML} crunches three-way interaction statistics $H^2_{jkl}$ as well. The following plot shows them together with the other statistics on prediction scale (`normalize = FALSE` and `squared = FALSE`). The three-way interactions are weaker than the pairwise interactions, yet not negligible:
 
 ```r
 plot(inter, which = 1:3, normalize = F, squared = F, facet_scales = "free_y", ncol = 1)
@@ -146,7 +148,7 @@ Let's study different plots to understand *how* the strong interaction between d
 2. Two-dimensional PDP
 3. Centered ICE plot with colors
 
-They all reveal a substantial interaction between the two variables in the sense that the age effect gets weaker the closer to the ocean.
+They all reveal a substantial interaction between the two variables in the sense that the age effect gets weaker the closer to the ocean. Note that numeric `BY` features are automatically binned into quartile groups.
 
 ```r
 plot(partial_dep(fit, v = "age", X = X_train, BY = "log_ocean"))

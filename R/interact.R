@@ -2,7 +2,7 @@
 #' 
 #' @description
 #' This is the main function of the package. It does the expensive calculations behind
-#' these interaction statistics:
+#' the following interaction statistics:
 #' - Total interaction strength \eqn{H^2}, a statistic measuring the proportion of
 #'   prediction variability unexplained by main effects of `v`, see [H2()] for details.
 #' - Friedman and Popescu's \eqn{H^2_j} statistic of overall interaction strength per

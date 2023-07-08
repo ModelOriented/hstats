@@ -16,14 +16,15 @@ use_description(
   fields = list(
     Title = "Model-Agnostic Interaction Statistics",
     Version = "0.1.0",
-    Description = "Fast, model-agnostic implementation of the partial dependence based 
-    interaction statistics of Friedman, J.H. and Popescu, B.E. (2008) 
-    <doi:10.1214/07-AOAS148>. These statistics allow to quantify 
-    interaction strength per feature, feature pair, and feature triple.
-    The package supports multivariate predictions and can deal with case weights. 
-    Furthermore, different variants of the original statistics are provided.
-    The shape of the interactions can be investigated by partial dependence plots, 
-    or individual conditional expectation plots.",
+    Description = "Fast, model-agnostic implementation of Friedman and Popescu's
+    H statistics of interaction strength <doi:10.1214/07-AOAS148>. 
+    These statistics quantify interaction strength per feature, feature pair, 
+    and feature triple.
+    The package supports multi-output predictions and can account for case weights. 
+    In addition, several variants of the original statistics are provided.
+    The shape of the interactions can be explored through partial dependence plots
+    or individual conditional expectation plots. DALEX explainers, meta learners 
+    (mlr3, tidymodels, caret) and most other models work out-of-the-box.",
     `Authors@R` = 
     "person('Michael', family='Mayer', role=c('aut', 'cre'), email='mayermichael79@gmail.com')",
     Depends = "R (>= 3.2.0)",
