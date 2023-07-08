@@ -92,7 +92,7 @@
 <h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
 </h2>
 <p><strong>What makes a ML model black-box? It’s the interactions!</strong></p>
-<p>Friedman and Popescu’s H statistics [1] quantify different aspects of interaction strength, see <a href="#background">Background</a> for details.</p>
+<p>Friedman and Popescu’s H statistics [1] quantify different aspects of interaction strength, see <a href="#background">Background</a> for details:</p>
 <table class="table">
 <colgroup>
 <col width="8%">
@@ -120,16 +120,10 @@
 <td>Three-way interaction strength</td>
 <td>Proportion of joint effect variability of three features coming from their three-way interaction.</td>
 </tr>
-<tr class="even">
-<td><span class="math inline"><em>H</em><sup>2</sup></span></td>
-<td>Non-additivity index ([5], not in [1])</td>
-<td>Proportion of prediction variability unexplained by main effects.</td>
-</tr>
 </tbody>
 </table>
-<p>{interactML} offers these statistics comparably <strong>fast</strong> and for <strong>any model</strong>, even for multi-output models, or models with case weights.</p>
-<p>DALEX explainers, meta learners (mlr3, tidymodels, caret) and most other models work out-of-the box. In case you need more flexibility, a prediction function can be specified. Both data.frame and matrix data structures are supported.</p>
-<p>After having identified strong interactions via the main function <code><a href="reference/interact.html">interact()</a></code>, their shape can be described via partial dependence plots (PDP) or individual conditional expectation plots (ICE).</p>
+<p>{interactML} offers these statistics comparably <strong>fast</strong> and for <strong>any model</strong>, even for multi-output models, or models with case weights. Additionally, we provide a global statistic <span class="math inline"><em>H</em><sup>2</sup></span> measuring the proportion of prediction variability unexplained by main effects [5], and an experimental feature importance measure.</p>
+<p>The core functions <code><a href="reference/interact.html">interact()</a></code>, <code><a href="reference/partial_dep.html">partial_dep()</a></code>, and <code><a href="reference/ice.html">ice()</a></code> can directly be applied to DALEX explainers, meta learners (mlr3, tidymodels, caret) and most other models. In case you need more flexibility, a prediction function can be specified. Both data.frame and matrix data structures are supported.</p>
 </div>
 <div class="section level2">
 <h2 id="limitation">Limitation<a class="anchor" aria-label="anchor" href="#limitation"></a>
