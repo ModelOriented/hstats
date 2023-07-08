@@ -16,23 +16,24 @@
 
 **What makes a ML model black-box? It's the interactions!**
 
-Friedman and Popescu's H statistics [1] quantify different aspects of interaction strength, including interaction strength 
+Friedman and Popescu's H statistics [1] quantify different aspects of interaction strength, see [Background](#background) for details.
 
-- per feature $\rightarrow H^2_j$,
-- per feature pair $\rightarrow H^2_{jk}$,
-- and per feature triple $\rightarrow H^2_{jkl}$,
-
-see [Background](#background) for details.
+| Statistic   | Short description                        | How to read its value?                                                                                |
+|-------------|------------------------------------------|-------------------------------------------------------------------------------------------------------|
+| $H^2_j$     | Overall interaction strength per feature | Proportion of prediction variability explained by interactions on feature $j$.                        |
+| $H^2_{jk}$  | Pairwise interaction strength            | Proportion of joint effect variability of features $j$ and $k$ coming from their pairwise interaction.|
+| $H^2_{jkl}$ | Three-way interaction strength           | Proportion of joint effect variability of three features coming from their three-way interaction.     |
+| $H^2$       | Non-additivity index ([5], not in [1])   | Proportion of prediction variability unexplained by main effects.                                     |
 
 {interactML} offers these statistics comparably **fast** and for **any model**, even for multi-output models, or models with case weights.
 
 DALEX explainers, meta learners (mlr3, tidymodels, caret) and most other models work out-of-the box. In case you need more flexibility, a prediction function can be specified. Both data.frame and matrix data structures are supported.
 
-After having identified strong interactions via the main function `interact()`, their shape can be described via partial dependence plots [2] or individual conditional expectation plots [7].
+After having identified strong interactions via the main function `interact()`, their shape can be described via partial dependence plots (PDP) or individual conditional expectation plots (ICE).
 
 ## Limitation
 
-The H statistics in [1] are based on partial dependence estimates and are thus as good or bad as these. In extreme cases, H statistics intended to be in the range between 0 and 1 can become larger than 1.
+H statistics are based on partial dependence estimates and are thus as good or bad as these. In extreme cases, H statistics intended to be in the range between 0 and 1 can become larger than 1.
 
 ## Landscape
 
@@ -53,9 +54,7 @@ devtools::install_github("mayer79/interactML")
 
 ## Usage
 
-To demonstrate the typical workflow, we use a beautiful house price dataset with about 14,000 transactions from Miami-Dade County available in the {shapviz} package, and analyzed in [3]. 
-
-We are going to model logarithmic sales prices with XGBoost.
+To demonstrate the typical workflow, we use a beautiful house price dataset with about 14,000 transactions from Miami-Dade County available in the {shapviz} package, and analyzed in [3]. We are going to model logarithmic sales prices with XGBoost.
 
 ### Fit model
 
@@ -113,9 +112,9 @@ plot(inter)  # Or summary(inter) for numeric output
 
 **Interpretation** 
 
-- About 14% of prediction variability is unexplained by the sum of all main effects. The interaction effects seem to be important.
-- The strongest overall interactions are associated with "log_ocean" (logarithmic distance to the ocean): About 8% of prediction variability can be attributed to its interactions.
-- About 10% of the joint effect variability of "log_ocean" and "age" comes from their pairwise interaction.
+- $H^2$: About 14% of prediction variability is unexplained by the sum of all main effects. The interaction effects seem to be important.
+- $H^2_j$: The strongest overall interactions are associated with "log_ocean" (logarithmic distance to the ocean): About 8% of prediction variability can be attributed to its interactions.
+- $H^2_{jk}$: About 10% of the joint effect variability of "log_ocean" and "age" comes from their pairwise interaction.
 
 **Remarks**
 
