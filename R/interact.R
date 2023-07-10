@@ -224,7 +224,7 @@ interact.default <- function(object, v, X, pred_fun = stats::predict, n_max = 30
 interact.ranger <- function(object, v, X,
                             pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
                             n_max = 300L, w = NULL, pairwise_m = 5L, 
-                            verbose = TRUE, ...) {
+                            threeway_m = pairwise_m, verbose = TRUE, ...) {
   interact.default(
     object = object,
     v = v,
@@ -233,6 +233,7 @@ interact.ranger <- function(object, v, X,
     n_max = n_max,
     w = w,
     pairwise_m = pairwise_m,
+    threeway_m = threeway_m,
     verbose = verbose,
     ...
   )
@@ -243,7 +244,7 @@ interact.ranger <- function(object, v, X,
 interact.Learner <- function(object, v, X,
                              pred_fun = function(m, X) m$predict_newdata(X)$response,
                              n_max = 300L, w = NULL, pairwise_m = 5L,
-                             verbose = TRUE, ...) {
+                             threeway_m = pairwise_m, verbose = TRUE, ...) {
   interact.default(
     object = object,
     v = v,
@@ -252,6 +253,7 @@ interact.Learner <- function(object, v, X,
     n_max = n_max,
     w = w,
     pairwise_m = pairwise_m,
+    threeway_m = threeway_m,
     verbose = verbose,
     ...
   )
@@ -263,7 +265,8 @@ interact.explainer <- function(object, v = colnames(object[["data"]]),
                                X = object[["data"]],
                                pred_fun = object[["predict_function"]],
                                n_max = 300L, w = object[["weights"]], 
-                               pairwise_m = 5L, verbose = TRUE, ...) {
+                               pairwise_m = 5L, threeway_m = pairwise_m,
+                               verbose = TRUE, ...) {
   interact.default(
     object = object[["model"]],
     v = v,
@@ -272,6 +275,7 @@ interact.explainer <- function(object, v = colnames(object[["data"]]),
     n_max = n_max,
     w = w,
     pairwise_m = pairwise_m,
+    threeway_m = threeway_m,
     verbose = verbose,
     ...
   )

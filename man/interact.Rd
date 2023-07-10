@@ -31,6 +31,7 @@ interact(object, ...)
   n_max = 300L,
   w = NULL,
   pairwise_m = 5L,
+  threeway_m = pairwise_m,
   verbose = TRUE,
   ...
 )
@@ -43,6 +44,7 @@ interact(object, ...)
   n_max = 300L,
   w = NULL,
   pairwise_m = 5L,
+  threeway_m = pairwise_m,
   verbose = TRUE,
   ...
 )
@@ -55,6 +57,7 @@ interact(object, ...)
   n_max = 300L,
   w = object[["weights"]],
   pairwise_m = 5L,
+  threeway_m = pairwise_m,
   verbose = TRUE,
   ...
 )
