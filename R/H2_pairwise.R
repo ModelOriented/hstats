@@ -15,16 +15,12 @@
 #' Correspondingly, Friedman and Popescu's \eqn{H_{jk}^2} statistic of pairwise 
 #' interaction strength is defined as
 #' \deqn{
-#'   H_{jk}^2 = \frac{A_{jk}}{B_{jk}},
+#'   H_{jk}^2 = \frac{A_{jk}}{\frac{1}{n} \sum_{i = 1}^n\big[\hat F_{jk}(x_{ij}, x_{ik})\big]^2},
 #' }
 #' where
 #' \deqn{
-#'    A_{jk} = \frac{1}{n} \sum_{i = 1}^n\big[\hat F_{jk}(x_{ij}, x_{ik}) - 
+#'   A_{jk} = \frac{1}{n} \sum_{i = 1}^n\big[\hat F_{jk}(x_{ij}, x_{ik}) - 
 #'    \hat F_j(x_{ij}) - \hat F_k(x_{ik})\big]^2
-#' }
-#' and
-#' \deqn{
-#'   B_{jk} = \frac{1}{n} \sum_{i = 1}^n\big[\hat F_{jk}(x_{ij}, x_{ik})\big]^2
 #' }
 #' (check [partial_dep()] for all definitions).
 #'
