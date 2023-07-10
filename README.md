@@ -315,34 +315,34 @@ $$
 with
 
 $$
-  B_{jkl} = \hat F_{jk}(x_j, x_k) + \hat F_{jl}(x_j, x_l) + \hat F_{kl}(x_k, x_l)
+  B_{jkl} = F_{jk}(x_j, x_k) + F_{jl}(x_j, x_l) + F_{kl}(x_k, x_l)
 $$
 
 and
 
 $$
-  C_{jkl} = \hat F_j(x_j) + \hat F_k(x_k) + \hat F_l(x_l).
+  C_{jkl} = F_j(x_j) + F_k(x_k) + F_l(x_l).
 $$
 
 The squared and scaled difference between the two sides of the equation leads to the statistic
 
 $$
-  H_{jkl}^2 = \frac{\frac{1}{n} \sum_{i = 1}^n \big[\hat F_{jkl}(x_{ij}, x_{ik}, x_{il}) - B^{(i)}_{jkl} + C^{(i)}_{jkl}\big]^2}{\frac{1}{n} \sum_{i = 1}^n \hat F_{jkl}(x_{ij}, x_{ik}, x_{il})^2},
+  H_{jkl}^2 = \frac{\frac{1}{n} \sum_{i = 1}^n \big[\hat F_{jkl}(x_{ij}, x_{ik}, x_{il}) - B^i_{jkl} + C^i_{jkl}\big]^2}{\frac{1}{n} \sum_{i = 1}^n \hat F_{jkl}(x_{ij}, x_{ik}, x_{il})^2},
 $$
 
 where
 
 $$
-  B^{(i)}_{jkl} = F_{jk}(x_{ij}, x_{ik}) + F_{jl}(x_{ij}, x_{il}) + F_{kl}(x_{ik}, x_{il})
+  B^i_{jkl} = \hat F_{jk}(x_{ij}, x_{ik}) + \hat F_{jl}(x_{ij}, x_{il}) + \hat F_{kl}(x_{ik}, x_{il})
 $$
 
 and
 
 $$
-  C^{(i)}_{jkl} = F_j(x_{ij}) + F_k(x_{ik}) + F_l(x_{il}).
+  C^i_{jkl} = \hat F_j(x_{ij}) + \hat F_k(x_{ik}) + \hat F_l(x_{il}).
 $$
 
-Similar remarks as for $H_{jk}$ apply.
+Similar remarks as for $H^2_{jk}$ apply.
 
 #### Total interaction strength of all variables together
 
