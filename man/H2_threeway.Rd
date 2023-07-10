@@ -59,19 +59,29 @@ interactions: in case there are no three-way interactions between features
 \eqn{x_j}, \eqn{x_k} and \eqn{x_l}, their (centered) three-dimensional partial
 dependence function \eqn{F_{jkl}} can be decomposed into lower order terms:
 \deqn{
-  F_{jkl}(x_j, x_k, x_l) = F_{jk}(x_j, x_k) + F_{jl}(x_j, x_l) + F_{kl}(x_k, x_l) - 
-  F_j(x_j) - F_k(x_k) - F_l(x_l).
+  F_{jkl}(x_j, x_k, x_l) = B_{jkl} - C_{jkl}
 }
-The squared and scaled difference between the two sides of the equation leads to
-the statistic
+with
 \deqn{
-  H_{jkl}^2 = \frac{\frac{1}{n} \sum_{i = 1}^n \big[\hat F_{jkl}(x_j, x_k, x_l) - 
-  C_{jkl}\big]^2}{\frac{1}{n} \sum_{i = 1}^n \hat F_{jkl}(x_j, x_k, x_l)^2},
+  B_{jkl} = F_{jk}(x_j, x_k) + F_{jl}(x_j, x_l) + F_{kl}(x_k, x_l)
+}
+and
+\deqn{
+  C_{jkl} =  F_j(x_j) + F_k(x_k) + F_l(x_l).
+}
+
+The squared and scaled difference between the two sides of the equation leads to the statistic
+\deqn{
+  H_{jkl}^2 = \frac{\frac{1}{n} \sum_{i = 1}^n \big[\hat F_{jkl}(x_{ij}, x_{ik}, x_{il}) - B^{(i)}_{jkl} + C^{(i)}_{jkl}\big]^2}{\frac{1}{n} \sum_{i = 1}^n \hat F_{jkl}(x_{ij}, x_{ik}, x_{il})^2},
 }
 where
 \deqn{
-  C_{jkl} = \hat F_{jk}(x_j, x_k) + \hat F_{jl}(x_j, x_l) + \hat F_{kl}(x_k, x_l) - 
-  \hat F_j(x_j) - \hat F_k(x_k) - \hat F_l(x_l).
+  B^{(i)}_{jkl} = \hat F_{jk}(x_{ij}, x_{ik}) + \hat F_{jl}(x_{ij}, x_{il}) + 
+  \hat F_{kl}(x_{ik}, x_{il})
+}
+and
+\deqn{
+  C^{(i)}_{jkl} = \hat F_j(x_{ij}) + \hat F_k(x_{ik}) + \hat F_l(x_{il}).
 }
 Similar remarks as for \code{\link[=H2_pairwise]{H2_pairwise()}} apply.
 }
