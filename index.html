@@ -92,7 +92,7 @@
 <h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
 </h2>
 <p><strong>What makes a ML model black-box? It’s the interactions!</strong></p>
-<p>Friedman and Popescu’s H statistics [1] quantify different aspects of interaction strength, see <a href="#background">Background</a> for details:</p>
+<p>How to study them? Friedman and Popescu’s H statistics [1] quantify different aspects of interaction strength, see <a href="#background">Background</a> for details:</p>
 <table class="table">
 <colgroup>
 <col width="8%">
@@ -128,7 +128,8 @@
 <div class="section level2">
 <h2 id="limitation">Limitation<a class="anchor" aria-label="anchor" href="#limitation"></a>
 </h2>
-<p>H statistics are based on partial dependence estimates and are thus as good or bad as these. In extreme cases, H statistics intended to be in the range between 0 and 1 can become larger than 1.</p>
+<p>H statistics are based on partial dependence estimates and are thus as good or bad as these. One of their problems is that the model is applied to unseen/impossible feature combinations. In extreme cases, H statistics intended to be in the range between 0 and 1 can become larger than 1.</p>
+<p>Accumulated local effects (ALE) [8] mend above problem of partial dependence estimates. They, however, depend on the notion of closeness, which is highly non-trivial in higher dimension and for discrete features.</p>
 </div>
 <div class="section level2">
 <h2 id="landscape">Landscape<a class="anchor" aria-label="anchor" href="#landscape"></a>
@@ -264,7 +265,7 @@
 <div class="section level3">
 <h3 id="variable-importance">Variable importance<a class="anchor" aria-label="anchor" href="#variable-importance"></a>
 </h3>
-<p>In the spirit of [1], and related to [4], we can extract from the “interact” objects a partial dependence based variable importance measure. It is rather experimental, so use it with care (details below):</p>
+<p>In the spirit of [1], and related to [4], we can extract from the “interact” objects a partial dependence based variable importance measure. It measures not only the main effect strength (see [4]), but also all its interaction effects. It is rather experimental, so use it with care (details in the section “Background”):</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/pd_importance.html">pd_importance</a></span><span class="op">(</span><span class="va">inter</span><span class="op">)</span></span>
 <span></span>
@@ -433,6 +434,7 @@ $$</span></p>
 <li>Żółkowski, Artur, Mateusz Krzyziński, and Paweł Fijałkowski. <em>Methods for extraction of interactions from predictive models.</em> Undergraduate thesis. Faculty of Mathematics and Information Science, Warsaw University of Technology (2023).</li>
 <li>Molnar, Christoph, Giuseppe Casalicchio, and Bernd Bischl”. <em>Quantifying Model Complexity via Functional Decomposition for Better Post-hoc Interpretability</em>, in Machine Learning and Knowledge Discovery in Databases, Springer International Publishing (2020): 193-204.</li>
 <li>Goldstein, Alex, Adam Kapelner, Justin Bleich, and Emil Pitkin. <em>Peeking inside the black box: Visualizing statistical learning with plots of individual conditional expectation.</em> Journal of Computational and Graphical Statistics, 24, no. 1 (2015): 44-65.</li>
+<li>Apley, Daniel W., and Jingyu Zhu, <em>Visualizing the Effects of Predictor Variables in Black Box Supervised Learning Models</em>, Arxiv (2016).</li>
 </ol>
 </div>
 </div>
