@@ -29,4 +29,8 @@ C.~Molnar, G.~Casalicchio, and B.~Bischl, ``Quantifying model complexity via
 B.~M. Greenwell, B.~C. Boehmke, and A.~J. McCarthy, ``A simple and effective
   model-based variable importance measure,'' {\em ArXiv}, 2018.
 
+\bibitem{apley2016}
+D.~W. Apley and J.~Zhu, ``Visualizing the effects of predictor variables in
+  black box supervised learning models,'' 2016.
+
 \end{thebibliography}

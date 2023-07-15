@@ -89,7 +89,7 @@ and
 $$
   C^{(i)}_{jkl} = \hat F_j(x_{ij}) + \hat F_k(x_{ik}) + \hat F_l(x_{il}).
 $$
-Similar remarks as for $H_{jk}$ apply.
+Similar remarks as for $H^2_{jk}$ apply.
 
 \subsection{Total interaction strength of all variables together}
 If the model is additive in all features (no interactions), then
@@ -115,7 +115,7 @@ This leads to a total number of $O(n'^2 p))$ predictions. If also three-way inte
 
 \section{Variable importance}
 
-\cite{greenwell2018} proposed the standard deviation of the partial dependence function as a measure of variable importance (for continuous predictors). 
+\cite{greenwell2018} proposed the standard deviation of the partial dependence function as a measure of variable importance. 
 
 Since the partial dependence function suppresses interaction effects, we propose a different measure in the spirit of the interaction statistics above: If $x_j$ has no effects, the (centered) prediction function $F$ equals the (centered) partial dependence $F_{\setminus j}$ on all other features $\mathbf{x}_{\setminus j}$, i.e.,
 $$
@@ -125,7 +125,13 @@ Therefore, the following measure of variable importance follows:
 $$
 	\textrm{Imp}_j = \frac{\frac{1}{n} \sum_{i = 1}^n\big[F(\mathbf{x}_i) - \hat F_{\setminus j}(\mathbf{x}_{i\setminus j})\big]^2}{\frac{1}{n} \sum_{i = 1}^n\big[F(\mathbf{x}_i)\big]^2}.
 $$
-It differs from $H^2_j$ only by not subtracting the main effect of the $j$-th feature in the numerator. It can be read as the proportion of prediction variability unexplained by all other features. As such, it measures variable importance of the $j$-th feature, including its interaction effects. 
+It differs from $H^2_j$ only by not subtracting the main effect of the $j$-th feature in the numerator. It can be read as the proportion of prediction variability unexplained by all other features. As such, it measures variable importance of the $j$-th feature, including its interaction effects.
+
+\section{Limitation}
+
+H statistics are based on partial dependence estimates and are thus as good or bad as these. One of their problems is that the model is applied to unseen/impossible feature combinations. In extreme cases, H statistics intended to be in the range between 0 and 1 can become larger than 1.
+
+Accumulated local effects (ALE) \cite{apley2016} mend above problem of partial dependence estimates. They, however, depend on the notion of closeness, which is highly non-trivial in higher dimension and for discrete features.
 
 \bibliographystyle{ieeetr}
 \bibliography{biblio}

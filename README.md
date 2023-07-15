@@ -16,7 +16,7 @@
 
 **What makes a ML model black-box? It's the interactions!**
 
-Friedman and Popescu's H statistics [1] quantify different aspects of interaction strength, see [Background](#background) for details:
+How to study them? Friedman and Popescu's H statistics [1] quantify different aspects of interaction strength, see [Background](#background) for details:
 
 | Statistic   | Short description                        | How to read its value?                                                                                |
 |-------------|------------------------------------------|-------------------------------------------------------------------------------------------------------|
@@ -30,7 +30,9 @@ The core functions `interact()`, `partial_dep()`, and `ice()` can directly be ap
 
 ## Limitation
 
-H statistics are based on partial dependence estimates and are thus as good or bad as these. In extreme cases, H statistics intended to be in the range between 0 and 1 can become larger than 1.
+H statistics are based on partial dependence estimates and are thus as good or bad as these. One of their problems is that the model is applied to unseen/impossible feature combinations. In extreme cases, H statistics intended to be in the range between 0 and 1 can become larger than 1.
+
+Accumulated local effects (ALE) [8] mend above problem of partial dependence estimates. They, however, depend on the notion of closeness, which is highly non-trivial in higher dimension and for discrete features.
 
 ## Landscape
 
@@ -179,7 +181,7 @@ plot(ice(fit, v = "tot_lvg_area", X = X_train, BY = BY), center = TRUE)
 
 ### Variable importance
 
-In the spirit of [1], and related to [4], we can extract from the "interact" objects a partial dependence based variable importance measure. It is rather experimental, so use it with care (details below):
+In the spirit of [1], and related to [4], we can extract from the "interact" objects a partial dependence based variable importance measure. It measures not only the main effect strength (see [4]), but also all its interaction effects. It is rather experimental, so use it with care (details in the section "Background"):
 
 ```r
 pd_importance(inter)
@@ -404,3 +406,4 @@ It differs from $H^2_j$ only by not subtracting the main effect of the $j$-th fe
 5. Żółkowski, Artur, Mateusz Krzyziński, and Paweł Fijałkowski. *Methods for extraction of interactions from predictive models.* Undergraduate thesis. Faculty of Mathematics and Information Science, Warsaw University of Technology (2023).
 6. Molnar, Christoph, Giuseppe Casalicchio, and Bernd Bischl". *Quantifying Model Complexity via Functional Decomposition for Better Post-hoc Interpretability*, in Machine Learning and Knowledge Discovery in Databases, Springer International Publishing (2020): 193-204.
 7. Goldstein, Alex, Adam Kapelner, Justin Bleich, and Emil Pitkin. *Peeking inside the black box: Visualizing statistical learning with plots of individual conditional expectation.* Journal of Computational and Graphical Statistics, 24, no. 1 (2015): 44-65.
+8. Apley, Daniel W., and Jingyu Zhu, *Visualizing the Effects of Predictor Variables in Black Box Supervised Learning Models*, Arxiv (2016).
