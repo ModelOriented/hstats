@@ -1,8 +1,7 @@
 #' Three-way Interaction Strength
 #' 
-#' Friedman and Popescu's statistic of three-way interaction strength extracted from the
-#' result of [hstats()], see Details. By default, the results are plotted as barplot.
-#' Set `plot = FALSE` to get numbers.
+#' Friedman and Popescu's statistic of three-way interaction strength, see Details. 
+#' By default, the results are plotted as barplot. Set `plot = FALSE` to get numbers.
 #' 
 #' @details
 #' Friedman and Popescu (2008) describe a test statistic to measure three-way 

@@ -1,7 +1,6 @@
 #' Total Interaction Strength
 #' 
-#' Proportion of prediction variability unexplained by main effects of `v` 
-#' (extracted from the result of [hstats()]), see Details. 
+#' Proportion of prediction variability unexplained by main effects of `v`, see Details. 
 #' 
 #' @details
 #' If the model is additive in all features, then the (centered) prediction 

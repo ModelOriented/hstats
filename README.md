@@ -16,7 +16,7 @@
 
 **What makes a ML model black-box? It's the interactions!**
 
-The first step towards understanding interactions is to measure their strength. Thats what Friedman and Popescu's H statistics [1] do, see [Background](#background) for details:
+The first step in understanding interactions is to measure their strength. This is exactly what Friedman and Popescu's H statistics [1] do, see [Background](#background) for details:
 
 | Statistic   | Short description                        | How to read its value?                                                                                |
 |-------------|------------------------------------------|-------------------------------------------------------------------------------------------------------|

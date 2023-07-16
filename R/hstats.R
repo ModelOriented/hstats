@@ -25,7 +25,7 @@
 #' @param v Vector of feature names.
 #' @param X A data.frame or matrix serving as background dataset.
 #' @param pred_fun Prediction function of the form `function(object, X, ...)`,
-#'   providing K >= 1 numeric predictions per row. Its first argument represents the 
+#'   providing \eqn{K \ge 1} numeric predictions per row. Its first argument represents the 
 #'   model `object`, its second argument a data structure like `X`. Additional arguments 
 #'   (such as `type = "response"` in a GLM) can be passed via `...`. The default, 
 #'   [stats::predict()], will work in most cases. Note that column names in a resulting
@@ -73,8 +73,8 @@
 #'   Friedman, Jerome H., and Bogdan E. Popescu. *"Predictive Learning via Rule Ensembles."*
 #'     The Annals of Applied Statistics 2, no. 3 (2008): 916-54.
 #' @export
-#' @seealso [h2()], [h2_overall()], [h2_pairwise()] and [h2_threeway()] for specific 
-#'   statistics calculated from the resulting object.
+#' @seealso [h2()], [h2_overall()], [h2_pairwise()], [h2_threeway()], 
+#'   and [pd_importance()] for specific statistics calculated from the resulting object.
 #' @examples
 #' # MODEL 1: Linear regression
 #' fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)

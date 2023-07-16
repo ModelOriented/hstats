@@ -1,7 +1,7 @@
 #' Overall Interaction Strength
 #' 
 #' Friedman and Popescu's \eqn{H^2_j} statistics of overall interaction strength per 
-#' feature extracted from the result of [hstats()], see Details. 
+#' feature, see Details. 
 #' By default, the results are plotted as barplot. Set `plot = FALSE` to get numbers.
 #' 
 #' @details

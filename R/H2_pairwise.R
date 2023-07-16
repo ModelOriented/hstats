@@ -1,8 +1,7 @@
 #' Pairwise Interaction Strength
 #' 
-#' Friedman and Popescu's statistics of pairwise interaction strength extracted from the
-#' result of [hstats()], see Details. By default, the results are plotted as barplot.
-#' Set `plot = FALSE` to get numbers.
+#' Friedman and Popescu's statistics of pairwise interaction strength, see Details. 
+#' By default, the results are plotted as barplot. Set `plot = FALSE` to get numbers.
 #' 
 #' @details
 #' Following Friedman and Popescu (2008), if there are no interaction effects between 

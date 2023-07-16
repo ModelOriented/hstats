@@ -73,7 +73,7 @@ for instance \code{type = "response"} in a \code{\link[=glm]{glm()}} model.}
 \item{X}{A data.frame or matrix serving as background dataset.}
 
 \item{pred_fun}{Prediction function of the form \verb{function(object, X, ...)},
-providing K >= 1 numeric predictions per row. Its first argument represents the
+providing \eqn{K \ge 1} numeric predictions per row. Its first argument represents the
 model \code{object}, its second argument a data structure like \code{X}. Additional arguments
 (such as \code{type = "response"} in a GLM) can be passed via \code{...}. The default,
 \code{\link[stats:predict]{stats::predict()}}, will work in most cases. Note that column names in a resulting
@@ -199,6 +199,6 @@ Friedman, Jerome H., and Bogdan E. Popescu. \emph{"Predictive Learning via Rule 
 The Annals of Applied Statistics 2, no. 3 (2008): 916-54.
 }
 \seealso{
-\code{\link[=h2]{h2()}}, \code{\link[=h2_overall]{h2_overall()}}, \code{\link[=h2_pairwise]{h2_pairwise()}} and \code{\link[=h2_threeway]{h2_threeway()}} for specific
-statistics calculated from the resulting object.
+\code{\link[=h2]{h2()}}, \code{\link[=h2_overall]{h2_overall()}}, \code{\link[=h2_pairwise]{h2_pairwise()}}, \code{\link[=h2_threeway]{h2_threeway()}},
+and \code{\link[=pd_importance]{pd_importance()}} for specific statistics calculated from the resulting object.
 }
