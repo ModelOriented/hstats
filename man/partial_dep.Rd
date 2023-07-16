@@ -85,7 +85,7 @@ for instance \code{type = "response"} in a \code{\link[=glm]{glm()}} model.}
 \item{X}{A data.frame or matrix serving as background dataset.}
 
 \item{pred_fun}{Prediction function of the form \verb{function(object, X, ...)},
-providing K >= 1 numeric predictions per row. Its first argument represents the
+providing \eqn{K \ge 1} numeric predictions per row. Its first argument represents the
 model \code{object}, its second argument a data structure like \code{X}. Additional arguments
 (such as \code{type = "response"} in a GLM) can be passed via \code{...}. The default,
 \code{\link[stats:predict]{stats::predict()}}, will work in most cases. Note that column names in a resulting

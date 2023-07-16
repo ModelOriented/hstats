@@ -7,6 +7,6 @@
 # * https://testthat.r-lib.org/reference/test_package.html#special-files
 
 library(testthat)
-library(interactML)
+library(hstats)
 
-test_check("interactML")
+test_check("hstats")

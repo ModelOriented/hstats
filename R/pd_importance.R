@@ -25,11 +25,11 @@
 #' the \eqn{j}-th feature, including its interaction effects (check [partial_dep()] 
 #' for all definitions).
 #' 
-#' Remarks 1 to 4 of [H2_overall()] also apply here.
+#' Remarks 1 to 4 of [h2_overall()] also apply here.
 #' 
-#' @inheritParams H2_overall
-#' @inherit H2_overall return
-#' @seealso [interact()], [H2_overall()]
+#' @inheritParams h2_overall
+#' @inherit h2_overall return
+#' @seealso [hstats()], [h2_overall()]
 #' @references
 #'   Greenwell, Brandon M., Bradley C. Boehmke, and Andrew J. McCarthy.  
 #'     *A Simple and Effective Model-Based Variable Importance Measure.* Arxiv (2018).
@@ -37,15 +37,15 @@
 #' @examples
 #' # MODEL 1: Linear regression
 #' fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
-#' inter <- interact(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
-#' pd_importance(inter)
-#' pd_importance(inter, plot = FALSE)
+#' s <- hstats(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
+#' pd_importance(s)
+#' pd_importance(s, plot = FALSE)
 #' 
 #' # MODEL 2: Multi-response linear regression
 #' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
 #' v <- c("Petal.Length", "Petal.Width", "Species")
-#' inter <- interact(fit, v = v, X = iris, verbose = FALSE)
-#' pd_importance(inter)
+#' s <- hstats(fit, v = v, X = iris, verbose = FALSE)
+#' pd_importance(s)
 pd_importance <- function(object, ...) {
   UseMethod("pd_importance")
 }
@@ -56,11 +56,11 @@ pd_importance.default <- function(object, ...) {
   stop("No default method implemented.")
 }
 
-#' @describeIn pd_importance PD based feature importance from "interact" object.
+#' @describeIn pd_importance PD based feature importance from "hstats" object.
 #' @export
-pd_importance.interact <- function(object, normalize = TRUE, squared = TRUE, 
-                                   sort = TRUE, top_m = 15L, eps = 1e-8, plot = TRUE, 
-                                   fill = "#2b51a1", ...) {
+pd_importance.hstats <- function(object, normalize = TRUE, squared = TRUE, 
+                                 sort = TRUE, top_m = 15L, eps = 1e-8, plot = TRUE, 
+                                 fill = "#2b51a1", ...) {
   num <- with(
     object, matrix(nrow = length(v), ncol = K, dimnames = list(v, pred_names))
   )

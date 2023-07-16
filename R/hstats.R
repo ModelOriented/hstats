@@ -4,13 +4,13 @@
 #' This is the main function of the package. It does the expensive calculations behind
 #' the following interaction statistics:
 #' - Total interaction strength \eqn{H^2}, a statistic measuring the proportion of
-#'   prediction variability unexplained by main effects of `v`, see [H2()] for details.
+#'   prediction variability unexplained by main effects of `v`, see [h2()] for details.
 #' - Friedman and Popescu's \eqn{H^2_j} statistic of overall interaction strength per
-#'   feature, see [H2_overall()] for details.
+#'   feature, see [h2_overall()] for details.
 #' - Friedman and Popescu's \eqn{H^2_{jk}} statistic of pairwise interaction strength,
-#'   see [H2_pairwise()] for details.
+#'   see [h2_pairwise()] for details.
 #' - Friedman and Popescu's \eqn{H^2_{jkl}} statistic of three-way interaction strength,
-#'   see [H2_threeway()] for details.
+#'   see [h2_threeway()] for details.
 #' 
 #' Furthermore, it allows to calculate an experimental partial dependence based
 #' measure of feature importance, \eqn{\textrm{PDI}_j^2}. It equals the proportion of
@@ -18,14 +18,14 @@
 #' for details. (This statistic is not shown by `summary()` or `plot()`.) 
 #'  
 #' Instead of using `summary()`, interaction statistics can also be obtained via the 
-#' more flexible functions [H2()], [H2_overall()], [H2_pairwise()], and
-#' [H2_threeway()].
+#' more flexible functions [h2()], [h2_overall()], [h2_pairwise()], and
+#' [h2_threeway()].
 #'  
 #' @param object Fitted model object.
 #' @param v Vector of feature names.
 #' @param X A data.frame or matrix serving as background dataset.
 #' @param pred_fun Prediction function of the form `function(object, X, ...)`,
-#'   providing K >= 1 numeric predictions per row. Its first argument represents the 
+#'   providing \eqn{K \ge 1} numeric predictions per row. Its first argument represents the 
 #'   model `object`, its second argument a data structure like `X`. Additional arguments 
 #'   (such as `type = "response"` in a GLM) can be passed via `...`. The default, 
 #'   [stats::predict()], will work in most cases. Note that column names in a resulting
@@ -45,7 +45,7 @@
 #' @param ... Additional arguments passed to `pred_fun(object, X, ...)`, 
 #'   for instance `type = "response"` in a [glm()] model.
 #' @returns 
-#'   An object of class "interact" containing these elements:
+#'   An object of class "hstats" containing these elements:
 #'   - `X`: Input `X` (sampled to `n_max` rows).
 #'   - `w`: Input `w` (sampled to `n_max` values, or `NULL`).
 #'   - `v`: Same as input `v`.
@@ -57,13 +57,13 @@
 #'     functions \eqn{F_{\setminus j}} of other features.
 #'   - `K`: Number of columns of prediction matrix.
 #'   - `pred_names`: Column names of prediction matrix.
-#'   - `v_pairwise`: Subset of `v` with largest `H2_overall` used for pairwise 
+#'   - `v_pairwise`: Subset of `v` with largest `h2_overall()` used for pairwise 
 #'     calculations.
 #'   - `combs2`: Named list of variable pairs for which pairwise partial 
 #'     dependence functions are available.
 #'   - `F_jk`: List of matrices, each representing (centered) bivariate 
 #'     partial dependence functions \eqn{F_{jk}}.
-#'   - `v_threeway`: Subset of `v` with largest `H2_overall` used for three-way 
+#'   - `v_threeway`: Subset of `v` with largest `h2_overall()` used for three-way 
 #'     calculations.
 #'   - `combs3`: Named list of variable triples for which three-way partial 
 #'     dependence functions are available.
@@ -73,52 +73,52 @@
 #'   Friedman, Jerome H., and Bogdan E. Popescu. *"Predictive Learning via Rule Ensembles."*
 #'     The Annals of Applied Statistics 2, no. 3 (2008): 916-54.
 #' @export
-#' @seealso [H2()], [H2_overall()], [H2_pairwise()] and [H2_threeway()] for specific 
-#'   statistics calculated from the resulting object.
+#' @seealso [h2()], [h2_overall()], [h2_pairwise()], [h2_threeway()], 
+#'   and [pd_importance()] for specific statistics calculated from the resulting object.
 #' @examples
 #' # MODEL 1: Linear regression
 #' fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
-#' inter <- interact(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
-#' inter
-#' plot(inter)
-#' summary(inter)
+#' s <- hstats(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
+#' s
+#' plot(s)
+#' summary(s)
 #'   
 #' # Absolute pairwise interaction strengths
-#' H2_pairwise(inter, normalize = FALSE, squared = FALSE, plot = FALSE)
+#' h2_pairwise(s, normalize = FALSE, squared = FALSE, plot = FALSE)
 #' 
 #' # MODEL 2: Multi-response linear regression
 #' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
 #' v <- c("Petal.Length", "Petal.Width", "Species")
-#' inter <- interact(fit, v = v, X = iris, verbose = FALSE)
-#' plot(inter)
-#' summary(inter)
+#' s <- hstats(fit, v = v, X = iris, verbose = FALSE)
+#' plot(s)
+#' summary(s)
 #'
 #' # MODEL 3: Gamma GLM with log link
 #' fit <- glm(Sepal.Length ~ ., data = iris, family = Gamma(link = log))
 #' 
 #' # No interactions for additive features, at least on link scale
-#' inter <- interact(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
-#' summary(inter)
+#' s <- hstats(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
+#' summary(s)
 #' 
 #' # On original scale, we have interactions everywhere...
-#' inter <- interact(
+#' s <- hstats(
 #'   fit, v = names(iris[-1]), X = iris, type = "response", verbose = FALSE
 #' )
 #' 
 #' # All three types use different denominators
-#' plot(inter, which = 1:3, ncol = 1)
+#' plot(s, which = 1:3, ncol = 1)
 #' 
 #' # All statistics on same scale (of predictions)
-#' plot(inter, which = 1:3, squared = FALSE, normalize = FALSE, facet_scale = "free_y")
-interact <- function(object, ...) {
-  UseMethod("interact")
+#' plot(s, which = 1:3, squared = FALSE, normalize = FALSE, facet_scale = "free_y")
+hstats <- function(object, ...) {
+  UseMethod("hstats")
 }
 
-#' @describeIn interact Default interact method.
+#' @describeIn hstats Default hstats method.
 #' @export
-interact.default <- function(object, v, X, pred_fun = stats::predict, n_max = 300L, 
-                             w = NULL, pairwise_m = 5L, threeway_m = pairwise_m,
-                             verbose = TRUE, ...) {
+hstats.default <- function(object, v, X, pred_fun = stats::predict, n_max = 300L, 
+                           w = NULL, pairwise_m = 5L, threeway_m = pairwise_m,
+                           verbose = TRUE, ...) {
   basic_check(X = X, v = v, pred_fun = pred_fun, w = w)
   stopifnot(threeway_m <= pairwise_m)
   
@@ -196,11 +196,11 @@ interact.default <- function(object, v, X, pred_fun = stats::predict, n_max = 30
       combs3 = NULL,
       F_jkl = NULL
     ), 
-    class = "interact"
+    class = "hstats"
   )
   
   # 2+way stats are calculated only for subset of features with large interactions
-  H <- H2_overall(out, normalize = FALSE, sort = FALSE, plot = FALSE)
+  H <- h2_overall(out, normalize = FALSE, sort = FALSE, plot = FALSE)
   
   out[["v_pairwise"]] <- v2 <- get_v(H, m = pairwise_m)
   if (min(pairwise_m, length(v2)) >= 2L) {
@@ -219,13 +219,13 @@ interact.default <- function(object, v, X, pred_fun = stats::predict, n_max = 30
   out
 }
 
-#' @describeIn interact Method for "ranger" models.
+#' @describeIn hstats Method for "ranger" models.
 #' @export
-interact.ranger <- function(object, v, X,
-                            pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
-                            n_max = 300L, w = NULL, pairwise_m = 5L, 
-                            threeway_m = pairwise_m, verbose = TRUE, ...) {
-  interact.default(
+hstats.ranger <- function(object, v, X,
+                          pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
+                          n_max = 300L, w = NULL, pairwise_m = 5L, 
+                          threeway_m = pairwise_m, verbose = TRUE, ...) {
+  hstats.default(
     object = object,
     v = v,
     X = X,
@@ -239,13 +239,13 @@ interact.ranger <- function(object, v, X,
   )
 }
 
-#' @describeIn interact Method for "mlr3" models.
+#' @describeIn hstats Method for "mlr3" models.
 #' @export
-interact.Learner <- function(object, v, X,
-                             pred_fun = function(m, X) m$predict_newdata(X)$response,
-                             n_max = 300L, w = NULL, pairwise_m = 5L,
-                             threeway_m = pairwise_m, verbose = TRUE, ...) {
-  interact.default(
+hstats.Learner <- function(object, v, X,
+                           pred_fun = function(m, X) m$predict_newdata(X)$response,
+                           n_max = 300L, w = NULL, pairwise_m = 5L,
+                           threeway_m = pairwise_m, verbose = TRUE, ...) {
+  hstats.default(
     object = object,
     v = v,
     X = X,
@@ -259,15 +259,15 @@ interact.Learner <- function(object, v, X,
   )
 }
 
-#' @describeIn interact Method for DALEX "explainer".
+#' @describeIn hstats Method for DALEX "explainer".
 #' @export
-interact.explainer <- function(object, v = colnames(object[["data"]]), 
-                               X = object[["data"]],
-                               pred_fun = object[["predict_function"]],
-                               n_max = 300L, w = object[["weights"]], 
-                               pairwise_m = 5L, threeway_m = pairwise_m,
-                               verbose = TRUE, ...) {
-  interact.default(
+hstats.explainer <- function(object, v = colnames(object[["data"]]), 
+                             X = object[["data"]],
+                             pred_fun = object[["predict_function"]],
+                             n_max = 300L, w = object[["weights"]], 
+                             pairwise_m = 5L, threeway_m = pairwise_m,
+                             verbose = TRUE, ...) {
+  hstats.default(
     object = object[["model"]],
     v = v,
     X = X,
@@ -283,46 +283,46 @@ interact.explainer <- function(object, v = colnames(object[["data"]]),
 
 #' Print Method
 #' 
-#' Print method for object of class "interact". Shows \eqn{H^2} statistic.
+#' Print method for object of class "hstats". Shows \eqn{H^2} statistic.
 #'
-#' @param x An object of class "interact".
+#' @param x An object of class "hstats".
 #' @param ... Further arguments passed from other methods.
 #' @returns Invisibly, the input is returned.
 #' @export
-#' @seealso See [interact()] for examples.
-print.interact <- function(x, ...) {
-  cat("'interact' object. Run plot() or summary() for details.\n\n")
+#' @seealso See [hstats()] for examples.
+print.hstats <- function(x, ...) {
+  cat("'hstats' object. Run plot() or summary() for details.\n\n")
   cat("Proportion of prediction variability unexplained by main effects of v:\n")
-  print(H2(x))
+  print(h2(x))
   cat("\n")
   invisible(x)
 }
 
 #' Summary Method
 #' 
-#' Summary method for "interact" object.
+#' Summary method for "hstats" object.
 #'
-#' @param object An object of class "interact".
+#' @param object An object of class "hstats".
 #' @param top_m Maximum number of rows of results to print.
 #' @param ... Further arguments passed to statistics, e.g., `normalize = FALSE`.
 #' @returns A named list of statistics.
 #' @export
-#' @seealso See [interact()] for examples.
-summary.interact <- function(object, top_m = 6L, ...) {
+#' @seealso See [hstats()] for examples.
+summary.hstats <- function(object, top_m = 6L, ...) {
   out <- list(
-    H2 = H2(object, ...), 
-    H2_overall = H2_overall(object, top_m = Inf, plot = FALSE, ...), 
-    H2_pairwise = H2_pairwise(object, top_m = Inf, plot = FALSE, ...), 
-    H2_threeway = H2_threeway(object, top_m = Inf, plot = FALSE, ...)
+    h2 = h2(object, ...), 
+    h2_overall = h2_overall(object, top_m = Inf, plot = FALSE, ...), 
+    h2_pairwise = h2_pairwise(object, top_m = Inf, plot = FALSE, ...), 
+    h2_threeway = h2_threeway(object, top_m = Inf, plot = FALSE, ...)
   )
   out <- out[sapply(out, Negate(is.null))]
   
   addon <- "(only for features with strong overall interactions)"
   txt <- c(
-    H2 = "Proportion of prediction variability unexplained by main effects of v",
-    H2_overall = "Strongest overall interactions", 
-    H2_pairwise = paste0("Strongest relative pairwise interactions\n", addon),
-    H2_threeway = paste0("Strongest relative three-way interactions\n", addon)
+    h2 = "Proportion of prediction variability unexplained by main effects of v",
+    h2_overall = "Strongest overall interactions", 
+    h2_pairwise = paste0("Strongest relative pairwise interactions\n", addon),
+    h2_threeway = paste0("Strongest relative three-way interactions\n", addon)
   )
   
   for (nm in names(out)) {
@@ -334,11 +334,11 @@ summary.interact <- function(object, top_m = 6L, ...) {
   invisible(out)
 }
 
-#' Plot Method for "interact" Object
+#' Plot Method for "hstats" Object
 #' 
-#' Plot method for object of class "interact".
+#' Plot method for object of class "hstats".
 #'
-#' @param x An object of class "interact".
+#' @param x An object of class "hstats".
 #' @param which Which statistic(s) to be shown? Default is `1:2`, i.e., show both
 #'   \eqn{H^2_j} (1) and \eqn{H^2_{jk}} (2). To also show three-way interactions,
 #'   use `1:3`.
@@ -349,11 +349,11 @@ summary.interact <- function(object, top_m = 6L, ...) {
 #' @param ... Further arguments passed to statistics, e.g., `normalize = FALSE`.
 #' @returns An object of class "ggplot".
 #' @export
-#' @seealso See [interact()] for examples.
-plot.interact <- function(x, which = 1:2, top_m = 15L, fill = "#2b51a1", 
-                          facet_scales = "free", ncol = 2L, ...) {
+#' @seealso See [hstats()] for examples.
+plot.hstats <- function(x, which = 1:2, top_m = 15L, fill = "#2b51a1", 
+                        facet_scales = "free", ncol = 2L, ...) {
   ids <- c("Overall", "Pairwise", "Threeway")
-  funs <- c(H2_overall, H2_pairwise, H2_threeway)
+  funs <- c(h2_overall, h2_pairwise, h2_threeway)
   dat <- list()
   i <- 1L
   for (f in funs) {
@@ -391,7 +391,7 @@ plot.interact <- function(x, which = 1:2, top_m = 15L, fill = "#2b51a1",
 #' @noRd
 #' @keywords internal
 #' 
-#' @inheritParams interact H Unnormalized, unsorted H_j values.
+#' @inheritParams hstats H Unnormalized, unsorted H_j values.
 #' @param way Pairwise (`way = 2`) or three-way (`way = 3`) interactions.
 #' @param verb Verbose (`TRUE`/`FALSE`).
 #' 

@@ -3,14 +3,14 @@
 \name{pd_importance}
 \alias{pd_importance}
 \alias{pd_importance.default}
-\alias{pd_importance.interact}
+\alias{pd_importance.hstats}
 \title{PD Bases Importance (Experimental)}
 \usage{
 pd_importance(object, ...)
 
 \method{pd_importance}{default}(object, ...)
 
-\method{pd_importance}{interact}(
+\method{pd_importance}{hstats}(
   object,
   normalize = TRUE,
   squared = TRUE,
@@ -23,7 +23,7 @@ pd_importance(object, ...)
 )
 }
 \arguments{
-\item{object}{Object of class "interact".}
+\item{object}{Object of class "hstats".}
 
 \item{...}{Further parameters passed to \code{geom_bar()}.}
 
@@ -73,32 +73,32 @@ unexplained by all other features. As such, it measures variable importance of
 the \eqn{j}-th feature, including its interaction effects (check \code{\link[=partial_dep]{partial_dep()}}
 for all definitions).
 
-Remarks 1 to 4 of \code{\link[=H2_overall]{H2_overall()}} also apply here.
+Remarks 1 to 4 of \code{\link[=h2_overall]{h2_overall()}} also apply here.
 }
 \section{Methods (by class)}{
 \itemize{
 \item \code{pd_importance(default)}: Default method of PD based feature importance.
 
-\item \code{pd_importance(interact)}: PD based feature importance from "interact" object.
+\item \code{pd_importance(hstats)}: PD based feature importance from "hstats" object.
 
 }}
 \examples{
 # MODEL 1: Linear regression
 fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
-inter <- interact(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
-pd_importance(inter)
-pd_importance(inter, plot = FALSE)
+s <- hstats(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
+pd_importance(s)
+pd_importance(s, plot = FALSE)
 
 # MODEL 2: Multi-response linear regression
 fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
 v <- c("Petal.Length", "Petal.Width", "Species")
-inter <- interact(fit, v = v, X = iris, verbose = FALSE)
-pd_importance(inter)
+s <- hstats(fit, v = v, X = iris, verbose = FALSE)
+pd_importance(s)
 }
 \references{
 Greenwell, Brandon M., Bradley C. Boehmke, and Andrew J. McCarthy.
 \emph{A Simple and Effective Model-Based Variable Importance Measure.} Arxiv (2018).
 }
 \seealso{
-\code{\link[=interact]{interact()}}, \code{\link[=H2_overall]{H2_overall()}}
+\code{\link[=hstats]{hstats()}}, \code{\link[=h2_overall]{h2_overall()}}
 }
