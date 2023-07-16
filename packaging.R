@@ -14,7 +14,7 @@ library(usethis)
 # Sketch of description file
 use_description(
   fields = list(
-    Title = "Model-Agnostic Interaction Statistics",
+    Title = "Friedman and Popescu's H Statistics",
     Version = "0.1.0",
     Description = "Fast, model-agnostic implementation of Friedman and Popescu's
     H statistics of interaction strength <doi:10.1214/07-AOAS148>. 
@@ -47,11 +47,11 @@ use_build_ignore(c("^packaging.R$", "[.]Rproj$", "^logo.png$",
 use_readme_md()
 
 # Longer docu in RMarkdown (with running R code). Often quite similar to readme.
-# use_vignette("interactML")
+# use_vignette("hstats")
 
 # If you want to add unit tests
 use_testthat()
-# use_test("interactML.R")
+# use_test("hstats.R")
 # use_test("methods.R")
 
 # On top of NEWS.md, describe changes made to the package

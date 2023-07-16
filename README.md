@@ -1,14 +1,14 @@
-# interactML <a href='https://github.com/mayer79/interactML'><img src='man/figures/logo.png' align="right" height="139"/></a>
+# hstats <a href='https://github.com/mayer79/hstats'><img src='man/figures/logo.png' align="right" height="139"/></a>
 
 <!-- badges: start -->
 
-[![CRAN status](http://www.r-pkg.org/badges/version/interactML)](https://cran.r-project.org/package=interactML)
-[![R-CMD-check](https://github.com/mayer79/interactML/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/mayer79/interactML/actions)
-[![Codecov test coverage](https://codecov.io/gh/mayer79/interactML/branch/main/graph/badge.svg)](https://app.codecov.io/gh/mayer79/interactML?branch=main)
+[![CRAN status](http://www.r-pkg.org/badges/version/hstats)](https://cran.r-project.org/package=hstats)
+[![R-CMD-check](https://github.com/mayer79/hstats/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/mayer79/hstats/actions)
+[![Codecov test coverage](https://codecov.io/gh/mayer79/hstats/branch/main/graph/badge.svg)](https://app.codecov.io/gh/mayer79/hstats?branch=main)
 [![Lifecycle: maturing](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://www.tidyverse.org/lifecycle/#experimental)
 
-[![](https://cranlogs.r-pkg.org/badges/interactML)](https://cran.r-project.org/package=interactML) 
-[![](https://cranlogs.r-pkg.org/badges/grand-total/interactML?color=orange)](https://cran.r-project.org/package=interactML)
+[![](https://cranlogs.r-pkg.org/badges/hstats)](https://cran.r-project.org/package=hstats) 
+[![](https://cranlogs.r-pkg.org/badges/grand-total/hstats?color=orange)](https://cran.r-project.org/package=hstats)
 
 <!-- badges: end -->
 
@@ -24,7 +24,7 @@ How to study them? Friedman and Popescu's H statistics [1] quantify different as
 | $H^2_{jk}$  | Pairwise interaction strength            | Proportion of joint effect variability of features $j$ and $k$ coming from their pairwise interaction.|
 | $H^2_{jkl}$ | Three-way interaction strength           | Proportion of joint effect variability of three features coming from their three-way interaction.     |
 
-{interactML} offers these statistics comparably **fast** and for **any model**, even for multi-output models, or models with case weights. Additionally, we provide a global statistic $H^2$ measuring the proportion of prediction variability unexplained by main effects [5], and an experimental feature importance measure.
+{hstats} offers these statistics comparably **fast** and for **any model**, even for multi-output models, or models with case weights. Additionally, we provide a global statistic $H^2$ measuring the proportion of prediction variability unexplained by main effects [5], and an experimental feature importance measure.
 
 The core functions `interact()`, `partial_dep()`, and `ice()` can directly be applied to DALEX explainers, meta learners (mlr3, tidymodels, caret) and most other models. In case you need more flexibility, a prediction function can be specified. Both data.frame and matrix data structures are supported.
 
@@ -36,19 +36,19 @@ Accumulated local effects (ALE) [8] mend above problem of partial dependence est
 
 ## Landscape
 
-{interactML} is not the first R package to explore interactions. Here is an incomplete selection:
+{hstats} is not the first R package to explore interactions. Here is an incomplete selection:
 
 - [{gbm}](https://CRAN.R-project.org/package=gbm): Implementation of m-wise interaction statistics of [1] for {gbm} models using the weighted tree-traversal method of [2] to estimate partial dependence functions.
 - [{iml}](https://CRAN.R-project.org/package=iml): Variant of pairwise interaction statistics of [1].
 - [{EIX}](https://CRAN.R-project.org/package=EIX): Interaction statistics extracted from the tree structure of XGBoost and LightGBM.
 - [{randomForestExplainer}](https://CRAN.R-project.org/package=randomForestExplainer): Interaction statistics extracted from the tree structure of random forests.
 - [{vivid}](https://CRAN.R-project.org/package=vivid): Cool visualization of interaction patterns. Partly based on {flashlight}.
-- [{flashlight}](https://CRAN.R-project.org/package=flashlight): Model-agnostic implementation of some statistics of [1]. Planned to switch to the much faster {interactML}.
+- [{flashlight}](https://CRAN.R-project.org/package=flashlight): Model-agnostic implementation of some statistics of [1]. Planned to switch to the much faster {hstats}.
 
 ## Installation
 
 ```r
-devtools::install_github("mayer79/interactML")
+devtools::install_github("mayer79/hstats")
 ```
 
 ## Usage
@@ -58,7 +58,7 @@ To demonstrate the typical workflow, we use a beautiful house price dataset with
 ### Fit model
 
 ```r
-library(interactML)
+library(hstats)
 library(xgboost)
 library(shapviz)
 
@@ -118,7 +118,7 @@ plot(inter)  # Or summary(inter) for numeric output
 **Remarks**
 
 1. Pairwise statistics $H^2_{jk}$ are calculated only for the features with strong overall interactions $H^2_j$.
-2. H statistics need to repeatedly calculate predictions on up to $n^2$ rows. That is why {interactML} samples 300 rows by default. To get more robust results, increase this value at the price of slower run time.
+2. H statistics need to repeatedly calculate predictions on up to $n^2$ rows. That is why {hstats} samples 300 rows by default. To get more robust results, increase this value at the price of slower run time.
 3. Pairwise statistics $H^2_{jk}$ measures interaction strength relative to the combined effect of the two features. This does not necessarily show which interactions are strongest in absolute numbers. To do so, we can study unnormalized statistics:
 
 ```r
@@ -129,7 +129,7 @@ H2_pairwise(inter, normalize = FALSE, squared = FALSE, top_m = 5)
 
 Since distance to the ocean and age have high values in overall interaction strength, it is not surprising that a strong relative pairwise interaction is translated into a strong absolute one.
 
-{interactML} crunches three-way interaction statistics $H^2_{jkl}$ as well. The following plot shows them together with the other statistics on prediction scale (`normalize = FALSE` and `squared = FALSE`). The three-way interactions are weaker than the pairwise interactions, yet not negligible:
+{hstats} crunches three-way interaction statistics $H^2_{jkl}$ as well. The following plot shows them together with the other statistics on prediction scale (`normalize = FALSE` and `squared = FALSE`). The three-way interactions are weaker than the pairwise interactions, yet not negligible:
 
 ```r
 plot(inter, which = 1:3, normalize = F, squared = F, facet_scales = "free_y", ncol = 1)
@@ -204,7 +204,7 @@ The main functions work smoothly on DALEX explainers:
 ```r
 library(DALEX)
 library(ranger)
-library(interactML)
+library(hstats)
 
 set.seed(1)
 
