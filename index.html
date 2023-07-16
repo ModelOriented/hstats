@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Model-Agnostic Interaction Statistics • interactML</title>
+<title>Interaction Statistics • hstats</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
 <link rel="apple-touch-icon" type="image/png" sizes="180x180" href="apple-touch-icon.png">
@@ -17,7 +17,7 @@
 <script src="bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="pkgdown.css" rel="stylesheet">
-<script src="pkgdown.js"></script><meta property="og:title" content="Model-Agnostic Interaction Statistics">
+<script src="pkgdown.js"></script><meta property="og:title" content="Interaction Statistics">
 <meta property="og:description" content="Fast, model-agnostic implementation of Friedman and Popescu's
     H statistics of interaction strength &lt;doi:10.1214/07-AOAS148&gt;.  These
     statistics quantify interaction strength per feature, feature pair,
@@ -47,7 +47,7 @@
         <span class="icon-bar"></span>
       </button>
       <span class="navbar-brand">
-        <a class="navbar-link" href="index.html">interactML</a>
+        <a class="navbar-link" href="index.html">hstats</a>
         <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.0</span>
       </span>
     </div>
@@ -63,7 +63,7 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://github.com/mayer79/interactML/" class="external-link">
+  <a href="https://github.com/mayer79/hstats/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
      
   </a>
@@ -81,8 +81,8 @@
       </header><div class="row">
   <div class="contents col-md-9">
 <div class="section level1">
-<div class="page-header"><h1 id="interactml-">interactML <a href="https://github.com/mayer79/interactML" class="external-link"><img src="reference/figures/logo.png" align="right" height="139"></a>
-<a class="anchor" aria-label="anchor" href="#interactml-"></a>
+<div class="page-header"><h1 id="hstats-">hstats <a href="https://github.com/mayer79/hstats" class="external-link"><img src="reference/figures/logo.png" align="right" height="139"></a>
+<a class="anchor" aria-label="anchor" href="#hstats-"></a>
 </h1></div>
 <!-- badges: start -->
 
@@ -92,7 +92,7 @@
 <h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
 </h2>
 <p><strong>What makes a ML model black-box? It’s the interactions!</strong></p>
-<p>How to study them? Friedman and Popescu’s H statistics [1] quantify different aspects of interaction strength, see <a href="#background">Background</a> for details:</p>
+<p>The first step in understanding interactions is to measure their strength. This is exactly what Friedman and Popescu’s H statistics [1] do, see <a href="#background">Background</a> for details:</p>
 <table class="table">
 <colgroup>
 <col width="8%">
@@ -122,8 +122,8 @@
 </tr>
 </tbody>
 </table>
-<p>{interactML} offers these statistics comparably <strong>fast</strong> and for <strong>any model</strong>, even for multi-output models, or models with case weights. Additionally, we provide a global statistic <span class="math inline"><em>H</em><sup>2</sup></span> measuring the proportion of prediction variability unexplained by main effects [5], and an experimental feature importance measure.</p>
-<p>The core functions <code><a href="reference/interact.html">interact()</a></code>, <code><a href="reference/partial_dep.html">partial_dep()</a></code>, and <code><a href="reference/ice.html">ice()</a></code> can directly be applied to DALEX explainers, meta learners (mlr3, tidymodels, caret) and most other models. In case you need more flexibility, a prediction function can be specified. Both data.frame and matrix data structures are supported.</p>
+<p>{hstats} offers these statistics comparably <strong>fast</strong> and for <strong>any model</strong>, even for multi-output models, or models with case weights. Additionally, we provide a global statistic <span class="math inline"><em>H</em><sup>2</sup></span> measuring the proportion of prediction variability unexplained by main effects [5], and an experimental feature importance measure.</p>
+<p>The core functions <code><a href="reference/hstats.html">hstats()</a></code>, <code><a href="reference/partial_dep.html">partial_dep()</a></code>, and <code><a href="reference/ice.html">ice()</a></code> can directly be applied to DALEX explainers, meta learners (mlr3, tidymodels, caret) and most other models. In case you need more flexibility, a prediction function can be specified. Both data.frame and matrix data structures are supported.</p>
 </div>
 <div class="section level2">
 <h2 id="limitation">Limitation<a class="anchor" aria-label="anchor" href="#limitation"></a>
@@ -134,7 +134,7 @@
 <div class="section level2">
 <h2 id="landscape">Landscape<a class="anchor" aria-label="anchor" href="#landscape"></a>
 </h2>
-<p>{interactML} is not the first R package to explore interactions. Here is an incomplete selection:</p>
+<p>{hstats} is not the first R package to explore interactions. Here is an incomplete selection:</p>
 <ul>
 <li>
 <a href="https://CRAN.R-project.org/package=gbm" class="external-link">{gbm}</a>: Implementation of m-wise interaction statistics of [1] for {gbm} models using the weighted tree-traversal method of [2] to estimate partial dependence functions.</li>
@@ -147,14 +147,14 @@
 <li>
 <a href="https://CRAN.R-project.org/package=vivid" class="external-link">{vivid}</a>: Cool visualization of interaction patterns. Partly based on {flashlight}.</li>
 <li>
-<a href="https://CRAN.R-project.org/package=flashlight" class="external-link">{flashlight}</a>: Model-agnostic implementation of some statistics of [1]. Planned to switch to the much faster {interactML}.</li>
+<a href="https://CRAN.R-project.org/package=flashlight" class="external-link">{flashlight}</a>: Model-agnostic implementation of some statistics of [1]. Planned to switch to the much faster {hstats}.</li>
 </ul>
 </div>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"mayer79/interactML"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"mayer79/hstats"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a>
@@ -164,7 +164,7 @@
 <h3 id="fit-model">Fit model<a class="anchor" aria-label="anchor" href="#fit-model"></a>
 </h3>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/mayer79/interactML" class="external-link">interactML</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/mayer79/hstats" class="external-link">hstats</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/dmlc/xgboost" class="external-link">xgboost</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ModelOriented/shapviz" class="external-link">shapviz</a></span><span class="op">)</span></span>
 <span></span>
@@ -197,19 +197,19 @@
 <div class="section level3">
 <h3 id="interaction-statistics">Interaction statistics<a class="anchor" aria-label="anchor" href="#interaction-statistics"></a>
 </h3>
-<p>Let’s calculate different H statistics via <code><a href="reference/interact.html">interact()</a></code>:</p>
+<p>Let’s calculate different H statistics via <code><a href="reference/hstats.html">hstats()</a></code>:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># 3 seconds on simple laptop - a random forest will take 1-2 minutes</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/system.time.html" class="external-link">system.time</a></span><span class="op">(</span></span>
-<span>  <span class="va">inter</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/interact.html">interact</a></span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="va">x</span>, X <span class="op">=</span> <span class="va">X_train</span><span class="op">)</span></span>
+<span>  <span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/hstats.html">hstats</a></span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="va">x</span>, X <span class="op">=</span> <span class="va">X_train</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
-<span><span class="va">inter</span></span>
+<span><span class="va">s</span></span>
 <span><span class="co"># Proportion of prediction variability unexplained by main effects of v</span></span>
 <span><span class="co"># [1] 0.14</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">inter</span><span class="op">)</span>  <span class="co"># Or summary(inter) for numeric output</span></span></code></pre></div>
-<p><img src="reference/figures/interact.svg"></p>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">s</span><span class="op">)</span>  <span class="co"># Or summary(s) for numeric output</span></span></code></pre></div>
+<p><img src="reference/figures/hstats.svg"></p>
 <p><strong>Interpretation</strong></p>
 <ul>
 <li>
@@ -222,17 +222,17 @@
 <p><strong>Remarks</strong></p>
 <ol style="list-style-type: decimal">
 <li>Pairwise statistics <span class="math inline"><em>H</em><sub><em>j</em><em>k</em></sub><sup>2</sup></span> are calculated only for the features with strong overall interactions <span class="math inline"><em>H</em><sub><em>j</em></sub><sup>2</sup></span>.</li>
-<li>H statistics need to repeatedly calculate predictions on up to <span class="math inline"><em>n</em><sup>2</sup></span> rows. That is why {interactML} samples 300 rows by default. To get more robust results, increase this value at the price of slower run time.</li>
+<li>H statistics need to repeatedly calculate predictions on up to <span class="math inline"><em>n</em><sup>2</sup></span> rows. That is why {hstats} samples 300 rows by default. To get more robust results, increase this value at the price of slower run time.</li>
 <li>Pairwise statistics <span class="math inline"><em>H</em><sub><em>j</em><em>k</em></sub><sup>2</sup></span> measures interaction strength relative to the combined effect of the two features. This does not necessarily show which interactions are strongest in absolute numbers. To do so, we can study unnormalized statistics:</li>
 </ol>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="reference/H2_pairwise.html">H2_pairwise</a></span><span class="op">(</span><span class="va">inter</span>, normalize <span class="op">=</span> <span class="cn">FALSE</span>, squared <span class="op">=</span> <span class="cn">FALSE</span>, top_m <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></code></pre></div>
-<p><img src="reference/figures/interact_pairwise.svg"></p>
+<code class="sourceCode R"><span><span class="fu"><a href="reference/H2_pairwise.html">h2_pairwise</a></span><span class="op">(</span><span class="va">s</span>, normalize <span class="op">=</span> <span class="cn">FALSE</span>, squared <span class="op">=</span> <span class="cn">FALSE</span>, top_m <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></code></pre></div>
+<p><img src="reference/figures/hstats_pairwise.svg"></p>
 <p>Since distance to the ocean and age have high values in overall interaction strength, it is not surprising that a strong relative pairwise interaction is translated into a strong absolute one.</p>
-<p>{interactML} crunches three-way interaction statistics <span class="math inline"><em>H</em><sub><em>j</em><em>k</em><em>l</em></sub><sup>2</sup></span> as well. The following plot shows them together with the other statistics on prediction scale (<code>normalize = FALSE</code> and <code>squared = FALSE</code>). The three-way interactions are weaker than the pairwise interactions, yet not negligible:</p>
+<p>{hstats} crunches three-way interaction statistics <span class="math inline"><em>H</em><sub><em>j</em><em>k</em><em>l</em></sub><sup>2</sup></span> as well. The following plot shows them together with the other statistics on prediction scale (<code>normalize = FALSE</code> and <code>squared = FALSE</code>). The three-way interactions are weaker than the pairwise interactions, yet not negligible:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">inter</span>, which <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, normalize <span class="op">=</span> <span class="cn">F</span>, squared <span class="op">=</span> <span class="cn">F</span>, facet_scales <span class="op">=</span> <span class="st">"free_y"</span>, ncol <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
-<p><img src="reference/figures/inter3.svg"></p>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">s</span>, which <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, normalize <span class="op">=</span> <span class="cn">F</span>, squared <span class="op">=</span> <span class="cn">F</span>, facet_scales <span class="op">=</span> <span class="st">"free_y"</span>, ncol <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
+<p><img src="reference/figures/hstats3.svg"></p>
 </div>
 <div class="section level3">
 <h3 id="describe-interaction">Describe interaction<a class="anchor" aria-label="anchor" href="#describe-interaction"></a>
@@ -265,9 +265,9 @@
 <div class="section level3">
 <h3 id="variable-importance">Variable importance<a class="anchor" aria-label="anchor" href="#variable-importance"></a>
 </h3>
-<p>In the spirit of [1], and related to [4], we can extract from the “interact” objects a partial dependence based variable importance measure. It measures not only the main effect strength (see [4]), but also all its interaction effects. It is rather experimental, so use it with care (details in the section “Background”):</p>
+<p>In the spirit of [1], and related to [4], we can extract from the “hstats” objects a partial dependence based variable importance measure. It measures not only the main effect strength (see [4]), but also all its interaction effects. It is rather experimental, so use it with care (details in the section “Background”):</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="reference/pd_importance.html">pd_importance</a></span><span class="op">(</span><span class="va">inter</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="reference/pd_importance.html">pd_importance</a></span><span class="op">(</span><span class="va">s</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Compared with tree split gain importance</span></span>
 <span><span class="fu">xgb.plot.importance</span><span class="op">(</span><span class="fu">xgb.importance</span><span class="op">(</span>model <span class="op">=</span> <span class="va">fit</span><span class="op">)</span>, measure <span class="op">=</span> <span class="st">"Gain"</span><span class="op">)</span></span></code></pre></div>
@@ -283,22 +283,22 @@
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://modeloriented.github.io/DALEX/" class="external-link">DALEX</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/imbs-hl/ranger" class="external-link">ranger</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/mayer79/interactML" class="external-link">interactML</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/mayer79/hstats" class="external-link">hstats</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">ranger</span><span class="op">(</span><span class="va">Sepal.Length</span> <span class="op">~</span> <span class="va">.</span>, data <span class="op">=</span> <span class="va">iris</span><span class="op">)</span></span>
 <span><span class="va">ex</span> <span class="op">&lt;-</span> <span class="fu">explain</span><span class="op">(</span><span class="va">fit</span>, data <span class="op">=</span> <span class="va">iris</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span><span class="op">]</span>, y <span class="op">=</span> <span class="va">iris</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">inter</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/interact.html">interact</a></span><span class="op">(</span><span class="va">ex</span><span class="op">)</span></span>
-<span><span class="va">inter</span>  <span class="co"># Non-additivity index 0.054</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">inter</span><span class="op">)</span></span>
+<span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/hstats.html">hstats</a></span><span class="op">(</span><span class="va">ex</span><span class="op">)</span></span>
+<span><span class="va">s</span>  <span class="co"># Non-additivity index 0.054</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">s</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Strongest relative interaction</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="reference/ice.html">ice</a></span><span class="op">(</span><span class="va">ex</span>, v <span class="op">=</span> <span class="st">"Sepal.Width"</span>, BY <span class="op">=</span> <span class="st">"Petal.Width"</span><span class="op">)</span>, center <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="reference/partial_dep.html">partial_dep</a></span><span class="op">(</span><span class="va">ex</span>, v <span class="op">=</span> <span class="st">"Sepal.Width"</span>, BY <span class="op">=</span> <span class="st">"Petal.Width"</span><span class="op">)</span>, show_points <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="reference/partial_dep.html">partial_dep</a></span><span class="op">(</span><span class="va">ex</span>, v <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Sepal.Width"</span>, <span class="st">"Petal.Width"</span><span class="op">)</span>, grid_size <span class="op">=</span> <span class="fl">200</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="reference/figures/dalex_inter.svg"></p>
+<p><img src="reference/figures/dalex_hstats.svg"></p>
 <p>Strongest relative interaction shown as ICE plot.</p>
 <p><img src="reference/figures/dalex_ice.svg"></p>
 </div>
@@ -444,8 +444,8 @@ $$</span></p>
     <div class="links">
 <h2 data-toc-skip>Links</h2>
 <ul class="list-unstyled">
-<li><a href="https://github.com/mayer79/interactML/" class="external-link">Browse source code</a></li>
-<li><a href="https://github.com/mayer79/interactML/issues" class="external-link">Report a bug</a></li>
+<li><a href="https://github.com/mayer79/hstats/" class="external-link">Browse source code</a></li>
+<li><a href="https://github.com/mayer79/hstats/issues" class="external-link">Report a bug</a></li>
 </ul>
 </div>
 
@@ -461,7 +461,7 @@ $$</span></p>
 <div class="citation">
 <h2 data-toc-skip>Citation</h2>
 <ul class="list-unstyled">
-<li><a href="authors.html#citation">Citing interactML</a></li>
+<li><a href="authors.html#citation">Citing hstats</a></li>
 </ul>
 </div>
 
@@ -475,12 +475,12 @@ $$</span></p>
 <div class="dev-status">
 <h2 data-toc-skip>Dev status</h2>
 <ul class="list-unstyled">
-<li><a href="https://cran.r-project.org/package=interactML" class="external-link"><img src="http://www.r-pkg.org/badges/version/interactML" alt="CRAN status"></a></li>
-<li><a href="https://github.com/mayer79/interactML/actions" class="external-link"><img src="https://github.com/mayer79/interactML/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R-CMD-check"></a></li>
-<li><a href="https://app.codecov.io/gh/mayer79/interactML?branch=main" class="external-link"><img src="https://codecov.io/gh/mayer79/interactML/branch/main/graph/badge.svg" alt="Codecov test coverage"></a></li>
+<li><a href="https://cran.r-project.org/package=hstats" class="external-link"><img src="http://www.r-pkg.org/badges/version/hstats" alt="CRAN status"></a></li>
+<li><a href="https://github.com/mayer79/hstats/actions" class="external-link"><img src="https://github.com/mayer79/hstats/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R-CMD-check"></a></li>
+<li><a href="https://app.codecov.io/gh/mayer79/hstats?branch=main" class="external-link"><img src="https://codecov.io/gh/mayer79/hstats/branch/main/graph/badge.svg" alt="Codecov test coverage"></a></li>
 <li><a href="https://www.tidyverse.org/lifecycle/#experimental" class="external-link"><img src="https://img.shields.io/badge/lifecycle-maturing-blue.svg" alt="Lifecycle: maturing"></a></li>
-<li><a href="https://cran.r-project.org/package=interactML" class="external-link"><img src="https://cranlogs.r-pkg.org/badges/interactML"></a></li>
-<li><a href="https://cran.r-project.org/package=interactML" class="external-link"><img src="https://cranlogs.r-pkg.org/badges/grand-total/interactML?color=orange"></a></li>
+<li><a href="https://cran.r-project.org/package=hstats" class="external-link"><img src="https://cranlogs.r-pkg.org/badges/hstats"></a></li>
+<li><a href="https://cran.r-project.org/package=hstats" class="external-link"><img src="https://cranlogs.r-pkg.org/badges/grand-total/hstats?color=orange"></a></li>
 </ul>
 </div>
 
