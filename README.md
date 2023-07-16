@@ -26,7 +26,7 @@ How to study them? Friedman and Popescu's H statistics [1] quantify different as
 
 {hstats} offers these statistics comparably **fast** and for **any model**, even for multi-output models, or models with case weights. Additionally, we provide a global statistic $H^2$ measuring the proportion of prediction variability unexplained by main effects [5], and an experimental feature importance measure.
 
-The core functions `interact()`, `partial_dep()`, and `ice()` can directly be applied to DALEX explainers, meta learners (mlr3, tidymodels, caret) and most other models. In case you need more flexibility, a prediction function can be specified. Both data.frame and matrix data structures are supported.
+The core functions `hstats()`, `partial_dep()`, and `ice()` can directly be applied to DALEX explainers, meta learners (mlr3, tidymodels, caret) and most other models. In case you need more flexibility, a prediction function can be specified. Both data.frame and matrix data structures are supported.
 
 ## Limitation
 
@@ -92,13 +92,13 @@ fit <- xgb.train(
 
 ### Interaction statistics
 
-Let's calculate different H statistics via `interact()`:
+Let's calculate different H statistics via `hstats()`:
 
 ```r
 # 3 seconds on simple laptop - a random forest will take 1-2 minutes
 set.seed(1)
 system.time(
-  inter <- interact(fit, v = x, X = X_train)
+  inter <- hstats(fit, v = x, X = X_train)
 )
 inter
 # Proportion of prediction variability unexplained by main effects of v
@@ -107,7 +107,7 @@ inter
 plot(inter)  # Or summary(inter) for numeric output
 ```
 
-![](man/figures/interact.svg)
+![](man/figures/hstats.svg)
 
 **Interpretation** 
 
@@ -125,7 +125,7 @@ plot(inter)  # Or summary(inter) for numeric output
 H2_pairwise(inter, normalize = FALSE, squared = FALSE, top_m = 5)
 ```
 
-![](man/figures/interact_pairwise.svg)
+![](man/figures/hstats_pairwise.svg)
 
 Since distance to the ocean and age have high values in overall interaction strength, it is not surprising that a strong relative pairwise interaction is translated into a strong absolute one.
 
@@ -181,7 +181,7 @@ plot(ice(fit, v = "tot_lvg_area", X = X_train, BY = BY), center = TRUE)
 
 ### Variable importance
 
-In the spirit of [1], and related to [4], we can extract from the "interact" objects a partial dependence based variable importance measure. It measures not only the main effect strength (see [4]), but also all its interaction effects. It is rather experimental, so use it with care (details in the section "Background"):
+In the spirit of [1], and related to [4], we can extract from the "hstats" objects a partial dependence based variable importance measure. It measures not only the main effect strength (see [4]), but also all its interaction effects. It is rather experimental, so use it with care (details in the section "Background"):
 
 ```r
 pd_importance(inter)
@@ -211,7 +211,7 @@ set.seed(1)
 fit <- ranger(Sepal.Length ~ ., data = iris)
 ex <- explain(fit, data = iris[-1], y = iris[, 1])
 
-inter <- interact(ex)
+inter <- hstats(ex)
 inter  # Non-additivity index 0.054
 plot(inter)
 

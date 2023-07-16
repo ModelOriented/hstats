@@ -3,14 +3,14 @@
 \name{H2_threeway}
 \alias{H2_threeway}
 \alias{H2_threeway.default}
-\alias{H2_threeway.interact}
+\alias{H2_threeway.hstats}
 \title{Three-way Interaction Strength}
 \usage{
 H2_threeway(object, ...)
 
 \method{H2_threeway}{default}(object, ...)
 
-\method{H2_threeway}{interact}(
+\method{H2_threeway}{hstats}(
   object,
   normalize = TRUE,
   squared = TRUE,
@@ -23,7 +23,7 @@ H2_threeway(object, ...)
 )
 }
 \arguments{
-\item{object}{Object of class "interact".}
+\item{object}{Object of class "hstats".}
 
 \item{...}{Further parameters passed to \code{geom_bar()}.}
 
@@ -50,7 +50,7 @@ statistics have been calculated, the function returns \code{NULL}.
 }
 \description{
 Friedman and Popescu's statistic of three-way interaction strength extracted from the
-result of \code{\link[=interact]{interact()}}, see Details. By default, the results are plotted as barplot.
+result of \code{\link[=hstats]{hstats()}}, see Details. By default, the results are plotted as barplot.
 Set \code{plot = FALSE} to get numbers.
 }
 \details{
@@ -89,27 +89,27 @@ Similar remarks as for \code{\link[=H2_pairwise]{H2_pairwise()}} apply.
 \itemize{
 \item \code{H2_threeway(default)}: Default pairwise interaction strength.
 
-\item \code{H2_threeway(interact)}: Pairwise interaction strength from "interact" object.
+\item \code{H2_threeway(hstats)}: Pairwise interaction strength from "hstats" object.
 
 }}
 \examples{
 # MODEL 1: Linear regression
 fit <- lm(uptake ~ Type * Treatment * conc, data = CO2)
-inter <- interact(fit, v = names(CO2[2:4]), X = CO2, verbose = FALSE)
-H2_threeway(inter, plot = FALSE)
+s <- hstats(fit, v = names(CO2[2:4]), X = CO2, verbose = FALSE)
+H2_threeway(s, plot = FALSE)
 
 #' MODEL 2: Multivariate output (taking just twice the same response as example)
 fit <- lm(cbind(up = uptake, up2 = 2 * uptake) ~ Type * Treatment * conc, data = CO2)
-inter <- interact(fit, v = names(CO2[2:4]), X = CO2, verbose = FALSE)
-H2_threeway(inter, plot = FALSE)
+s <- hstats(fit, v = names(CO2[2:4]), X = CO2, verbose = FALSE)
+H2_threeway(s, plot = FALSE)
 
 # Unnormalized H
-H2_threeway(inter, normalize = FALSE, squared = FALSE, plot = FALSE)
+H2_threeway(s, normalize = FALSE, squared = FALSE, plot = FALSE)
 }
 \references{
 Friedman, Jerome H., and Bogdan E. Popescu. \emph{"Predictive Learning via Rule Ensembles."}
 The Annals of Applied Statistics 2, no. 3 (2008): 916-54.
 }
 \seealso{
-\code{\link[=interact]{interact()}}, \code{\link[=H2]{H2()}}, \code{\link[=H2_overall]{H2_overall()}}, \code{\link[=H2_pairwise]{H2_pairwise()}}
+\code{\link[=hstats]{hstats()}}, \code{\link[=H2]{H2()}}, \code{\link[=H2_overall]{H2_overall()}}, \code{\link[=H2_pairwise]{H2_pairwise()}}
 }

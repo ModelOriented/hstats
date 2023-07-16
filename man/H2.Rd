@@ -3,17 +3,17 @@
 \name{H2}
 \alias{H2}
 \alias{H2.default}
-\alias{H2.interact}
+\alias{H2.hstats}
 \title{Total Interaction Strength}
 \usage{
 H2(object, ...)
 
 \method{H2}{default}(object, ...)
 
-\method{H2}{interact}(object, normalize = TRUE, squared = TRUE, eps = 1e-08, ...)
+\method{H2}{hstats}(object, normalize = TRUE, squared = TRUE, eps = 1e-08, ...)
 }
 \arguments{
-\item{object}{Object of class "interact".}
+\item{object}{Object of class "hstats".}
 
 \item{...}{Currently unused.}
 
@@ -28,7 +28,7 @@ Vector of total interaction strength (one value per prediction dimension).
 }
 \description{
 Proportion of prediction variability unexplained by main effects of \code{v}
-(extracted from the result of \code{\link[=interact]{interact()}}), see Details.
+(extracted from the result of \code{\link[=hstats]{hstats()}}), see Details.
 }
 \details{
 If the model is additive in all features, then the (centered) prediction
@@ -56,25 +56,25 @@ A similar measure using accumulated local effects is discussed in Molnar (2020).
 \itemize{
 \item \code{H2(default)}: Default method of total interaction strength.
 
-\item \code{H2(interact)}: Total interaction strength from "interact" object.
+\item \code{H2(hstats)}: Total interaction strength from "interact" object.
 
 }}
 \examples{
 # MODEL 1: Linear regression
 fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
-inter <- interact(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
-H2(inter)
+s <- hstats(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
+H2(s)
 
 # MODEL 2: Multi-response linear regression
 fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
 v <- c("Petal.Length", "Petal.Width", "Species")
-inter <- interact(fit, v = v, X = iris, verbose = FALSE)
-H2(inter)
+s <- hstats(fit, v = v, X = iris, verbose = FALSE)
+H2(s)
 
 # MODEL 3: No interactions
 fit <- lm(Sepal.Length ~ ., data = iris)
-inter <- interact(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
-H2(inter)
+s <- hstats(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
+H2(s)
 }
 \references{
 \enumerate{
@@ -89,5 +89,5 @@ Springer International Publishing (2020): 193-204.
 }
 }
 \seealso{
-\code{\link[=interact]{interact()}}, \code{\link[=H2_overall]{H2_overall()}}, \code{\link[=H2_pairwise]{H2_pairwise()}}, \code{\link[=H2_threeway]{H2_threeway()}}
+\code{\link[=hstats]{hstats()}}, \code{\link[=H2_overall]{H2_overall()}}, \code{\link[=H2_pairwise]{H2_pairwise()}}, \code{\link[=H2_threeway]{H2_threeway()}}
 }

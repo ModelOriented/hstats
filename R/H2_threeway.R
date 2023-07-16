@@ -1,7 +1,7 @@
 #' Three-way Interaction Strength
 #' 
 #' Friedman and Popescu's statistic of three-way interaction strength extracted from the
-#' result of [interact()], see Details. By default, the results are plotted as barplot.
+#' result of [hstats()], see Details. By default, the results are plotted as barplot.
 #' Set `plot = FALSE` to get numbers.
 #' 
 #' @details
@@ -41,22 +41,22 @@
 #'   A matrix of statistics (one row per variable, one column per prediction dimension),
 #'   or a "ggplot" object (if `plot = TRUE`). If no three-way
 #'   statistics have been calculated, the function returns `NULL`.
-#' @inherit interact references
+#' @inherit hstats references
 #' @export
-#' @seealso [interact()], [H2()], [H2_overall()], [H2_pairwise()]
+#' @seealso [hstats()], [H2()], [H2_overall()], [H2_pairwise()]
 #' @examples
 #' # MODEL 1: Linear regression
 #' fit <- lm(uptake ~ Type * Treatment * conc, data = CO2)
-#' inter <- interact(fit, v = names(CO2[2:4]), X = CO2, verbose = FALSE)
-#' H2_threeway(inter, plot = FALSE)
+#' s <- hstats(fit, v = names(CO2[2:4]), X = CO2, verbose = FALSE)
+#' H2_threeway(s, plot = FALSE)
 #' 
 #' #' MODEL 2: Multivariate output (taking just twice the same response as example)
 #' fit <- lm(cbind(up = uptake, up2 = 2 * uptake) ~ Type * Treatment * conc, data = CO2)
-#' inter <- interact(fit, v = names(CO2[2:4]), X = CO2, verbose = FALSE)
-#' H2_threeway(inter, plot = FALSE)
+#' s <- hstats(fit, v = names(CO2[2:4]), X = CO2, verbose = FALSE)
+#' H2_threeway(s, plot = FALSE)
 #' 
 #' # Unnormalized H
-#' H2_threeway(inter, normalize = FALSE, squared = FALSE, plot = FALSE)
+#' H2_threeway(s, normalize = FALSE, squared = FALSE, plot = FALSE)
 H2_threeway <- function(object, ...) {
   UseMethod("H2_threeway")
 }
@@ -67,11 +67,11 @@ H2_threeway.default <- function(object, ...) {
   stop("No default method implemented.")
 }
 
-#' @describeIn H2_threeway Pairwise interaction strength from "interact" object.
+#' @describeIn H2_threeway Pairwise interaction strength from "hstats" object.
 #' @export
-H2_threeway.interact <- function(object, normalize = TRUE, squared = TRUE, sort = TRUE, 
-                                 top_m = 15L, eps = 1e-8, plot = TRUE, 
-                                 fill = "#2b51a1", ...) {
+H2_threeway.hstats <- function(object, normalize = TRUE, squared = TRUE, sort = TRUE, 
+                               top_m = 15L, eps = 1e-8, plot = TRUE, 
+                               fill = "#2b51a1", ...) {
   combs <- object[["combs3"]]
   
   if (is.null(combs)) {

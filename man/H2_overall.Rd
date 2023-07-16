@@ -3,14 +3,14 @@
 \name{H2_overall}
 \alias{H2_overall}
 \alias{H2_overall.default}
-\alias{H2_overall.interact}
+\alias{H2_overall.hstats}
 \title{Overall Interaction Strength}
 \usage{
 H2_overall(object, ...)
 
 \method{H2_overall}{default}(object, ...)
 
-\method{H2_overall}{interact}(
+\method{H2_overall}{hstats}(
   object,
   normalize = TRUE,
   squared = TRUE,
@@ -23,7 +23,7 @@ H2_overall(object, ...)
 )
 }
 \arguments{
-\item{object}{Object of class "interact".}
+\item{object}{Object of class "hstats".}
 
 \item{...}{Further parameters passed to \code{geom_bar()}.}
 
@@ -49,7 +49,7 @@ or a "ggplot" object (if \code{plot = TRUE}).
 }
 \description{
 Friedman and Popescu's \eqn{H^2_j} statistics of overall interaction strength per
-feature extracted from the result of \code{\link[=interact]{interact()}}, see Details.
+feature extracted from the result of \code{\link[=hstats]{hstats()}}, see Details.
 By default, the results are plotted as barplot. Set \code{plot = FALSE} to get numbers.
 }
 \details{
@@ -92,25 +92,25 @@ statistics can be compared across features.
 \itemize{
 \item \code{H2_overall(default)}: Default method of overall interaction strength.
 
-\item \code{H2_overall(interact)}: Overall interaction strength from "interact" object.
+\item \code{H2_overall(hstats)}: Overall interaction strength from "hstats" object.
 
 }}
 \examples{
 # MODEL 1: Linear regression
 fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
-inter <- interact(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
-H2_overall(inter, plot = TRUE)
+s <- hstats(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
+H2_overall(s, plot = TRUE)
 
 # MODEL 2: Multi-response linear regression
 fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
 v <- c("Petal.Length", "Petal.Width", "Species")
-inter <- interact(fit, v = v, X = iris, verbose = FALSE)
-H2_overall(inter, plot = TRUE)
+s <- hstats(fit, v = v, X = iris, verbose = FALSE)
+H2_overall(s, plot = TRUE)
 }
 \references{
 Friedman, Jerome H., and Bogdan E. Popescu. \emph{"Predictive Learning via Rule Ensembles."}
 The Annals of Applied Statistics 2, no. 3 (2008): 916-54.
 }
 \seealso{
-\code{\link[=interact]{interact()}}, \code{\link[=H2]{H2()}}, \code{\link[=H2_pairwise]{H2_pairwise()}}, \code{\link[=H2_threeway]{H2_threeway()}}
+\code{\link[=hstats]{hstats()}}, \code{\link[=H2]{H2()}}, \code{\link[=H2_pairwise]{H2_pairwise()}}, \code{\link[=H2_threeway]{H2_threeway()}}
 }

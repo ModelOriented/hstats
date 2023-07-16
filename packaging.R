@@ -14,7 +14,7 @@ library(usethis)
 # Sketch of description file
 use_description(
   fields = list(
-    Title = "Friedman and Popescu's H Statistics",
+    Title = "Interaction Statistics",
     Version = "0.1.0",
     Description = "Fast, model-agnostic implementation of Friedman and Popescu's
     H statistics of interaction strength <doi:10.1214/07-AOAS148>. 

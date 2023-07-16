@@ -1,5 +1,5 @@
 Package: hstats
-Title: Friedman and Popescu's H Statistics
+Title: Interaction Statistics
 Version: 0.1.0
 Authors@R: 
     person("Michael", "Mayer", , "mayermichael79@gmail.com", role = c("aut", "cre"))

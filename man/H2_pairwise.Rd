@@ -3,14 +3,14 @@
 \name{H2_pairwise}
 \alias{H2_pairwise}
 \alias{H2_pairwise.default}
-\alias{H2_pairwise.interact}
+\alias{H2_pairwise.hstats}
 \title{Pairwise Interaction Strength}
 \usage{
 H2_pairwise(object, ...)
 
 \method{H2_pairwise}{default}(object, ...)
 
-\method{H2_pairwise}{interact}(
+\method{H2_pairwise}{hstats}(
   object,
   normalize = TRUE,
   squared = TRUE,
@@ -23,7 +23,7 @@ H2_pairwise(object, ...)
 )
 }
 \arguments{
-\item{object}{Object of class "interact".}
+\item{object}{Object of class "hstats".}
 
 \item{...}{Further parameters passed to \code{geom_bar()}.}
 
@@ -50,7 +50,7 @@ statistics have been calculated, the function returns \code{NULL}.
 }
 \description{
 Friedman and Popescu's statistics of pairwise interaction strength extracted from the
-result of \code{\link[=interact]{interact()}}, see Details. By default, the results are plotted as barplot.
+result of \code{\link[=hstats]{hstats()}}, see Details. By default, the results are plotted as barplot.
 Set \code{plot = FALSE} to get numbers.
 }
 \details{
@@ -100,31 +100,31 @@ rather for those features with \emph{strongest overall interactions}.
 \itemize{
 \item \code{H2_pairwise(default)}: Default pairwise interaction strength.
 
-\item \code{H2_pairwise(interact)}: Pairwise interaction strength from "interact" object.
+\item \code{H2_pairwise(hstats)}: Pairwise interaction strength from "hstats" object.
 
 }}
 \examples{
 # MODEL 1: Linear regression
 fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
-inter <- interact(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
+s <- hstats(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
 
 # Proportion of joint effect coming from pairwise interaction
 # (for features with strongest overall interactions)
-H2_pairwise(inter, plot = FALSE)
+H2_pairwise(s, plot = FALSE)
 
 # Absolute measure as alternative
-H2_pairwise(inter, normalize = FALSE, squared = FALSE, plot = FALSE)
+H2_pairwise(s, normalize = FALSE, squared = FALSE, plot = FALSE)
 
 # MODEL 2: Multi-response linear regression
 fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
 v <- c("Petal.Length", "Petal.Width", "Species")
-inter <- interact(fit, v = v, X = iris, verbose = FALSE)
-H2_pairwise(inter)
+s <- hstats(fit, v = v, X = iris, verbose = FALSE)
+H2_pairwise(sh)
 }
 \references{
 Friedman, Jerome H., and Bogdan E. Popescu. \emph{"Predictive Learning via Rule Ensembles."}
 The Annals of Applied Statistics 2, no. 3 (2008): 916-54.
 }
 \seealso{
-\code{\link[=interact]{interact()}}, \code{\link[=H2]{H2()}}, \code{\link[=H2_overall]{H2_overall()}}, \code{\link[=H2_threeway]{H2_threeway()}}
+\code{\link[=hstats]{hstats()}}, \code{\link[=H2]{H2()}}, \code{\link[=H2_overall]{H2_overall()}}, \code{\link[=H2_threeway]{H2_threeway()}}
 }

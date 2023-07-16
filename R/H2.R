@@ -1,7 +1,7 @@
 #' Total Interaction Strength
 #' 
 #' Proportion of prediction variability unexplained by main effects of `v` 
-#' (extracted from the result of [interact()]), see Details. 
+#' (extracted from the result of [hstats()]), see Details. 
 #' 
 #' @details
 #' If the model is additive in all features, then the (centered) prediction 
@@ -29,7 +29,7 @@
 #' @param ... Currently unused.
 #' @returns Vector of total interaction strength (one value per prediction dimension).
 #' @export
-#' @seealso [interact()], [H2_overall()], [H2_pairwise()], [H2_threeway()]
+#' @seealso [hstats()], [H2_overall()], [H2_pairwise()], [H2_threeway()]
 #' @references 
 #' 1. Żółkowski, Artur, Mateusz Krzyziński, and Paweł Fijałkowski. 
 #'   *Methods for extraction of interactions from predictive models.* 
@@ -42,19 +42,19 @@
 #' @examples
 #' # MODEL 1: Linear regression
 #' fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
-#' inter <- interact(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
-#' H2(inter)
+#' s <- hstats(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
+#' H2(s)
 #' 
 #' # MODEL 2: Multi-response linear regression
 #' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
 #' v <- c("Petal.Length", "Petal.Width", "Species")
-#' inter <- interact(fit, v = v, X = iris, verbose = FALSE)
-#' H2(inter)
+#' s <- hstats(fit, v = v, X = iris, verbose = FALSE)
+#' H2(s)
 #' 
 #' # MODEL 3: No interactions
 #' fit <- lm(Sepal.Length ~ ., data = iris)
-#' inter <- interact(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
-#' H2(inter)
+#' s <- hstats(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
+#' H2(s)
 H2 <- function(object, ...) {
   UseMethod("H2")
 }
@@ -67,7 +67,7 @@ H2.default <- function(object, ...) {
 
 #' @describeIn H2 Total interaction strength from "interact" object.
 #' @export
-H2.interact <- function(object, normalize = TRUE, squared = TRUE, eps = 1e-8, ...) {
+H2.hstats <- function(object, normalize = TRUE, squared = TRUE, eps = 1e-8, ...) {
   postprocess(
     num = with(object, wcolMeans((f - Reduce("+", F_j))^2, w = w)),
     denom = object[["mean_f2"]],

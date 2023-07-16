@@ -29,7 +29,7 @@
 #' A partial dependence plot (PDP) plots the values of \eqn{\hat F_s(\mathbf{x}_s)}
 #' over a grid of evaluation points \eqn{\mathbf{x}_s}.
 #' 
-#' @inheritParams interact
+#' @inheritParams hstats
 #' @inheritParams multivariate_grid
 #' @param grid A vector (if `length(v) == 1L`), or a matrix/data.frame otherwise.
 #'   If `NULL`, calculated via [multivariate_grid()].

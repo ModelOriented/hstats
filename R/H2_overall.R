@@ -1,7 +1,7 @@
 #' Overall Interaction Strength
 #' 
 #' Friedman and Popescu's \eqn{H^2_j} statistics of overall interaction strength per 
-#' feature extracted from the result of [interact()], see Details. 
+#' feature extracted from the result of [hstats()], see Details. 
 #' By default, the results are plotted as barplot. Set `plot = FALSE` to get numbers.
 #' 
 #' @details
@@ -39,7 +39,7 @@
 #' 7. Since the denominator is the same for all features, the values of the test 
 #'   statistics can be compared across features.
 #' 
-#' @param object Object of class "interact".
+#' @param object Object of class "hstats".
 #' @param normalize Should statistic be normalized? Default is `TRUE`.
 #' @param squared Should *squared* statistics be returned? Default is `TRUE`. 
 #' @param sort Should results be sorted by the size of the statistic? Default is `TRUE`.
@@ -53,20 +53,20 @@
 #' @returns 
 #'   A matrix of statistics (one row per variable, one column per prediction dimension),
 #'   or a "ggplot" object (if `plot = TRUE`).
-#' @inherit interact references
-#' @seealso [interact()], [H2()], [H2_pairwise()], [H2_threeway()]
+#' @inherit hstats references
+#' @seealso [hstats()], [H2()], [H2_pairwise()], [H2_threeway()]
 #' @export
 #' @examples
 #' # MODEL 1: Linear regression
 #' fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
-#' inter <- interact(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
-#' H2_overall(inter, plot = TRUE)
+#' s <- hstats(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
+#' H2_overall(s, plot = TRUE)
 #' 
 #' # MODEL 2: Multi-response linear regression
 #' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
 #' v <- c("Petal.Length", "Petal.Width", "Species")
-#' inter <- interact(fit, v = v, X = iris, verbose = FALSE)
-#' H2_overall(inter, plot = TRUE)
+#' s <- hstats(fit, v = v, X = iris, verbose = FALSE)
+#' H2_overall(s, plot = TRUE)
 H2_overall <- function(object, ...) {
   UseMethod("H2_overall")
 }
@@ -77,11 +77,11 @@ H2_overall.default <- function(object, ...) {
   stop("No default method implemented.")
 }
 
-#' @describeIn H2_overall Overall interaction strength from "interact" object.
+#' @describeIn H2_overall Overall interaction strength from "hstats" object.
 #' @export
-H2_overall.interact <- function(object, normalize = TRUE, squared = TRUE, sort = TRUE, 
-                                top_m = 15L, eps = 1e-8, plot = TRUE, fill = "#2b51a1", 
-                                ...) {
+H2_overall.hstats <- function(object, normalize = TRUE, squared = TRUE, sort = TRUE, 
+                              top_m = 15L, eps = 1e-8, plot = TRUE, fill = "#2b51a1", 
+                              ...) {
   num <- with(
     object, matrix(nrow = length(v), ncol = K, dimnames = list(v, pred_names))
   )

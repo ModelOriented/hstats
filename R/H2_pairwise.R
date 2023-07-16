@@ -1,7 +1,7 @@
 #' Pairwise Interaction Strength
 #' 
 #' Friedman and Popescu's statistics of pairwise interaction strength extracted from the
-#' result of [interact()], see Details. By default, the results are plotted as barplot.
+#' result of [hstats()], see Details. By default, the results are plotted as barplot.
 #' Set `plot = FALSE` to get numbers.
 #' 
 #' @details
@@ -51,26 +51,26 @@
 #'   A matrix of statistics (one row per variable, one column per prediction dimension),
 #'   or a "ggplot" object (if `plot = TRUE`). If no pairwise
 #'   statistics have been calculated, the function returns `NULL`.
-#' @inherit interact references
+#' @inherit hstats references
 #' @export
-#' @seealso [interact()], [H2()], [H2_overall()], [H2_threeway()]
+#' @seealso [hstats()], [H2()], [H2_overall()], [H2_threeway()]
 #' @examples
 #' # MODEL 1: Linear regression
 #' fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
-#' inter <- interact(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
+#' s <- hstats(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
 #' 
 #' # Proportion of joint effect coming from pairwise interaction
 #' # (for features with strongest overall interactions)
-#' H2_pairwise(inter, plot = FALSE)
+#' H2_pairwise(s, plot = FALSE)
 #' 
 #' # Absolute measure as alternative
-#' H2_pairwise(inter, normalize = FALSE, squared = FALSE, plot = FALSE)
+#' H2_pairwise(s, normalize = FALSE, squared = FALSE, plot = FALSE)
 #' 
 #' # MODEL 2: Multi-response linear regression
 #' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
 #' v <- c("Petal.Length", "Petal.Width", "Species")
-#' inter <- interact(fit, v = v, X = iris, verbose = FALSE)
-#' H2_pairwise(inter)
+#' s <- hstats(fit, v = v, X = iris, verbose = FALSE)
+#' H2_pairwise(s)
 H2_pairwise <- function(object, ...) {
   UseMethod("H2_pairwise")
 }
@@ -81,11 +81,11 @@ H2_pairwise.default <- function(object, ...) {
   stop("No default method implemented.")
 }
 
-#' @describeIn H2_pairwise Pairwise interaction strength from "interact" object.
+#' @describeIn H2_pairwise Pairwise interaction strength from "hstats" object.
 #' @export
-H2_pairwise.interact <- function(object, normalize = TRUE, squared = TRUE, sort = TRUE, 
-                                 top_m = 15L, eps = 1e-8, plot = TRUE, 
-                                 fill = "#2b51a1", ...) {
+H2_pairwise.hstats <- function(object, normalize = TRUE, squared = TRUE, sort = TRUE, 
+                               top_m = 15L, eps = 1e-8, plot = TRUE, 
+                               fill = "#2b51a1", ...) {
   combs <- object[["combs2"]]
   
   if (is.null(combs)) {
