@@ -16,7 +16,7 @@
 
 **What makes a ML model black-box? It's the interactions!**
 
-How to study them? Friedman and Popescu's H statistics [1] quantify different aspects of interaction strength, see [Background](#background) for details:
+The first step towards understanding interactions is to measure their strength. Thats what Friedman and Popescu's H statistics [1] do, see [Background](#background) for details:
 
 | Statistic   | Short description                        | How to read its value?                                                                                |
 |-------------|------------------------------------------|-------------------------------------------------------------------------------------------------------|
@@ -98,13 +98,13 @@ Let's calculate different H statistics via `hstats()`:
 # 3 seconds on simple laptop - a random forest will take 1-2 minutes
 set.seed(1)
 system.time(
-  inter <- hstats(fit, v = x, X = X_train)
+  s <- hstats(fit, v = x, X = X_train)
 )
-inter
+s
 # Proportion of prediction variability unexplained by main effects of v
 # [1] 0.14
 
-plot(inter)  # Or summary(inter) for numeric output
+plot(s)  # Or summary(s) for numeric output
 ```
 
 ![](man/figures/hstats.svg)
@@ -122,7 +122,7 @@ plot(inter)  # Or summary(inter) for numeric output
 3. Pairwise statistics $H^2_{jk}$ measures interaction strength relative to the combined effect of the two features. This does not necessarily show which interactions are strongest in absolute numbers. To do so, we can study unnormalized statistics:
 
 ```r
-h2_pairwise(inter, normalize = FALSE, squared = FALSE, top_m = 5)
+h2_pairwise(s, normalize = FALSE, squared = FALSE, top_m = 5)
 ```
 
 ![](man/figures/hstats_pairwise.svg)
@@ -132,10 +132,10 @@ Since distance to the ocean and age have high values in overall interaction stre
 {hstats} crunches three-way interaction statistics $H^2_{jkl}$ as well. The following plot shows them together with the other statistics on prediction scale (`normalize = FALSE` and `squared = FALSE`). The three-way interactions are weaker than the pairwise interactions, yet not negligible:
 
 ```r
-plot(inter, which = 1:3, normalize = F, squared = F, facet_scales = "free_y", ncol = 1)
+plot(s, which = 1:3, normalize = F, squared = F, facet_scales = "free_y", ncol = 1)
 ```
 
-![](man/figures/inter3.svg)
+![](man/figures/hstats3.svg)
 
 
 ### Describe interaction
@@ -184,7 +184,7 @@ plot(ice(fit, v = "tot_lvg_area", X = X_train, BY = BY), center = TRUE)
 In the spirit of [1], and related to [4], we can extract from the "hstats" objects a partial dependence based variable importance measure. It measures not only the main effect strength (see [4]), but also all its interaction effects. It is rather experimental, so use it with care (details in the section "Background"):
 
 ```r
-pd_importance(inter)
+pd_importance(s)
 
 # Compared with tree split gain importance
 xgb.plot.importance(xgb.importance(model = fit), measure = "Gain")
@@ -211,9 +211,9 @@ set.seed(1)
 fit <- ranger(Sepal.Length ~ ., data = iris)
 ex <- explain(fit, data = iris[-1], y = iris[, 1])
 
-inter <- hstats(ex)
-inter  # Non-additivity index 0.054
-plot(inter)
+s <- hstats(ex)
+s  # Non-additivity index 0.054
+plot(s)
 
 # Strongest relative interaction
 plot(ice(ex, v = "Sepal.Width", BY = "Petal.Width"), center = TRUE)
@@ -221,7 +221,7 @@ plot(partial_dep(ex, v = "Sepal.Width", BY = "Petal.Width"), show_points = FALSE
 plot(partial_dep(ex, v = c("Sepal.Width", "Petal.Width"), grid_size = 200))
 ```
 
-![](man/figures/dalex_inter.svg)
+![](man/figures/dalex_hstats.svg)
 
 Strongest relative interaction shown as ICE plot.
 
