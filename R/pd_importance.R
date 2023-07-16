@@ -25,11 +25,11 @@
 #' the \eqn{j}-th feature, including its interaction effects (check [partial_dep()] 
 #' for all definitions).
 #' 
-#' Remarks 1 to 4 of [H2_overall()] also apply here.
+#' Remarks 1 to 4 of [h2_overall()] also apply here.
 #' 
-#' @inheritParams H2_overall
-#' @inherit H2_overall return
-#' @seealso [hstats()], [H2_overall()]
+#' @inheritParams h2_overall
+#' @inherit h2_overall return
+#' @seealso [hstats()], [h2_overall()]
 #' @references
 #'   Greenwell, Brandon M., Bradley C. Boehmke, and Andrew J. McCarthy.  
 #'     *A Simple and Effective Model-Based Variable Importance Measure.* Arxiv (2018).

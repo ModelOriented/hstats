@@ -122,7 +122,7 @@ plot(inter)  # Or summary(inter) for numeric output
 3. Pairwise statistics $H^2_{jk}$ measures interaction strength relative to the combined effect of the two features. This does not necessarily show which interactions are strongest in absolute numbers. To do so, we can study unnormalized statistics:
 
 ```r
-H2_pairwise(inter, normalize = FALSE, squared = FALSE, top_m = 5)
+h2_pairwise(inter, normalize = FALSE, squared = FALSE, top_m = 5)
 ```
 
 ![](man/figures/hstats_pairwise.svg)

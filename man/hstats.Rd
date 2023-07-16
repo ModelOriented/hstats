@@ -110,13 +110,13 @@ partial dependence functions \eqn{F_j}.
 functions \eqn{F_{\setminus j}} of other features.
 \item \code{K}: Number of columns of prediction matrix.
 \item \code{pred_names}: Column names of prediction matrix.
-\item \code{v_pairwise}: Subset of \code{v} with largest \code{H2_overall} used for pairwise
+\item \code{v_pairwise}: Subset of \code{v} with largest \code{h2_overall()} used for pairwise
 calculations.
 \item \code{combs2}: Named list of variable pairs for which pairwise partial
 dependence functions are available.
 \item \code{F_jk}: List of matrices, each representing (centered) bivariate
 partial dependence functions \eqn{F_{jk}}.
-\item \code{v_threeway}: Subset of \code{v} with largest \code{H2_overall} used for three-way
+\item \code{v_threeway}: Subset of \code{v} with largest \code{h2_overall()} used for three-way
 calculations.
 \item \code{combs3}: Named list of variable triples for which three-way partial
 dependence functions are available.
@@ -129,13 +129,13 @@ This is the main function of the package. It does the expensive calculations beh
 the following interaction statistics:
 \itemize{
 \item Total interaction strength \eqn{H^2}, a statistic measuring the proportion of
-prediction variability unexplained by main effects of \code{v}, see \code{\link[=H2]{H2()}} for details.
+prediction variability unexplained by main effects of \code{v}, see \code{\link[=h2]{h2()}} for details.
 \item Friedman and Popescu's \eqn{H^2_j} statistic of overall interaction strength per
-feature, see \code{\link[=H2_overall]{H2_overall()}} for details.
+feature, see \code{\link[=h2_overall]{h2_overall()}} for details.
 \item Friedman and Popescu's \eqn{H^2_{jk}} statistic of pairwise interaction strength,
-see \code{\link[=H2_pairwise]{H2_pairwise()}} for details.
+see \code{\link[=h2_pairwise]{h2_pairwise()}} for details.
 \item Friedman and Popescu's \eqn{H^2_{jkl}} statistic of three-way interaction strength,
-see \code{\link[=H2_threeway]{H2_threeway()}} for details.
+see \code{\link[=h2_threeway]{h2_threeway()}} for details.
 }
 
 Furthermore, it allows to calculate an experimental partial dependence based
@@ -144,8 +144,8 @@ prediction variability unexplained by other features, see \code{\link[=pd_import
 for details. (This statistic is not shown by \code{summary()} or \code{plot()}.)
 
 Instead of using \code{summary()}, interaction statistics can also be obtained via the
-more flexible functions \code{\link[=H2]{H2()}}, \code{\link[=H2_overall]{H2_overall()}}, \code{\link[=H2_pairwise]{H2_pairwise()}}, and
-\code{\link[=H2_threeway]{H2_threeway()}}.
+more flexible functions \code{\link[=h2]{h2()}}, \code{\link[=h2_overall]{h2_overall()}}, \code{\link[=h2_pairwise]{h2_pairwise()}}, and
+\code{\link[=h2_threeway]{h2_threeway()}}.
 }
 \section{Methods (by class)}{
 \itemize{
@@ -167,7 +167,7 @@ plot(s)
 summary(s)
   
 # Absolute pairwise interaction strengths
-H2_pairwise(s, normalize = FALSE, squared = FALSE, plot = FALSE)
+h2_pairwise(s, normalize = FALSE, squared = FALSE, plot = FALSE)
 
 # MODEL 2: Multi-response linear regression
 fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
@@ -199,6 +199,6 @@ Friedman, Jerome H., and Bogdan E. Popescu. \emph{"Predictive Learning via Rule 
 The Annals of Applied Statistics 2, no. 3 (2008): 916-54.
 }
 \seealso{
-\code{\link[=H2]{H2()}}, \code{\link[=H2_overall]{H2_overall()}}, \code{\link[=H2_pairwise]{H2_pairwise()}} and \code{\link[=H2_threeway]{H2_threeway()}} for specific
+\code{\link[=h2]{h2()}}, \code{\link[=h2_overall]{h2_overall()}}, \code{\link[=h2_pairwise]{h2_pairwise()}} and \code{\link[=h2_threeway]{h2_threeway()}} for specific
 statistics calculated from the resulting object.
 }

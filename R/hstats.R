@@ -4,13 +4,13 @@
 #' This is the main function of the package. It does the expensive calculations behind
 #' the following interaction statistics:
 #' - Total interaction strength \eqn{H^2}, a statistic measuring the proportion of
-#'   prediction variability unexplained by main effects of `v`, see [H2()] for details.
+#'   prediction variability unexplained by main effects of `v`, see [h2()] for details.
 #' - Friedman and Popescu's \eqn{H^2_j} statistic of overall interaction strength per
-#'   feature, see [H2_overall()] for details.
+#'   feature, see [h2_overall()] for details.
 #' - Friedman and Popescu's \eqn{H^2_{jk}} statistic of pairwise interaction strength,
-#'   see [H2_pairwise()] for details.
+#'   see [h2_pairwise()] for details.
 #' - Friedman and Popescu's \eqn{H^2_{jkl}} statistic of three-way interaction strength,
-#'   see [H2_threeway()] for details.
+#'   see [h2_threeway()] for details.
 #' 
 #' Furthermore, it allows to calculate an experimental partial dependence based
 #' measure of feature importance, \eqn{\textrm{PDI}_j^2}. It equals the proportion of
@@ -18,8 +18,8 @@
 #' for details. (This statistic is not shown by `summary()` or `plot()`.) 
 #'  
 #' Instead of using `summary()`, interaction statistics can also be obtained via the 
-#' more flexible functions [H2()], [H2_overall()], [H2_pairwise()], and
-#' [H2_threeway()].
+#' more flexible functions [h2()], [h2_overall()], [h2_pairwise()], and
+#' [h2_threeway()].
 #'  
 #' @param object Fitted model object.
 #' @param v Vector of feature names.
@@ -57,13 +57,13 @@
 #'     functions \eqn{F_{\setminus j}} of other features.
 #'   - `K`: Number of columns of prediction matrix.
 #'   - `pred_names`: Column names of prediction matrix.
-#'   - `v_pairwise`: Subset of `v` with largest `H2_overall` used for pairwise 
+#'   - `v_pairwise`: Subset of `v` with largest `h2_overall()` used for pairwise 
 #'     calculations.
 #'   - `combs2`: Named list of variable pairs for which pairwise partial 
 #'     dependence functions are available.
 #'   - `F_jk`: List of matrices, each representing (centered) bivariate 
 #'     partial dependence functions \eqn{F_{jk}}.
-#'   - `v_threeway`: Subset of `v` with largest `H2_overall` used for three-way 
+#'   - `v_threeway`: Subset of `v` with largest `h2_overall()` used for three-way 
 #'     calculations.
 #'   - `combs3`: Named list of variable triples for which three-way partial 
 #'     dependence functions are available.
@@ -73,7 +73,7 @@
 #'   Friedman, Jerome H., and Bogdan E. Popescu. *"Predictive Learning via Rule Ensembles."*
 #'     The Annals of Applied Statistics 2, no. 3 (2008): 916-54.
 #' @export
-#' @seealso [H2()], [H2_overall()], [H2_pairwise()] and [H2_threeway()] for specific 
+#' @seealso [h2()], [h2_overall()], [h2_pairwise()] and [h2_threeway()] for specific 
 #'   statistics calculated from the resulting object.
 #' @examples
 #' # MODEL 1: Linear regression
@@ -84,7 +84,7 @@
 #' summary(s)
 #'   
 #' # Absolute pairwise interaction strengths
-#' H2_pairwise(s, normalize = FALSE, squared = FALSE, plot = FALSE)
+#' h2_pairwise(s, normalize = FALSE, squared = FALSE, plot = FALSE)
 #' 
 #' # MODEL 2: Multi-response linear regression
 #' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
@@ -200,7 +200,7 @@ hstats.default <- function(object, v, X, pred_fun = stats::predict, n_max = 300L
   )
   
   # 2+way stats are calculated only for subset of features with large interactions
-  H <- H2_overall(out, normalize = FALSE, sort = FALSE, plot = FALSE)
+  H <- h2_overall(out, normalize = FALSE, sort = FALSE, plot = FALSE)
   
   out[["v_pairwise"]] <- v2 <- get_v(H, m = pairwise_m)
   if (min(pairwise_m, length(v2)) >= 2L) {
@@ -293,7 +293,7 @@ hstats.explainer <- function(object, v = colnames(object[["data"]]),
 print.hstats <- function(x, ...) {
   cat("'hstats' object. Run plot() or summary() for details.\n\n")
   cat("Proportion of prediction variability unexplained by main effects of v:\n")
-  print(H2(x))
+  print(h2(x))
   cat("\n")
   invisible(x)
 }
@@ -310,19 +310,19 @@ print.hstats <- function(x, ...) {
 #' @seealso See [hstats()] for examples.
 summary.hstats <- function(object, top_m = 6L, ...) {
   out <- list(
-    H2 = H2(object, ...), 
-    H2_overall = H2_overall(object, top_m = Inf, plot = FALSE, ...), 
-    H2_pairwise = H2_pairwise(object, top_m = Inf, plot = FALSE, ...), 
-    H2_threeway = H2_threeway(object, top_m = Inf, plot = FALSE, ...)
+    h2 = h2(object, ...), 
+    h2_overall = h2_overall(object, top_m = Inf, plot = FALSE, ...), 
+    h2_pairwise = h2_pairwise(object, top_m = Inf, plot = FALSE, ...), 
+    h2_threeway = h2_threeway(object, top_m = Inf, plot = FALSE, ...)
   )
   out <- out[sapply(out, Negate(is.null))]
   
   addon <- "(only for features with strong overall interactions)"
   txt <- c(
-    H2 = "Proportion of prediction variability unexplained by main effects of v",
-    H2_overall = "Strongest overall interactions", 
-    H2_pairwise = paste0("Strongest relative pairwise interactions\n", addon),
-    H2_threeway = paste0("Strongest relative three-way interactions\n", addon)
+    h2 = "Proportion of prediction variability unexplained by main effects of v",
+    h2_overall = "Strongest overall interactions", 
+    h2_pairwise = paste0("Strongest relative pairwise interactions\n", addon),
+    h2_threeway = paste0("Strongest relative three-way interactions\n", addon)
   )
   
   for (nm in names(out)) {
@@ -353,7 +353,7 @@ summary.hstats <- function(object, top_m = 6L, ...) {
 plot.hstats <- function(x, which = 1:2, top_m = 15L, fill = "#2b51a1", 
                         facet_scales = "free", ncol = 2L, ...) {
   ids <- c("Overall", "Pairwise", "Threeway")
-  funs <- c(H2_overall, H2_pairwise, H2_threeway)
+  funs <- c(h2_overall, h2_pairwise, h2_threeway)
   dat <- list()
   i <- 1L
   for (f in funs) {
