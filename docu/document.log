@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.24 (MiKTeX 22.3) (preloaded format=pdflatex 2022.5.15)  15 JUL 2023 10:22
+This is pdfTeX, Version 3.141592653-2.6-1.40.24 (MiKTeX 22.3) (preloaded format=pdflatex 2022.5.15)  16 JUL 2023 20:32
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -52,15 +52,15 @@ LaTeX Font Info:    External font `cmex10' loaded for size
  [1
 
 {C:/Users/Michael/AppData/Local/MiKTeX/2.9/fonts/map/pdftex/pdftex.map}] [2] [3
-] (document.bbl [4]) [5] (document.aux) ) 
+] [4] (document.bbl) [5] (document.aux) ) 
 Here is how much of TeX's memory you used:
  459 strings out of 478608
- 8588 string characters out of 2850693
+ 8568 string characters out of 2850693
  306862 words of memory out of 3000000
  18687 multiletter control sequences out of 15000+600000
  472077 words of font info for 37 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 34i,6n,38p,423b,213s stack positions out of 10000i,1000n,20000p,200000b,80000s
+ 34i,6n,38p,423b,184s stack positions out of 10000i,1000n,20000p,200000b,80000s
  <C:\Users\Michael\AppData\Local\MiKTe
 X\2.9\fonts/pk/ljfour/jknappen/ec/dpi600\tcrm1000.pk><C:/Program Files/MiKTeX 2
 .9/fonts/type1/public/amsfonts/cm/cmbx10.pfb><C:/Program Files/MiKTeX 2.9/fonts
@@ -75,7 +75,7 @@ es/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr7.pfb><C:/Program Files/MiKTeX
 s/type1/public/amsfonts/cm/cmsy5.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/p
 ublic/amsfonts/cm/cmsy7.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/ams
 fonts/cm/cmti10.pfb>
-Output written on document.pdf (5 pages, 174691 bytes).
+Output written on document.pdf (5 pages, 174976 bytes).
 PDF statistics:
  88 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)

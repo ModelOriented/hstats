@@ -16,7 +16,7 @@
 
 **What makes a ML model black-box? It's the interactions!**
 
-The first step in understanding interactions is to measure their strength. This is exactly what Friedman and Popescu's H statistics [1] do, see [Background](#background) for details:
+The first step in understanding interactions is to measure their strength. This is exactly what Friedman and Popescu's H statistics [1] do:
 
 | Statistic   | Short description                        | How to read its value?                                                                                |
 |-------------|------------------------------------------|-------------------------------------------------------------------------------------------------------|
@@ -24,15 +24,16 @@ The first step in understanding interactions is to measure their strength. This 
 | $H^2_{jk}$  | Pairwise interaction strength            | Proportion of joint effect variability of features $j$ and $k$ coming from their pairwise interaction.|
 | $H^2_{jkl}$ | Three-way interaction strength           | Proportion of joint effect variability of three features coming from their three-way interaction.     |
 
-{hstats} offers these statistics comparably **fast** and for **any model**, even for multi-output models, or models with case weights. Additionally, we provide a global statistic $H^2$ measuring the proportion of prediction variability unexplained by main effects [5], and an experimental feature importance measure.
+See section [Background](#background) for details and definitions.
 
-The core functions `hstats()`, `partial_dep()`, and `ice()` can directly be applied to DALEX explainers, meta learners (mlr3, tidymodels, caret) and most other models. In case you need more flexibility, a prediction function can be specified. Both data.frame and matrix data structures are supported.
+{hstats} offers these statistics comparably **fast** and for **any model**, even for multi-output models, or models with case weights. Additionally, we provide a global statistic $H^2$ measuring the proportion of prediction variability unexplained by main effects [5], and an experimental feature importance measure. After having identified strong interactions, their shape can be investigated by stratified partial dependence or ICE plots.
 
-## Limitation
+The core functions `hstats()`, `partial_dep()`, and `ice()` can directly be applied to DALEX explainers, meta learners (mlr3, tidymodels, caret) and most other models. In case you need more flexibility, a tailored prediction function can be specified. Both data.frame and matrix data structures are supported.
 
-H statistics are based on partial dependence estimates and are thus as good or bad as these. One of their problems is that the model is applied to unseen/impossible feature combinations. In extreme cases, H statistics intended to be in the range between 0 and 1 can become larger than 1.
+## Limitations
 
-Accumulated local effects (ALE) [8] mend above problem of partial dependence estimates. They, however, depend on the notion of closeness, which is highly non-trivial in higher dimension and for discrete features.
+1. H statistics are based on partial dependence estimates and are thus as good or bad as these. One of their problems is that the model is applied to unseen/impossible feature combinations. In extreme cases, H statistics intended to be in the range between 0 and 1 can become larger than 1. Accumulated local effects (ALE) [8] mend above problem of partial dependence estimates. They, however, depend on the notion of "closeness", which is highly non-trivial in higher dimension and for discrete features.
+2. Due to their computational complexity, H statistics are usually evaluated on relatively small subsets of the training (or validation/test) data. Consequently, the estimates are typically not very robust. To get more robust results, increase the default `n_max = 300` of `hstats()`.
 
 ## Landscape
 
@@ -96,24 +97,27 @@ Let's calculate different H statistics via `hstats()`:
 
 ```r
 # 3 seconds on simple laptop - a random forest will take 1-2 minutes
-set.seed(1)
+set.seed(782)
 system.time(
   s <- hstats(fit, v = x, X = X_train)
 )
 s
 # Proportion of prediction variability unexplained by main effects of v
-# [1] 0.14
+# [1] 0.10
 
 plot(s)  # Or summary(s) for numeric output
+
+# Save for later
+# saveRDS(s, file = "h_statistics.rds")
 ```
 
 ![](man/figures/hstats.svg)
 
 **Interpretation** 
 
-- $H^2$: About 14% of prediction variability is unexplained by the sum of all main effects. The interaction effects seem to be important.
-- $H^2_j$: The strongest overall interactions are associated with "log_ocean" (logarithmic distance to the ocean): About 8% of prediction variability can be attributed to its interactions.
-- $H^2_{jk}$: About 10% of the joint effect variability of "log_ocean" and "age" comes from their pairwise interaction.
+- $H^2$: About 10% of prediction variability is unexplained by the sum of all main effects. The interaction effects seem to be important.
+- $H^2_j$: The strongest overall interactions are associated with "log_ocean" (logarithmic distance to the ocean): About 6% of prediction variability can be attributed to its interactions.
+- $H^2_{jk}$: About 8.5% of the joint effect variability of "log_ocean" and "age" comes from their pairwise interaction.
 
 **Remarks**
 
@@ -178,7 +182,6 @@ plot(ice(fit, v = "tot_lvg_area", X = X_train, BY = BY), center = TRUE)
 
 ![](man/figures/pdp3.svg)
 
-
 ### Variable importance
 
 In the spirit of [1], and related to [4], we can extract from the "hstats" objects a partial dependence based variable importance measure. It measures not only the main effect strength (see [4]), but also all its interaction effects. It is rather experimental, so use it with care (details in the section "Background"):
@@ -192,7 +195,7 @@ xgb.plot.importance(xgb.importance(model = fit), measure = "Gain")
 
 ![](man/figures/importance.svg)
 
-Split gain importance returns same order in this case:
+Split gain importance returns almost the same order in this case:
 
 ![](man/figures/gain_importance.svg)
 

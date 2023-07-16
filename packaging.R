@@ -23,8 +23,8 @@ use_description(
     The package supports multi-output predictions and can account for case weights. 
     In addition, several variants of the original statistics are provided.
     The shape of the interactions can be explored through partial dependence plots
-    or individual conditional expectation plots. DALEX explainers, meta learners 
-    (mlr3, tidymodels, caret) and most other models work out-of-the-box.",
+    or individual conditional expectation plots. 'DALEX' explainers, meta learners 
+    ('mlr3', 'tidymodels', 'caret') and most other models work out-of-the-box.",
     `Authors@R` = 
     "person('Michael', family='Mayer', role=c('aut', 'cre'), email='mayermichael79@gmail.com')",
     Depends = "R (>= 3.2.0)",
