@@ -18,7 +18,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="pkgdown.css" rel="stylesheet">
 <script src="pkgdown.js"></script><meta property="og:title" content="Interaction Statistics">
-<meta property="og:description" content="Fast, model-agnostic implementation of Friedman and Popescu's
+<meta property="og:description" content="Fast, model-agnostic implementation of Friedman and Popescus
     H statistics of interaction strength &lt;doi:10.1214/07-AOAS148&gt;.  These
     statistics quantify interaction strength per feature, feature pair,
     and feature triple.  The package supports multi-output predictions and
@@ -26,7 +26,7 @@
     original statistics are provided.  The shape of the interactions can
     be explored through partial dependence plots or individual conditional
     expectation plots. DALEX explainers, meta learners (mlr3, tidymodels,
-    caret) and most other models work out-of-the-box.">
+    caret') and most other models work out-of-the-box.">
 <meta property="og:image" content="/logo.png">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
@@ -92,7 +92,7 @@
 <h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
 </h2>
 <p><strong>What makes a ML model black-box? It’s the interactions!</strong></p>
-<p>The first step in understanding interactions is to measure their strength. This is exactly what Friedman and Popescu’s H statistics [1] do, see <a href="#background">Background</a> for details:</p>
+<p>The first step in understanding interactions is to measure their strength. This is exactly what Friedman and Popescu’s H statistics [1] do:</p>
 <table class="table">
 <colgroup>
 <col width="8%">
@@ -122,14 +122,17 @@
 </tr>
 </tbody>
 </table>
-<p>{hstats} offers these statistics comparably <strong>fast</strong> and for <strong>any model</strong>, even for multi-output models, or models with case weights. Additionally, we provide a global statistic <span class="math inline"><em>H</em><sup>2</sup></span> measuring the proportion of prediction variability unexplained by main effects [5], and an experimental feature importance measure.</p>
-<p>The core functions <code><a href="reference/hstats.html">hstats()</a></code>, <code><a href="reference/partial_dep.html">partial_dep()</a></code>, and <code><a href="reference/ice.html">ice()</a></code> can directly be applied to DALEX explainers, meta learners (mlr3, tidymodels, caret) and most other models. In case you need more flexibility, a prediction function can be specified. Both data.frame and matrix data structures are supported.</p>
+<p>See section <a href="#background">Background</a> for details and definitions.</p>
+<p>{hstats} offers these statistics comparably <strong>fast</strong> and for <strong>any model</strong>, even for multi-output models, or models with case weights. Additionally, we provide a global statistic <span class="math inline"><em>H</em><sup>2</sup></span> measuring the proportion of prediction variability unexplained by main effects [5], and an experimental feature importance measure. After having identified strong interactions, their shape can be investigated by stratified partial dependence or ICE plots.</p>
+<p>The core functions <code><a href="reference/hstats.html">hstats()</a></code>, <code><a href="reference/partial_dep.html">partial_dep()</a></code>, and <code><a href="reference/ice.html">ice()</a></code> can directly be applied to DALEX explainers, meta learners (mlr3, tidymodels, caret) and most other models. In case you need more flexibility, a tailored prediction function can be specified. Both data.frame and matrix data structures are supported.</p>
 </div>
 <div class="section level2">
-<h2 id="limitation">Limitation<a class="anchor" aria-label="anchor" href="#limitation"></a>
+<h2 id="limitations">Limitations<a class="anchor" aria-label="anchor" href="#limitations"></a>
 </h2>
-<p>H statistics are based on partial dependence estimates and are thus as good or bad as these. One of their problems is that the model is applied to unseen/impossible feature combinations. In extreme cases, H statistics intended to be in the range between 0 and 1 can become larger than 1.</p>
-<p>Accumulated local effects (ALE) [8] mend above problem of partial dependence estimates. They, however, depend on the notion of closeness, which is highly non-trivial in higher dimension and for discrete features.</p>
+<ol style="list-style-type: decimal">
+<li>H statistics are based on partial dependence estimates and are thus as good or bad as these. One of their problems is that the model is applied to unseen/impossible feature combinations. In extreme cases, H statistics intended to be in the range between 0 and 1 can become larger than 1. Accumulated local effects (ALE) [8] mend above problem of partial dependence estimates. They, however, depend on the notion of “closeness”, which is highly non-trivial in higher dimension and for discrete features.</li>
+<li>Due to their computational complexity, H statistics are usually evaluated on relatively small subsets of the training (or validation/test) data. Consequently, the estimates are typically not very robust. To get more robust results, increase the default <code>n_max = 300</code> of <code><a href="reference/hstats.html">hstats()</a></code>.</li>
+</ol>
 </div>
 <div class="section level2">
 <h2 id="landscape">Landscape<a class="anchor" aria-label="anchor" href="#landscape"></a>
@@ -200,24 +203,27 @@
 <p>Let’s calculate different H statistics via <code><a href="reference/hstats.html">hstats()</a></code>:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># 3 seconds on simple laptop - a random forest will take 1-2 minutes</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">782</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/system.time.html" class="external-link">system.time</a></span><span class="op">(</span></span>
 <span>  <span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/hstats.html">hstats</a></span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="va">x</span>, X <span class="op">=</span> <span class="va">X_train</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">s</span></span>
 <span><span class="co"># Proportion of prediction variability unexplained by main effects of v</span></span>
-<span><span class="co"># [1] 0.14</span></span>
+<span><span class="co"># [1] 0.10</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">s</span><span class="op">)</span>  <span class="co"># Or summary(s) for numeric output</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">s</span><span class="op">)</span>  <span class="co"># Or summary(s) for numeric output</span></span>
+<span></span>
+<span><span class="co"># Save for later</span></span>
+<span><span class="co"># saveRDS(s, file = "h_statistics.rds")</span></span></code></pre></div>
 <p><img src="reference/figures/hstats.svg"></p>
 <p><strong>Interpretation</strong></p>
 <ul>
 <li>
-<span class="math inline"><em>H</em><sup>2</sup></span>: About 14% of prediction variability is unexplained by the sum of all main effects. The interaction effects seem to be important.</li>
+<span class="math inline"><em>H</em><sup>2</sup></span>: About 10% of prediction variability is unexplained by the sum of all main effects. The interaction effects seem to be important.</li>
 <li>
-<span class="math inline"><em>H</em><sub><em>j</em></sub><sup>2</sup></span>: The strongest overall interactions are associated with “log_ocean” (logarithmic distance to the ocean): About 8% of prediction variability can be attributed to its interactions.</li>
+<span class="math inline"><em>H</em><sub><em>j</em></sub><sup>2</sup></span>: The strongest overall interactions are associated with “log_ocean” (logarithmic distance to the ocean): About 6% of prediction variability can be attributed to its interactions.</li>
 <li>
-<span class="math inline"><em>H</em><sub><em>j</em><em>k</em></sub><sup>2</sup></span>: About 10% of the joint effect variability of “log_ocean” and “age” comes from their pairwise interaction.</li>
+<span class="math inline"><em>H</em><sub><em>j</em><em>k</em></sub><sup>2</sup></span>: About 8.5% of the joint effect variability of “log_ocean” and “age” comes from their pairwise interaction.</li>
 </ul>
 <p><strong>Remarks</strong></p>
 <ol style="list-style-type: decimal">
@@ -272,7 +278,7 @@
 <span><span class="co"># Compared with tree split gain importance</span></span>
 <span><span class="fu">xgb.plot.importance</span><span class="op">(</span><span class="fu">xgb.importance</span><span class="op">(</span>model <span class="op">=</span> <span class="va">fit</span><span class="op">)</span>, measure <span class="op">=</span> <span class="st">"Gain"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="reference/figures/importance.svg"></p>
-<p>Split gain importance returns same order in this case:</p>
+<p>Split gain importance returns almost the same order in this case:</p>
 <p><img src="reference/figures/gain_importance.svg"></p>
 </div>
 </div>
