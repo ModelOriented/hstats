@@ -126,15 +126,15 @@ partial dependence functions \eqn{F_{jkl}}.
 }
 \description{
 This is the main function of the package. It does the expensive calculations behind
-the following interaction statistics:
+the following H-statistics:
 \itemize{
 \item Total interaction strength \eqn{H^2}, a statistic measuring the proportion of
 prediction variability unexplained by main effects of \code{v}, see \code{\link[=h2]{h2()}} for details.
-\item Friedman and Popescu's \eqn{H^2_j} statistic of overall interaction strength per
+\item Friedman and Popescu's statistic \eqn{H^2_j} of overall interaction strength per
 feature, see \code{\link[=h2_overall]{h2_overall()}} for details.
-\item Friedman and Popescu's \eqn{H^2_{jk}} statistic of pairwise interaction strength,
+\item Friedman and Popescu's statistic \eqn{H^2_{jk}} of pairwise interaction strength,
 see \code{\link[=h2_pairwise]{h2_pairwise()}} for details.
-\item Friedman and Popescu's \eqn{H^2_{jkl}} statistic of three-way interaction strength,
+\item Friedman and Popescu's statistic \eqn{H^2_{jkl}} of three-way interaction strength,
 see \code{\link[=h2_threeway]{h2_threeway()}} for details.
 }
 

@@ -26,7 +26,7 @@ If there are no interactions involving $x_j$, we can decompose the prediction fu
 $$
 	F(\mathbf{x}) = F_j(x_j) + F_{\setminus j}(\mathbf{x}_{\setminus j}).
 $$
-Correspondingly, Friedman and Popescu's $H^2_j$ statistic of overall interaction strength is given by
+Correspondingly, Friedman and Popescu's statistic of overall interaction strength is given by
 $$
 	H_{j}^2 = \frac{\frac{1}{n} \sum_{i = 1}^n\big[F(\mathbf{x}_i) - \hat F_j(x_{ij}) - \hat F_{\setminus j}(\mathbf{x}_{i\setminus j})\big]^2}{\frac{1}{n} \sum_{i = 1}^n\big[F(\mathbf{x}_i)\big]^2}.
 $$
@@ -46,7 +46,7 @@ Again following \cite{friedman2008}, if there are no interaction effects between
 $$
   F_{jk}(x_j, x_k) = F_j(x_j)+ F_k(x_k).
 $$
-Correspondingly, Friedman and Popescu's $H_{jk}^2$ statistic of pairwise interaction strength is defined as
+Correspondingly, Friedman and Popescu's statistic of pairwise interaction strength is defined as
 $$
   H_{jk}^2 = \frac{A_{jk}}{\frac{1}{n} \sum_{i = 1}^n\big[\hat F_{jk}(x_{ij}, x_{ik})\big]^2}
 $$
@@ -106,7 +106,7 @@ A value of 0 means there are no interaction effects at all. Due to (typically un
 In \cite{zolkowski2023}, $1 - H^2$ is called {\em additivity index}. A similar measure using accumulated local effects is discussed in \cite{molnar2020}.
 
 \subsection{Workflow}
-Calculation of all $H_j^2$ statistics requires $O(n^2p)$ predictions, while calculating of all pairwise $H_{jk}$ requires $O(n^2 p^2)$ predictions. Therefore, we suggest to reduce the workflow in two important ways:
+Calculation of all $H_j^2$ requires $O(n^2p)$ predictions, while calculating of all pairwise $H_{jk}$ requires $O(n^2 p^2)$ predictions. Therefore, we suggest to reduce the workflow in two important ways:
 \begin{itemize}
 \item Evaluate the statistics only on a subset of the data, e.g., on $n' = 300$ observations.
 \item Calculate $H_j^2$ for all features. Then, select a small number $m = O(\sqrt{p})$ of features with highest $H^2_j$ and do pairwise calculations only on this subset.
@@ -130,9 +130,9 @@ It differs from $H^2_j$ only by not subtracting the main effect of the $j$-th fe
 \section{Limitation}
 
 \begin{enumerate}
-\item H statistics are based on partial dependence estimates and are thus as good or bad as these. One of their problems is that the model is applied to unseen/impossible feature combinations. In extreme cases, H statistics intended to be in the range between 0 and 1 can become larger than 1.
+\item H-statistics are based on partial dependence estimates and are thus as good or bad as these. One of their problems is that the model is applied to unseen/impossible feature combinations. In extreme cases, H-statistics intended to be in the range between 0 and 1 can become larger than 1.
 Accumulated local effects (ALE) \cite{apley2016} mend above problem of partial dependence estimates. They, however, depend on the notion of ``closeness'', which is highly non-trivial in higher dimension and for discrete features.
-\item Due to their computational complexity, H statistics are usually evaluated on relatively small subsets of the training (or validation/test) data. Consequently, the estimates are typically not very robust. To get more robust results, increase the sample size.
+\item Due to their computational complexity, H-statistics are usually evaluated on relatively small subsets of the training (or validation/test) data. Consequently, the estimates are typically not very robust. To get more robust results, increase the sample size.
 \end{enumerate}
 
 \bibliographystyle{ieeetr}

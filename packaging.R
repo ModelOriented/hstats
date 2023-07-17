@@ -16,8 +16,8 @@ use_description(
   fields = list(
     Title = "Interaction Statistics",
     Version = "0.1.0",
-    Description = "Fast, model-agnostic implementation of Friedman and Popescu's
-    H statistics of interaction strength <doi:10.1214/07-AOAS148>. 
+    Description = "Fast, model-agnostic implementation of different H-statistics
+    introduced by Jerome H. Friedman and Bogdan E. Popescu (2008) <doi:10.1214/07-AOAS148>. 
     These statistics quantify interaction strength per feature, feature pair, 
     and feature triple.
     The package supports multi-output predictions and can account for case weights. 

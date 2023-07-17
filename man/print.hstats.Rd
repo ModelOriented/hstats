@@ -15,7 +15,7 @@
 Invisibly, the input is returned.
 }
 \description{
-Print method for object of class "hstats". Shows \eqn{H^2} statistic.
+Print method for object of class "hstats". Shows \eqn{H^2}.
 }
 \seealso{
 See \code{\link[=hstats]{hstats()}} for examples.

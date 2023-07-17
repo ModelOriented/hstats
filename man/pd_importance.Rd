@@ -50,8 +50,8 @@ or a "ggplot" object (if \code{plot = TRUE}).
 \description{
 Experimental variable importance method based on partial dependence functions.
 While related to Greenwell et al., our suggestion measures not only main effect
-strength but also interaction effects. It is very closely related to the
-\eqn{H^2_j} statistics, see Details. By default, the results are plotted as barplot.
+strength but also interaction effects. It is very closely related to \eqn{H^2_j},
+see Details. By default, the results are plotted as barplot.
 Set \code{plot = FALSE} to get numbers.
 }
 \details{
