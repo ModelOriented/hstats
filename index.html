@@ -18,15 +18,16 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="pkgdown.css" rel="stylesheet">
 <script src="pkgdown.js"></script><meta property="og:title" content="Interaction Statistics">
-<meta property="og:description" content="Fast, model-agnostic implementation of Friedman and Popescus
-    H statistics of interaction strength &lt;doi:10.1214/07-AOAS148&gt;.  These
-    statistics quantify interaction strength per feature, feature pair,
-    and feature triple.  The package supports multi-output predictions and
-    can account for case weights.  In addition, several variants of the
-    original statistics are provided.  The shape of the interactions can
-    be explored through partial dependence plots or individual conditional
-    expectation plots. DALEX explainers, meta learners (mlr3, tidymodels,
-    caret') and most other models work out-of-the-box.">
+<meta property="og:description" content="Fast, model-agnostic implementation of different H-statistics
+    introduced by Jerome H. Friedman and Bogdan E. Popescu (2008)
+    &lt;doi:10.1214/07-AOAS148&gt;.  These statistics quantify interaction
+    strength per feature, feature pair, and feature triple.  The package
+    supports multi-output predictions and can account for case weights.
+    In addition, several variants of the original statistics are provided.
+    The shape of the interactions can be explored through partial
+    dependence plots or individual conditional expectation plots. DALEX
+    explainers, meta learners (mlr3, tidymodels, caret) and most
+    other models work out-of-the-box.">
 <meta property="og:image" content="/logo.png">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
@@ -92,7 +93,7 @@
 <h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
 </h2>
 <p><strong>What makes a ML model black-box? It’s the interactions!</strong></p>
-<p>The first step in understanding interactions is to measure their strength. This is exactly what Friedman and Popescu’s H statistics [1] do:</p>
+<p>The first step in understanding interactions is to measure their strength. This is exactly what Friedman and Popescu’s H-statistics [1] do:</p>
 <table class="table">
 <colgroup>
 <col width="8%">
@@ -130,8 +131,8 @@
 <h2 id="limitations">Limitations<a class="anchor" aria-label="anchor" href="#limitations"></a>
 </h2>
 <ol style="list-style-type: decimal">
-<li>H statistics are based on partial dependence estimates and are thus as good or bad as these. One of their problems is that the model is applied to unseen/impossible feature combinations. In extreme cases, H statistics intended to be in the range between 0 and 1 can become larger than 1. Accumulated local effects (ALE) [8] mend above problem of partial dependence estimates. They, however, depend on the notion of “closeness”, which is highly non-trivial in higher dimension and for discrete features.</li>
-<li>Due to their computational complexity, H statistics are usually evaluated on relatively small subsets of the training (or validation/test) data. Consequently, the estimates are typically not very robust. To get more robust results, increase the default <code>n_max = 300</code> of <code><a href="reference/hstats.html">hstats()</a></code>.</li>
+<li>H-statistics are based on partial dependence estimates and are thus as good or bad as these. One of their problems is that the model is applied to unseen/impossible feature combinations. In extreme cases, H-statistics intended to be in the range between 0 and 1 can become larger than 1. Accumulated local effects (ALE) [8] mend above problem of partial dependence estimates. They, however, depend on the notion of “closeness”, which is highly non-trivial in higher dimension and for discrete features.</li>
+<li>Due to their computational complexity, H-statistics are usually evaluated on relatively small subsets of the training (or validation/test) data. Consequently, the estimates are typically not very robust. To get more robust results, increase the default <code>n_max = 300</code> of <code><a href="reference/hstats.html">hstats()</a></code>.</li>
 </ol>
 </div>
 <div class="section level2">
@@ -200,7 +201,7 @@
 <div class="section level3">
 <h3 id="interaction-statistics">Interaction statistics<a class="anchor" aria-label="anchor" href="#interaction-statistics"></a>
 </h3>
-<p>Let’s calculate different H statistics via <code><a href="reference/hstats.html">hstats()</a></code>:</p>
+<p>Let’s calculate different H-statistics via <code><a href="reference/hstats.html">hstats()</a></code>:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># 3 seconds on simple laptop - a random forest will take 1-2 minutes</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">782</span><span class="op">)</span></span>
@@ -228,7 +229,7 @@
 <p><strong>Remarks</strong></p>
 <ol style="list-style-type: decimal">
 <li>Pairwise statistics <span class="math inline"><em>H</em><sub><em>j</em><em>k</em></sub><sup>2</sup></span> are calculated only for the features with strong overall interactions <span class="math inline"><em>H</em><sub><em>j</em></sub><sup>2</sup></span>.</li>
-<li>H statistics need to repeatedly calculate predictions on up to <span class="math inline"><em>n</em><sup>2</sup></span> rows. That is why {hstats} samples 300 rows by default. To get more robust results, increase this value at the price of slower run time.</li>
+<li>H-statistics need to repeatedly calculate predictions on up to <span class="math inline"><em>n</em><sup>2</sup></span> rows. That is why {hstats} samples 300 rows by default. To get more robust results, increase this value at the price of slower run time.</li>
 <li>Pairwise statistics <span class="math inline"><em>H</em><sub><em>j</em><em>k</em></sub><sup>2</sup></span> measures interaction strength relative to the combined effect of the two features. This does not necessarily show which interactions are strongest in absolute numbers. To do so, we can study unnormalized statistics:</li>
 </ol>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
@@ -331,7 +332,7 @@ $$</span></p>
 <p>In [1], Friedman and Popescu introduced different statistics to measure interaction strength. Closely following their notation, we will summarize the main ideas.</p>
 <p>If there are no interactions involving <span class="math inline"><em>x</em><sub><em>j</em></sub></span>, we can decompose the prediction function <span class="math inline"><em>F</em></span> into the sum of the partial dependence <span class="math inline"><em>F</em><sub><em>j</em></sub></span> on <span class="math inline"><em>x</em><sub><em>j</em></sub></span> and the partial dependence <span class="math inline"><em>F</em><sub>\<em>j</em></sub></span> on all other features <span class="math inline"><strong>x</strong><sub>\<em>j</em></sub></span>, i.e.,</p>
 <p><span class="math display"><em>F</em>(<strong>x</strong>) = <em>F</em><sub><em>j</em></sub>(<em>x</em><sub><em>j</em></sub>) + <em>F</em><sub>\<em>j</em></sub>(<strong>x</strong><sub>\<em>j</em></sub>).</span></p>
-<p>Correspondingly, Friedman and Popescu’s <span class="math inline"><em>H</em><sub><em>j</em></sub><sup>2</sup></span> statistic of overall interaction strength is given by</p>
+<p>Correspondingly, Friedman and Popescu’s statistic of overall interaction strength is given by</p>
 <p><span class="math display">$$
     H_{j}^2 = \frac{\frac{1}{n} \sum_{i = 1}^n\big[F(\boldsymbol x_i) - \hat F_j(x_{ij}) - \hat F_{\setminus j}(\boldsymbol x_{i\setminus j})\big]^2}{\frac{1}{n} \sum_{i = 1}^n\big[F(\boldsymbol x_i)\big]^2}.
 $$</span></p>
@@ -352,7 +353,7 @@ $$</span></p>
 </h4>
 <p>Again following [1], if there are no interaction effects between features <span class="math inline"><em>x</em><sub><em>j</em></sub></span> and <span class="math inline"><em>x</em><sub><em>k</em></sub></span>, their two-dimensional partial dependence function <span class="math inline"><em>F</em><sub><em>j</em><em>k</em></sub></span> can be written as the sum of the univariate partial dependencies, i.e.,</p>
 <p><span class="math display"><em>F</em><sub><em>j</em><em>k</em></sub>(<em>x</em><sub><em>j</em></sub>,<em>x</em><sub><em>k</em></sub>) = <em>F</em><sub><em>j</em></sub>(<em>x</em><sub><em>j</em></sub>) + <em>F</em><sub><em>k</em></sub>(<em>x</em><sub><em>k</em></sub>).</span></p>
-<p>Correspondingly, Friedman and Popescu’s <span class="math inline"><em>H</em><sub><em>j</em><em>k</em></sub><sup>2</sup></span> statistic of pairwise interaction strength is defined as</p>
+<p>Correspondingly, Friedman and Popescu’s statistic of pairwise interaction strength is defined as</p>
 <p><span class="math display">$$
   H_{jk}^2 = \frac{A_{jk}}{\frac{1}{n} \sum_{i = 1}^n\big[\hat F_{jk}(x_{ij}, x_{ik})\big]^2}
 $$</span></p>
@@ -408,7 +409,7 @@ $$</span></p>
 <div class="section level4">
 <h4 id="workflow">Workflow<a class="anchor" aria-label="anchor" href="#workflow"></a>
 </h4>
-<p>Calculation of all <span class="math inline"><em>H</em><sub><em>j</em></sub><sup>2</sup></span> statistics requires <span class="math inline"><em>O</em>(<em>n</em><sup>2</sup><em>p</em>)</span> predictions, while calculating of all pairwise <span class="math inline"><em>H</em><sub><em>j</em><em>k</em></sub></span> requires <span class="math inline"><em>O</em>(<em>n</em><sup>2</sup><em>p</em><sup>2</sup></span> predictions. Therefore, we suggest to reduce the workflow in two important ways:</p>
+<p>Calculation of all <span class="math inline"><em>H</em><sub><em>j</em></sub><sup>2</sup></span> requires <span class="math inline"><em>O</em>(<em>n</em><sup>2</sup><em>p</em>)</span> predictions, while calculating of all pairwise <span class="math inline"><em>H</em><sub><em>j</em><em>k</em></sub></span> requires <span class="math inline"><em>O</em>(<em>n</em><sup>2</sup><em>p</em><sup>2</sup></span> predictions. Therefore, we suggest to reduce the workflow in two important ways:</p>
 <ol style="list-style-type: decimal">
 <li>Evaluate the statistics only on a subset of the data, e.g., on <span class="math inline"><em>n</em>′ = 300</span> observations.</li>
 <li>Calculate <span class="math inline"><em>H</em><sub><em>j</em></sub><sup>2</sup></span> for all features. Then, select a small number <span class="math inline">$m = O(\sqrt{p})$</span> of features with highest <span class="math inline"><em>H</em><sub><em>j</em></sub><sup>2</sup></span> and do pairwise calculations only on this subset.</li>
@@ -450,6 +451,7 @@ $$</span></p>
     <div class="links">
 <h2 data-toc-skip>Links</h2>
 <ul class="list-unstyled">
+<li><a href="https://cloud.r-project.org/package=hstats" class="external-link">View on CRAN</a></li>
 <li><a href="https://github.com/mayer79/hstats/" class="external-link">Browse source code</a></li>
 <li><a href="https://github.com/mayer79/hstats/issues" class="external-link">Report a bug</a></li>
 </ul>
@@ -484,7 +486,6 @@ $$</span></p>
 <li><a href="https://cran.r-project.org/package=hstats" class="external-link"><img src="http://www.r-pkg.org/badges/version/hstats" alt="CRAN status"></a></li>
 <li><a href="https://github.com/mayer79/hstats/actions" class="external-link"><img src="https://github.com/mayer79/hstats/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R-CMD-check"></a></li>
 <li><a href="https://app.codecov.io/gh/mayer79/hstats?branch=main" class="external-link"><img src="https://codecov.io/gh/mayer79/hstats/branch/main/graph/badge.svg" alt="Codecov test coverage"></a></li>
-<li><a href="https://www.tidyverse.org/lifecycle/#experimental" class="external-link"><img src="https://img.shields.io/badge/lifecycle-maturing-blue.svg" alt="Lifecycle: maturing"></a></li>
 <li><a href="https://cran.r-project.org/package=hstats" class="external-link"><img src="https://cranlogs.r-pkg.org/badges/hstats"></a></li>
 <li><a href="https://cran.r-project.org/package=hstats" class="external-link"><img src="https://cranlogs.r-pkg.org/badges/grand-total/hstats?color=orange"></a></li>
 </ul>
