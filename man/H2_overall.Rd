@@ -48,7 +48,7 @@ A matrix of statistics (one row per variable, one column per prediction dimensio
 or a "ggplot" object (if \code{plot = TRUE}).
 }
 \description{
-Friedman and Popescu's \eqn{H^2_j} statistics of overall interaction strength per
+Friedman and Popescu's statistic of overall interaction strength per
 feature, see Details.
 By default, the results are plotted as barplot. Set \code{plot = FALSE} to get numbers.
 }
@@ -61,10 +61,10 @@ dependence \eqn{F_j} on \eqn{x_j} and the (centered) partial dependence
 \deqn{
   F(\mathbf{x}) = F_j(x_j) + F_{\setminus j}(\mathbf{x}_{\setminus j}).
 }
-Correspondingly, Friedman and Popescu's \eqn{H^2_j} statistic of overall interaction
+Correspondingly, Friedman and Popescu's statistic of overall interaction
 strength is given by
 \deqn{
-  H_{j}^2 = \frac{\frac{1}{n} \sum_{i = 1}^n\big[F(\mathbf{x}_i) - 
+  H_j^2 = \frac{\frac{1}{n} \sum_{i = 1}^n\big[F(\mathbf{x}_i) - 
   \hat F_j(x_{ij}) - \hat F_{\setminus j}(\mathbf{x}_{i\setminus j})
   \big]^2}{\frac{1}{n} \sum_{i = 1}^n\big[F(\mathbf{x}_i)\big]^2}
 }

@@ -5,7 +5,6 @@
 [![CRAN status](http://www.r-pkg.org/badges/version/hstats)](https://cran.r-project.org/package=hstats)
 [![R-CMD-check](https://github.com/mayer79/hstats/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/mayer79/hstats/actions)
 [![Codecov test coverage](https://codecov.io/gh/mayer79/hstats/branch/main/graph/badge.svg)](https://app.codecov.io/gh/mayer79/hstats?branch=main)
-[![Lifecycle: maturing](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://www.tidyverse.org/lifecycle/#experimental)
 
 [![](https://cranlogs.r-pkg.org/badges/hstats)](https://cran.r-project.org/package=hstats) 
 [![](https://cranlogs.r-pkg.org/badges/grand-total/hstats?color=orange)](https://cran.r-project.org/package=hstats)
@@ -16,7 +15,7 @@
 
 **What makes a ML model black-box? It's the interactions!**
 
-The first step in understanding interactions is to measure their strength. This is exactly what Friedman and Popescu's H statistics [1] do:
+The first step in understanding interactions is to measure their strength. This is exactly what Friedman and Popescu's H-statistics [1] do:
 
 | Statistic   | Short description                        | How to read its value?                                                                                |
 |-------------|------------------------------------------|-------------------------------------------------------------------------------------------------------|
@@ -32,8 +31,8 @@ The core functions `hstats()`, `partial_dep()`, and `ice()` can directly be appl
 
 ## Limitations
 
-1. H statistics are based on partial dependence estimates and are thus as good or bad as these. One of their problems is that the model is applied to unseen/impossible feature combinations. In extreme cases, H statistics intended to be in the range between 0 and 1 can become larger than 1. Accumulated local effects (ALE) [8] mend above problem of partial dependence estimates. They, however, depend on the notion of "closeness", which is highly non-trivial in higher dimension and for discrete features.
-2. Due to their computational complexity, H statistics are usually evaluated on relatively small subsets of the training (or validation/test) data. Consequently, the estimates are typically not very robust. To get more robust results, increase the default `n_max = 300` of `hstats()`.
+1. H-statistics are based on partial dependence estimates and are thus as good or bad as these. One of their problems is that the model is applied to unseen/impossible feature combinations. In extreme cases, H-statistics intended to be in the range between 0 and 1 can become larger than 1. Accumulated local effects (ALE) [8] mend above problem of partial dependence estimates. They, however, depend on the notion of "closeness", which is highly non-trivial in higher dimension and for discrete features.
+2. Due to their computational complexity, H-statistics are usually evaluated on relatively small subsets of the training (or validation/test) data. Consequently, the estimates are typically not very robust. To get more robust results, increase the default `n_max = 300` of `hstats()`.
 
 ## Landscape
 
@@ -93,7 +92,7 @@ fit <- xgb.train(
 
 ### Interaction statistics
 
-Let's calculate different H statistics via `hstats()`:
+Let's calculate different H-statistics via `hstats()`:
 
 ```r
 # 3 seconds on simple laptop - a random forest will take 1-2 minutes
@@ -122,7 +121,7 @@ plot(s)  # Or summary(s) for numeric output
 **Remarks**
 
 1. Pairwise statistics $H^2_{jk}$ are calculated only for the features with strong overall interactions $H^2_j$.
-2. H statistics need to repeatedly calculate predictions on up to $n^2$ rows. That is why {hstats} samples 300 rows by default. To get more robust results, increase this value at the price of slower run time.
+2. H-statistics need to repeatedly calculate predictions on up to $n^2$ rows. That is why {hstats} samples 300 rows by default. To get more robust results, increase this value at the price of slower run time.
 3. Pairwise statistics $H^2_{jk}$ measures interaction strength relative to the combined effect of the two features. This does not necessarily show which interactions are strongest in absolute numbers. To do so, we can study unnormalized statistics:
 
 ```r
@@ -261,7 +260,7 @@ $$
 	F(\boldsymbol x) = F_j(x_j) + F_{\setminus j}(\boldsymbol x_{\setminus j}).
 $$
 
-Correspondingly, Friedman and Popescu's $H^2_j$ statistic of overall interaction strength is given by
+Correspondingly, Friedman and Popescu's statistic of overall interaction strength is given by
 
 $$
 	H_{j}^2 = \frac{\frac{1}{n} \sum_{i = 1}^n\big[F(\boldsymbol x_i) - \hat F_j(x_{ij}) - \hat F_{\setminus j}(\boldsymbol x_{i\setminus j})\big]^2}{\frac{1}{n} \sum_{i = 1}^n\big[F(\boldsymbol x_i)\big]^2}.
@@ -285,7 +284,7 @@ $$
   F_{jk}(x_j, x_k) = F_j(x_j) + F_k(x_k).
 $$
 
-Correspondingly, Friedman and Popescu's $H_{jk}^2$ statistic of pairwise interaction strength is defined as
+Correspondingly, Friedman and Popescu's statistic of pairwise interaction strength is defined as
 
 $$
   H_{jk}^2 = \frac{A_{jk}}{\frac{1}{n} \sum_{i = 1}^n\big[\hat F_{jk}(x_{ij}, x_{ik})\big]^2}
@@ -371,7 +370,7 @@ In [5], $1 - H^2$ is called *additivity index*. A similar measure using accumula
 
 #### Workflow
 
-Calculation of all $H_j^2$ statistics requires $O(n^2 p)$ predictions, while calculating of all pairwise $H_{jk}$ requires $O(n^2 p^2$ predictions. Therefore, we suggest to reduce the workflow in two important ways:
+Calculation of all $H_j^2$ requires $O(n^2 p)$ predictions, while calculating of all pairwise $H_{jk}$ requires $O(n^2 p^2$ predictions. Therefore, we suggest to reduce the workflow in two important ways:
 
 1. Evaluate the statistics only on a subset of the data, e.g., on $n' = 300$ observations.
 2. Calculate $H_j^2$ for all features. Then, select a small number $m = O(\sqrt{p})$ of features with highest $H^2_j$ and do pairwise calculations only on this subset.

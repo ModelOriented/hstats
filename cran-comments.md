@@ -1,3 +1,10 @@
+# Resubmission
+
+- Fixing an indirect URL in the README
+- Sticking to "authors (year) <doi>" reference in DESCRIPTION.
+
+# Original message
+
 Hello CRAN team
 
 Trying to submit a new package that calculates Friedman and Popescu's H statistics in many variants.
@@ -10,9 +17,6 @@ Michael
 
 ## Local checks seem ok
 
-❯ checking for future file timestamps ... NOTE
-  unable to verify current time
-
 ❯ checking HTML version of manual ... NOTE
   Skipping checking HTML validation: no command 'tidy' found
   
@@ -21,7 +25,6 @@ Michael
 New submission
 
 Possibly misspelled words in DESCRIPTION:
-  Popescu's (6:66)
   explainers (13:32)
 
 ## Winbuilder seems ok

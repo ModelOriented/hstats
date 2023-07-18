@@ -49,7 +49,7 @@ or a "ggplot" object (if \code{plot = TRUE}). If no pairwise
 statistics have been calculated, the function returns \code{NULL}.
 }
 \description{
-Friedman and Popescu's statistics of pairwise interaction strength, see Details.
+Friedman and Popescu's statistic of pairwise interaction strength, see Details.
 By default, the results are plotted as barplot. Set \code{plot = FALSE} to get numbers.
 }
 \details{
@@ -60,7 +60,7 @@ dependencies \eqn{F_j} and \eqn{F_k}, i.e.,
 \deqn{
   F_{jk}(x_j, x_k) = F_j(x_j)+ F_k(x_k).
 }
-Correspondingly, Friedman and Popescu's \eqn{H_{jk}^2} statistic of pairwise
+Correspondingly, Friedman and Popescu's statistic of pairwise
 interaction strength is defined as
 \deqn{
   H_{jk}^2 = \frac{A_{jk}}{\frac{1}{n} \sum_{i = 1}^n\big[\hat F_{jk}(x_{ij}, x_{ik})\big]^2},

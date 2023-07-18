@@ -2,14 +2,14 @@
 #' 
 #' @description
 #' This is the main function of the package. It does the expensive calculations behind
-#' the following interaction statistics:
+#' the following H-statistics:
 #' - Total interaction strength \eqn{H^2}, a statistic measuring the proportion of
 #'   prediction variability unexplained by main effects of `v`, see [h2()] for details.
-#' - Friedman and Popescu's \eqn{H^2_j} statistic of overall interaction strength per
+#' - Friedman and Popescu's statistic \eqn{H^2_j} of overall interaction strength per
 #'   feature, see [h2_overall()] for details.
-#' - Friedman and Popescu's \eqn{H^2_{jk}} statistic of pairwise interaction strength,
+#' - Friedman and Popescu's statistic \eqn{H^2_{jk}} of pairwise interaction strength,
 #'   see [h2_pairwise()] for details.
-#' - Friedman and Popescu's \eqn{H^2_{jkl}} statistic of three-way interaction strength,
+#' - Friedman and Popescu's statistic \eqn{H^2_{jkl}} of three-way interaction strength,
 #'   see [h2_threeway()] for details.
 #' 
 #' Furthermore, it allows to calculate an experimental partial dependence based
@@ -283,7 +283,7 @@ hstats.explainer <- function(object, v = colnames(object[["data"]]),
 
 #' Print Method
 #' 
-#' Print method for object of class "hstats". Shows \eqn{H^2} statistic.
+#' Print method for object of class "hstats". Shows \eqn{H^2}.
 #'
 #' @param x An object of class "hstats".
 #' @param ... Further arguments passed from other methods.
