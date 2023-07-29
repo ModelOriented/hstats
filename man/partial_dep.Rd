@@ -46,7 +46,7 @@ partial_dep(object, ...)
   object,
   v,
   X,
-  pred_fun = function(m, X) m$predict_newdata(X)$response,
+  pred_fun = NULL,
   BY = NULL,
   by_size = 4L,
   grid = NULL,

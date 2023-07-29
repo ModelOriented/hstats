@@ -42,7 +42,7 @@ ice(object, ...)
   object,
   v,
   X,
-  pred_fun = function(m, X) m$predict_newdata(X)$response,
+  pred_fun = NULL,
   BY = NULL,
   grid = NULL,
   grid_size = 49L,

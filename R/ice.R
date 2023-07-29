@@ -159,9 +159,12 @@ ice.ranger <- function(object, v, X,
 #' @describeIn ice Method for "mlr3" models.
 #' @export
 ice.Learner <- function(object, v, X,
-                        pred_fun = function(m, X) m$predict_newdata(X)$response,
+                        pred_fun = NULL,
                         BY = NULL, grid = NULL, grid_size = 49L, trim = c(0.01, 0.99),
                         strategy = c("uniform", "quantile"), n_max = 100L, ...) {
+  if (is.null(pred_fun)) {
+    pred_fun <- mlr3_pred_fun(object, X = X)
+  }
   ice.default(
     object = object,
     v = v,

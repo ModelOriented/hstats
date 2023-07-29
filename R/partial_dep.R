@@ -215,11 +215,14 @@ partial_dep.ranger <- function(object, v, X,
 #' @describeIn partial_dep Method for "mlr3" models.
 #' @export
 partial_dep.Learner <- function(object, v, X, 
-                                pred_fun = function(m, X) m$predict_newdata(X)$response,
+                                pred_fun = NULL,
                                 BY = NULL, by_size = 4L, grid = NULL, grid_size = 49L, 
                                 trim = c(0.01, 0.99), 
                                 strategy = c("uniform", "quantile"), n_max = 1000L, 
                                 w = NULL, ...) {
+  if (is.null(pred_fun)) {
+    pred_fun <- mlr3_pred_fun(object, X = X)
+  }
   partial_dep.default(
     object = object,
     v = v,

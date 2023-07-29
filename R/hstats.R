@@ -242,9 +242,12 @@ hstats.ranger <- function(object, v, X,
 #' @describeIn hstats Method for "mlr3" models.
 #' @export
 hstats.Learner <- function(object, v, X,
-                           pred_fun = function(m, X) m$predict_newdata(X)$response,
+                           pred_fun = NULL,
                            n_max = 300L, w = NULL, pairwise_m = 5L,
                            threeway_m = pairwise_m, verbose = TRUE, ...) {
+  if (is.null(pred_fun)) {
+    pred_fun <- mlr3_pred_fun(object, X = X)
+  }
   hstats.default(
     object = object,
     v = v,

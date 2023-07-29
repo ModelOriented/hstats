@@ -40,7 +40,7 @@ hstats(object, ...)
   object,
   v,
   X,
-  pred_fun = function(m, X) m$predict_newdata(X)$response,
+  pred_fun = NULL,
   n_max = 300L,
   w = NULL,
   pairwise_m = 5L,
