@@ -336,3 +336,28 @@ rotate_x_labs <- function() {
     axis.text.x = ggplot2::element_text(angle = 45, hjust = 1, vjust = 1)
   )
 }
+
+#' mlr3 Helper
+#' 
+#' Returns the prediction function of a mlr3 Learner.
+#' 
+#' @noRd
+#' @keywords internal
+#' 
+#' @param object Learner object.
+#' @param X Dataframe like object.
+#' 
+#' @returns A function.
+mlr3_pred_fun <- function(object, X) {
+  if ("classif" %in% object$task_type) {
+    # Check if probabilities are available
+    test_pred <- object$predict_newdata(utils::head(X))
+    if ("prob" %in% test_pred$predict_types) {
+      return(function(m, X) m$predict_newdata(X)$prob)
+    } else {
+      stop("Set lrn(..., predict_type = 'prob') to allow for probabilistic classification.")
+    }
+  }
+  function(m, X) m$predict_newdata(X)$response
+}
+

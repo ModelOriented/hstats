@@ -229,6 +229,74 @@ Strongest relative interaction shown as ICE plot.
 
 ![](man/figures/dalex_ice.svg)
 
+## Meta-learning packages
+
+Here, we provide some working examples for "tidymodels", "caret", and "mlr3".
+
+### tidymodels
+
+```r
+library(tidymodels)
+library(hstats)
+
+iris_recipe <- iris %>%
+  recipe(Sepal.Length ~ .)
+
+reg <- linear_reg() %>%
+  set_engine("lm")
+  
+iris_wf <- workflow() %>%
+  add_recipe(iris_recipe) %>%
+  add_model(reg)
+
+fit <- iris_wf %>%
+  fit(iris)
+  
+s <- partial_dep(fit, v = "Petal.Width", X = iris)
+plot(s)
+```
+
+### caret
+
+```r
+library(caret)
+library(hstats)
+
+fit <- train(
+  Sepal.Length ~ ., 
+  data = iris, 
+  method = "lm", 
+  tuneGrid = data.frame(intercept = TRUE),
+  trControl = trainControl(method = "none")
+)
+
+s <- ice(fit, v = "Petal.Width", X = iris)
+plot(s, center = TRUE)
+```
+
+### mlr3
+
+```r
+library(hstats)
+library(mlr3)
+library(mlr3learners)
+
+# Regression
+mlr_tasks$get("iris")
+task_iris <- TaskRegr$new(id = "reg", backend = iris, target = "Sepal.Length")
+fit_lm <- lrn("regr.lm")
+fit_lm$train(task_iris)
+s <- partial_dep(fit, v = "Petal.Width", X = iris)
+plot(s)
+
+# Probabilistic classification
+task_iris <- TaskClassif$new(id = "class", backend = iris, target = "Species")
+fit_rf <- lrn("classif.ranger", predict_type = "prob", num.trees = 50)
+fit_rf$train(task_iris)
+s <- hstats(fit_rf, v = colnames(iris[-5]), X = iris)
+plot(s)
+```
+
 ## Background
 
 ### Partial dependence

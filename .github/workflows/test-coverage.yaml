@@ -41,7 +41,8 @@ jobs:
               "ice\\.explainer",
               "interact\\.Learner",
               "interact\\.ranger",
-              "interact\\.explainer"
+              "interact\\.explainer",
+              "mlr3_pred_fun"
             )
           )
         shell: Rscript {0}
