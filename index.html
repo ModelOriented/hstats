@@ -49,7 +49,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">hstats</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.1</span>
       </span>
     </div>
 
@@ -308,6 +308,75 @@
 <p><img src="reference/figures/dalex_hstats.svg"></p>
 <p>Strongest relative interaction shown as ICE plot.</p>
 <p><img src="reference/figures/dalex_ice.svg"></p>
+</div>
+<div class="section level2">
+<h2 id="meta-learning-packages">Meta-learning packages<a class="anchor" aria-label="anchor" href="#meta-learning-packages"></a>
+</h2>
+<p>Here, we provide some working examples for “tidymodels”, “caret”, and “mlr3”.</p>
+<div class="section level3">
+<h3 id="tidymodels">tidymodels<a class="anchor" aria-label="anchor" href="#tidymodels"></a>
+</h3>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidymodels.tidymodels.org" class="external-link">tidymodels</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/mayer79/hstats" class="external-link">hstats</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">iris_recipe</span> <span class="op">&lt;-</span> <span class="va">iris</span> <span class="op">%&gt;%</span></span>
+<span>  <span class="fu">recipe</span><span class="op">(</span><span class="va">Sepal.Length</span> <span class="op">~</span> <span class="va">.</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">reg</span> <span class="op">&lt;-</span> <span class="fu">linear_reg</span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
+<span>  <span class="fu">set_engine</span><span class="op">(</span><span class="st">"lm"</span><span class="op">)</span></span>
+<span>  </span>
+<span><span class="va">iris_wf</span> <span class="op">&lt;-</span> <span class="fu">workflow</span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
+<span>  <span class="fu">add_recipe</span><span class="op">(</span><span class="va">iris_recipe</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
+<span>  <span class="fu">add_model</span><span class="op">(</span><span class="va">reg</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="va">iris_wf</span> <span class="op">%&gt;%</span></span>
+<span>  <span class="fu">fit</span><span class="op">(</span><span class="va">iris</span><span class="op">)</span></span>
+<span>  </span>
+<span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/partial_dep.html">partial_dep</a></span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="st">"Petal.Width"</span>, X <span class="op">=</span> <span class="va">iris</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">s</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="caret">caret<a class="anchor" aria-label="anchor" href="#caret"></a>
+</h3>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/topepo/caret/" class="external-link">caret</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/mayer79/hstats" class="external-link">hstats</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">train</span><span class="op">(</span></span>
+<span>  <span class="va">Sepal.Length</span> <span class="op">~</span> <span class="va">.</span>, </span>
+<span>  data <span class="op">=</span> <span class="va">iris</span>, </span>
+<span>  method <span class="op">=</span> <span class="st">"lm"</span>, </span>
+<span>  tuneGrid <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>intercept <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
+<span>  trControl <span class="op">=</span> <span class="fu">trainControl</span><span class="op">(</span>method <span class="op">=</span> <span class="st">"none"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/ice.html">ice</a></span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="st">"Petal.Width"</span>, X <span class="op">=</span> <span class="va">iris</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">s</span>, center <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="mlr3">mlr3<a class="anchor" aria-label="anchor" href="#mlr3"></a>
+</h3>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/mayer79/hstats" class="external-link">hstats</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://mlr3.mlr-org.com" class="external-link">mlr3</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://mlr3learners.mlr-org.com" class="external-link">mlr3learners</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Regression</span></span>
+<span><span class="va">mlr_tasks</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="st">"iris"</span><span class="op">)</span></span>
+<span><span class="va">task_iris</span> <span class="op">&lt;-</span> <span class="va">TaskRegr</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span>id <span class="op">=</span> <span class="st">"reg"</span>, backend <span class="op">=</span> <span class="va">iris</span>, target <span class="op">=</span> <span class="st">"Sepal.Length"</span><span class="op">)</span></span>
+<span><span class="va">fit_lm</span> <span class="op">&lt;-</span> <span class="fu">lrn</span><span class="op">(</span><span class="st">"regr.lm"</span><span class="op">)</span></span>
+<span><span class="va">fit_lm</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span><span class="va">task_iris</span><span class="op">)</span></span>
+<span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/partial_dep.html">partial_dep</a></span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="st">"Petal.Width"</span>, X <span class="op">=</span> <span class="va">iris</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">s</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Probabilistic classification</span></span>
+<span><span class="va">task_iris</span> <span class="op">&lt;-</span> <span class="va">TaskClassif</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span>id <span class="op">=</span> <span class="st">"class"</span>, backend <span class="op">=</span> <span class="va">iris</span>, target <span class="op">=</span> <span class="st">"Species"</span><span class="op">)</span></span>
+<span><span class="va">fit_rf</span> <span class="op">&lt;-</span> <span class="fu">lrn</span><span class="op">(</span><span class="st">"classif.ranger"</span>, predict_type <span class="op">=</span> <span class="st">"prob"</span>, num.trees <span class="op">=</span> <span class="fl">50</span><span class="op">)</span></span>
+<span><span class="va">fit_rf</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span><span class="va">task_iris</span><span class="op">)</span></span>
+<span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/hstats.html">hstats</a></span><span class="op">(</span><span class="va">fit_rf</span>, v <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">iris</span><span class="op">[</span><span class="op">-</span><span class="fl">5</span><span class="op">]</span><span class="op">)</span>, X <span class="op">=</span> <span class="va">iris</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">s</span><span class="op">)</span></span></code></pre></div>
+</div>
 </div>
 <div class="section level2">
 <h2 id="background">Background<a class="anchor" aria-label="anchor" href="#background"></a>
