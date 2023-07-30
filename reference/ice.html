@@ -150,7 +150,7 @@ matrix of predictions will be used as default column names in the results.</p></
 <dd><p>Optional grouping vector/matrix/data.frame (up to two columns),
 or up to two column names. Unlike with <code><a href="partial_dep.html">partial_dep()</a></code>, these variables are not
 binned. The first variable is visualized on the color scale, while the second
-one goes into a <code>facet_wrap()</code>. Thus, make sure that the second variable is
+one goes into a <code><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap()</a></code>. Thus, make sure that the second variable is
 discrete.</p></dd>
 
 
@@ -219,9 +219,9 @@ Journal of Computational and Graphical Statistics, 24, no. 1 (2015): 44-65.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 'ice' object (4300 rows). Extract via $data. Top rows:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   obs_ Petal.Length        y    Species</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1    1            1 2.122518  virginica</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2    2            1 5.014524     setosa</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3    3            1 3.665340 versicolor</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1    1            1 4.818528     setosa</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2    2            1 4.818528     setosa</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3    3            1 3.743931 versicolor</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">ic</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="ice-2.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">ic</span>, center <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
