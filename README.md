@@ -229,6 +229,45 @@ Strongest relative interaction shown as ICE plot.
 
 ![](man/figures/dalex_ice.svg)
 
+## Multivariate responses
+
+{hstats} works also with multivariate output such as probabilistic classification.
+
+```r
+library(ranger)
+library(ggplot2)
+library(hstats)
+
+fit <- ranger(Species ~ ., data = iris, probability = TRUE, seed = 1)
+s <- hstats(fit, v = colnames(iris)[-5], X = iris)
+s
+# Proportion of prediction variability unexplained by main effects of v:
+#      setosa  versicolor   virginica 
+# 0.002705945 0.065629375 0.046742035
+
+plot(s)
+h2_pairwise(s, normalize = FALSE, squared = FALSE) +
+  ggtitle("Unnormalized")
+```
+
+![](man/figures/multivariate.svg)
+![](man/figures/multivariate_pairwise.svg)
+
+The figure on the top left shows that petal width and length show the strongest interactions, except for class "setosa". Comparison of the figure on the top right and the one on the bottom neatly shows the huge impact of considering normalized pairwise statistics (top right) or not. Let's describe the strongest absolute pairwise interaction (between petal length/width) using partial dependence plots:
+
+```r
+partial_dep(fit, v = c("Petal.Length", "Petal.Width"), X = iris, grid_size = 400) |> 
+  plot() +
+  ggtitle("2D PDP")
+  
+partial_dep(fit, v = "Petal.Length", X = iris, BY = "Petal.Width") |> 
+  plot(show_points = FALSE) +
+  ggtitle("Stratified PDP")
+```
+
+![](man/figures/multivariate_pdp.png)
+![](man/figures/multivariate_pdp2.svg)
+
 ## Meta-learning packages
 
 Here, we provide some working examples for "tidymodels", "caret", and "mlr3".
