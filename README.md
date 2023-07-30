@@ -245,28 +245,18 @@ s
 #      setosa  versicolor   virginica 
 # 0.002705945 0.065629375 0.046742035
 
-plot(s)
-h2_pairwise(s, normalize = FALSE, squared = FALSE) +
-  ggtitle("Unnormalized")
+plot(s, normalize = FALSE, squared = FALSE) +
+  ggtitle("Unnormalized statistics") +
+  scale_fill_viridis_d(begin = 0.1, end = 0.9)
+
+ice(fit, v = "Petal.Length", X = iris, BY = "Petal.Width", n_max = 150) |> 
+  plot(center = TRUE) +
+  ggtitle("Centered ICE plots")
 ```
 
 ![](man/figures/multivariate.svg)
-![](man/figures/multivariate_pairwise.svg)
 
-The figure on the top left shows that petal width and length show the strongest interactions, except for class "setosa". Comparison of the figure on the top right and the one on the bottom neatly shows the huge impact of considering normalized pairwise statistics (top right) or not. Let's describe the strongest absolute pairwise interaction (between petal length/width) using partial dependence plots:
-
-```r
-partial_dep(fit, v = c("Petal.Length", "Petal.Width"), X = iris, grid_size = 400) |> 
-  plot() +
-  ggtitle("2D PDP")
-  
-partial_dep(fit, v = "Petal.Length", X = iris, BY = "Petal.Width") |> 
-  plot(show_points = FALSE) +
-  ggtitle("Stratified PDP")
-```
-
-![](man/figures/multivariate_pdp.png)
-![](man/figures/multivariate_pdp2.svg)
+![](man/figures/multivariate_ice.svg)
 
 ## Meta-learning packages
 
