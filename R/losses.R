@@ -1,4 +1,6 @@
-#' Internal function. Squared error loss
+#' Squared Error Loss
+#' 
+#' Internal function. Calculates squared error.
 #' 
 #' @noRd
 #' @keywords internal
@@ -11,7 +13,9 @@ loss_squared_error <- function(actual, predicted) {
   (actual - predicted)^2
 }
 
-#' Internal function. Absolute error loss
+#' Absolute Error Loss
+#' 
+#' Internal function. Calculates absolute error.
 #' 
 #' @noRd
 #' @keywords internal
@@ -24,7 +28,9 @@ loss_absolute_error <- function(actual, predicted) {
   abs(actual - predicted)
 }
 
-#' Internal function. Poisson deviance loss
+#' Poisson Deviance Loss
+#' 
+#' Internal function. Calculates Poisson deviance.
 #' 
 #' @noRd
 #' @keywords internal
@@ -44,7 +50,9 @@ loss_poisson <- function(actual, predicted) {
   2 * out
 }
 
-#' Internal function. Gamma deviance loss
+#' Gamma Deviance Loss
+#' 
+#' Internal function. Calculates Gamma deviance.
 #' 
 #' @noRd
 #' @keywords internal
@@ -61,7 +69,10 @@ loss_gamma <- function(actual, predicted) {
   -2 * (log(actual / predicted) - (actual - predicted) / predicted)
 }
 
-#' Internal function. logloss
+#' Log Loss
+#' 
+#' Internal function. Calculates log loss, which is equivalent to binary cross-entropy 
+#' and half the Bernoulli deviance.
 #' 
 #' @noRd
 #' @keywords internal
@@ -80,7 +91,10 @@ loss_logloss <- function(actual, predicted) {
   -xlogy(actual, predicted) - xlogy(1 - actual, 1 - predicted)
 }
 
-#' Internal function. mlogloss
+#' Multi-Column Log Loss
+#' 
+#' Internal function. Log loss for probabilistic classification models with more than
+#' one prediction column (one per category).
 #' 
 #' @noRd
 #' @keywords internal
@@ -99,7 +113,9 @@ loss_mlogloss <- function(actual, predicted) {
   -rowSums(xlogy(actual, predicted))
 }
 
-#' Internal function. Checks if dimensions of vectors/matrices are identical.
+#' Consistency Check on Dimensions
+#' 
+#' Internal function. Checks if dimensions of two vectors/matrices are identical.
 #' 
 #' @noRd
 #' @keywords internal
@@ -115,7 +131,9 @@ check_dim <- function(actual, predicted) {
   TRUE
 }
 
-#' Internal function. Calculates x*log(y)
+#' Calculates x*log(y)
+#' 
+#' Internal function.
 #' 
 #' @noRd
 #' @keywords internal

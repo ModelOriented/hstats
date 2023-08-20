@@ -1,8 +1,8 @@
 #' Permutation Importance
 #'
-#' Calculates permutation importance for all features specified by `v`. 
+#' Calculates permutation importance for a set of features. 
 #' It shows the absolute (or relative) increase in the average loss when 
-#' suffling the corresponding feature column. Note that the model is never refitted 
+#' shuffling the corresponding feature column. Note that the model is never refitted 
 #' in this process.
 #'
 #' @inheritParams hstats
@@ -12,17 +12,18 @@
 #'   `model.matrix(y ~ 0, data = data)`.
 #' @param loss One of "squared_error", "logloss", "mlogloss", "poisson",
 #'   "gamma", "absolute_error", or a loss function that turns observed and predicted 
-#'   values (vectors or matrices) into a vector or matrix of unit losses.
+#'   values (vectors or matrices) into a vector/matrix of unit losses.
 #' @param reduce_loss How should multivariate losses be aggregated to a single number
-#'   per row? One of "sum" (default), "mean", or "no" (no aggregation).
-#' @param m_repetitions Number of permutations. Defaults to 1L.
+#'   *per row*? One of "sum" (default), "mean", or "no" (no aggregation).
+#' @param m_repetitions Number of permutations. Defaults to 1. If larger than one,
+#'   standard deviations and standard errors can be plotted.
 #' @returns
 #'   An object of class "perm_importance" containing these elements:
 #'   - `importance`: Matrix containing the importance values
 #'     (one row per variable, one column per loss dimension).
 #'   - `std`: Matrix with corresponding sample standard deviations across repetitions 
 #'     (`NA` if `m_repetitions = 1`).
-#'   - `perf`: Original average loss.
+#'   - `perf`: Average loss before shuffling.
 #'   - `v`: Same as input `v`.
 #'   - `m_repetitions`: Same as input `m_repetitions`.
 #' @references
@@ -226,12 +227,10 @@ print.perm_importance <- function(x, ...) {
 #' Summary method for "perm_importance" object.
 #' 
 #' @param object An object of class "perm_importance".
-#' @param normalize Should mean loss improvements be divided by the pre-shuffle 
-#'   mean losses? Default is `FALSE`. If `TRUE`, a value of 2 would mean that
-#'   the mean loss doubles by shuffling that feature.
-#' @param sort Should the results be sorted by decreasing importance? 
-#'   (Multivariate results are sorted by row sums).
-#' @param top_m Maximum number of rows to return.
+#' @param normalize Should mean loss improvements be divided by the original 
+#'   mean losses? Default is `FALSE`. If `TRUE`, a value of 2 means that
+#'   the mean loss doubled by shuffling.
+#' @inheritParams H2_overall
 #' @param ... Currently not used.
 #' @returns Matrix of variable importance values.
 #' @export
@@ -254,71 +253,34 @@ summary.perm_importance <- function(object, normalize = FALSE,
   invisible(out)
 }
 
-#' Plots "perm_importance" Object
-#' 
-#' Plot method for objects of class "perm_importance". Can do (grouped) line plots or 
-#' heatmaps.
-#' 
-#' @importFrom ggplot2 .data
-#' @param x An object of class "perm_importance".
-#' @param rotate_x Should x axis labels be rotated by 45 degrees?
-#' @param color Color of lines and points (in case there is no color/fill aesthetic).
-#' @param facet_scales Value passed to `ggplot2::facet_wrap(scales = ...)`.
-#' @param show_points Logical flag indicating whether to show points (default) or not.
-#' @param ... Arguments passed to geometries.
-#' @export
-#' @returns An object of class "ggplot".
-#' @seealso See [perm_importance()] for examples.
-plot.perm_importance <- function(x, rotate_x = FALSE, color = "#2b51a1", 
-                             facet_scales = "free_y", show_points = TRUE, ...) {
-  v <- x[["v"]]
-  by_name <- x[["by_name"]]
-  K <- x[["K"]]
-  if (length(v) > 2L) {
-    stop("Maximal two features can be plotted.")
-  }
-  if ((K > 1L) + (!is.null(by_name)) + length(v) > 3L) {
-    stop("No plot implemented for this case.")
-  }
-  data <- with(x, poor_man_stack(data, to_stack = pred_names))
-  
-  # Line plots
-  if (length(v) == 1L) {
-    p <- ggplot2::ggplot(data, ggplot2::aes(x = .data[[v]], y = value_)) +
-      ggplot2::labs(x = v, y = "PD")
-    
-    if (is.null(by_name)) {
-      p <- p + ggplot2::geom_line(color = color, group = 1, ...)
-      if (show_points) {
-        p <- p + ggplot2::geom_point(color = color, ...)
-      }
-    } else {
-      p <- p + 
-        ggplot2::geom_line(
-          ggplot2::aes(color = .data[[by_name]], group = .data[[by_name]]), ...
-        ) +
-        ggplot2::labs(color = by_name)
-      if (show_points) {
-        p <- p + ggplot2::geom_point(
-          ggplot2::aes(color = .data[[by_name]], group = .data[[by_name]]), ...
-        )
-      }
-    }
-    if (K > 1L) {
-      p <- p + ggplot2::facet_wrap(~ varying_, scales = facet_scales)
-    }
-  } else if (length(v) == 2L) {
-    # Heat maps
-    p <- ggplot2::ggplot(
-      data, ggplot2::aes(x = .data[[v[1L]]], y = .data[[v[2L]]], fill = value_)
-    ) + 
-      ggplot2::geom_tile(...) +
-      ggplot2::labs(fill = "PD")
-    
-    if (K > 1L || !is.null(by_name)) {  # Only one is possible
-      wrp <- if (K > 1L) "varying_" else by_name
-      p <- p + ggplot2::facet_wrap(wrp, scales = facet_scales)
-    }
-  }
-  if (rotate_x) p + rotate_x_labs() else p
-}
+#' #' Plots "perm_importance" Object
+#' #' 
+#' #' Plot method for objects of class "perm_importance". Can do (grouped) line plots or 
+#' #' heatmaps.
+#' #' 
+#' #' @importFrom ggplot2 .data
+#' #' @inheritParams H2_overall
+#' #' @inheritParams summary.perm_importance
+#' #' @param ... Arguments passed to geometries.
+#' #' @export
+#' #' @returns An object of class "ggplot".
+#' #' @seealso See [perm_importance()] for examples.
+#' plot.perm_importance <- function(x, normalize = FALSE, 
+#'                                  sort = TRUE, top_m = 15L,
+#'                                  rotate_x = FALSE, fill = "#2b51a1", ...) {
+#'   
+#'   
+#'   p <- ggplot2::ggplot(mat2df(x), ggplot2::aes(x = value_, y = variable_)) +
+#'     ggplot2::ylab(ggplot2::element_blank()) +
+#'     ggplot2::xlab("Value")
+#'   
+#'   if (ncol(x) == 1L) {
+#'     p + ggplot2::geom_bar(fill = fill, stat = "identity", ...)
+#'   } else {
+#'     p + 
+#'       ggplot2::geom_bar(
+#'         ggplot2::aes(fill = varying_), stat = "identity", position = "dodge", ...
+#'       ) + 
+#'       ggplot2::labs(fill = "Response")
+#'   }
+#' }
