@@ -115,7 +115,7 @@ loss_mlogloss <- function(actual, predicted) {
 
 #' Consistency Check on Dimensions
 #' 
-#' Internal function. Checks if dimensions of two vectors/matrices are identical.
+#' Internal function. Checks if the number of columns of the two inputs are identical.
 #' 
 #' @noRd
 #' @keywords internal
@@ -125,7 +125,7 @@ loss_mlogloss <- function(actual, predicted) {
 #' @returns `TRUE` (or an error message).
 check_dim <- function(actual, predicted) {
   stopifnot(
-    NROW(actual) == NROW(predicted),
+    # NROW(actual) == NROW(predicted),
     NCOL(actual) == NCOL(predicted)
   )
   TRUE

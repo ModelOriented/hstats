@@ -90,7 +90,7 @@ perm_importance.default <- function(object, v, X, y, pred_fun = stats::predict,
   
   loss2 <- function(X) {
     L <- loss(y, align_pred(pred_fun(object, X, ...)))
-    if (NCOL(L) >= 2L && reduce_loss %in% c("sum", "mean")) {
+    if (NCOL(L) >= 2L && reduce_loss != "no") {
       L <- if (reduce_loss == "sum") rowSums(L) else rowMeans(L)
     }
     if (!is.matrix(L)) as.matrix(L) else L
