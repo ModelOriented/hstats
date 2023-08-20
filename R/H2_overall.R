@@ -40,12 +40,11 @@
 #'   statistics can be compared across features.
 #' 
 #' @param object Object of class "hstats".
-#' @param normalize Should statistic be normalized? Default is `TRUE`.
+#' @param normalize Should statistics be normalized? Default is `TRUE`.
 #' @param squared Should *squared* statistics be returned? Default is `TRUE`. 
-#' @param sort Should results be sorted by the size of the statistic? Default is `TRUE`.
-#'   Multioutput predictions are sorted by row means.
-#' @param top_m How many statistics should be shown? By default `15`. 
-#'   Set to `Inf` to show all.
+#' @param sort Should results be sorted? Default is `TRUE`.
+#'   (Multioutput is sorted by row means.)
+#' @param top_m How many rows should be shown? (`Inf` to show all.)
 #' @param eps Threshold below which numerator values are set to 0.
 #' @param plot Should results be plotted as barplot? Default is `FALSE`.
 #' @param fill Color of bar (only for univariate statistics).

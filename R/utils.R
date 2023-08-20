@@ -30,7 +30,7 @@ align_pred <- function(x) {
 #' @param x Vector or matrix.
 #' @param ngroups Number of groups of fixed length `NROW(x) / ngroups`.
 #' @param w Optional vector with case weights of length `NROW(x) / ngroups`.
-#' @returns A (g x K) matrix, where g is the grid size, and K = NCOL(x).
+#' @returns A (g x K) matrix, where g is the number of groups, and K = NCOL(x).
 wrowmean <- function(x, ngroups, w = NULL) {
   p <- NCOL(x)
   n_bg <- NROW(x) %/% ngroups
@@ -182,7 +182,7 @@ basic_check <- function(X, v, pred_fun, w = NULL) {
 #' @noRd
 #' @keywords internal
 #' 
-#' @inheritParams H2_j
+#' @inheritParams H2_overall
 #' @param num Matrix or vector of statistic.
 #' @param denom Denominator of statistic (a matrix, number, or vector compatible with `num`).
 #' @returns Matrix or vector of statistics.
