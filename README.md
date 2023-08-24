@@ -221,6 +221,9 @@ plot(s)
 plot(ice(ex, v = "Sepal.Width", BY = "Petal.Width"), center = TRUE)
 plot(partial_dep(ex, v = "Sepal.Width", BY = "Petal.Width"), show_points = FALSE)
 plot(partial_dep(ex, v = c("Sepal.Width", "Petal.Width"), grid_size = 200))
+
+# Check permutation importance
+perm_importance(ex)
 ```
 
 ![](man/figures/dalex_hstats.svg)
