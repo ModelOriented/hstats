@@ -27,15 +27,14 @@ h2_overall(object, ...)
 
 \item{...}{Further parameters passed to \code{geom_bar()}.}
 
-\item{normalize}{Should statistic be normalized? Default is \code{TRUE}.}
+\item{normalize}{Should statistics be normalized? Default is \code{TRUE}.}
 
 \item{squared}{Should \emph{squared} statistics be returned? Default is \code{TRUE}.}
 
-\item{sort}{Should results be sorted by the size of the statistic? Default is \code{TRUE}.
-Multioutput predictions are sorted by row means.}
+\item{sort}{Should results be sorted? Default is \code{TRUE}.
+(Multioutput is sorted by row means.)}
 
-\item{top_m}{How many statistics should be shown? By default \code{15}.
-Set to \code{Inf} to show all.}
+\item{top_m}{How many rows should be shown? (\code{Inf} to show all.)}
 
 \item{eps}{Threshold below which numerator values are set to 0.}
 

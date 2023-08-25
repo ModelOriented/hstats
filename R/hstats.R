@@ -346,15 +346,16 @@ summary.hstats <- function(object, top_m = 6L, ...) {
 #'   \eqn{H^2_j} (1) and \eqn{H^2_{jk}} (2). To also show three-way interactions,
 #'   use `1:3`.
 #' @param top_m Maximum number of rows of results to plot.
-#' @param fill Color of bars (univariate case).
+#' @param fill Color of bars.
 #' @param facet_scales Value passed to `ggplot2::facet_wrap(scales = ...)`.
 #' @param ncol Passed to `ggplot2::facet_wrap()`.
+#' @param rotate_x Should x axis labels be rotated by 45 degrees?
 #' @param ... Further arguments passed to statistics, e.g., `normalize = FALSE`.
 #' @returns An object of class "ggplot".
 #' @export
 #' @seealso See [hstats()] for examples.
 plot.hstats <- function(x, which = 1:2, top_m = 15L, fill = "#2b51a1", 
-                        facet_scales = "free", ncol = 2L, ...) {
+                        facet_scales = "free", ncol = 2L, rotate_x = FALSE, ...) {
   ids <- c("Overall", "Pairwise", "Threeway")
   funs <- c(h2_overall, h2_pairwise, h2_threeway)
   dat <- list()
@@ -372,6 +373,9 @@ plot.hstats <- function(x, which = 1:2, top_m = 15L, fill = "#2b51a1",
   if (length(unique(dat[["id_"]])) > 1L) {
     p <- p + 
       ggplot2::facet_wrap(~ id_, ncol = ncol, scales = facet_scales)
+  }
+  if (rotate_x) {
+    p <- p + rotate_x_labs()
   }
   if (length(unique(dat[["varying_"]])) == 1L) {
     p + ggplot2::geom_bar(fill = fill, stat = "identity")

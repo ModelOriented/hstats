@@ -1,5 +1,5 @@
 # Fix undefined global variable note
-utils::globalVariables(c("varying_", "value_", "id_", "variable_", "obs_"))
+utils::globalVariables(c("varying_", "value_", "id_", "variable_", "obs_", "error_"))
 
 #' Aligns Predictions
 #' 

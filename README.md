@@ -25,9 +25,9 @@ The first step in understanding interactions is to measure their strength. This 
 
 See section [Background](#background) for details and definitions.
 
-{hstats} offers these statistics comparably **fast** and for **any model**, even for multi-output models, or models with case weights. Additionally, we provide a global statistic $H^2$ measuring the proportion of prediction variability unexplained by main effects [5], and an experimental feature importance measure. After having identified strong interactions, their shape can be investigated by stratified partial dependence or ICE plots.
+{hstats} offers these statistics comparably **fast** and for **any model**, even for multi-output models, or models with case weights. Additionally, we provide a global statistic $H^2$ measuring the proportion of prediction variability unexplained by main effects [5], and an experimental feature importance measure. After having identified strong interactions, their shape can be investigated by stratified partial dependence or ICE plots. Candidate features can be found by permutation feature importance.
 
-The core functions `hstats()`, `partial_dep()`, and `ice()` can directly be applied to DALEX explainers, meta learners (mlr3, tidymodels, caret) and most other models. In case you need more flexibility, a tailored prediction function can be specified. Both data.frame and matrix data structures are supported.
+The core functions `hstats()`, `partial_dep()`, `ice()`, and `perm_importance()` can directly be applied to DALEX explainers, meta learners (mlr3, tidymodels, caret) and most other models. In case you need more flexibility, a tailored prediction function can be specified. Both data.frame and matrix data structures are supported.
 
 ## Limitations
 
@@ -48,6 +48,10 @@ The core functions `hstats()`, `partial_dep()`, and `ice()` can directly be appl
 ## Installation
 
 ```r
+# From CRAN
+install.packages("hstats")
+
+# From Github
 devtools::install_github("mayer79/hstats")
 ```
 
@@ -58,6 +62,7 @@ To demonstrate the typical workflow, we use a beautiful house price dataset with
 ### Fit model
 
 ```r
+library(ggplot2)
 library(hstats)
 library(xgboost)
 library(shapviz)
@@ -87,7 +92,6 @@ fit <- xgb.train(
   nrounds = 1000,
   callbacks = list(cb.print.evaluation(period = 100))
 )
-
 ```
 
 ### Interaction statistics
@@ -186,17 +190,19 @@ plot(ice(fit, v = "tot_lvg_area", X = X_train, BY = BY), center = TRUE)
 In the spirit of [1], and related to [4], we can extract from the "hstats" objects a partial dependence based variable importance measure. It measures not only the main effect strength (see [4]), but also all its interaction effects. It is rather experimental, so use it with care (details in the section "Background"):
 
 ```r
-pd_importance(s)
+pd_importance(s) +
+  ggtitle("PD-based importance (experimental)")
 
-# Compared with tree split gain importance
-xgb.plot.importance(xgb.importance(model = fit), measure = "Gain")
+# Compared with repeated permutation importance regarding MSE (with standard errors)
+plot(perm_importance(fit, v = x, X = X_valid, y = y_valid)) +
+  ggtitle("Permutation importance")
 ```
 
 ![](man/figures/importance.svg)
 
 Split gain importance returns almost the same order in this case:
 
-![](man/figures/gain_importance.svg)
+![](man/figures/importance_perm.svg)
 
 
 ## DALEX
@@ -325,8 +331,12 @@ plot(s)
 task_iris <- TaskClassif$new(id = "class", backend = iris, target = "Species")
 fit_rf <- lrn("classif.ranger", predict_type = "prob", num.trees = 50)
 fit_rf$train(task_iris)
-s <- hstats(fit_rf, v = colnames(iris[-5]), X = iris)
+v <- colnames(iris[-5])
+s <- hstats(fit_rf, v = v, X = iris)
 plot(s)
+
+# Permutation importance
+plot(perm_importance(fit_rf, v = v, X = iris, y = iris$Species, loss = "mlogloss"))
 ```
 
 ## Background
