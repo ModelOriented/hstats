@@ -339,5 +339,5 @@ plot.perm_importance <- function(x, normalize = FALSE, sort = TRUE, top_m = 15L,
   if (rotate_x) {
     p <- p + rotate_x_labs()
   }
-  p + ggplot2::labs(y = ggplot2::element_blank(), x = "Average loss decrease")
+  p + ggplot2::labs(y = ggplot2::element_blank(), x = "Average loss increase")
 }
