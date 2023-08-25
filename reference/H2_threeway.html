@@ -18,7 +18,7 @@ By default, the results are plotted as barplot. Set plot = FALSE to get numbers.
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">hstats</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.2.0</span>
       </span>
     </div>
 
@@ -85,7 +85,7 @@ By default, the results are plotted as barplot. Set <code>plot = FALSE</code> to
 
 
 <dt>normalize</dt>
-<dd><p>Should statistic be normalized? Default is <code>TRUE</code>.</p></dd>
+<dd><p>Should statistics be normalized? Default is <code>TRUE</code>.</p></dd>
 
 
 <dt>squared</dt>
@@ -93,13 +93,12 @@ By default, the results are plotted as barplot. Set <code>plot = FALSE</code> to
 
 
 <dt>sort</dt>
-<dd><p>Should results be sorted by the size of the statistic? Default is <code>TRUE</code>.
-Multioutput predictions are sorted by row means.</p></dd>
+<dd><p>Should results be sorted? Default is <code>TRUE</code>.
+(Multioutput is sorted by row means.)</p></dd>
 
 
 <dt>top_m</dt>
-<dd><p>How many statistics should be shown? By default <code>15</code>.
-Set to <code>Inf</code> to show all.</p></dd>
+<dd><p>How many rows should be shown? (<code>Inf</code> to show all.)</p></dd>
 
 
 <dt>eps</dt>

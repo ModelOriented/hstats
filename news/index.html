@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">hstats</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.2.0</span>
       </span>
     </div>
 
@@ -48,9 +48,19 @@
     </div>
 
     <div class="section level2">
-<h2 class="page-header" data-toc-text="0.1.1" id="hstats-011">hstats 0.1.1<a class="anchor" aria-label="anchor" href="#hstats-011"></a></h2>
+<h2 class="page-header" data-toc-text="0.2.0" id="hstats-020">hstats 0.2.0<a class="anchor" aria-label="anchor" href="#hstats-020"></a></h2>
 <div class="section level3">
-<h3 id="bug-fixes-0-1-1">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-1-1"></a></h3>
+<h3 id="major-features-0-2-0">Major features<a class="anchor" aria-label="anchor" href="#major-features-0-2-0"></a></h3>
+<ul><li>
+<strong>Permutation importance</strong>: H-statistics are often calculated only for important features. To support this workflow, we have added the function <code><a href="../reference/perm_importance.html">perm_importance()</a></code>. It supports the most important loss functions. Custom losses can be passed as functions. The resulting object can be analyzed with <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> and <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code>. Multivariate losses can be studied collapsed over dimensions or individually.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="minor-features-0-2-0">Minor features<a class="anchor" aria-label="anchor" href="#minor-features-0-2-0"></a></h3>
+<ul><li>
+<code><a href="../reference/plot.hstats.html">plot.hstats()</a></code> has recieved a <code>rotate_x = FALSE</code> argument for rotating x labels by 45 degrees.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="bug-fixes-0-2-0">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-2-0"></a></h3>
 <ul><li>Probabilistic {mlr3} classifiers did not work out-of-the box. This has been fixed.</li>
 </ul></div>
 </div>

@@ -46,6 +46,9 @@
     <loc>/reference/pd_importance.html</loc>
   </url>
   <url>
+    <loc>/reference/perm_importance.html</loc>
+  </url>
+  <url>
     <loc>/reference/plot.hstats.html</loc>
   </url>
   <url>
@@ -53,6 +56,9 @@
   </url>
   <url>
     <loc>/reference/plot.partial_dep.html</loc>
+  </url>
+  <url>
+    <loc>/reference/plot.perm_importance.html</loc>
   </url>
   <url>
     <loc>/reference/print.hstats.html</loc>
@@ -64,7 +70,13 @@
     <loc>/reference/print.partial_dep.html</loc>
   </url>
   <url>
+    <loc>/reference/print.perm_importance.html</loc>
+  </url>
+  <url>
     <loc>/reference/summary.hstats.html</loc>
+  </url>
+  <url>
+    <loc>/reference/summary.perm_importance.html</loc>
   </url>
   <url>
     <loc>/reference/univariate_grid.html</loc>
