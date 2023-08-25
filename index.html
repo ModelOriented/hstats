@@ -124,7 +124,7 @@
 </tbody>
 </table>
 <p>See section <a href="#background">Background</a> for details and definitions.</p>
-<p>{hstats} offers these statistics comparably <strong>fast</strong> and for <strong>any model</strong>, even for multi-output models, or models with case weights. Additionally, we provide a global statistic <span class="math inline"><em>H</em><sup>2</sup></span> measuring the proportion of prediction variability unexplained by main effects [5], and an experimental feature importance measure. After having identified strong interactions, their shape can be investigated by stratified partial dependence or ICE plots. Candidate features can be found by permutation feature importance.</p>
+<p>{hstats} offers these statistics comparably <strong>fast</strong> and for <strong>any model</strong>, even for multi-output models, or models with case weights. Additionally, we provide a global statistic <span class="math inline"><em>H</em><sup>2</sup></span> measuring the proportion of prediction variability unexplained by main effects [5], and an experimental feature importance measure. After having identified strong interactions, their shape can be investigated by stratified partial dependence or ICE plots.</p>
 <p>The core functions <code><a href="reference/hstats.html">hstats()</a></code>, <code><a href="reference/partial_dep.html">partial_dep()</a></code>, <code><a href="reference/ice.html">ice()</a></code>, and <code><a href="reference/perm_importance.html">perm_importance()</a></code> can directly be applied to DALEX explainers, meta learners (mlr3, tidymodels, caret) and most other models. In case you need more flexibility, a tailored prediction function can be specified. Both data.frame and matrix data structures are supported.</p>
 </div>
 <div class="section level2">
@@ -286,7 +286,7 @@
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="reference/perm_importance.html">perm_importance</a></span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="va">x</span>, X <span class="op">=</span> <span class="va">X_valid</span>, y <span class="op">=</span> <span class="va">y_valid</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ggtitle</a></span><span class="op">(</span><span class="st">"Permutation importance"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="reference/figures/importance.svg"></p>
-<p>Split gain importance returns almost the same order in this case:</p>
+<p>Permutation importance returns the same order in this case:</p>
 <p><img src="reference/figures/importance_perm.svg"></p>
 </div>
 </div>
