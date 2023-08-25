@@ -17,7 +17,7 @@ h2(object, ...)
 
 \item{...}{Currently unused.}
 
-\item{normalize}{Should statistic be normalized? Default is \code{TRUE}.}
+\item{normalize}{Should statistics be normalized? Default is \code{TRUE}.}
 
 \item{squared}{Should \emph{squared} statistics be returned? Default is \code{TRUE}.}
 

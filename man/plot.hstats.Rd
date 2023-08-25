@@ -11,6 +11,7 @@
   fill = "#2b51a1",
   facet_scales = "free",
   ncol = 2L,
+  rotate_x = FALSE,
   ...
 )
 }
@@ -23,11 +24,13 @@ use \code{1:3}.}
 
 \item{top_m}{Maximum number of rows of results to plot.}
 
-\item{fill}{Color of bars (univariate case).}
+\item{fill}{Color of bars.}
 
 \item{facet_scales}{Value passed to \code{ggplot2::facet_wrap(scales = ...)}.}
 
 \item{ncol}{Passed to \code{ggplot2::facet_wrap()}.}
+
+\item{rotate_x}{Should x axis labels be rotated by 45 degrees?}
 
 \item{...}{Further arguments passed to statistics, e.g., \code{normalize = FALSE}.}
 }
