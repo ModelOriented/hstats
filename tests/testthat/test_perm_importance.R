@@ -126,6 +126,15 @@ test_that("Subsetting has an impact (univariate)", {
   expect_false(identical(s1, s2))
 })
 
+test_that("matrix case works as well", {
+  X <- cbind(i = 1, data.matrix(iris[2:4]))
+  fit <- lm.fit(x = X, y = y)
+  pred_fun <- function(m, X) X %*% m$coefficients
+  s <- perm_importance(
+    fit, v = colnames(iris[2:4]), X = X, y = y, pred_fun = pred_fun, verbose = FALSE
+  )
+})
+
 #================================================
 # Multivariate model
 #================================================
@@ -257,8 +266,8 @@ test_that("plot() gives ggplot object (multivariate)", {
   s <- perm_importance(
     fit, v = v, X = iris, y = y, verbose = FALSE, perms = 1L
   )
-  expect_s3_class(plot(s), "ggplot")
-  expect_s3_class(plot(s, agg_cols = "no"), "ggplot")
+  expect_s3_class(plot(s, rotate_x = TRUE), "ggplot")
+  expect_s3_class(plot(s, agg_cols = "no", err_type = "no"), "ggplot")
   
   s <- perm_importance(
     fit, v = v, X = iris, y = y, verbose = FALSE, perms = 2L
