@@ -76,7 +76,7 @@ for instance \code{type = "response"} in a \code{\link[=glm]{glm()}} model.}
 
 \item{X}{A data.frame or matrix serving as background dataset.}
 
-\item{y}{Numeric vector or matrix of the response (corresponding to \code{X}).}
+\item{y}{Numeric vector or matrix of the response corresponding to \code{X}.}
 
 \item{pred_fun}{Prediction function of the form \verb{function(object, X, ...)},
 providing \eqn{K \ge 1} numeric predictions per row. Its first argument represents the
@@ -113,11 +113,11 @@ a row per variable, a column per loss dimension, and a slice per repetition.
 }
 }
 \description{
-Calculates permutation importance for a set \code{v} of features.
-It shows the absolute (or relative) increase in the average loss when
-shuffling the corresponding feature column. Note that the model is never refitted.
-}
-\details{
+Calculates permutation importance for a set \code{v} of features and a loss function
+either specified as a string like "squared_error" or a vector/matrix valued function.
+Permutation importance shows the absolute (or relative) increase in the average loss
+when shuffling the corresponding feature column.
+Note that the model is never refitted.
 Multivariate losses can be collapsed over columns (default) or analyzed separately.
 }
 \section{Methods (by class)}{

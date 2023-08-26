@@ -144,7 +144,7 @@ test_that("matrix case works as well", {
 y <- as.matrix(iris[1:2])
 fit <- lm(y ~ Petal.Length + Species, data = iris)
 v <- c("Petal.Length", "Petal.Width", "Species")
-s <- perm_importance(fit, v = v, X = iris, y = iris[1:2], verbose = FALSE)
+s <- perm_importance(fit, v = v, X = iris, y = y, verbose = FALSE)
 
 test_that("print() does not give error (multivariate)", {
   capture_output(expect_no_error(print(s)))
@@ -309,5 +309,3 @@ test_that("mlogloss works with either matrix y or vector y", {
   
   expect_equal(s1, s2)
 })
-
-

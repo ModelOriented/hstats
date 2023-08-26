@@ -169,7 +169,7 @@ test_that("get_v() works", {
 
 test_that("matrix case works as well", {
   X <- cbind(i = 1, data.matrix(iris[2:4]))
-  fit <- lm.fit(x = X, y = y)
+  fit <- lm.fit(x = X, y = iris$Sepal.Length)
   pred_fun <- function(m, X) X %*% m$coefficients
   s <- hstats(
     fit, v = colnames(iris[2:4]), X = X, pred_fun = pred_fun, verbose = FALSE
