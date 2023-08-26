@@ -130,8 +130,10 @@ test_that("matrix case works as well", {
   X <- cbind(i = 1, data.matrix(iris[2:4]))
   fit <- lm.fit(x = X, y = y)
   pred_fun <- function(m, X) X %*% m$coefficients
-  s <- perm_importance(
-    fit, v = colnames(iris[2:4]), X = X, y = y, pred_fun = pred_fun, verbose = FALSE
+  expect_no_error(
+    perm_importance(
+      fit, v = colnames(iris[2:4]), X = X, y = y, pred_fun = pred_fun, verbose = FALSE
+    )
   )
 })
 
