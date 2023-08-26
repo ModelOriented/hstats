@@ -1,12 +1,15 @@
 # hstats 0.2.0
 
-## Major features
+## New major features
 
-- **Permutation importance**: H-statistics are often calculated only for important features. To support this workflow, we have added the function `perm_importance()`. It supports the most important loss functions. Custom losses can be passed as functions. The resulting object can be analyzed with `summary()` and `plot()`. Multivariate losses can be studied collapsed over dimensions or individually.
+- **average_loss()**: This new function calculates the average loss over a pair (X, y), optionally grouped by a discrete vector. It supports the most important loss functions (squared error, Poisson deviance, Gamma deviance, Log loss, multivariate Log loss, absolute error), and allows for case weights. Custom losses can be passed as vector/matrix valued functions of signature `f(obs, pred)`.
 
-## Minor features
+- **perm_importance()**: H-statistics are often calculated for important features only. To support this workflow, we have added permutation importance. It supports the same loss functions as `average_loss()`, including custom losses. Multivariate losses can be studied individually or collapsed over dimensions. The API is different from the experimental `pd_importance()`.
+
+## Minor improvements
 
 - `plot.hstats()` has recieved a `rotate_x = FALSE` argument for rotating x labels by 45 degrees.
+- Slight speed-up of `hstats()` in the one-dimensional case.
 
 ## Bug fixes
 

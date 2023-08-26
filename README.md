@@ -27,7 +27,7 @@ See section [Background](#background) for details and definitions.
 
 {hstats} offers these statistics comparably **fast** and for **any model**, even for multi-output models, or models with case weights. Additionally, we provide a global statistic $H^2$ measuring the proportion of prediction variability unexplained by main effects [5], and an experimental feature importance measure. After having identified strong interactions, their shape can be investigated by stratified partial dependence or ICE plots.
 
-The core functions `hstats()`, `partial_dep()`, `ice()`, and `perm_importance()` can directly be applied to DALEX explainers, meta learners (mlr3, tidymodels, caret) and most other models. In case you need more flexibility, a tailored prediction function can be specified. Both data.frame and matrix data structures are supported.
+The core functions `hstats()`, `partial_dep()`, `ice()`, `perm_importance()`, and `average_loss()` can directly be applied to DALEX explainers, meta learners (mlr3, tidymodels, caret) and most other models. In case you need more flexibility, a tailored prediction function can be specified. Both data.frame and matrix data structures are supported.
 
 ## Limitations
 
@@ -92,6 +92,9 @@ fit <- xgb.train(
   nrounds = 1000,
   callbacks = list(cb.print.evaluation(period = 100))
 )
+
+# Mean squared error: 0.0515
+average_loss(fit, X = X_valid, y = y_valid)
 ```
 
 ### Interaction statistics
@@ -248,6 +251,8 @@ library(ggplot2)
 library(hstats)
 
 fit <- ranger(Species ~ ., data = iris, probability = TRUE, seed = 1)
+average_loss(fit, X = iris, y = iris$Species, loss = "mlogloss")  # 0.054
+
 s <- hstats(fit, v = colnames(iris)[-5], X = iris)
 s
 # Proportion of prediction variability unexplained by main effects of v:

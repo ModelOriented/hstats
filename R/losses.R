@@ -147,3 +147,26 @@ xlogy <- function(x, y) {
   out[p] <- x[p] * log(y[p])
   out
 }
+
+#' String to function
+#' 
+#' Internal function that turns a string like "squared_error" into the corresponding
+#' loss function.
+#' 
+#' @noRd
+#' @keywords internal
+#'
+#' @param loss A string.
+#' @returns A function.
+get_loss_fun <- function(loss) {
+  switch(
+    loss,
+    squared_error = loss_squared_error,
+    logloss = loss_logloss,
+    mlogloss = loss_mlogloss,
+    poisson = loss_poisson,
+    gamma = loss_gamma,
+    absolute_error = loss_absolute_error,
+    stop("Unknown loss function.")
+  )
+}

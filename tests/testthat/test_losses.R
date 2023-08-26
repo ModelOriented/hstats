@@ -51,3 +51,8 @@ test_that("xlogy is ok", {
     cbind(xlogy(1:3, 1:3), xlogy(0:2, 0:2))
   )
 })
+
+test_that("get_loss_fun() works", {
+  expect_error(get_loss_fun("no_loss"))
+  expect_equal(get_loss_fun("poisson"), loss_poisson)
+})

@@ -145,6 +145,7 @@ test_that("wcolMeans() works", {
   x_df <- as.data.frame(x)
   expect_equal(wcolMeans(x), colMeans(x))
   expect_equal(wcolMeans(x_df), colMeans(x_df))
+  expect_equal(wcolMeans(x_df$a), mean(x_df$a))
   
   # Weighted case
   expect_equal(wcolMeans(x, w = rep(2, times = 6L)), colMeans(x))
@@ -152,8 +153,31 @@ test_that("wcolMeans() works", {
   w <- c(1, 1, 2, 2, 3, 3)
   xpected <- c(a = weighted.mean(1:6, w), b = weighted.mean(6:1, w))
   expect_equal(wcolMeans(x, w = w), xpected)
+  
+  expect_equal(wcolMeans(x_df$a, w = w), weighted.mean(x_df$a, w = w))
 })
 
+test_that("gwcolMeans() works", {
+  x <- cbind(a = 1:6, b = 6:1)
+  g <- c(2, 2, 1, 1, 1, 1)
+  w1 <- rep(2, times = 6)
+  w2 <- 1:6
+  
+  # Ungrouped
+  expect_equal(gwColMeans(x), rbind(wcolMeans(x)))
+  expect_equal(gwColMeans(x, w = w1), rbind(wcolMeans(x, w = w1)))
+  expect_equal(gwColMeans(x, w = w2), rbind(wcolMeans(x, w = w2)))
+  
+  # Grouped
+  expect_equal(gwColMeans(x, g = g)[2L, ], wcolMeans(x[g == 2, ]))
+  expect_equal(gwColMeans(x, g = g, reorder = FALSE)[2L, ], wcolMeans(x[g == 1, ]))
+  
+  # Grouped and weighted
+  expect_equal(
+    gwColMeans(x, g = g, w = w2)[2L, ], 
+    wcolMeans(x[g == 2, ], w = w2[g == 2])
+  )
+})
 
 test_that("wcenter() works for matrices with > 1 columns", {
   x <- cbind(a = 1:6, b = 6:1)

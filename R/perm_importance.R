@@ -1,19 +1,14 @@
 #' Permutation Importance
 #'
-#' Calculates permutation importance for a set `v` of features. 
-#' It shows the absolute (or relative) increase in the average loss when 
-#' shuffling the corresponding feature column. Note that the model is never refitted.
-#' 
+#' Calculates permutation importance for a set `v` of features and a loss function
+#' either specified as a string like "squared_error" or a vector/matrix valued function. 
+#' Permutation importance shows the absolute (or relative) increase in the average loss 
+#' when shuffling the corresponding feature column. 
+#' Note that the model is never refitted.
 #' Multivariate losses can be collapsed over columns (default) or analyzed separately.
 #'
 #' @inheritParams hstats
-#' @param y Numeric vector or matrix of the response (corresponding to `X`).
-#' @param loss One of "squared_error", "logloss", "mlogloss", "poisson",
-#'   "gamma", "absolute_error", or a loss function that turns observed and predicted 
-#'   values (vectors or matrices) into a vector or matrix of unit losses.
-#'   For "mlogloss", the response `y` can either be a matrix with one column per category
-#'   or a vector with categories. The latter case is internally exploded to the shape
-#'   of the predictions via `stats::model.matrix(~ y + 0)`.
+#' @inheritParams average_loss
 #' @param perms Number of permutations (default 4).
 #' @returns
 #'   An object of class "perm_importance" containing these elements:
@@ -57,7 +52,7 @@ perm_importance.default <- function(object, v, X, y,
                                     loss = "squared_error", 
                                     perms = 4L, n_max = 10000L, 
                                     w = NULL, verbose = TRUE, ...) {
-  basic_check(X = X, v = v, pred_fun = pred_fun)
+  basic_check(X = X, v = v, pred_fun = pred_fun, w = w)
   if (!is.function(loss) && loss == "mlogloss" && NCOL(y) == 1L) {
     y <- stats::model.matrix(~y + 0)
   }
@@ -82,16 +77,7 @@ perm_importance.default <- function(object, v, X, y,
   p <- length(v)
   
   if (!is.function(loss)) {
-    loss <- switch(
-      loss,
-      squared_error = loss_squared_error,
-      logloss = loss_logloss,
-      mlogloss = loss_mlogloss,
-      poisson = loss_poisson,
-      gamma = loss_gamma,
-      absolute_error = loss_absolute_error,
-      stop("Unknown loss function.")
-    )
+    loss <- get_loss_fun(loss)
   }
   
   # Pre-shuffle performance
