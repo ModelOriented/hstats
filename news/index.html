@@ -50,14 +50,15 @@
     <div class="section level2">
 <h2 class="page-header" data-toc-text="0.2.0" id="hstats-020">hstats 0.2.0<a class="anchor" aria-label="anchor" href="#hstats-020"></a></h2>
 <div class="section level3">
-<h3 id="major-features-0-2-0">Major features<a class="anchor" aria-label="anchor" href="#major-features-0-2-0"></a></h3>
-<ul><li>
-<strong>Permutation importance</strong>: H-statistics are often calculated only for important features. To support this workflow, we have added the function <code><a href="../reference/perm_importance.html">perm_importance()</a></code>. It supports the most important loss functions. Custom losses can be passed as functions. The resulting object can be analyzed with <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> and <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code>. Multivariate losses can be studied collapsed over dimensions or individually.</li>
+<h3 id="new-major-features-0-2-0">New major features<a class="anchor" aria-label="anchor" href="#new-major-features-0-2-0"></a></h3>
+<ul><li><p><strong>average_loss()</strong>: This new function calculates the average loss over a pair (X, y), optionally grouped by a discrete vector. It supports the most important loss functions (squared error, Poisson deviance, Gamma deviance, Log loss, multivariate Log loss, absolute error), and allows for case weights. Custom losses can be passed as vector/matrix valued functions of signature <code>f(obs, pred)</code>.</p></li>
+<li><p><strong>perm_importance()</strong>: H-statistics are often calculated for important features only. To support this workflow, we have added permutation importance. It supports the same loss functions as <code><a href="../reference/average_loss.html">average_loss()</a></code>, including custom losses. Multivariate losses can be studied individually or collapsed over dimensions. The API is different from the experimental <code><a href="../reference/pd_importance.html">pd_importance()</a></code>.</p></li>
 </ul></div>
 <div class="section level3">
-<h3 id="minor-features-0-2-0">Minor features<a class="anchor" aria-label="anchor" href="#minor-features-0-2-0"></a></h3>
+<h3 id="minor-improvements-0-2-0">Minor improvements<a class="anchor" aria-label="anchor" href="#minor-improvements-0-2-0"></a></h3>
 <ul><li>
 <code><a href="../reference/plot.hstats.html">plot.hstats()</a></code> has recieved a <code>rotate_x = FALSE</code> argument for rotating x labels by 45 degrees.</li>
+<li>Slight speed-up of <code><a href="../reference/hstats.html">hstats()</a></code> in the one-dimensional case.</li>
 </ul></div>
 <div class="section level3">
 <h3 id="bug-fixes-0-2-0">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-2-0"></a></h3>
