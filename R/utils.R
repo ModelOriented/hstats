@@ -31,7 +31,10 @@ align_pred <- function(x) {
 #' @param ngroups Number of groups of fixed length `NROW(x) / ngroups`.
 #' @param w Optional vector with case weights of length `NROW(x) / ngroups`.
 #' @returns A (g x K) matrix, where g is the number of groups, and K = NCOL(x).
-wrowmean <- function(x, ngroups, w = NULL) {
+wrowmean <- function(x, ngroups = 1L, w = NULL) {
+  if (ngroups == 1L) {
+    return(rbind(wcolMeans(x, w = w)))
+  }
   p <- NCOL(x)
   n_bg <- NROW(x) %/% ngroups
   g <- rep(seq_len(ngroups), each = n_bg)
@@ -130,10 +133,39 @@ wrowmean <- function(x, ngroups, w = NULL) {
 #' @param w Optional case weights.
 #' @returns A vector of column means.
 wcolMeans <- function(x, w = NULL) {
+  if (NCOL(x) == 1L && is.null(w)) {
+    return(mean(x))
+  }
   if (!is.matrix(x)) {
     x <- as.matrix(x)
   }
   if (is.null(w)) colMeans(x) else colSums(x * w) / sum(w) 
+}
+
+#' Grouped wcolMeans()
+#' 
+#' Internal function used to calculate grouped column-wise weighted means.
+#' 
+#' @noRd
+#' @keywords internal
+#' 
+#' @param x A matrix-like object.
+#' @param g Optional grouping variable.
+#' @param w Optional case weights.
+#' @param reorder Should groups be ordered, see [rowsum()]. Default is `TRUE`. 
+#' @returns A matrix with one row per group.
+gwColMeans <- function(x, g = NULL, w = NULL, reorder = TRUE) {
+  if (is.null(g)) {
+    return(rbind(wcolMeans(x, w = w)))
+  }
+  if (is.null(w)) {
+    num <- rowsum(x, group = g, reorder = reorder)
+    denom <- rowsum(rep.int(1, NROW(x)), group = g, reorder = reorder)
+  } else {
+    num <- rowsum(x * w, group = g, reorder = reorder)
+    denom <- rowsum(w, group = g, reorder = reorder)
+  }
+  num / matrix(denom, nrow = nrow(num), ncol = ncol(num), byrow = FALSE)
 }
 
 #' Weighted Mean Centering

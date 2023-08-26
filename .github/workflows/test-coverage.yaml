@@ -45,6 +45,9 @@ jobs:
               "perm_importance\\.Learner",
               "perm_importance\\.ranger",
               "perm_importance\\.explainer",
+              "average_loss\\.Learner",
+              "average_loss\\.ranger",
+              "average_loss\\.explainer",
               "mlr3_pred_fun"
             )
           )
