@@ -10,7 +10,7 @@ test_that("Additive models show 0 interactions (univariate)", {
   )
   expect_equal(h2(s), 0)
   expect_s3_class(h2_overall(s), "ggplot")
-  expect_s3_class(plot(s), "ggplot")
+  expect_s3_class(plot(s, rotate_x = TRUE), "ggplot")
 })
 
 test_that("Additive models show 0 interactions (multivariate)", {
@@ -165,6 +165,16 @@ test_that("get_v() works", {
   )
   expect_equal(get_v(H, 2L), c("a", "b", "d"))
   expect_equal(get_v(H, 1L), c("a", "d"))
+})
+
+test_that("matrix case works as well", {
+  X <- cbind(i = 1, data.matrix(iris[2:4]))
+  fit <- lm.fit(x = X, y = y)
+  pred_fun <- function(m, X) X %*% m$coefficients
+  s <- hstats(
+    fit, v = colnames(iris[2:4]), X = X, pred_fun = pred_fun, verbose = FALSE
+  )
+  expect_equal(c(h2_overall(s, plot = FALSE)), c(0, 0, 0))
 })
 
 # library(gbm)
