@@ -196,9 +196,9 @@ In the spirit of [1], and related to [4], we can extract from the "hstats" objec
 pd_importance(s) +
   ggtitle("PD-based importance (experimental)")
 
-# Compared with repeated permutation importance regarding MSE (with standard errors)
+# Compared with repeated permutation importance regarding MSE
 plot(perm_importance(fit, v = x, X = X_valid, y = y_valid)) +
-  ggtitle("Permutation importance")
+  ggtitle("Permutation importance with standard errors")
 ```
 
 ![](man/figures/importance.svg)
@@ -295,8 +295,7 @@ iris_wf <- workflow() %>%
 fit <- iris_wf %>%
   fit(iris)
   
-s <- partial_dep(fit, v = "Petal.Width", X = iris)
-plot(s)
+plot(partial_dep(fit, v = "Petal.Width", X = iris))
 ```
 
 ### caret
