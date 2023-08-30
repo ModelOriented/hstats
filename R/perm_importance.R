@@ -1,23 +1,28 @@
 #' Permutation Importance
 #'
-#' Calculates permutation importance for a set `v` of features and a loss function
-#' either specified as a string like "squared_error" or a vector/matrix valued function. 
-#' Permutation importance shows the absolute (or relative) increase in the average loss 
-#' when shuffling the corresponding feature column. 
-#' Note that the model is never refitted.
+#' Calculates permutation feature importance (PVI) for a set of features.
+#' 
+#' The PVI of a feature is defined as the increase in average loss when
+#' shuffling the corresponding column before calculating predictions.
+#' The loss function can be specified as a string ("squared_error", "mlogloss", etc.)
+#' or a vector/matrix valued function. Note that the model is never refitted.
 #' Multivariate losses can be collapsed over columns (default) or analyzed separately.
 #'
 #' @inheritParams hstats
 #' @inheritParams average_loss
 #' @param perms Number of permutations (default 4).
+#' @param agg_cols Should multivariate losses be summed up? Default is `FALSE`.
+#' @param normalize Should importance statistics be divided by performance?
+#'   Default is `FALSE`. If `TRUE`, an importance of 1 means that the average loss
+#'   has doubled by shuffling that feature's column.
 #' @returns
 #'   An object of class "perm_importance" containing these elements:
-#'   - `imp_raw`: (p x d x m) array containing the raw importance values, i.e.,
-#'     a row per variable, a column per loss dimension, and a slice per repetition.
+#'   - `imp`: (p x d) matrix containing the sorted importance values, i.e.,
+#'     a row per variable and a column per loss dimension.
+#'   - `SE`: (p x d) matrix with corresponding standard errors of `imp`.
+#'      Multiply with `sqrt(perms)` to get standard deviations.
 #'   - `perf`: Average loss before shuffling.
-#'   - `v`: Same as input `v`.
 #'   - `perms`: Same as input `perms`.
-#'   - `imp`: Vector of sorted and aggregated importance values.
 #' @references
 #'   Fisher A., Rudin C., Dominici F. (2018). All Models are Wrong but many are Useful:
 #'     Variable Importance for Black-Box, Proprietary, or Misspecified Prediction
@@ -30,17 +35,17 @@
 #' s <- perm_importance(fit, v = v, X = iris, y = iris$Sepal.Length)
 #' s
 #' s$imp
-#' summary(s, normalize = TRUE, top_m = 2)
+#' s$SE  # Standard errors
 #' plot(s)
+#' plot(s, err_type = "sd")  # Standard deviations instead of standard errors
 #'
 #' # MODEL 2: Multi-response linear regression
 #' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width + Species, data = iris)
 #' v <- c("Petal.Length", "Petal.Width", "Species")
 #' s <- perm_importance(fit, v = v, X = iris, y = iris[1:2])
 #' s
-#' summary(s, agg_cols = "no")
 #' plot(s)
-#' plot(s, agg_cols = "no", normalize = TRUE, rotate_x = TRUE, facet_scale = "free_x")
+#' plot(s, rotate_x = TRUE, facet_scale = "free_x", err_type = "sd")
 perm_importance <- function(object, ...) {
   UseMethod("perm_importance")
 }
@@ -50,8 +55,9 @@ perm_importance <- function(object, ...) {
 perm_importance.default <- function(object, v, X, y, 
                                     pred_fun = stats::predict,
                                     loss = "squared_error", 
-                                    perms = 4L, n_max = 10000L, 
-                                    w = NULL, verbose = TRUE, ...) {
+                                    perms = 4L, agg_cols = FALSE,
+                                    normalize = FALSE, n_max = 10000L,
+                                    w = NULL, verbose = FALSE, ...) {
   basic_check(X = X, v = v, pred_fun = pred_fun, w = w)
   if (!is.function(loss) && loss == "mlogloss" && NCOL(y) == 1L) {
     y <- stats::model.matrix(~y + 0)
@@ -91,45 +97,70 @@ perm_importance.default <- function(object, v, X, y,
     y <- y[ind, , drop = FALSE]
   }
   
-  #  Performance after shuffling (m rows)
   shuffle_perf <- function(z, XX) {
     ind <- c(replicate(perms, sample(seq_len(n))))
     XX[, z] <- XX[ind, z]
     L <- loss(y, align_pred(pred_fun(object, XX, ...)))
     t(wrowmean(L, ngroups = perms, w = w))
   }
-
-  # Loop over v
+  
+  # Step 0: Performance after shuffling (expensive)
   if (verbose) {
     pb <- utils::txtProgressBar(1L, max = p, style = 3)
   }
-  imp_raw <- array(
-    dim = c(p, length(perf), perms), dimnames = list(v, names(perf), NULL)
-  )
+  S <- array(dim = c(p, length(perf), perms), dimnames = list(v, names(perf), NULL))
   for (j in seq_len(p)) {
     z <- v[j]
-    imp_raw[z, , ] <- shuffle_perf(z, XX = X)
+    S[z, , ] <- shuffle_perf(z, XX = X)
     if (verbose) {
       utils::setTxtProgressBar(pb, j)
     }
   }
-  imp_raw <- sweep(imp_raw, MARGIN = 2:3, STATS = perf, FUN = "-")
   if (verbose) {
     cat("\n")
   }
   
-  out <- list(imp_raw = imp_raw, perf = perf, v = v, perms = perms)
-  class(out) <- "perm_importance"
-  out[["imp"]] <- drop(summary(out, top_m = Inf)[["imp"]]) 
-  out
+  # Step 1 (optional): Collapse loss dimension
+  if (length(perf) > 1L && agg_cols) {
+    S <- apply(S, MARGIN = c(1L, 3L), FUN = sum)
+    S <- array(
+      S, dim = c(nrow(S), 1L, ncol(S)), dimnames = list(rownames(S), NULL, colnames(S))
+    )
+    perf <- sum(perf)
+  }
+  
+  # Step 2: Collapse over permutations
+  SE <- apply(S, MARGIN = 1:2, FUN = stats::sd) / sqrt(perms)
+  S <- apply(S, MARGIN = 1:2, FUN = mean)
+  
+  # Step 3: Subtract perf (Steps 2 and 3 could be swapped)
+  S <- sweep(S, MARGIN = 2L, STATS = perf, FUN = "-")
+  
+  # Step 4 (optional): Normalize
+  if (normalize) {
+    S <- sweep(S, MARGIN = 2L, STATS = perf, FUN = "/")
+    SE <- sweep(SE, MARGIN = 2L, STATS = perf, FUN = "/")
+  }
+  
+  # Step 5: Sort
+  ind <- order(-rowSums(S))
+  S <- S[ind, , drop = FALSE]
+  SE <- SE[ind, , drop = FALSE]
+  
+  structure(
+    list(imp = S, SE = SE, perf = perf, perms = perms), 
+    class = "perm_importance"
+  )
 }
 
 #' @describeIn perm_importance Method for "ranger" models.
 #' @export
 perm_importance.ranger <- function(object, v, X, y, 
                                    pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
-                                   loss = "squared_error", perms = 4L, n_max = 10000L, 
-                                   w = NULL, verbose = TRUE, ...) {
+                                   loss = "squared_error", perms = 4L, 
+                                   agg_cols = FALSE, 
+                                   normalize = FALSE, n_max = 10000L, 
+                                   w = NULL, verbose = FALSE, ...) {
   perm_importance.default(
     object = object,
     v = v,
@@ -138,6 +169,8 @@ perm_importance.ranger <- function(object, v, X, y,
     pred_fun = pred_fun,
     loss = loss,
     perms = perms,
+    agg_cols = agg_cols,
+    normalize = normalize,
     n_max = n_max,
     w = w,
     verbose = verbose,
@@ -149,8 +182,10 @@ perm_importance.ranger <- function(object, v, X, y,
 #' @export
 perm_importance.Learner <- function(object, v, X, y, 
                                     pred_fun = NULL,
-                                    loss = "squared_error", perms = 4L, n_max = 10000L, 
-                                    w = NULL, verbose = TRUE, ...) {
+                                    loss = "squared_error", perms = 4L, 
+                                    agg_cols = FALSE, 
+                                    normalize = FALSE, n_max = 10000L, 
+                                    w = NULL, verbose = FALSE, ...) {
   if (is.null(pred_fun)) {
     pred_fun <- mlr3_pred_fun(object, X = X)
   }
@@ -162,6 +197,8 @@ perm_importance.Learner <- function(object, v, X, y,
     pred_fun = pred_fun,
     loss = loss,
     perms = perms,
+    agg_cols = agg_cols,
+    normalize = normalize,
     n_max = n_max,
     w = w,
     verbose = verbose,
@@ -177,10 +214,12 @@ perm_importance.explainer <- function(object,
                                       y = object[["y"]], 
                                       pred_fun = object[["predict_function"]],
                                       loss = "squared_error", 
-                                      perms = 4L, 
+                                      perms = 4L,
+                                      agg_cols = FALSE,
+                                      normalize = FALSE,
                                       n_max = 10000L, 
                                       w = object[["weights"]], 
-                                      verbose = TRUE, 
+                                      verbose = FALSE, 
                                       ...) {
   perm_importance.default(
     object = object[["model"]],
@@ -190,6 +229,8 @@ perm_importance.explainer <- function(object,
     pred_fun = pred_fun,
     loss = loss,
     perms = perms,
+    agg_cols = agg_cols,
+    normalize = normalize,
     n_max = n_max,
     w = w,
     verbose = verbose,
@@ -199,9 +240,7 @@ perm_importance.explainer <- function(object,
 
 #' Print Method
 #' 
-#' Print method for object of class "perm_importance". 
-#' Shows results of top 6 predictors averaged over `perms`
-#' (and collapsed over multivariate losses).
+#' Print method for object of class "perm_importance".
 #'
 #' @param x An object of class "perm_importance".
 #' @param ... Further arguments passed from other methods.
@@ -209,74 +248,8 @@ perm_importance.explainer <- function(object,
 #' @export
 #' @seealso See [perm_importance()] for examples.
 print.perm_importance <- function(x, ...) {
-  cat("Highest permutation importances:\n\n")
-  print(utils::head(x[["imp"]], n = 6L))
+  print(drop(utils::head(x[["imp"]], n = 15L)))
   invisible(x)
-}
-
-#' Summary Method
-#' 
-#' Summary method for "perm_importance" object. By default shows the top 15 feature
-#' importances collapsed over repetitions (and loss dimensions).
-#' 
-#' @param object An object of class "perm_importance".
-#' @param normalize Should importance statistics be divided by performance?
-#'   Default is `FALSE`. Normalization is applied after collapsing multivariate losses.
-#' @param sort Should results be sorted by importance? Default is `TRUE`.
-#'   The multivariate case is sorted by row sums.
-#' @param top_m Of how many features should importance values be shown?
-#'   Default is `Inf`, i.e., show all.
-#' @param agg_cols Name of function used to collapse multivariate losses.
-#'   Default is `"sum"`. Set to `"no"` for no aggregation. Other options are "mean" and
-#'   "max". This step is applied before normalization.
-#' @param err_type Should standard errors ("se", default) or standard deviations ("sd") 
-#'   be calculated? Only relevant if `perms > 1`. Set to "no" to hide errors.
-#' @param ... Currently not used.
-#' @returns 
-#'   A list with two matrices: `imp` contains the importance values per feature,
-#'   while `err` represents the uncertainty of these values.
-#' @export
-#' @seealso See [perm_importance()] for examples.
-summary.perm_importance <- function(object, normalize = FALSE, sort = TRUE, top_m = 15L, 
-                                    agg_cols = c("sum", "mean", "max", "no"),
-                                    err_type = c("se", "sd", "no"), ...) {
-  agg_cols <- match.arg(agg_cols)
-  err_type <- match.arg(err_type)
-  
-  S <- object[["imp_raw"]]
-  perf <- object[["perf"]]
-  K <- ncol(S)
-  
-  if (K > 1L && agg_cols != "no") {
-    f <- match.fun(agg_cols)
-    S <- apply(S, MARGIN = c(1L, 3L), FUN = f)
-    S <- array(
-      S, dim = c(nrow(S), 1L, ncol(S)), dimnames = list(rownames(S), NULL, colnames(S))
-    )
-    perf <- f(perf)
-  }
-  if (normalize) {
-    S <- sweep(S, MARGIN = 2L, STATS = perf, FUN = "/")
-  }
-  
-  # Aggregate over perms
-  err <- apply(S, MARGIN = 1:2, FUN = stats::sd)
-  if (err_type == "se") {
-    err <- err / sqrt(object[["perms"]])
-  } else if (err_type == "no") {
-    err[] <- NA
-  }
-  S <- apply(S, MARGIN = 1:2, FUN = mean)
-  
-  if (sort) {
-    ind <- order(-rowSums(S))
-    S <- S[ind, , drop = FALSE]
-    err <- err[ind, , drop = FALSE]
-  }
-  
-  S <- utils::head(S, n = top_m)
-  err <- utils::head(err, n = top_m)
-  list(imp = S, err = err)
 }
 
 #' Plots "perm_importance" Object
@@ -285,30 +258,26 @@ summary.perm_importance <- function(object, normalize = FALSE, sort = TRUE, top_
 #'
 #' @importFrom ggplot2 .data
 #' @param x An object of class "perm_importance".
-#' @inheritParams summary.perm_importance
+#' @param err_type The error type to show, by default "se" (standard errors). Set to
+#'   "sd" for standard deviations (se * sqrt(perms)), or "no" for no bars.
 #' @inheritParams plot.hstats
 #' @param ... Arguments passed to [ggplot2::geom_bar].
 #' @export
 #' @returns An object of class "ggplot".
 #' @seealso See [perm_importance()] for examples.
-plot.perm_importance <- function(x, normalize = FALSE, sort = TRUE, top_m = 15L, 
-                                 agg_cols = c("sum", "mean", "max", "no"),
-                                 err_type = c("se", "sd", "no"),
-                                 facet_scales = "fixed", ncol = 2L, rotate_x = FALSE,
-                                 fill = "#2b51a1", ...) {
-  agg_cols <- match.arg(agg_cols)
+plot.perm_importance <- function(x, top_m = 15L, err_type = c("se", "sd", "no"),
+                                 facet_scales = "fixed", ncol = 2L, 
+                                 rotate_x = FALSE, fill = "#2b51a1", ...) {
   err_type <- match.arg(err_type)
+  S <- x[["imp"]]
+  err <- x[["SE"]]
   
-  res <- summary(
-    object = x,
-    normalize = normalize,
-    sort = sort,
-    top_m = top_m,
-    agg_cols = agg_cols,
-    err_type = err_type
-  )
-  
-  df <- transform(mat2df(res[["imp"]]), error_ = mat2df(res[["err"]])[["value_"]])
+  if (err_type == "sd") {
+    err <- err * sqrt(x[["perms"]])
+  }
+  S <- utils::head(S, n = top_m)
+  err <- utils::head(err, n = top_m)
+  df <- transform(mat2df(S), error_ = mat2df(err)[["value_"]])
   
   p <- ggplot2::ggplot(df, ggplot2::aes(x = value_, y = variable_)) +
     ggplot2::geom_bar(fill = fill, stat = "identity", ...)

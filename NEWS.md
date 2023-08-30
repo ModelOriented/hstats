@@ -2,9 +2,9 @@
 
 ## New major features
 
-- **average_loss()**: This new function calculates the average loss over a pair (X, y), optionally grouped by a discrete vector. It supports the most important loss functions (squared error, Poisson deviance, Gamma deviance, Log loss, multivariate Log loss, absolute error), and allows for case weights. Custom losses can be passed as vector/matrix valued functions of signature `f(obs, pred)`.
+- **average_loss()**: This new function calculates the average loss of a model for a given dataset, optionally grouped by a discrete vector. It supports the most important loss functions (squared error, Poisson deviance, Gamma deviance, Log loss, multivariate Log loss, absolute error), and allows for case weights. Custom losses can be passed as vector/matrix valued functions of signature `f(obs, pred)`.
 
-- **perm_importance()**: H-statistics are often calculated for important features only. To support this workflow, we have added permutation importance. It supports the same loss functions as `average_loss()`, including custom losses. Multivariate losses can be studied individually or collapsed over dimensions. The API is different from the experimental `pd_importance()`.
+- **perm_importance()**: H-statistics are often calculated for important features only. To support this workflow, we have added permutation importance. It supports the same loss functions as `average_loss()`. Multivariate losses can be studied individually or collapsed over dimensions. The API is different from the experimental `pd_importance()`, which is calculated from a "hstats" object.
 
 ## Minor improvements
 

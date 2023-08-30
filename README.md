@@ -196,9 +196,11 @@ In the spirit of [1], and related to [4], we can extract from the "hstats" objec
 pd_importance(s) +
   ggtitle("PD-based importance (experimental)")
 
-# Compared with repeated permutation importance regarding MSE (with standard errors)
-plot(perm_importance(fit, v = x, X = X_valid, y = y_valid)) +
-  ggtitle("Permutation importance")
+# Compared with repeated permutation importance regarding MSE
+set.seed(10)
+imp <- perm_importance(fit, v = x, X = X_valid, y = y_valid)
+plot(imp) +
+  ggtitle("Permutation importance with standard errors")
 ```
 
 ![](man/figures/importance.svg)
@@ -206,7 +208,6 @@ plot(perm_importance(fit, v = x, X = X_valid, y = y_valid)) +
 Permutation importance returns the same order in this case:
 
 ![](man/figures/importance_perm.svg)
-
 
 ## DALEX
 
@@ -233,6 +234,9 @@ plot(partial_dep(ex, v = c("Sepal.Width", "Petal.Width"), grid_size = 200))
 
 # Check permutation importance
 perm_importance(ex)
+
+# Petal.Length  Petal.Width  Sepal.Width      Species 
+#   0.59836442   0.11625137   0.08246635   0.03982554 
 ```
 
 ![](man/figures/dalex_hstats.svg)
@@ -295,8 +299,9 @@ iris_wf <- workflow() %>%
 fit <- iris_wf %>%
   fit(iris)
   
-s <- partial_dep(fit, v = "Petal.Width", X = iris)
-plot(s)
+s <- hstats(fit, v = colnames(iris[-1]), X = iris)
+s # 0 -> no interactions
+plot(partial_dep(fit, v = "Petal.Width", X = iris))
 ```
 
 ### caret
@@ -313,8 +318,9 @@ fit <- train(
   trControl = trainControl(method = "none")
 )
 
-s <- ice(fit, v = "Petal.Width", X = iris)
-plot(s, center = TRUE)
+h2(hstats(fit, v = colnames(iris[-1]), X = iris))  # 0
+
+plot(ice(fit, v = "Petal.Width", X = iris), center = TRUE)
 ```
 
 ### mlr3
@@ -323,14 +329,6 @@ plot(s, center = TRUE)
 library(hstats)
 library(mlr3)
 library(mlr3learners)
-
-# Regression
-mlr_tasks$get("iris")
-task_iris <- TaskRegr$new(id = "reg", backend = iris, target = "Sepal.Length")
-fit_lm <- lrn("regr.lm")
-fit_lm$train(task_iris)
-s <- partial_dep(fit, v = "Petal.Width", X = iris)
-plot(s)
 
 # Probabilistic classification
 task_iris <- TaskClassif$new(id = "class", backend = iris, target = "Species")

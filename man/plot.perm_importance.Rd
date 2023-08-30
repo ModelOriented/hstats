@@ -6,10 +6,7 @@
 \usage{
 \method{plot}{perm_importance}(
   x,
-  normalize = FALSE,
-  sort = TRUE,
   top_m = 15L,
-  agg_cols = c("sum", "mean", "max", "no"),
   err_type = c("se", "sd", "no"),
   facet_scales = "fixed",
   ncol = 2L,
@@ -21,21 +18,10 @@
 \arguments{
 \item{x}{An object of class "perm_importance".}
 
-\item{normalize}{Should importance statistics be divided by performance?
-Default is \code{FALSE}. Normalization is applied after collapsing multivariate losses.}
+\item{top_m}{Maximum number of rows of results to plot.}
 
-\item{sort}{Should results be sorted by importance? Default is \code{TRUE}.
-The multivariate case is sorted by row sums.}
-
-\item{top_m}{Of how many features should importance values be shown?
-Default is \code{Inf}, i.e., show all.}
-
-\item{agg_cols}{Name of function used to collapse multivariate losses.
-Default is \code{"sum"}. Set to \code{"no"} for no aggregation. Other options are "mean" and
-"max". This step is applied before normalization.}
-
-\item{err_type}{Should standard errors ("se", default) or standard deviations ("sd")
-be calculated? Only relevant if \code{perms > 1}. Set to "no" to hide errors.}
+\item{err_type}{The error type to show, by default "se" (standard errors). Set to
+"sd" for standard deviations (se * sqrt(perms)), or "no" for no bars.}
 
 \item{facet_scales}{Value passed to \code{ggplot2::facet_wrap(scales = ...)}.}
 

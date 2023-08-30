@@ -16,8 +16,6 @@ Invisibly, the input is returned.
 }
 \description{
 Print method for object of class "perm_importance".
-Shows results of top 6 predictors averaged over \code{perms}
-(and collapsed over multivariate losses).
 }
 \seealso{
 See \code{\link[=perm_importance]{perm_importance()}} for examples.
