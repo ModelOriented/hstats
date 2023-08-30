@@ -18,9 +18,11 @@ perm_importance(object, ...)
   pred_fun = stats::predict,
   loss = "squared_error",
   perms = 4L,
+  agg_cols = FALSE,
+  normalize = FALSE,
   n_max = 10000L,
   w = NULL,
-  verbose = TRUE,
+  verbose = FALSE,
   ...
 )
 
@@ -32,9 +34,11 @@ perm_importance(object, ...)
   pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
   loss = "squared_error",
   perms = 4L,
+  agg_cols = FALSE,
+  normalize = FALSE,
   n_max = 10000L,
   w = NULL,
-  verbose = TRUE,
+  verbose = FALSE,
   ...
 )
 
@@ -46,9 +50,11 @@ perm_importance(object, ...)
   pred_fun = NULL,
   loss = "squared_error",
   perms = 4L,
+  agg_cols = FALSE,
+  normalize = FALSE,
   n_max = 10000L,
   w = NULL,
-  verbose = TRUE,
+  verbose = FALSE,
   ...
 )
 
@@ -60,9 +66,11 @@ perm_importance(object, ...)
   pred_fun = object[["predict_function"]],
   loss = "squared_error",
   perms = 4L,
+  agg_cols = FALSE,
+  normalize = FALSE,
   n_max = 10000L,
   w = object[["weights"]],
-  verbose = TRUE,
+  verbose = FALSE,
   ...
 )
 }
@@ -94,6 +102,12 @@ of the predictions via \code{stats::model.matrix(~ y + 0)}.}
 
 \item{perms}{Number of permutations (default 4).}
 
+\item{agg_cols}{Should multivariate losses be summed up? Default is \code{FALSE}.}
+
+\item{normalize}{Should importance statistics be divided by performance?
+Default is \code{FALSE}. If \code{TRUE}, an importance of 1 means that the average loss
+has doubled by shuffling that feature's column.}
+
 \item{n_max}{If \code{X} has more than \code{n_max} rows, a random sample of \code{n_max} rows is
 selected from \code{X}. In this case, set a random seed for reproducibility.}
 
@@ -104,20 +118,22 @@ selected from \code{X}. In this case, set a random seed for reproducibility.}
 \value{
 An object of class "perm_importance" containing these elements:
 \itemize{
-\item \code{imp_raw}: (p x d x m) array containing the raw importance values, i.e.,
-a row per variable, a column per loss dimension, and a slice per repetition.
+\item \code{imp}: (p x d) matrix containing the sorted importance values, i.e.,
+a row per variable and a column per loss dimension.
+\item \code{SE}: (p x d) matrix with corresponding standard errors of \code{imp}.
+Multiply with \code{sqrt(perms)} to get standard deviations.
 \item \code{perf}: Average loss before shuffling.
-\item \code{v}: Same as input \code{v}.
 \item \code{perms}: Same as input \code{perms}.
-\item \code{imp}: Vector of sorted and aggregated importance values.
 }
 }
 \description{
-Calculates permutation importance for a set \code{v} of features and a loss function
-either specified as a string like "squared_error" or a vector/matrix valued function.
-Permutation importance shows the absolute (or relative) increase in the average loss
-when shuffling the corresponding feature column.
-Note that the model is never refitted.
+Calculates permutation feature importance (PVI) for a set of features.
+}
+\details{
+The PVI of a feature is defined as the increase in average loss when
+shuffling the corresponding column before calculating predictions.
+The loss function can be specified as a string ("squared_error", "mlogloss", etc.)
+or a vector/matrix valued function. Note that the model is never refitted.
 Multivariate losses can be collapsed over columns (default) or analyzed separately.
 }
 \section{Methods (by class)}{
@@ -138,17 +154,17 @@ v <- setdiff(names(iris), "Sepal.Length")
 s <- perm_importance(fit, v = v, X = iris, y = iris$Sepal.Length)
 s
 s$imp
-summary(s, normalize = TRUE, top_m = 2)
+s$SE  # Standard errors
 plot(s)
+plot(s, err_type = "sd")  # Standard deviations instead of standard errors
 
 # MODEL 2: Multi-response linear regression
 fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width + Species, data = iris)
 v <- c("Petal.Length", "Petal.Width", "Species")
 s <- perm_importance(fit, v = v, X = iris, y = iris[1:2])
 s
-summary(s, agg_cols = "no")
 plot(s)
-plot(s, agg_cols = "no", normalize = TRUE, rotate_x = TRUE, facet_scale = "free_x")
+plot(s, rotate_x = TRUE, facet_scale = "free_x", err_type = "sd")
 }
 \references{
 Fisher A., Rudin C., Dominici F. (2018). All Models are Wrong but many are Useful:

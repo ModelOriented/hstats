@@ -13,11 +13,12 @@
 #' @param perms Number of permutations (default 4).
 #' @param agg_cols Should multivariate losses be summed up? Default is `FALSE`.
 #' @param normalize Should importance statistics be divided by performance?
-#'   Default is `FALSE`.
+#'   Default is `FALSE`. If `TRUE`, an importance of 1 means that the average loss
+#'   has doubled by shuffling that feature's column.
 #' @returns
 #'   An object of class "perm_importance" containing these elements:
 #'   - `imp`: (p x d) matrix containing the sorted importance values, i.e.,
-#'     a row per variable, a column per loss dimension.
+#'     a row per variable and a column per loss dimension.
 #'   - `SE`: (p x d) matrix with corresponding standard errors of `imp`.
 #'      Multiply with `sqrt(perms)` to get standard deviations.
 #'   - `perf`: Average loss before shuffling.
@@ -36,6 +37,7 @@
 #' s$imp
 #' s$SE  # Standard errors
 #' plot(s)
+#' plot(s, err_type = "sd")  # Standard deviations instead of standard errors
 #'
 #' # MODEL 2: Multi-response linear regression
 #' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width + Species, data = iris)
@@ -256,7 +258,8 @@ print.perm_importance <- function(x, ...) {
 #'
 #' @importFrom ggplot2 .data
 #' @param x An object of class "perm_importance".
-#' @inheritParams summary.perm_importance
+#' @param err_type The error type to show, by default "se" (standard errors). Set to
+#'   "sd" for standard deviations (se * sqrt(perms)), or "no" for no bars.
 #' @inheritParams plot.hstats
 #' @param ... Arguments passed to [ggplot2::geom_bar].
 #' @export
