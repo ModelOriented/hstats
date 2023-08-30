@@ -56,10 +56,7 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># S3 method for perm_importance</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span></span>
 <span>  <span class="va">x</span>,</span>
-<span>  normalize <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  sort <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  top_m <span class="op">=</span> <span class="fl">15L</span>,</span>
-<span>  agg_cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sum"</span>, <span class="st">"mean"</span>, <span class="st">"max"</span>, <span class="st">"no"</span><span class="op">)</span>,</span>
 <span>  err_type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"se"</span>, <span class="st">"sd"</span>, <span class="st">"no"</span><span class="op">)</span>,</span>
 <span>  facet_scales <span class="op">=</span> <span class="st">"fixed"</span>,</span>
 <span>  ncol <span class="op">=</span> <span class="fl">2L</span>,</span>
@@ -75,30 +72,13 @@
 <dd><p>An object of class "perm_importance".</p></dd>
 
 
-<dt>normalize</dt>
-<dd><p>Should importance statistics be divided by performance?
-Default is <code>FALSE</code>. Normalization is applied after collapsing multivariate losses.</p></dd>
-
-
-<dt>sort</dt>
-<dd><p>Should results be sorted by importance? Default is <code>TRUE</code>.
-The multivariate case is sorted by row sums.</p></dd>
-
-
 <dt>top_m</dt>
-<dd><p>Of how many features should importance values be shown?
-Default is <code>Inf</code>, i.e., show all.</p></dd>
-
-
-<dt>agg_cols</dt>
-<dd><p>Name of function used to collapse multivariate losses.
-Default is <code>"sum"</code>. Set to <code>"no"</code> for no aggregation. Other options are "mean" and
-"max". This step is applied before normalization.</p></dd>
+<dd><p>Maximum number of rows of results to plot.</p></dd>
 
 
 <dt>err_type</dt>
-<dd><p>Should standard errors ("se", default) or standard deviations ("sd")
-be calculated? Only relevant if <code>perms &gt; 1</code>. Set to "no" to hide errors.</p></dd>
+<dd><p>The error type to show, by default "se" (standard errors). Set to
+"sd" for standard deviations (se * sqrt(perms)), or "no" for no bars.</p></dd>
 
 
 <dt>facet_scales</dt>
