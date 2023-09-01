@@ -7,7 +7,11 @@
 \method{plot}{hstats}(
   x,
   which = 1:2,
+  normalize = TRUE,
+  squared = TRUE,
+  sort = TRUE,
   top_m = 15L,
+  eps = 1e-08,
   fill = "#2b51a1",
   facet_scales = "free",
   ncol = 2L,
@@ -16,15 +20,24 @@
 )
 }
 \arguments{
-\item{x}{An object of class "hstats".}
+\item{x}{Object of class "hstats".}
 
 \item{which}{Which statistic(s) to be shown? Default is \code{1:2}, i.e., show both
 \eqn{H^2_j} (1) and \eqn{H^2_{jk}} (2). To also show three-way interactions,
 use \code{1:3}.}
 
-\item{top_m}{Maximum number of rows of results to plot.}
+\item{normalize}{Should statistics be normalized? Default is \code{TRUE}.}
 
-\item{fill}{Color of bars.}
+\item{squared}{Should \emph{squared} statistics be returned? Default is \code{TRUE}.}
+
+\item{sort}{Should results be sorted? Default is \code{TRUE}.
+(Multioutput is sorted by row means.)}
+
+\item{top_m}{How many rows should be shown? (\code{Inf} to show all.)}
+
+\item{eps}{Threshold below which numerator values are set to 0.}
+
+\item{fill}{Color of bar (only for univariate statistics).}
 
 \item{facet_scales}{Value passed to \code{ggplot2::facet_wrap(scales = ...)}.}
 
@@ -32,7 +45,7 @@ use \code{1:3}.}
 
 \item{rotate_x}{Should x axis labels be rotated by 45 degrees?}
 
-\item{...}{Further arguments passed to statistics, e.g., \code{normalize = FALSE}.}
+\item{...}{Passed to \code{\link[ggplot2:geom_bar]{ggplot2::geom_bar()}}.}
 }
 \value{
 An object of class "ggplot".

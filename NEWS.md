@@ -9,6 +9,8 @@
 ## Minor improvements
 
 - `plot.hstats()` has recieved a `rotate_x = FALSE` argument for rotating x labels by 45 degrees.
+- `plot.hstats()` and `summary.hstats()` have received explicit arguments `normalize`, `squared`, `sort`, `eps` instead of passing them via `...`.
+- `plot.hstats()` now passes `...` to `geom_bar()`.
 - Slight speed-up of `hstats()` in the one-dimensional case.
 
 ## Bug fixes
