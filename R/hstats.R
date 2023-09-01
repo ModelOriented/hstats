@@ -305,18 +305,27 @@ print.hstats <- function(x, ...) {
 #' 
 #' Summary method for "hstats" object.
 #'
-#' @param object An object of class "hstats".
-#' @param top_m Maximum number of rows of results to print.
-#' @param ... Further arguments passed to statistics, e.g., `normalize = FALSE`.
+#' @inheritParams h2_overall
+#' @param ... Currently not used.
 #' @returns A named list of statistics.
 #' @export
 #' @seealso See [hstats()] for examples.
-summary.hstats <- function(object, top_m = 6L, ...) {
-  out <- list(
-    h2 = h2(object, ...), 
-    h2_overall = h2_overall(object, top_m = Inf, plot = FALSE, ...), 
-    h2_pairwise = h2_pairwise(object, top_m = Inf, plot = FALSE, ...), 
-    h2_threeway = h2_threeway(object, top_m = Inf, plot = FALSE, ...)
+summary.hstats <- function(object, normalize = TRUE, squared = TRUE, sort = TRUE, 
+                           top_m = 6L, eps = 1e-8, ...) {
+  args <- list(
+    object = object, 
+    normalize = normalize, 
+    squared = squared, 
+    sort = sort,
+    top_m = Inf,
+    eps = eps,
+    plot = FALSE
+  )
+   out <- list(
+    h2 = h2(object, normalize = normalize, squared = squared, eps = eps), 
+    h2_overall = do.call(h2_overall, args), 
+    h2_pairwise = do.call(h2_pairwise, args), 
+    h2_threeway = do.call(h2_threeway, args)
   )
   out <- out[sapply(out, Negate(is.null))]
   
@@ -341,20 +350,20 @@ summary.hstats <- function(object, top_m = 6L, ...) {
 #' 
 #' Plot method for object of class "hstats".
 #'
-#' @param x An object of class "hstats".
+#' @param x Object of class "hstats".
 #' @param which Which statistic(s) to be shown? Default is `1:2`, i.e., show both
 #'   \eqn{H^2_j} (1) and \eqn{H^2_{jk}} (2). To also show three-way interactions,
 #'   use `1:3`.
-#' @param top_m Maximum number of rows of results to plot.
-#' @param fill Color of bars.
 #' @param facet_scales Value passed to `ggplot2::facet_wrap(scales = ...)`.
 #' @param ncol Passed to `ggplot2::facet_wrap()`.
 #' @param rotate_x Should x axis labels be rotated by 45 degrees?
-#' @param ... Further arguments passed to statistics, e.g., `normalize = FALSE`.
+#' @param ... Passed to [ggplot2::geom_bar()].
+#' @inheritParams h2_overall
 #' @returns An object of class "ggplot".
 #' @export
 #' @seealso See [hstats()] for examples.
-plot.hstats <- function(x, which = 1:2, top_m = 15L, fill = "#2b51a1", 
+plot.hstats <- function(x, which = 1:2, normalize = TRUE, squared = TRUE, sort = TRUE, 
+                        top_m = 15L, eps = 1e-8, fill = "#2b51a1", 
                         facet_scales = "free", ncol = 2L, rotate_x = FALSE, ...) {
   ids <- c("Overall", "Pairwise", "Threeway")
   funs <- c(h2_overall, h2_pairwise, h2_threeway)
@@ -378,11 +387,11 @@ plot.hstats <- function(x, which = 1:2, top_m = 15L, fill = "#2b51a1",
     p <- p + rotate_x_labs()
   }
   if (length(unique(dat[["varying_"]])) == 1L) {
-    p + ggplot2::geom_bar(fill = fill, stat = "identity")
+    p + ggplot2::geom_bar(fill = fill, stat = "identity", ...)
   } else {
     p + 
       ggplot2::geom_bar(
-        ggplot2::aes(fill = varying_), stat = "identity", position = "dodge"
+        ggplot2::aes(fill = varying_), stat = "identity", position = "dodge", ...
       ) + 
       ggplot2::labs(fill = "Dim")
   }

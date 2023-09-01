@@ -18,7 +18,7 @@
 \arguments{
 \item{x}{An object of class "perm_importance".}
 
-\item{top_m}{Maximum number of rows of results to plot.}
+\item{top_m}{How many rows should be shown? (\code{Inf} to show all.)}
 
 \item{err_type}{The error type to show, by default "se" (standard errors). Set to
 "sd" for standard deviations (se * sqrt(perms)), or "no" for no bars.}
@@ -29,7 +29,7 @@
 
 \item{rotate_x}{Should x axis labels be rotated by 45 degrees?}
 
-\item{fill}{Color of bars.}
+\item{fill}{Color of bar (only for univariate statistics).}
 
 \item{...}{Arguments passed to \link[ggplot2:geom_bar]{ggplot2::geom_bar}.}
 }

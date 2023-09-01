@@ -4,14 +4,31 @@
 \alias{summary.hstats}
 \title{Summary Method}
 \usage{
-\method{summary}{hstats}(object, top_m = 6L, ...)
+\method{summary}{hstats}(
+  object,
+  normalize = TRUE,
+  squared = TRUE,
+  sort = TRUE,
+  top_m = 6L,
+  eps = 1e-08,
+  ...
+)
 }
 \arguments{
-\item{object}{An object of class "hstats".}
+\item{object}{Object of class "hstats".}
 
-\item{top_m}{Maximum number of rows of results to print.}
+\item{normalize}{Should statistics be normalized? Default is \code{TRUE}.}
 
-\item{...}{Further arguments passed to statistics, e.g., \code{normalize = FALSE}.}
+\item{squared}{Should \emph{squared} statistics be returned? Default is \code{TRUE}.}
+
+\item{sort}{Should results be sorted? Default is \code{TRUE}.
+(Multioutput is sorted by row means.)}
+
+\item{top_m}{How many rows should be shown? (\code{Inf} to show all.)}
+
+\item{eps}{Threshold below which numerator values are set to 0.}
+
+\item{...}{Currently not used.}
 }
 \value{
 A named list of statistics.
