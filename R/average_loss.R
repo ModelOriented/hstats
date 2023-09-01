@@ -20,17 +20,24 @@
 #'   a (n x K) matrix of probabilities (with row-sums 1).
 #'   The observed values `y` are either passed as (n x K) dummy matrix, 
 #'   or as discrete vector with corresponding levels. 
-#'   The latter case is turned into a dummy matrix via `model.matrix(~ y + 0)`
+#'   The latter case is turned into a dummy matrix via `model.matrix(~ y + 0)`.
+#' - "classification_error": Misclassification error. This is currently the
+#'   only prespecified loss that accepts non-numeric predictions. Both the 
+#'   observed values `y` and the predictions can be character/factor. This
+#'   loss function can be used in non-probabilistic classification settings.
+#'   BUT: Probabilistic classification (with "mlogloss") is preferred.
 #' - A function with signature `f(actual, predicted)`, returning a numeric 
 #'   vector of length n or a matrix with n rows, where n is the number of rows of `X`.
 #'
 #' @inheritParams hstats
-#' @param y Numeric vector or matrix of the response corresponding to `X`.
+#' @param y Vector/matrix of the response corresponding to `X`.
 #' @param loss One of "squared_error", "logloss", "mlogloss", "poisson",
-#'   "gamma", "absolute_error", or a loss function that turns observed and predicted 
-#'   values (vectors or matrices) into a vector or matrix of unit losses.
-#'   For "mlogloss", the response `y` can either be a dummy matrix, or a vector with 
-#'   categories. The latter case is handled via `model.matrix(~ y + 0)`.
+#'   "gamma", "absolute_error", "classification_error". Alternatively, a loss function 
+#'   can be provided that turns observed and predicted values into a numeric vector or 
+#'   matrix of unit losses of the same length as `X`.
+#'   For "mlogloss", the response `y` can either be a dummy matrix or a discrete vector. 
+#'   The latter case is handled via `model.matrix(~ y + 0)`.
+#'   For "classification_error", both predictions and responses can be non-numeric.
 #' @param BY Optional grouping vector.
 #' @returns A matrix with one row per group and one column per loss dimension.
 #' @export
@@ -70,14 +77,12 @@ average_loss.default <- function(object, X, y,
   if (!is.function(loss) && loss == "mlogloss" && NCOL(y) == 1L) {
     y <- stats::model.matrix(~y + 0)
   }
-  if (!is.matrix(y)) {
-    y <- as.matrix(y)
-  }
   if (!is.function(loss)) {
     loss <- get_loss_fun(loss)
   }
   
-  L <- loss(y, align_pred(pred_fun(object, X, ...)))
+  # Real work
+  L <- as.matrix(loss(y, pred_fun(object, X, ...)))
   gwColMeans(L, g = BY, w = w)
 }
 

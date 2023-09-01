@@ -16,6 +16,12 @@ test_that("loss_absolute_error() works for specific case", {
   expect_equal(loss_absolute_error(y, p), abs(y - p))
 })
 
+test_that("loss_classification_error() works for specific case", {
+  y <- iris$Species
+  p <- rev(iris$Species)
+  expect_equal(loss_classification_error(y, p), 0 + (y != p))
+})
+
 test_that("loss_mlogloss() is consistent with loss_logloss()", {
   y <- 0:1
   p <- c(0.1, 0.8)

@@ -84,20 +84,22 @@ for instance \code{type = "response"} in a \code{\link[=glm]{glm()}} model.}
 
 \item{X}{A data.frame or matrix serving as background dataset.}
 
-\item{y}{Numeric vector or matrix of the response corresponding to \code{X}.}
+\item{y}{Vector/matrix of the response corresponding to \code{X}.}
 
 \item{pred_fun}{Prediction function of the form \verb{function(object, X, ...)},
-providing \eqn{K \ge 1} numeric predictions per row. Its first argument represents the
+providing \eqn{K \ge 1} predictions per row. Its first argument represents the
 model \code{object}, its second argument a data structure like \code{X}. Additional arguments
 (such as \code{type = "response"} in a GLM) can be passed via \code{...}. The default,
 \code{\link[stats:predict]{stats::predict()}}, will work in most cases. Note that column names in a resulting
 matrix of predictions will be used as default column names in the results.}
 
 \item{loss}{One of "squared_error", "logloss", "mlogloss", "poisson",
-"gamma", "absolute_error", or a loss function that turns observed and predicted
-values (vectors or matrices) into a vector or matrix of unit losses.
-For "mlogloss", the response \code{y} can either be a dummy matrix, or a vector with
-categories. The latter case is handled via \code{model.matrix(~ y + 0)}.}
+"gamma", "absolute_error", "classification_error". Alternatively, a loss function
+can be provided that turns observed and predicted values into a numeric vector or
+matrix of unit losses of the same length as \code{X}.
+For "mlogloss", the response \code{y} can either be a dummy matrix or a discrete vector.
+The latter case is handled via \code{model.matrix(~ y + 0)}.
+For "classification_error", both predictions and responses can be non-numeric.}
 
 \item{perms}{Number of permutations (default 4).}
 
@@ -164,7 +166,12 @@ situations. If there are K classes and n observations, the predictions form
 a (n x K) matrix of probabilities (with row-sums 1).
 The observed values \code{y} are either passed as (n x K) dummy matrix,
 or as discrete vector with corresponding levels.
-The latter case is turned into a dummy matrix via \code{model.matrix(~ y + 0)}
+The latter case is turned into a dummy matrix via \code{model.matrix(~ y + 0)}.
+\item "classification_error": Misclassification error. This is currently the
+only prespecified loss that accepts non-numeric predictions. Both the
+observed values \code{y} and the predictions can be character/factor. This
+loss function can be used in non-probabilistic classification settings.
+BUT: Probabilistic classification (with "mlogloss") is preferred.
 \item A function with signature \code{f(actual, predicted)}, returning a numeric
 vector of length n or a matrix with n rows, where n is the number of rows of \code{X}.
 }

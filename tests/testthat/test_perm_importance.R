@@ -97,6 +97,20 @@ test_that("matrix case works as well", {
   )
 })
 
+test_that("non-numeric predictions can work as well", {
+  expect_equal(
+    c(perm_importance(
+      1, 
+      v = "Sepal.Length", 
+      X = iris, 
+      y = iris$Species, 
+      pred_fun = function(m, X) rep("setosa", times = nrow(X)), 
+      loss = "classification_error"
+    )$imp),
+    0
+  )
+})
+
 #================================================
 # Multivariate model
 #================================================

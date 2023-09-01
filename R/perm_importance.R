@@ -74,11 +74,8 @@ perm_importance.default <- function(object, v, X, y,
   if (!is.function(loss) && loss == "mlogloss" && NCOL(y) == 1L) {
     y <- stats::model.matrix(~y + 0)
   }
-  if (!is.matrix(y)) {
-    y <- as.matrix(y)
-  }
   stopifnot(
-    nrow(y) == nrow(X),
+    NROW(y) == nrow(X),
     perms >= 1L
   )
   
@@ -86,7 +83,11 @@ perm_importance.default <- function(object, v, X, y,
   if (nrow(X) > n_max) {
     ix <- sample(nrow(X), n_max)
     X <- X[ix, , drop = FALSE]
-    y <- y[ix, , drop = FALSE]
+    if (is.vector(y) || is.factor(y)) {
+      y <- y[ix]
+    } else {
+      y <- y[ix, , drop = FALSE]
+    }
     if (!is.null(w)) {
       w <- w[ix]
     }
@@ -103,24 +104,24 @@ perm_importance.default <- function(object, v, X, y,
   }
   
   # Pre-shuffle performance
-  L <- loss(y, align_pred(pred_fun(object, X, ...)))
+  L <- as.matrix(loss(y, pred_fun(object, X, ...)))
   perf <- wcolMeans(L, w = w)
 
   # Stack y and X m times
   if (perms > 1L) {
     ind <- rep(seq_len(n), times = perms)
     X <- X[ind, , drop = FALSE]
-    y <- y[ind, , drop = FALSE]
+    if (is.vector(y) || is.factor(y)) {
+      y <- y[ind]
+    } else {
+      y <- y[ind, , drop = FALSE]
+    }
   }
   
   shuffle_perf <- function(z, XX) {
     ind <- c(replicate(perms, sample(seq_len(n))))
-    if (is.data.frame(XX) && length(z) == 1L) {
-      XX[[z]] <- XX[[z]][ind]  # a bit faster
-    } else {
-      XX[, z] <- XX[ind, z]
-    }
-    L <- loss(y, align_pred(pred_fun(object, XX, ...)))
+    XX[, z] <- XX[ind, z]
+    L <- as.matrix(loss(y, pred_fun(object, XX, ...)))
     t(wrowmean(L, ngroups = perms, w = w))
   }
   
