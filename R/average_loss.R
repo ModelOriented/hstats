@@ -1,16 +1,36 @@
 #' Average Loss
 #'
-#' Calculates average loss, optionally grouped by a discrete vector. 
-#' The function supports multivariate losses and case weights.
+#' Calculates the average loss of a model on a given dataset, 
+#' optionally grouped by a discrete vector.
+#' 
+#' @section Losses: 
+#' 
+#' The default `loss` is the "squared_error". Other choices: 
+#' - "absolute_error": The absolute error is the loss corresponding to median regression. 
+#' - "poisson": Unit Poisson deviance, i.e., the loss function used in 
+#'   Poisson regression. Actual values `y` and predictions must be non-negative.
+#' - "gamma": Unit gamma deviance, i.e., the loss function of Gamma regression.
+#'   Actual values `y` and predictions must be positive.
+#' - "logloss": The Log Loss is the loss function used in logistic regression,
+#'   and the top choice in probabilistic binary classification. Responses `y` and
+#'   predictions must be between 0 and 1. Predictions represent probabilities of 
+#'   having a "1".
+#' - "mlogloss": Multi-Log-Loss is the natural loss function in probabilistic multi-class 
+#'   situations. If there are K classes and n observations, the predictions form
+#'   a (n x K) matrix of probabilities (with row-sums 1).
+#'   The observed values `y` are either passed as (n x K) dummy matrix, 
+#'   or as discrete vector with corresponding levels. 
+#'   The latter case is turned into a dummy matrix via `model.matrix(~ y + 0)`
+#' - A function with signature `f(actual, predicted)`, returning a numeric 
+#'   vector of length n or a matrix with n rows, where n is the number of rows of `X`.
 #'
 #' @inheritParams hstats
 #' @param y Numeric vector or matrix of the response corresponding to `X`.
 #' @param loss One of "squared_error", "logloss", "mlogloss", "poisson",
 #'   "gamma", "absolute_error", or a loss function that turns observed and predicted 
 #'   values (vectors or matrices) into a vector or matrix of unit losses.
-#'   For "mlogloss", the response `y` can either be a matrix with one column per category
-#'   or a vector with categories. The latter case is internally exploded to the shape
-#'   of the predictions via `stats::model.matrix(~ y + 0)`.
+#'   For "mlogloss", the response `y` can either be a dummy matrix, or a vector with 
+#'   categories. The latter case is handled via `model.matrix(~ y + 0)`.
 #' @param BY Optional grouping vector.
 #' @returns A matrix with one row per group and one column per loss dimension.
 #' @export

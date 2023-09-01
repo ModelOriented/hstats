@@ -1,25 +1,25 @@
 #' Permutation Importance
-#'
-#' Calculates permutation feature importance (PVI) for a set of features or 
-#' a set of feature groups.
 #' 
-#' The PVI of a feature is defined as the increase in average loss when
-#' shuffling the corresponding column before calculating predictions.
-#' The loss function can be specified as a string ("squared_error", "mlogloss", etc.)
-#' or a vector/matrix valued function. Note that the model is never refitted.
-#' Multivariate losses can be collapsed over columns (default) or analyzed separately.
+#' Calculates permutation feature importance (PVI) for a set of features or 
+#' a set of feature groups `v`.
+#' 
+#' The PVI of a feature is defined as the increase in the average loss when
+#' shuffling the corresponding feature values before calculating predictions.
+#' By default, the process is repeated `perms = 4` times, and the results are averaged.
+#' 
+#' @inheritSection average_loss Losses
 #' 
 #' @param v Vector of feature names, or named list of feature groups.
 #' @param perms Number of permutations (default 4).
 #' @param agg_cols Should multivariate losses be summed up? Default is `FALSE`.
-#' @param normalize Should importance statistics be divided by performance?
+#' @param normalize Should importance statistics be divided by average loss?
 #'   Default is `FALSE`. If `TRUE`, an importance of 1 means that the average loss
 #'   has doubled by shuffling that feature's column.
 #' @inheritParams hstats
 #' @inheritParams average_loss
 #' @returns
 #'   An object of class "perm_importance" containing these elements:
-#'   - `imp`: (p x d) matrix containing the sorted importance values, i.e.,
+#'   - `imp`: (p x d) matrix containing the sorted (average) importance values, i.e.,
 #'     a row per feature (group) and a column per loss dimension.
 #'   - `SE`: (p x d) matrix with corresponding standard errors of `imp`.
 #'      Multiply with `sqrt(perms)` to get standard deviations.

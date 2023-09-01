@@ -96,15 +96,14 @@ matrix of predictions will be used as default column names in the results.}
 \item{loss}{One of "squared_error", "logloss", "mlogloss", "poisson",
 "gamma", "absolute_error", or a loss function that turns observed and predicted
 values (vectors or matrices) into a vector or matrix of unit losses.
-For "mlogloss", the response \code{y} can either be a matrix with one column per category
-or a vector with categories. The latter case is internally exploded to the shape
-of the predictions via \code{stats::model.matrix(~ y + 0)}.}
+For "mlogloss", the response \code{y} can either be a dummy matrix, or a vector with
+categories. The latter case is handled via \code{model.matrix(~ y + 0)}.}
 
 \item{perms}{Number of permutations (default 4).}
 
 \item{agg_cols}{Should multivariate losses be summed up? Default is \code{FALSE}.}
 
-\item{normalize}{Should importance statistics be divided by performance?
+\item{normalize}{Should importance statistics be divided by average loss?
 Default is \code{FALSE}. If \code{TRUE}, an importance of 1 means that the average loss
 has doubled by shuffling that feature's column.}
 
@@ -118,7 +117,7 @@ selected from \code{X}. In this case, set a random seed for reproducibility.}
 \value{
 An object of class "perm_importance" containing these elements:
 \itemize{
-\item \code{imp}: (p x d) matrix containing the sorted importance values, i.e.,
+\item \code{imp}: (p x d) matrix containing the sorted (average) importance values, i.e.,
 a row per feature (group) and a column per loss dimension.
 \item \code{SE}: (p x d) matrix with corresponding standard errors of \code{imp}.
 Multiply with \code{sqrt(perms)} to get standard deviations.
@@ -128,14 +127,12 @@ Multiply with \code{sqrt(perms)} to get standard deviations.
 }
 \description{
 Calculates permutation feature importance (PVI) for a set of features or
-a set of feature groups.
+a set of feature groups \code{v}.
 }
 \details{
-The PVI of a feature is defined as the increase in average loss when
-shuffling the corresponding column before calculating predictions.
-The loss function can be specified as a string ("squared_error", "mlogloss", etc.)
-or a vector/matrix valued function. Note that the model is never refitted.
-Multivariate losses can be collapsed over columns (default) or analyzed separately.
+The PVI of a feature is defined as the increase in the average loss when
+shuffling the corresponding feature values before calculating predictions.
+By default, the process is repeated \code{perms = 4} times, and the results are averaged.
 }
 \section{Methods (by class)}{
 \itemize{
@@ -148,6 +145,31 @@ Multivariate losses can be collapsed over columns (default) or analyzed separate
 \item \code{perm_importance(explainer)}: Method for DALEX "explainer".
 
 }}
+\section{Losses}{
+
+
+The default \code{loss} is the "squared_error". Other choices:
+\itemize{
+\item "absolute_error": The absolute error is the loss corresponding to median regression.
+\item "poisson": Unit Poisson deviance, i.e., the loss function used in
+Poisson regression. Actual values \code{y} and predictions must be non-negative.
+\item "gamma": Unit gamma deviance, i.e., the loss function of Gamma regression.
+Actual values \code{y} and predictions must be positive.
+\item "logloss": The Log Loss is the loss function used in logistic regression,
+and the top choice in probabilistic binary classification. Responses \code{y} and
+predictions must be between 0 and 1. Predictions represent probabilities of
+having a "1".
+\item "mlogloss": Multi-Log-Loss is the natural loss function in probabilistic multi-class
+situations. If there are K classes and n observations, the predictions form
+a (n x K) matrix of probabilities (with row-sums 1).
+The observed values \code{y} are either passed as (n x K) dummy matrix,
+or as discrete vector with corresponding levels.
+The latter case is turned into a dummy matrix via \code{model.matrix(~ y + 0)}
+\item A function with signature \code{f(actual, predicted)}, returning a numeric
+vector of length n or a matrix with n rows, where n is the number of rows of \code{X}.
+}
+}
+
 \examples{
 # MODEL 1: Linear regression
 fit <- lm(Sepal.Length ~ ., data = iris)
