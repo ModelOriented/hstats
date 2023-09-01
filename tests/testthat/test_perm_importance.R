@@ -71,6 +71,23 @@ test_that("Subsetting has an impact (univariate)", {
   expect_false(identical(s2, s3))
 })
 
+test_that("groups of variables work as well", {
+  fit <- lm(Sepal.Length ~ ., data = iris)
+  v2 <- setNames(as.list(v), v)
+  v3 <- c(v2, list(petal = c("Petal.Width", "Petal.Length")))
+  set.seed(1L)
+  s1b <- perm_importance(fit, v = v, X = iris, y = y)
+  set.seed(1L)
+  s2 <- perm_importance(fit, v = v2, X = iris, y = y)
+  expect_equal(s1b, s2)
+  
+  set.seed(1L)
+  s3 <- perm_importance(fit, v = v3, X = iris, y = y)
+  expect_equal(s1b$imp[v, , drop = FALSE], s3$imp[v, , drop = FALSE])
+  
+  expect_equal(sort(rownames(s3$imp)), sort(names(v3)))
+})
+
 test_that("matrix case works as well", {
   X <- cbind(i = 1, data.matrix(iris[2:4]))
   fit <- lm.fit(x = X, y = y)
@@ -180,6 +197,19 @@ test_that("Subsetting has an impact (multivariate)", {
   set.seed(1L)
   s3 <- perm_importance(fit, v = v, X = iris, y = y, perms = 2L, n_max = 100)
   expect_false(identical(s2, s3))
+})
+
+test_that("groups of variables work as well", {
+  v2 <- setNames(as.list(v), v)
+  v3 <- c(v2, list(petal = c("Petal.Width", "Petal.Length")))
+  set.seed(1L)
+  s2 <- perm_importance(fit, v = v2, X = iris, y = y)
+  expect_equal(s1, s2)
+  
+  set.seed(1L)
+  s3 <- perm_importance(fit, v = v3, X = iris, y = y)
+  expect_equal(s1$imp[v, , drop = FALSE], s3$imp[v, , drop = FALSE])
+  expect_equal(sort(rownames(s3$imp)), sort(names(v3)))
 })
 
 test_that("mlogloss works with either matrix y or vector y", {

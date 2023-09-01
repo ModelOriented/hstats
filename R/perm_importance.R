@@ -1,24 +1,26 @@
 #' Permutation Importance
 #'
-#' Calculates permutation feature importance (PVI) for a set of features.
+#' Calculates permutation feature importance (PVI) for a set of features or 
+#' a set of feature groups.
 #' 
 #' The PVI of a feature is defined as the increase in average loss when
 #' shuffling the corresponding column before calculating predictions.
 #' The loss function can be specified as a string ("squared_error", "mlogloss", etc.)
 #' or a vector/matrix valued function. Note that the model is never refitted.
 #' Multivariate losses can be collapsed over columns (default) or analyzed separately.
-#'
-#' @inheritParams hstats
-#' @inheritParams average_loss
+#' 
+#' @param v Vector of feature names, or named list of feature groups.
 #' @param perms Number of permutations (default 4).
 #' @param agg_cols Should multivariate losses be summed up? Default is `FALSE`.
 #' @param normalize Should importance statistics be divided by performance?
 #'   Default is `FALSE`. If `TRUE`, an importance of 1 means that the average loss
 #'   has doubled by shuffling that feature's column.
+#' @inheritParams hstats
+#' @inheritParams average_loss
 #' @returns
 #'   An object of class "perm_importance" containing these elements:
 #'   - `imp`: (p x d) matrix containing the sorted importance values, i.e.,
-#'     a row per variable and a column per loss dimension.
+#'     a row per feature (group) and a column per loss dimension.
 #'   - `SE`: (p x d) matrix with corresponding standard errors of `imp`.
 #'      Multiply with `sqrt(perms)` to get standard deviations.
 #'   - `perf`: Average loss before shuffling.
@@ -38,7 +40,12 @@
 #' s$SE  # Standard errors
 #' plot(s)
 #' plot(s, err_type = "sd")  # Standard deviations instead of standard errors
-#'
+#' 
+#' # Groups of features can be passed as named list
+#' v <- list(petal = c("Petal.Length", "Petal.Width"), species = "Species")
+#' s <- perm_importance(fit, v = v, X = iris, y = iris$Sepal.Length)
+#' s
+#' 
 #' # MODEL 2: Multi-response linear regression
 #' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width + Species, data = iris)
 #' v <- c("Petal.Length", "Petal.Width", "Species")
@@ -58,7 +65,12 @@ perm_importance.default <- function(object, v, X, y,
                                     perms = 4L, agg_cols = FALSE,
                                     normalize = FALSE, n_max = 10000L,
                                     w = NULL, verbose = FALSE, ...) {
-  basic_check(X = X, v = v, pred_fun = pred_fun, w = w)
+  basic_check(
+    X = X, 
+    v = unlist(v, use.names = FALSE, recursive = FALSE), 
+    pred_fun = pred_fun, 
+    w = w
+  )
   if (!is.function(loss) && loss == "mlogloss" && NCOL(y) == 1L) {
     y <- stats::model.matrix(~y + 0)
   }
@@ -81,6 +93,10 @@ perm_importance.default <- function(object, v, X, y,
   }
   n <- nrow(X)
   p <- length(v)
+  if (!is.list(v)) {
+    v <- as.list(v)
+    names(v) <- v
+  }
   
   if (!is.function(loss)) {
     loss <- get_loss_fun(loss)
@@ -99,7 +115,11 @@ perm_importance.default <- function(object, v, X, y,
   
   shuffle_perf <- function(z, XX) {
     ind <- c(replicate(perms, sample(seq_len(n))))
-    XX[, z] <- XX[ind, z]
+    if (is.data.frame(XX) && length(z) == 1L) {
+      XX[[z]] <- XX[[z]][ind]  # a bit faster
+    } else {
+      XX[, z] <- XX[ind, z]
+    }
     L <- loss(y, align_pred(pred_fun(object, XX, ...)))
     t(wrowmean(L, ngroups = perms, w = w))
   }
@@ -108,10 +128,12 @@ perm_importance.default <- function(object, v, X, y,
   if (verbose) {
     pb <- utils::txtProgressBar(1L, max = p, style = 3)
   }
-  S <- array(dim = c(p, length(perf), perms), dimnames = list(v, names(perf), NULL))
+  S <- array(
+    dim = c(p, length(perf), perms), dimnames = list(names(v), names(perf), NULL)
+  )
   for (j in seq_len(p)) {
-    z <- v[j]
-    S[z, , ] <- shuffle_perf(z, XX = X)
+    z <- v[[j]]
+    S[j, , ] <- shuffle_perf(z, XX = X)
     if (verbose) {
       utils::setTxtProgressBar(pb, j)
     }

@@ -80,7 +80,7 @@ perm_importance(object, ...)
 \item{...}{Additional arguments passed to \code{pred_fun(object, X, ...)},
 for instance \code{type = "response"} in a \code{\link[=glm]{glm()}} model.}
 
-\item{v}{Vector of feature names.}
+\item{v}{Vector of feature names, or named list of feature groups.}
 
 \item{X}{A data.frame or matrix serving as background dataset.}
 
@@ -119,7 +119,7 @@ selected from \code{X}. In this case, set a random seed for reproducibility.}
 An object of class "perm_importance" containing these elements:
 \itemize{
 \item \code{imp}: (p x d) matrix containing the sorted importance values, i.e.,
-a row per variable and a column per loss dimension.
+a row per feature (group) and a column per loss dimension.
 \item \code{SE}: (p x d) matrix with corresponding standard errors of \code{imp}.
 Multiply with \code{sqrt(perms)} to get standard deviations.
 \item \code{perf}: Average loss before shuffling.
@@ -127,7 +127,8 @@ Multiply with \code{sqrt(perms)} to get standard deviations.
 }
 }
 \description{
-Calculates permutation feature importance (PVI) for a set of features.
+Calculates permutation feature importance (PVI) for a set of features or
+a set of feature groups.
 }
 \details{
 The PVI of a feature is defined as the increase in average loss when
@@ -157,6 +158,11 @@ s$imp
 s$SE  # Standard errors
 plot(s)
 plot(s, err_type = "sd")  # Standard deviations instead of standard errors
+
+# Groups of features can be passed as named list
+v <- list(petal = c("Petal.Length", "Petal.Width"), species = "Species")
+s <- perm_importance(fit, v = v, X = iris, y = iris$Sepal.Length)
+s
 
 # MODEL 2: Multi-response linear regression
 fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width + Species, data = iris)
