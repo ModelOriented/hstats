@@ -371,7 +371,11 @@ plot.hstats <- function(x, which = 1:2, normalize = TRUE, squared = TRUE, sort =
   i <- 1L
   for (f in funs) {
     if (i %in% which)
-      dat[[i]] <- mat2df(f(x, top_m = top_m, plot = FALSE, ...), id = ids[i])
+      dat[[i]] <- mat2df(
+        f(x, normalize = normalize, squared = squared, 
+          sort = sort, top_m = top_m, eps = eps, plot = FALSE), 
+        id = ids[i]
+      )
     i <- i + 1L
   }
   dat <- do.call(rbind, dat)
