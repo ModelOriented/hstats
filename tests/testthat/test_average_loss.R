@@ -38,6 +38,28 @@ test_that("average_loss() works with weights and grouped", {
   expect_false(identical(s2, s3))
 })
 
+test_that("average_loss() can work with non-numeric predictions", {
+  pf <- function(m, X) rep("setosa", times = nrow(X))
+  expect_warning(average_loss(1, X = iris, y = iris$Species, pred_fun = pf))
+  expect_equal(
+    c(average_loss(
+      1, X = iris, y = iris$Species, pred_fun = pf, loss = "classification_error"
+    )),
+    2/3
+  )
+  expect_equal(
+    c(average_loss(
+      1, 
+      X = iris, 
+      y = iris$Species, 
+      pred_fun = pf, 
+      loss = "classification_error",
+      BY = iris$Species
+    )),
+    c(0, 1, 1)
+  )
+})
+
 #================================================
 # Multivariate model
 #================================================

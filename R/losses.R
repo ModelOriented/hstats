@@ -7,7 +7,7 @@
 #'
 #' @param actual A numeric vector/matrix.
 #' @param predicted A numeric vector/matrix.
-#' @returns Vector or matrix of losses.
+#' @returns Vector or matrix of numeric losses.
 loss_squared_error <- function(actual, predicted) {
   check_dim(actual = actual, predicted = predicted)
   (actual - predicted)^2
@@ -22,7 +22,7 @@ loss_squared_error <- function(actual, predicted) {
 #'
 #' @param actual A numeric vector/matrix.
 #' @param predicted A numeric vector/matrix.
-#' @returns Vector or matrix of losses.
+#' @returns Vector or matrix of numeric losses.
 loss_absolute_error <- function(actual, predicted) {
   check_dim(actual = actual, predicted = predicted)
   abs(actual - predicted)
@@ -37,7 +37,7 @@ loss_absolute_error <- function(actual, predicted) {
 #'
 #' @param actual A numeric vector/matrix with non-negative values.
 #' @param predicted A numeric vector/matrix with non-negative values.
-#' @returns Vector or matrix of losses.
+#' @returns Vector or matrix of numeric losses.
 loss_poisson <- function(actual, predicted) {
   check_dim(actual = actual, predicted = predicted)
   stopifnot(
@@ -59,7 +59,7 @@ loss_poisson <- function(actual, predicted) {
 #'
 #' @param actual A numeric vector/matrix with positive values.
 #' @param predicted A numeric vector/matrix with positive values.
-#' @returns Vector or matrix of losses.
+#' @returns Vector or matrix of numeric losses.
 loss_gamma <- function(actual, predicted) {
   check_dim(actual = actual, predicted = predicted)
   stopifnot(
@@ -67,6 +67,21 @@ loss_gamma <- function(actual, predicted) {
     all(actual > 0)
   )
   -2 * (log(actual / predicted) - (actual - predicted) / predicted)
+}
+
+#' Classification Error Loss
+#' 
+#' Internal function. Calculates per-row misclassification errors.
+#' 
+#' @noRd
+#' @keywords internal
+#'
+#' @param actual A vector/matrix with discrete values.
+#' @param predicted A vector/matrix with discrete values.
+#' @returns Vector or matrix of numeric losses.
+loss_classification_error <- function(actual, predicted) {
+  check_dim(actual = actual, predicted = predicted)
+  (actual != predicted) * 1.0
 }
 
 #' Log Loss
@@ -79,7 +94,7 @@ loss_gamma <- function(actual, predicted) {
 #'
 #' @param actual A numeric vector/matrix with values between 0 and 1.
 #' @param predicted A numeric vector/matrix with values between 0 and 1.
-#' @returns Vector or matrix of losses.
+#' @returns Vector or matrix of numeric losses.
 loss_logloss <- function(actual, predicted) {
   check_dim(actual = actual, predicted = predicted)
   stopifnot(
@@ -167,6 +182,7 @@ get_loss_fun <- function(loss) {
     poisson = loss_poisson,
     gamma = loss_gamma,
     absolute_error = loss_absolute_error,
+    classification_error = loss_classification_error,
     stop("Unknown loss function.")
   )
 }

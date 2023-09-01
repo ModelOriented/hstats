@@ -25,7 +25,7 @@
 #' @param v Vector of feature names.
 #' @param X A data.frame or matrix serving as background dataset.
 #' @param pred_fun Prediction function of the form `function(object, X, ...)`,
-#'   providing \eqn{K \ge 1} numeric predictions per row. Its first argument represents the 
+#'   providing \eqn{K \ge 1} predictions per row. Its first argument represents the 
 #'   model `object`, its second argument a data structure like `X`. Additional arguments 
 #'   (such as `type = "response"` in a GLM) can be passed via `...`. The default, 
 #'   [stats::predict()], will work in most cases. Note that column names in a resulting
