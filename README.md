@@ -270,6 +270,14 @@ plot(s, normalize = FALSE, squared = FALSE) +
 ice(fit, v = "Petal.Length", X = iris, BY = "Petal.Width", n_max = 150) |> 
   plot(center = TRUE) +
   ggtitle("Centered ICE plots")
+  
+# Permutation importance 
+perm_importance(
+  fit, v = colnames(iris)[-5], X = iris, y = iris$Species, loss = "mlogloss"
+)
+# 
+# Petal.Length  Petal.Width Sepal.Length  Sepal.Width 
+#   0.48918225   0.47393814   0.05435491   0.01426659
 ```
 
 ![](man/figures/multivariate.svg)
@@ -302,6 +310,10 @@ fit <- iris_wf %>%
 s <- hstats(fit, v = colnames(iris[-1]), X = iris)
 s # 0 -> no interactions
 plot(partial_dep(fit, v = "Petal.Width", X = iris))
+
+perm_importance(fit, v = colnames(iris[-1]), X = iris, y = iris$Sepal.Length)
+# Petal.Length      Species  Petal.Width  Sepal.Width 
+#   4.29502933   0.36451226   0.11146004   0.09371835 
 ```
 
 ### caret
@@ -321,6 +333,7 @@ fit <- train(
 h2(hstats(fit, v = colnames(iris[-1]), X = iris))  # 0
 
 plot(ice(fit, v = "Petal.Width", X = iris), center = TRUE)
+plot(perm_importance(fit, v = colnames(iris[-1]), X = iris, y = iris$Sepal.Length))
 ```
 
 ### mlr3
@@ -332,10 +345,10 @@ library(mlr3learners)
 
 # Probabilistic classification
 task_iris <- TaskClassif$new(id = "class", backend = iris, target = "Species")
-fit_rf <- lrn("classif.ranger", predict_type = "prob", num.trees = 50)
+fit_rf <- lrn("classif.ranger", predict_type = "prob")
 fit_rf$train(task_iris)
 v <- colnames(iris[-5])
-s <- hstats(fit_rf, v = v, X = iris)
+s <- hstats(fit_rf, v = v, X = iris, threeway_m = 0)
 plot(s)
 
 # Permutation importance
