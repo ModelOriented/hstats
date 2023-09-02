@@ -52,11 +52,14 @@
 <div class="section level3">
 <h3 id="new-major-features-0-2-0">New major features<a class="anchor" aria-label="anchor" href="#new-major-features-0-2-0"></a></h3>
 <ul><li><p><strong>average_loss()</strong>: This new function calculates the average loss of a model for a given dataset, optionally grouped by a discrete vector. It supports the most important loss functions (squared error, Poisson deviance, Gamma deviance, Log loss, multivariate Log loss, absolute error, classification error), and allows for case weights. Custom losses can be passed as vector/matrix valued functions of signature <code>f(obs, pred)</code>. Note that such a custom function needs to return per-row losses, not their average.</p></li>
-<li><p><strong>perm_importance()</strong>: H-statistics are often calculated for important features only. To support this workflow, we have added permutation importance regarding the most important loss functions. Multivariate losses can be studied individually or collapsed over dimensions. The importance of <em>feature groups</em> can be studied as well. Note that the API is different from the experimental <code><a href="../reference/pd_importance.html">pd_importance()</a></code>, which is calculated from a “hstats” object, while <code><a href="../reference/perm_importance.html">perm_importance()</a></code> acts on the fitted model.</p></li>
+<li><p><strong>perm_importance()</strong>: H-statistics are often calculated for important features only. To support this workflow, we have added permutation importance regarding the most important loss functions. Multivariate losses can be studied individually or collapsed over dimensions. The importance of <em>feature groups</em> can be studied as well. Note that the API of <code><a href="../reference/perm_importance.html">perm_importance()</a></code> is different from the experimental <code><a href="../reference/pd_importance.html">pd_importance()</a></code>, which is calculated from a “hstats” object.</p></li>
 </ul></div>
 <div class="section level3">
-<h3 id="minor-improvements-0-2-0">Minor improvements<a class="anchor" aria-label="anchor" href="#minor-improvements-0-2-0"></a></h3>
+<h3 id="minor-changes-0-2-0">Minor changes<a class="anchor" aria-label="anchor" href="#minor-changes-0-2-0"></a></h3>
 <ul><li>
+<code><a href="../reference/summary.hstats.html">summary.hstats()</a></code> now returns an object of class “summary_hstats” with its own <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> method. Like this, one can use <code>su &lt;- summary()</code> without printing to the console.</li>
+<li>The output of <code><a href="../reference/summary.hstats.html">summary.hstats()</a></code> is printed sligthly more compact.</li>
+<li>
 <code><a href="../reference/plot.hstats.html">plot.hstats()</a></code> has recieved a <code>rotate_x = FALSE</code> argument for rotating x labels by 45 degrees.</li>
 <li>
 <code><a href="../reference/plot.hstats.html">plot.hstats()</a></code> and <code><a href="../reference/summary.hstats.html">summary.hstats()</a></code> have received explicit arguments <code>normalize</code>, <code>squared</code>, <code>sort</code>, <code>eps</code> instead of passing them via <code>...</code>.</li>

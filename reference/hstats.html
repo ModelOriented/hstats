@@ -265,16 +265,13 @@ and <code><a href="pd_importance.html">pd_importance()</a></code> for specific s
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.0502364</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Strongest overall interactions</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                   [,1]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Species      0.0502364</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Width  0.0502364</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Sepal.Width  0.0000000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Length 0.0000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      Species  Petal.Width  Sepal.Width Petal.Length </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    0.0502364    0.0502364    0.0000000    0.0000000 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Strongest relative pairwise interactions</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> (only for features with strong overall interactions)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                           [,1]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Width:Species 0.05546172</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> (for features with strong overall interactions)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Width:Species </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          0.05546172 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span>  </span></span>
 <span class="r-in"><span><span class="co"># Absolute pairwise interaction strengths</span></span></span>
@@ -300,9 +297,9 @@ and <code><a href="pd_importance.html">pd_importance()</a></code> for specific s
 <span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Length   0.00000000  0.00000000</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Strongest relative pairwise interactions</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> (only for features with strong overall interactions)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                     Sepal.Length Sepal.Width</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Width:Species   0.02937378  0.01637166</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> (for features with strong overall interactions)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Sepal.Length  Sepal.Width </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   0.02937378   0.01637166 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># MODEL 3: Gamma GLM with log link</span></span></span>
@@ -315,11 +312,8 @@ and <code><a href="pd_importance.html">pd_importance()</a></code> for specific s
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Strongest overall interactions</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>              [,1]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Sepal.Width     0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Length    0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Width     0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Species         0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  Sepal.Width Petal.Length  Petal.Width      Species </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            0            0            0            0 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># On original scale, we have interactions everywhere...</span></span></span>
