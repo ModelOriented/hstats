@@ -7,8 +7,10 @@ Note that such a custom function needs to return per-row losses, not their avera
 
 - **perm_importance()**: H-statistics are often calculated for important features only. To support this workflow, we have added permutation importance regarding the most important loss functions. Multivariate losses can be studied individually or collapsed over dimensions. The importance of *feature groups* can be studied as well. Note that the API of `perm_importance()` is different from the experimental `pd_importance()`, which is calculated from a "hstats" object.
 
-## Minor improvements
+## Minor changes
 
+- `summary.hstats()` now returns an object of class "summary_hstats" with its own `print()` method. Like this, one can use `su <- summary()` without printing to the console.
+- The output of `summary.hstats()` is printed sligthly more compact.
 - `plot.hstats()` has recieved a `rotate_x = FALSE` argument for rotating x labels by 45 degrees.
 - `plot.hstats()` and `summary.hstats()` have received explicit arguments `normalize`, `squared`, `sort`, `eps` instead of passing them via `...`.
 - `plot.hstats()` now passes `...` to `geom_bar()`.

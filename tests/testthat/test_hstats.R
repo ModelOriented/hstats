@@ -95,7 +95,8 @@ test_that("print() method does not give error", {
 })
 
 test_that("summary() method returns statistics", {
-  capture_output(expect_no_error(sm <- summary(s)))
+  expect_no_error(sm <- summary(s))
+  capture_output(expect_no_error(print(sm)))
   expect_equal(sm$h2, h2(s))
   expect_equal(sm$h2_overall, h2_overall(s, plot = FALSE, top_m = Inf))
   expect_equal(sm$h2_pairwise, h2_pairwise(s, plot = FALSE, top_m = Inf))
