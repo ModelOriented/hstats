@@ -147,7 +147,6 @@ plot(s, which = 1:3, normalize = F, squared = F, facet_scales = "free_y", ncol =
 
 ![](man/figures/hstats3.svg)
 
-
 ### Describe interaction
 
 Let's study different plots to understand *how* the strong interaction between distance to the ocean and age looks like. We will check the following three visualizations.
@@ -200,7 +199,7 @@ pd_importance(s) +
 set.seed(10)
 imp <- perm_importance(fit, v = x, X = X_valid, y = y_valid)
 plot(imp) +
-  ggtitle("Permutation importance with standard errors")
+  ggtitle("Permutation importance + standard errors")
 ```
 
 ![](man/figures/importance.svg)
@@ -221,7 +220,7 @@ library(hstats)
 set.seed(1)
 
 fit <- ranger(Sepal.Length ~ ., data = iris)
-ex <- explain(fit, data = iris[-1], y = iris[, 1])
+ex <- DALEX::explain(fit, data = iris[-1], y = iris[, 1])
 
 s <- hstats(ex)
 s  # Non-additivity index 0.054
@@ -254,14 +253,15 @@ library(ranger)
 library(ggplot2)
 library(hstats)
 
-fit <- ranger(Species ~ ., data = iris, probability = TRUE, seed = 1)
+set.seed(1)
+fit <- ranger(Species ~ ., data = iris, probability = TRUE)
 average_loss(fit, X = iris, y = iris$Species, loss = "mlogloss")  # 0.054
 
 s <- hstats(fit, v = colnames(iris)[-5], X = iris)
 s
 # Proportion of prediction variability unexplained by main effects of v:
 #      setosa  versicolor   virginica 
-# 0.002705945 0.065629375 0.046742035
+# 0.001547791 0.064550141 0.049758237
 
 plot(s, normalize = FALSE, squared = FALSE) +
   ggtitle("Unnormalized statistics") +
@@ -270,6 +270,14 @@ plot(s, normalize = FALSE, squared = FALSE) +
 ice(fit, v = "Petal.Length", X = iris, BY = "Petal.Width", n_max = 150) |> 
   plot(center = TRUE) +
   ggtitle("Centered ICE plots")
+  
+# Permutation importance 
+perm_importance(
+  fit, v = colnames(iris)[-5], X = iris, y = iris$Species, loss = "mlogloss"
+)
+ 
+# Petal.Length  Petal.Width Sepal.Length  Sepal.Width 
+#   0.50941613   0.49187688   0.05669978   0.00950009 
 ```
 
 ![](man/figures/multivariate.svg)
@@ -302,6 +310,13 @@ fit <- iris_wf %>%
 s <- hstats(fit, v = colnames(iris[-1]), X = iris)
 s # 0 -> no interactions
 plot(partial_dep(fit, v = "Petal.Width", X = iris))
+
+imp <- perm_importance(fit, v = colnames(iris[-1]), X = iris, y = iris$Sepal.Length)
+imp
+# Petal.Length      Species  Petal.Width  Sepal.Width 
+#   4.44682039   0.34064367   0.10195946   0.09520902
+
+plot(imp)
 ```
 
 ### caret
@@ -321,6 +336,7 @@ fit <- train(
 h2(hstats(fit, v = colnames(iris[-1]), X = iris))  # 0
 
 plot(ice(fit, v = "Petal.Width", X = iris), center = TRUE)
+plot(perm_importance(fit, v = colnames(iris[-1]), X = iris, y = iris$Sepal.Length))
 ```
 
 ### mlr3
@@ -332,10 +348,10 @@ library(mlr3learners)
 
 # Probabilistic classification
 task_iris <- TaskClassif$new(id = "class", backend = iris, target = "Species")
-fit_rf <- lrn("classif.ranger", predict_type = "prob", num.trees = 50)
+fit_rf <- lrn("classif.ranger", predict_type = "prob")
 fit_rf$train(task_iris)
 v <- colnames(iris[-5])
-s <- hstats(fit_rf, v = v, X = iris)
+s <- hstats(fit_rf, v = v, X = iris, threeway_m = 0)
 plot(s)
 
 # Permutation importance

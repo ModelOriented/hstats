@@ -307,17 +307,18 @@ print.hstats <- function(x, ...) {
 #'
 #' @inheritParams h2_overall
 #' @param ... Currently not used.
-#' @returns A named list of statistics.
+#' @returns 
+#'   An object of class "summary_hstats" representing a named list with statistics.
 #' @export
 #' @seealso See [hstats()] for examples.
 summary.hstats <- function(object, normalize = TRUE, squared = TRUE, sort = TRUE, 
-                           top_m = 6L, eps = 1e-8, ...) {
+                           top_m = Inf, eps = 1e-8, ...) {
   args <- list(
     object = object, 
     normalize = normalize, 
     squared = squared, 
     sort = sort,
-    top_m = Inf,
+    top_m = top_m,
     eps = eps,
     plot = FALSE
   )
@@ -327,9 +328,21 @@ summary.hstats <- function(object, normalize = TRUE, squared = TRUE, sort = TRUE
     h2_pairwise = do.call(h2_pairwise, args), 
     h2_threeway = do.call(h2_threeway, args)
   )
-  out <- out[sapply(out, Negate(is.null))]
-  
-  addon <- "(only for features with strong overall interactions)"
+  class(out) <- "summary_hstats"
+  out
+}
+
+#' Print Method
+#' 
+#' Print method for object of class "summary_hstats".
+#'
+#' @param x An object of class "summary_hstats".
+#' @param ... Further arguments passed from other methods.
+#' @returns Invisibly, the input is returned.
+#' @export
+#' @seealso See [hstats()] for examples.
+print.summary_hstats <- function(x, ...) {
+  addon <- "(for features with strong overall interactions)"
   txt <- c(
     h2 = "Proportion of prediction variability unexplained by main effects of v",
     h2_overall = "Strongest overall interactions", 
@@ -337,13 +350,13 @@ summary.hstats <- function(object, normalize = TRUE, squared = TRUE, sort = TRUE
     h2_threeway = paste0("Strongest relative three-way interactions\n", addon)
   )
   
-  for (nm in names(out)) {
+  for (nm in names(Filter(Negate(is.null), x))) {
     cat(txt[[nm]])
     cat("\n")
-    print(utils::head(out[[nm]], top_m))
+    print(utils::head(drop(x[[nm]])))
     cat("\n")
   }
-  invisible(out)
+  invisible(x)
 }
 
 #' Plot Method for "hstats" Object
@@ -365,19 +378,12 @@ summary.hstats <- function(object, normalize = TRUE, squared = TRUE, sort = TRUE
 plot.hstats <- function(x, which = 1:2, normalize = TRUE, squared = TRUE, sort = TRUE, 
                         top_m = 15L, eps = 1e-8, fill = "#2b51a1", 
                         facet_scales = "free", ncol = 2L, rotate_x = FALSE, ...) {
+  su <- summary(
+    x, normalize = normalize, squared = squared, sort = sort, top_m = top_m, eps = eps
+  )
+  nms <- c("h2_overall", "h2_pairwise", "h2_threeway")
   ids <- c("Overall", "Pairwise", "Threeway")
-  funs <- c(h2_overall, h2_pairwise, h2_threeway)
-  dat <- list()
-  i <- 1L
-  for (f in funs) {
-    if (i %in% which)
-      dat[[i]] <- mat2df(
-        f(x, normalize = normalize, squared = squared, 
-          sort = sort, top_m = top_m, eps = eps, plot = FALSE), 
-        id = ids[i]
-      )
-    i <- i + 1L
-  }
+  dat <- lapply(which, FUN = function(j) mat2df(su[[nms[j]]], id = ids[j]))
   dat <- do.call(rbind, dat)
   p <- ggplot2::ggplot(dat, ggplot2::aes(x = value_, y = variable_)) +
     ggplot2::ylab(ggplot2::element_blank()) +

@@ -9,7 +9,7 @@
   normalize = TRUE,
   squared = TRUE,
   sort = TRUE,
-  top_m = 6L,
+  top_m = Inf,
   eps = 1e-08,
   ...
 )
@@ -31,7 +31,7 @@
 \item{...}{Currently not used.}
 }
 \value{
-A named list of statistics.
+An object of class "summary_hstats" representing a named list with statistics.
 }
 \description{
 Summary method for "hstats" object.
