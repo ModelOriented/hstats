@@ -185,15 +185,15 @@ selected from <code>X</code>. In this case, set a random seed for reproducibilit
 <dt>pairwise_m</dt>
 <dd><p>Number of features for which pairwise statistics are to be
 calculated. The features are selected based on Friedman and Popescu's overall
-interaction strength \(H^2_j\).
-Set to <code>length(v)</code> to calculate every pair and to 0 to avoid pairwise calculations.
+interaction strength \(H^2_j\). Set to to 0 to avoid pairwise calculations.
 For multivariate predictions, the union of the column-wise strongest variable
 names is taken. This can lead to very long run-times.</p></dd>
 
 
 <dt>threeway_m</dt>
 <dd><p>Same as <code>pairwise_m</code>, but controlling the number of features for
-which threeway interactions should be calculated. Not larger than <code>pairwise_m</code>.</p></dd>
+which threeway interactions should be calculated. Not larger than <code>pairwise_m</code>.
+Set to 0 to avoid threeway calculations.</p></dd>
 
 
 <dt>verbose</dt>
