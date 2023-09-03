@@ -55,6 +55,11 @@
 <li><p><strong>perm_importance()</strong>: H-statistics are often calculated for important features only. To support this workflow, we have added permutation importance regarding the most important loss functions. Multivariate losses can be studied individually or collapsed over dimensions. The importance of <em>feature groups</em> can be studied as well. Note that the API of <code><a href="../reference/perm_importance.html">perm_importance()</a></code> is different from the experimental <code><a href="../reference/pd_importance.html">pd_importance()</a></code>, which is calculated from a “hstats” object.</p></li>
 </ul></div>
 <div class="section level3">
+<h3 id="major-changes-in-defaults-0-2-0">Major changes in defaults<a class="anchor" aria-label="anchor" href="#major-changes-in-defaults-0-2-0"></a></h3>
+<ul><li>
+<code><a href="../reference/hstats.html">hstats()</a></code> now uses the default feature vector <code>v = colnames(X)</code>, simplifying the API in most cases. The typical call is now <code>hstats(object, X = Feature data)</code>.</li>
+</ul></div>
+<div class="section level3">
 <h3 id="minor-changes-0-2-0">Minor changes<a class="anchor" aria-label="anchor" href="#minor-changes-0-2-0"></a></h3>
 <ul><li>
 <code><a href="../reference/summary.hstats.html">summary.hstats()</a></code> now returns an object of class “summary_hstats” with its own <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> method. Like this, one can use <code>su &lt;- summary()</code> without printing to the console.</li>

@@ -172,8 +172,8 @@
 <h3 id="fit-model">Fit model<a class="anchor" aria-label="anchor" href="#fit-model"></a>
 </h3>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/mayer79/hstats" class="external-link">hstats</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/mayer79/hstats" class="external-link">hstats</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/dmlc/xgboost" class="external-link">xgboost</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ModelOriented/shapviz" class="external-link">shapviz</a></span><span class="op">)</span></span>
 <span></span>
@@ -214,7 +214,7 @@
 <code class="sourceCode R"><span><span class="co"># 3 seconds on simple laptop - a random forest will take 1-2 minutes</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">782</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/system.time.html" class="external-link">system.time</a></span><span class="op">(</span></span>
-<span>  <span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/hstats.html">hstats</a></span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="va">x</span>, X <span class="op">=</span> <span class="va">X_train</span><span class="op">)</span></span>
+<span>  <span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/hstats.html">hstats</a></span><span class="op">(</span><span class="va">fit</span>, X <span class="op">=</span> <span class="va">X_train</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">s</span></span>
 <span><span class="co"># Proportion of prediction variability unexplained by main effects of v</span></span>
@@ -287,7 +287,7 @@
 <span></span>
 <span><span class="co"># Compared with repeated permutation importance regarding MSE</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">10</span><span class="op">)</span></span>
-<span><span class="va">imp</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/perm_importance.html">perm_importance</a></span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="va">x</span>, X <span class="op">=</span> <span class="va">X_valid</span>, y <span class="op">=</span> <span class="va">y_valid</span><span class="op">)</span></span>
+<span><span class="va">imp</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/perm_importance.html">perm_importance</a></span><span class="op">(</span><span class="va">fit</span>, X <span class="op">=</span> <span class="va">X_valid</span>, y <span class="op">=</span> <span class="va">y_valid</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">imp</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ggtitle</a></span><span class="op">(</span><span class="st">"Permutation importance + standard errors"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="reference/figures/importance.svg"></p>
@@ -300,9 +300,9 @@
 </h2>
 <p>The main functions work smoothly on DALEX explainers:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://modeloriented.github.io/DALEX/" class="external-link">DALEX</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/mayer79/hstats" class="external-link">hstats</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://modeloriented.github.io/DALEX/" class="external-link">DALEX</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/imbs-hl/ranger" class="external-link">ranger</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/mayer79/hstats" class="external-link">hstats</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
 <span></span>
@@ -332,15 +332,15 @@
 </h2>
 <p>{hstats} works also with multivariate output such as probabilistic classification.</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/imbs-hl/ranger" class="external-link">ranger</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/mayer79/hstats" class="external-link">hstats</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/imbs-hl/ranger" class="external-link">ranger</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/mayer79/hstats" class="external-link">hstats</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">ranger</span><span class="op">(</span><span class="va">Species</span> <span class="op">~</span> <span class="va">.</span>, data <span class="op">=</span> <span class="va">iris</span>, probability <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="fu"><a href="reference/average_loss.html">average_loss</a></span><span class="op">(</span><span class="va">fit</span>, X <span class="op">=</span> <span class="va">iris</span>, y <span class="op">=</span> <span class="va">iris</span><span class="op">$</span><span class="va">Species</span>, loss <span class="op">=</span> <span class="st">"mlogloss"</span><span class="op">)</span>  <span class="co"># 0.054</span></span>
 <span></span>
-<span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/hstats.html">hstats</a></span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">iris</span><span class="op">)</span><span class="op">[</span><span class="op">-</span><span class="fl">5</span><span class="op">]</span>, X <span class="op">=</span> <span class="va">iris</span><span class="op">)</span></span>
+<span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/hstats.html">hstats</a></span><span class="op">(</span><span class="va">fit</span>, X <span class="op">=</span> <span class="va">iris</span><span class="op">[</span><span class="op">-</span><span class="fl">5</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="va">s</span></span>
 <span><span class="co"># Proportion of prediction variability unexplained by main effects of v:</span></span>
 <span><span class="co">#      setosa  versicolor   virginica </span></span>
@@ -355,9 +355,7 @@
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ggtitle</a></span><span class="op">(</span><span class="st">"Centered ICE plots"</span><span class="op">)</span></span>
 <span>  </span>
 <span><span class="co"># Permutation importance </span></span>
-<span><span class="fu"><a href="reference/perm_importance.html">perm_importance</a></span><span class="op">(</span></span>
-<span>  <span class="va">fit</span>, v <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">iris</span><span class="op">)</span><span class="op">[</span><span class="op">-</span><span class="fl">5</span><span class="op">]</span>, X <span class="op">=</span> <span class="va">iris</span>, y <span class="op">=</span> <span class="va">iris</span><span class="op">$</span><span class="va">Species</span>, loss <span class="op">=</span> <span class="st">"mlogloss"</span></span>
-<span><span class="op">)</span></span>
+<span><span class="fu"><a href="reference/perm_importance.html">perm_importance</a></span><span class="op">(</span><span class="va">fit</span>, X <span class="op">=</span> <span class="va">iris</span><span class="op">[</span><span class="op">-</span><span class="fl">5</span><span class="op">]</span>, y <span class="op">=</span> <span class="va">iris</span><span class="op">$</span><span class="va">Species</span>, loss <span class="op">=</span> <span class="st">"mlogloss"</span><span class="op">)</span></span>
 <span> </span>
 <span><span class="co"># Petal.Length  Petal.Width Sepal.Length  Sepal.Width </span></span>
 <span><span class="co">#   0.50941613   0.49187688   0.05669978   0.00950009 </span></span></code></pre></div>
@@ -372,8 +370,8 @@
 <h3 id="tidymodels">tidymodels<a class="anchor" aria-label="anchor" href="#tidymodels"></a>
 </h3>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidymodels.tidymodels.org" class="external-link">tidymodels</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/mayer79/hstats" class="external-link">hstats</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/mayer79/hstats" class="external-link">hstats</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidymodels.tidymodels.org" class="external-link">tidymodels</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">iris_recipe</span> <span class="op">&lt;-</span> <span class="va">iris</span> <span class="op">%&gt;%</span></span>
 <span>  <span class="fu">recipe</span><span class="op">(</span><span class="va">Sepal.Length</span> <span class="op">~</span> <span class="va">.</span><span class="op">)</span></span>
@@ -388,11 +386,11 @@
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="va">iris_wf</span> <span class="op">%&gt;%</span></span>
 <span>  <span class="fu">fit</span><span class="op">(</span><span class="va">iris</span><span class="op">)</span></span>
 <span>  </span>
-<span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/hstats.html">hstats</a></span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">iris</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span>, X <span class="op">=</span> <span class="va">iris</span><span class="op">)</span></span>
+<span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/hstats.html">hstats</a></span><span class="op">(</span><span class="va">fit</span>, X <span class="op">=</span> <span class="va">iris</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="va">s</span> <span class="co"># 0 -&gt; no interactions</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="reference/partial_dep.html">partial_dep</a></span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="st">"Petal.Width"</span>, X <span class="op">=</span> <span class="va">iris</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">imp</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/perm_importance.html">perm_importance</a></span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">iris</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span>, X <span class="op">=</span> <span class="va">iris</span>, y <span class="op">=</span> <span class="va">iris</span><span class="op">$</span><span class="va">Sepal.Length</span><span class="op">)</span></span>
+<span><span class="va">imp</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/perm_importance.html">perm_importance</a></span><span class="op">(</span><span class="va">fit</span>, X <span class="op">=</span> <span class="va">iris</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span><span class="op">]</span>, y <span class="op">=</span> <span class="va">iris</span><span class="op">$</span><span class="va">Sepal.Length</span><span class="op">)</span></span>
 <span><span class="va">imp</span></span>
 <span><span class="co"># Petal.Length      Species  Petal.Width  Sepal.Width </span></span>
 <span><span class="co">#   4.44682039   0.34064367   0.10195946   0.09520902</span></span>
@@ -403,8 +401,8 @@
 <h3 id="caret">caret<a class="anchor" aria-label="anchor" href="#caret"></a>
 </h3>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/topepo/caret/" class="external-link">caret</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/mayer79/hstats" class="external-link">hstats</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/mayer79/hstats" class="external-link">hstats</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/topepo/caret/" class="external-link">caret</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">train</span><span class="op">(</span></span>
 <span>  <span class="va">Sepal.Length</span> <span class="op">~</span> <span class="va">.</span>, </span>
@@ -414,10 +412,10 @@
 <span>  trControl <span class="op">=</span> <span class="fu">trainControl</span><span class="op">(</span>method <span class="op">=</span> <span class="st">"none"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="reference/H2.html">h2</a></span><span class="op">(</span><span class="fu"><a href="reference/hstats.html">hstats</a></span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">iris</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span>, X <span class="op">=</span> <span class="va">iris</span><span class="op">)</span><span class="op">)</span>  <span class="co"># 0</span></span>
+<span><span class="fu"><a href="reference/H2.html">h2</a></span><span class="op">(</span><span class="fu"><a href="reference/hstats.html">hstats</a></span><span class="op">(</span><span class="va">fit</span>, X <span class="op">=</span> <span class="va">iris</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span><span class="op">)</span>  <span class="co"># 0</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="reference/ice.html">ice</a></span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="st">"Petal.Width"</span>, X <span class="op">=</span> <span class="va">iris</span><span class="op">)</span>, center <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="reference/perm_importance.html">perm_importance</a></span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">iris</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span>, X <span class="op">=</span> <span class="va">iris</span>, y <span class="op">=</span> <span class="va">iris</span><span class="op">$</span><span class="va">Sepal.Length</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="reference/perm_importance.html">perm_importance</a></span><span class="op">(</span><span class="va">fit</span>, X <span class="op">=</span> <span class="va">iris</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span><span class="op">]</span>, y <span class="op">=</span> <span class="va">iris</span><span class="op">$</span><span class="va">Sepal.Length</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="mlr3">mlr3<a class="anchor" aria-label="anchor" href="#mlr3"></a>
@@ -431,12 +429,11 @@
 <span><span class="va">task_iris</span> <span class="op">&lt;-</span> <span class="va">TaskClassif</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span>id <span class="op">=</span> <span class="st">"class"</span>, backend <span class="op">=</span> <span class="va">iris</span>, target <span class="op">=</span> <span class="st">"Species"</span><span class="op">)</span></span>
 <span><span class="va">fit_rf</span> <span class="op">&lt;-</span> <span class="fu">lrn</span><span class="op">(</span><span class="st">"classif.ranger"</span>, predict_type <span class="op">=</span> <span class="st">"prob"</span><span class="op">)</span></span>
 <span><span class="va">fit_rf</span><span class="op">$</span><span class="fu">train</span><span class="op">(</span><span class="va">task_iris</span><span class="op">)</span></span>
-<span><span class="va">v</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">iris</span><span class="op">[</span><span class="op">-</span><span class="fl">5</span><span class="op">]</span><span class="op">)</span></span>
-<span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/hstats.html">hstats</a></span><span class="op">(</span><span class="va">fit_rf</span>, v <span class="op">=</span> <span class="va">v</span>, X <span class="op">=</span> <span class="va">iris</span>, threeway_m <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
+<span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/hstats.html">hstats</a></span><span class="op">(</span><span class="va">fit_rf</span>, X <span class="op">=</span> <span class="va">iris</span><span class="op">[</span><span class="op">-</span><span class="fl">5</span><span class="op">]</span>, threeway_m <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">s</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Permutation importance</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="reference/perm_importance.html">perm_importance</a></span><span class="op">(</span><span class="va">fit_rf</span>, v <span class="op">=</span> <span class="va">v</span>, X <span class="op">=</span> <span class="va">iris</span>, y <span class="op">=</span> <span class="va">iris</span><span class="op">$</span><span class="va">Species</span>, loss <span class="op">=</span> <span class="st">"mlogloss"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="reference/perm_importance.html">perm_importance</a></span><span class="op">(</span><span class="va">fit_rf</span>, X <span class="op">=</span> <span class="va">iris</span><span class="op">[</span><span class="op">-</span><span class="fl">5</span><span class="op">]</span>, y <span class="op">=</span> <span class="va">iris</span><span class="op">$</span><span class="va">Species</span>, loss <span class="op">=</span> <span class="st">"mlogloss"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
