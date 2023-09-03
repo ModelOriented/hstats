@@ -197,7 +197,7 @@ pd_importance(s) +
 
 # Compared with repeated permutation importance regarding MSE
 set.seed(10)
-imp <- perm_importance(fit, v = x, X = X_valid, y = y_valid)
+imp <- perm_importance(fit, X = X_valid, y = y_valid)
 plot(imp) +
   ggtitle("Permutation importance + standard errors")
 ```
@@ -272,9 +272,7 @@ ice(fit, v = "Petal.Length", X = iris, BY = "Petal.Width", n_max = 150) |>
   ggtitle("Centered ICE plots")
   
 # Permutation importance 
-perm_importance(
-  fit, v = colnames(iris)[-5], X = iris, y = iris$Species, loss = "mlogloss"
-)
+perm_importance(fit, X = iris[-5], y = iris$Species, loss = "mlogloss")
  
 # Petal.Length  Petal.Width Sepal.Length  Sepal.Width 
 #   0.50941613   0.49187688   0.05669978   0.00950009 
@@ -291,8 +289,8 @@ Here, we provide some working examples for "tidymodels", "caret", and "mlr3".
 ### tidymodels
 
 ```r
-library(tidymodels)
 library(hstats)
+library(tidymodels)
 
 iris_recipe <- iris %>%
   recipe(Sepal.Length ~ .)
@@ -311,7 +309,7 @@ s <- hstats(fit, v = colnames(iris[-1]), X = iris)
 s # 0 -> no interactions
 plot(partial_dep(fit, v = "Petal.Width", X = iris))
 
-imp <- perm_importance(fit, v = colnames(iris[-1]), X = iris, y = iris$Sepal.Length)
+imp <- perm_importance(fit, X = iris[-1], y = iris$Sepal.Length)
 imp
 # Petal.Length      Species  Petal.Width  Sepal.Width 
 #   4.44682039   0.34064367   0.10195946   0.09520902
@@ -322,8 +320,8 @@ plot(imp)
 ### caret
 
 ```r
-library(caret)
 library(hstats)
+library(caret)
 
 fit <- train(
   Sepal.Length ~ ., 
@@ -336,7 +334,7 @@ fit <- train(
 h2(hstats(fit, v = colnames(iris[-1]), X = iris))  # 0
 
 plot(ice(fit, v = "Petal.Width", X = iris), center = TRUE)
-plot(perm_importance(fit, v = colnames(iris[-1]), X = iris, y = iris$Sepal.Length))
+plot(perm_importance(fit, X = iris[-1], y = iris$Sepal.Length))
 ```
 
 ### mlr3
@@ -355,7 +353,7 @@ s <- hstats(fit_rf, v = v, X = iris, threeway_m = 0)
 plot(s)
 
 # Permutation importance
-plot(perm_importance(fit_rf, v = v, X = iris, y = iris$Species, loss = "mlogloss"))
+plot(perm_importance(fit_rf, X = iris[-5], y = iris$Species, loss = "mlogloss"))
 ```
 
 ## Background
