@@ -58,6 +58,8 @@
 <h3 id="major-changes-in-defaults-0-2-0">Major changes in defaults<a class="anchor" aria-label="anchor" href="#major-changes-in-defaults-0-2-0"></a></h3>
 <ul><li>
 <code><a href="../reference/hstats.html">hstats()</a></code> now uses the default feature vector <code>v = colnames(X)</code>, simplifying the API in most cases. The typical call is now <code>hstats(object, X = Feature data)</code>.</li>
+<li>
+<code><a href="../reference/H2_overall.html">h2_overall()</a></code>, <code><a href="../reference/H2_pairwise.html">h2_pairwise()</a></code>, <code><a href="../reference/H2_threeway.html">h2_threeway()</a></code>, <code><a href="../reference/pd_importance.html">pd_importance()</a></code> by default do not plot results anymore. Set <code>plot = TRUE</code> to do so.</li>
 </ul></div>
 <div class="section level3">
 <h3 id="minor-changes-0-2-0">Minor changes<a class="anchor" aria-label="anchor" href="#minor-changes-0-2-0"></a></h3>

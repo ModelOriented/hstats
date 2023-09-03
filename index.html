@@ -241,7 +241,7 @@
 <li>Pairwise statistics <span class="math inline"><em>H</em><sub><em>j</em><em>k</em></sub><sup>2</sup></span> measures interaction strength relative to the combined effect of the two features. This does not necessarily show which interactions are strongest in absolute numbers. To do so, we can study unnormalized statistics:</li>
 </ol>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="reference/H2_pairwise.html">h2_pairwise</a></span><span class="op">(</span><span class="va">s</span>, normalize <span class="op">=</span> <span class="cn">FALSE</span>, squared <span class="op">=</span> <span class="cn">FALSE</span>, top_m <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="reference/H2_pairwise.html">h2_pairwise</a></span><span class="op">(</span><span class="va">s</span>, normalize <span class="op">=</span> <span class="cn">FALSE</span>, squared <span class="op">=</span> <span class="cn">FALSE</span>, top_m <span class="op">=</span> <span class="fl">5</span>, plot <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="reference/figures/hstats_pairwise.svg"></p>
 <p>Since distance to the ocean and age have high values in overall interaction strength, it is not surprising that a strong relative pairwise interaction is translated into a strong absolute one.</p>
 <p>{hstats} crunches three-way interaction statistics <span class="math inline"><em>H</em><sub><em>j</em><em>k</em><em>l</em></sub><sup>2</sup></span> as well. The following plot shows them together with the other statistics on prediction scale (<code>normalize = FALSE</code> and <code>squared = FALSE</code>). The three-way interactions are weaker than the pairwise interactions, yet not negligible:</p>
@@ -282,7 +282,7 @@
 </h3>
 <p>In the spirit of [1], and related to [4], we can extract from the “hstats” objects a partial dependence based variable importance measure. It measures not only the main effect strength (see [4]), but also all its interaction effects. It is rather experimental, so use it with care (details in the section “Background”):</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="reference/pd_importance.html">pd_importance</a></span><span class="op">(</span><span class="va">s</span><span class="op">)</span> <span class="op">+</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="reference/pd_importance.html">pd_importance</a></span><span class="op">(</span><span class="va">s</span>, plot <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ggtitle</a></span><span class="op">(</span><span class="st">"PD-based importance (experimental)"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Compared with repeated permutation importance regarding MSE</span></span>
