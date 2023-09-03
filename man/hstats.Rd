@@ -12,8 +12,8 @@ hstats(object, ...)
 
 \method{hstats}{default}(
   object,
-  v,
   X,
+  v = colnames(X),
   pred_fun = stats::predict,
   n_max = 300L,
   w = NULL,
@@ -25,8 +25,8 @@ hstats(object, ...)
 
 \method{hstats}{ranger}(
   object,
-  v,
   X,
+  v = colnames(X),
   pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
   n_max = 300L,
   w = NULL,
@@ -38,8 +38,8 @@ hstats(object, ...)
 
 \method{hstats}{Learner}(
   object,
-  v,
   X,
+  v = colnames(X),
   pred_fun = NULL,
   n_max = 300L,
   w = NULL,
@@ -51,8 +51,8 @@ hstats(object, ...)
 
 \method{hstats}{explainer}(
   object,
-  v = colnames(object[["data"]]),
   X = object[["data"]],
+  v = colnames(X),
   pred_fun = object[["predict_function"]],
   n_max = 300L,
   w = object[["weights"]],
@@ -68,9 +68,9 @@ hstats(object, ...)
 \item{...}{Additional arguments passed to \code{pred_fun(object, X, ...)},
 for instance \code{type = "response"} in a \code{\link[=glm]{glm()}} model.}
 
-\item{v}{Vector of feature names.}
-
 \item{X}{A data.frame or matrix serving as background dataset.}
+
+\item{v}{Vector of feature names, by default \code{colnames(X)}.}
 
 \item{pred_fun}{Prediction function of the form \verb{function(object, X, ...)},
 providing \eqn{K \ge 1} predictions per row. Its first argument represents the
@@ -161,7 +161,7 @@ more flexible functions \code{\link[=h2]{h2()}}, \code{\link[=h2_overall]{h2_ove
 \examples{
 # MODEL 1: Linear regression
 fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
-s <- hstats(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
+s <- hstats(fit, X = iris[-1])
 s
 plot(s)
 summary(s)
@@ -171,8 +171,7 @@ h2_pairwise(s, normalize = FALSE, squared = FALSE, plot = FALSE)
 
 # MODEL 2: Multi-response linear regression
 fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
-v <- c("Petal.Length", "Petal.Width", "Species")
-s <- hstats(fit, v = v, X = iris, verbose = FALSE)
+s <- hstats(fit, X = iris[3:5], verbose = FALSE)
 plot(s)
 summary(s)
 
@@ -180,13 +179,11 @@ summary(s)
 fit <- glm(Sepal.Length ~ ., data = iris, family = Gamma(link = log))
 
 # No interactions for additive features, at least on link scale
-s <- hstats(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
+s <- hstats(fit, X = iris[-1], verbose = FALSE)
 summary(s)
 
 # On original scale, we have interactions everywhere...
-s <- hstats(
-  fit, v = names(iris[-1]), X = iris, type = "response", verbose = FALSE
-)
+s <- hstats(fit, X = iris[-1], type = "response", verbose = FALSE)
 
 # All three types use different denominators
 plot(s, which = 1:3, ncol = 1)

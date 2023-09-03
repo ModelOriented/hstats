@@ -22,8 +22,8 @@
 #' [h2_threeway()].
 #'  
 #' @param object Fitted model object.
-#' @param v Vector of feature names.
 #' @param X A data.frame or matrix serving as background dataset.
+#' @param v Vector of feature names, by default `colnames(X)`.
 #' @param pred_fun Prediction function of the form `function(object, X, ...)`,
 #'   providing \eqn{K \ge 1} predictions per row. Its first argument represents the 
 #'   model `object`, its second argument a data structure like `X`. Additional arguments 
@@ -78,7 +78,7 @@
 #' @examples
 #' # MODEL 1: Linear regression
 #' fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
-#' s <- hstats(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
+#' s <- hstats(fit, X = iris[-1])
 #' s
 #' plot(s)
 #' summary(s)
@@ -88,8 +88,7 @@
 #' 
 #' # MODEL 2: Multi-response linear regression
 #' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
-#' v <- c("Petal.Length", "Petal.Width", "Species")
-#' s <- hstats(fit, v = v, X = iris, verbose = FALSE)
+#' s <- hstats(fit, X = iris[3:5], verbose = FALSE)
 #' plot(s)
 #' summary(s)
 #'
@@ -97,13 +96,11 @@
 #' fit <- glm(Sepal.Length ~ ., data = iris, family = Gamma(link = log))
 #' 
 #' # No interactions for additive features, at least on link scale
-#' s <- hstats(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
+#' s <- hstats(fit, X = iris[-1], verbose = FALSE)
 #' summary(s)
 #' 
 #' # On original scale, we have interactions everywhere...
-#' s <- hstats(
-#'   fit, v = names(iris[-1]), X = iris, type = "response", verbose = FALSE
-#' )
+#' s <- hstats(fit, X = iris[-1], type = "response", verbose = FALSE)
 #' 
 #' # All three types use different denominators
 #' plot(s, which = 1:3, ncol = 1)
@@ -116,7 +113,8 @@ hstats <- function(object, ...) {
 
 #' @describeIn hstats Default hstats method.
 #' @export
-hstats.default <- function(object, v, X, pred_fun = stats::predict, n_max = 300L, 
+hstats.default <- function(object, X, v = colnames(X),
+                           pred_fun = stats::predict, n_max = 300L, 
                            w = NULL, pairwise_m = 5L, threeway_m = pairwise_m,
                            verbose = TRUE, ...) {
   basic_check(X = X, v = v, pred_fun = pred_fun, w = w)
@@ -221,14 +219,14 @@ hstats.default <- function(object, v, X, pred_fun = stats::predict, n_max = 300L
 
 #' @describeIn hstats Method for "ranger" models.
 #' @export
-hstats.ranger <- function(object, v, X,
+hstats.ranger <- function(object, X, v = colnames(X),
                           pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
                           n_max = 300L, w = NULL, pairwise_m = 5L, 
                           threeway_m = pairwise_m, verbose = TRUE, ...) {
   hstats.default(
     object = object,
-    v = v,
     X = X,
+    v = v,
     pred_fun = pred_fun,
     n_max = n_max,
     w = w,
@@ -241,7 +239,7 @@ hstats.ranger <- function(object, v, X,
 
 #' @describeIn hstats Method for "mlr3" models.
 #' @export
-hstats.Learner <- function(object, v, X,
+hstats.Learner <- function(object, X, v = colnames(X),
                            pred_fun = NULL,
                            n_max = 300L, w = NULL, pairwise_m = 5L,
                            threeway_m = pairwise_m, verbose = TRUE, ...) {
@@ -250,8 +248,8 @@ hstats.Learner <- function(object, v, X,
   }
   hstats.default(
     object = object,
-    v = v,
     X = X,
+    v = v,
     pred_fun = pred_fun,
     n_max = n_max,
     w = w,
@@ -264,16 +262,16 @@ hstats.Learner <- function(object, v, X,
 
 #' @describeIn hstats Method for DALEX "explainer".
 #' @export
-hstats.explainer <- function(object, v = colnames(object[["data"]]), 
-                             X = object[["data"]],
+hstats.explainer <- function(object, X = object[["data"]],
+                             v = colnames(X),
                              pred_fun = object[["predict_function"]],
                              n_max = 300L, w = object[["weights"]], 
                              pairwise_m = 5L, threeway_m = pairwise_m,
                              verbose = TRUE, ...) {
   hstats.default(
     object = object[["model"]],
-    v = v,
     X = X,
+    v = v,
     pred_fun = pred_fun,
     n_max = n_max,
     w = w,

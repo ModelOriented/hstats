@@ -12,9 +12,9 @@ perm_importance(object, ...)
 
 \method{perm_importance}{default}(
   object,
-  v,
   X,
   y,
+  v = colnames(X),
   pred_fun = stats::predict,
   loss = "squared_error",
   perms = 4L,
@@ -28,9 +28,9 @@ perm_importance(object, ...)
 
 \method{perm_importance}{ranger}(
   object,
-  v,
   X,
   y,
+  v = colnames(X),
   pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
   loss = "squared_error",
   perms = 4L,
@@ -44,9 +44,9 @@ perm_importance(object, ...)
 
 \method{perm_importance}{Learner}(
   object,
-  v,
   X,
   y,
+  v = colnames(X),
   pred_fun = NULL,
   loss = "squared_error",
   perms = 4L,
@@ -60,9 +60,9 @@ perm_importance(object, ...)
 
 \method{perm_importance}{explainer}(
   object,
-  v = colnames(object[["data"]]),
   X = object[["data"]],
   y = object[["y"]],
+  v = colnames(X),
   pred_fun = object[["predict_function"]],
   loss = "squared_error",
   perms = 4L,
@@ -80,11 +80,11 @@ perm_importance(object, ...)
 \item{...}{Additional arguments passed to \code{pred_fun(object, X, ...)},
 for instance \code{type = "response"} in a \code{\link[=glm]{glm()}} model.}
 
-\item{v}{Vector of feature names, or named list of feature groups.}
-
 \item{X}{A data.frame or matrix serving as background dataset.}
 
 \item{y}{Vector/matrix of the response corresponding to \code{X}.}
+
+\item{v}{Vector of feature names, or named list of feature groups.}
 
 \item{pred_fun}{Prediction function of the form \verb{function(object, X, ...)},
 providing \eqn{K \ge 1} predictions per row. Its first argument represents the
@@ -124,17 +124,20 @@ a row per feature (group) and a column per loss dimension.
 \item \code{SE}: (p x d) matrix with corresponding standard errors of \code{imp}.
 Multiply with \code{sqrt(perms)} to get standard deviations.
 \item \code{perf}: Average loss before shuffling.
+\item \code{v}: Same as input \code{v}.
 \item \code{perms}: Same as input \code{perms}.
 }
 }
 \description{
-Calculates permutation feature importance (PVI) for a set of features or
-a set of feature groups \code{v}.
+Calculates permutation importance for a set of features or a set of feature groups.
+By default, importance is calculated for all columns in \code{X}.
 }
 \details{
-The PVI of a feature is defined as the increase in the average loss when
-shuffling the corresponding feature values before calculating predictions.
+The permutation importance of a feature is defined as the increase in the average
+loss when shuffling the corresponding feature values before calculating predictions.
 By default, the process is repeated \code{perms = 4} times, and the results are averaged.
+In most of the cases, importance values should be derived from an independent test
+data set.
 }
 \section{Methods (by class)}{
 \itemize{
@@ -180,23 +183,21 @@ vector of length n or a matrix with n rows, where n is the number of rows of \co
 \examples{
 # MODEL 1: Linear regression
 fit <- lm(Sepal.Length ~ ., data = iris)
-v <- setdiff(names(iris), "Sepal.Length")
-s <- perm_importance(fit, v = v, X = iris, y = iris$Sepal.Length)
+s <- perm_importance(fit, X = iris[-1], y = iris$Sepal.Length)
 s
 s$imp
-s$SE  # Standard errors
+s$SE  # Standard errors are available thanks to repeated shuffling
 plot(s)
 plot(s, err_type = "sd")  # Standard deviations instead of standard errors
 
 # Groups of features can be passed as named list
 v <- list(petal = c("Petal.Length", "Petal.Width"), species = "Species")
-s <- perm_importance(fit, v = v, X = iris, y = iris$Sepal.Length)
+s <- perm_importance(fit, X = iris, y = iris$Sepal.Length, v = v)
 s
 
 # MODEL 2: Multi-response linear regression
 fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width + Species, data = iris)
-v <- c("Petal.Length", "Petal.Width", "Species")
-s <- perm_importance(fit, v = v, X = iris, y = iris[1:2])
+s <- perm_importance(fit, X = iris[3:5], y = iris[1:2])
 s
 plot(s)
 plot(s, rotate_x = TRUE, facet_scale = "free_x", err_type = "sd")

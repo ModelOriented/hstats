@@ -1,11 +1,13 @@
 #' Permutation Importance
 #' 
-#' Calculates permutation feature importance (PVI) for a set of features or 
-#' a set of feature groups `v`.
+#' Calculates permutation importance for a set of features or a set of feature groups. 
+#' By default, importance is calculated for all columns in `X`.
 #' 
-#' The PVI of a feature is defined as the increase in the average loss when
-#' shuffling the corresponding feature values before calculating predictions.
+#' The permutation importance of a feature is defined as the increase in the average
+#' loss when shuffling the corresponding feature values before calculating predictions.
 #' By default, the process is repeated `perms = 4` times, and the results are averaged.
+#' In most of the cases, importance values should be derived from an independent test
+#' data set.
 #' 
 #' @inheritSection average_loss Losses
 #' 
@@ -24,6 +26,7 @@
 #'   - `SE`: (p x d) matrix with corresponding standard errors of `imp`.
 #'      Multiply with `sqrt(perms)` to get standard deviations.
 #'   - `perf`: Average loss before shuffling.
+#'   - `v`: Same as input `v`.
 #'   - `perms`: Same as input `perms`.
 #' @references
 #'   Fisher A., Rudin C., Dominici F. (2018). All Models are Wrong but many are Useful:
@@ -33,23 +36,21 @@
 #' @examples
 #' # MODEL 1: Linear regression
 #' fit <- lm(Sepal.Length ~ ., data = iris)
-#' v <- setdiff(names(iris), "Sepal.Length")
-#' s <- perm_importance(fit, v = v, X = iris, y = iris$Sepal.Length)
+#' s <- perm_importance(fit, X = iris[-1], y = iris$Sepal.Length)
 #' s
 #' s$imp
-#' s$SE  # Standard errors
+#' s$SE  # Standard errors are available thanks to repeated shuffling
 #' plot(s)
 #' plot(s, err_type = "sd")  # Standard deviations instead of standard errors
 #' 
 #' # Groups of features can be passed as named list
 #' v <- list(petal = c("Petal.Length", "Petal.Width"), species = "Species")
-#' s <- perm_importance(fit, v = v, X = iris, y = iris$Sepal.Length)
+#' s <- perm_importance(fit, X = iris, y = iris$Sepal.Length, v = v)
 #' s
 #' 
 #' # MODEL 2: Multi-response linear regression
 #' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width + Species, data = iris)
-#' v <- c("Petal.Length", "Petal.Width", "Species")
-#' s <- perm_importance(fit, v = v, X = iris, y = iris[1:2])
+#' s <- perm_importance(fit, X = iris[3:5], y = iris[1:2])
 #' s
 #' plot(s)
 #' plot(s, rotate_x = TRUE, facet_scale = "free_x", err_type = "sd")
@@ -59,7 +60,7 @@ perm_importance <- function(object, ...) {
 
 #' @describeIn perm_importance Default method.
 #' @export
-perm_importance.default <- function(object, v, X, y, 
+perm_importance.default <- function(object, X, y, v = colnames(X),
                                     pred_fun = stats::predict,
                                     loss = "squared_error", 
                                     perms = 4L, agg_cols = FALSE,
@@ -171,14 +172,14 @@ perm_importance.default <- function(object, v, X, y,
   SE <- SE[ind, , drop = FALSE]
   
   structure(
-    list(imp = S, SE = SE, perf = perf, perms = perms), 
+    list(imp = S, SE = SE, perf = perf, v = v, perms = perms), 
     class = "perm_importance"
   )
 }
 
 #' @describeIn perm_importance Method for "ranger" models.
 #' @export
-perm_importance.ranger <- function(object, v, X, y, 
+perm_importance.ranger <- function(object, X, y, v = colnames(X),
                                    pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
                                    loss = "squared_error", perms = 4L, 
                                    agg_cols = FALSE, 
@@ -186,9 +187,9 @@ perm_importance.ranger <- function(object, v, X, y,
                                    w = NULL, verbose = FALSE, ...) {
   perm_importance.default(
     object = object,
-    v = v,
     X = X,
     y = y,
+    v = v,
     pred_fun = pred_fun,
     loss = loss,
     perms = perms,
@@ -203,7 +204,7 @@ perm_importance.ranger <- function(object, v, X, y,
 
 #' @describeIn perm_importance Method for "mlr3" models.
 #' @export
-perm_importance.Learner <- function(object, v, X, y, 
+perm_importance.Learner <- function(object, X, y, v = colnames(X),
                                     pred_fun = NULL,
                                     loss = "squared_error", perms = 4L, 
                                     agg_cols = FALSE, 
@@ -214,9 +215,9 @@ perm_importance.Learner <- function(object, v, X, y,
   }
   perm_importance.default(
     object = object,
-    v = v,
     X = X,
     y = y,
+    v = v,
     pred_fun = pred_fun,
     loss = loss,
     perms = perms,
@@ -232,9 +233,9 @@ perm_importance.Learner <- function(object, v, X, y,
 #' @describeIn perm_importance Method for DALEX "explainer".
 #' @export
 perm_importance.explainer <- function(object, 
-                                      v = colnames(object[["data"]]), 
                                       X = object[["data"]], 
-                                      y = object[["y"]], 
+                                      y = object[["y"]],
+                                      v = colnames(X),
                                       pred_fun = object[["predict_function"]],
                                       loss = "squared_error", 
                                       perms = 4L,
@@ -246,9 +247,9 @@ perm_importance.explainer <- function(object,
                                       ...) {
   perm_importance.default(
     object = object[["model"]],
-    v = v,
     X = X,
     y = y,
+    v = v,
     pred_fun = pred_fun,
     loss = loss,
     perms = perms,
