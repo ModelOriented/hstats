@@ -17,7 +17,7 @@ h2_pairwise(object, ...)
   sort = TRUE,
   top_m = 15L,
   eps = 1e-08,
-  plot = TRUE,
+  plot = FALSE,
   fill = "#2b51a1",
   ...
 )
@@ -49,7 +49,7 @@ statistics have been calculated, the function returns \code{NULL}.
 }
 \description{
 Friedman and Popescu's statistic of pairwise interaction strength, see Details.
-By default, the results are plotted as barplot. Set \code{plot = FALSE} to get numbers.
+Set \code{plot = TRUE} to plot the results as barplot.
 }
 \details{
 Following Friedman and Popescu (2008), if there are no interaction effects between
@@ -104,20 +104,19 @@ rather for those features with \emph{strongest overall interactions}.
 \examples{
 # MODEL 1: Linear regression
 fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
-s <- hstats(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
+s <- hstats(fit, X = iris[-1])
 
 # Proportion of joint effect coming from pairwise interaction
 # (for features with strongest overall interactions)
-h2_pairwise(s, plot = FALSE)
+h2_pairwise(s)
 
 # Absolute measure as alternative
-h2_pairwise(s, normalize = FALSE, squared = FALSE, plot = FALSE)
+h2_pairwise(s, normalize = FALSE, squared = FALSE)
 
 # MODEL 2: Multi-response linear regression
 fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
-v <- c("Petal.Length", "Petal.Width", "Species")
-s <- hstats(fit, v = v, X = iris, verbose = FALSE)
-h2_pairwise(s)
+s <- hstats(fit, X = iris[3:5], verbose = FALSE)
+h2_pairwise(s, plot = TRUE)
 }
 \references{
 Friedman, Jerome H., and Bogdan E. Popescu. \emph{"Predictive Learning via Rule Ensembles."}

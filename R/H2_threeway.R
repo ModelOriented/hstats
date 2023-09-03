@@ -1,7 +1,7 @@
 #' Three-way Interaction Strength
 #' 
 #' Friedman and Popescu's statistic of three-way interaction strength, see Details. 
-#' By default, the results are plotted as barplot. Set `plot = FALSE` to get numbers.
+#' Set `plot = TRUE` to plot the results as barplot.
 #' 
 #' @details
 #' Friedman and Popescu (2008) describe a test statistic to measure three-way 
@@ -46,16 +46,16 @@
 #' @examples
 #' # MODEL 1: Linear regression
 #' fit <- lm(uptake ~ Type * Treatment * conc, data = CO2)
-#' s <- hstats(fit, v = names(CO2[2:4]), X = CO2, verbose = FALSE)
-#' h2_threeway(s, plot = FALSE)
+#' s <- hstats(fit, X = CO2[2:4], verbose = FALSE)
+#' h2_threeway(s)
 #' 
 #' #' MODEL 2: Multivariate output (taking just twice the same response as example)
 #' fit <- lm(cbind(up = uptake, up2 = 2 * uptake) ~ Type * Treatment * conc, data = CO2)
-#' s <- hstats(fit, v = names(CO2[2:4]), X = CO2, verbose = FALSE)
-#' h2_threeway(s, plot = FALSE)
+#' s <- hstats(fit, X = CO2[2:4], verbose = FALSE)
+#' h2_threeway(s)
 #' 
 #' # Unnormalized H
-#' h2_threeway(s, normalize = FALSE, squared = FALSE, plot = FALSE)
+#' h2_threeway(s, normalize = FALSE, squared = FALSE)
 h2_threeway <- function(object, ...) {
   UseMethod("h2_threeway")
 }
@@ -69,7 +69,7 @@ h2_threeway.default <- function(object, ...) {
 #' @describeIn h2_threeway Pairwise interaction strength from "hstats" object.
 #' @export
 h2_threeway.hstats <- function(object, normalize = TRUE, squared = TRUE, sort = TRUE, 
-                               top_m = 15L, eps = 1e-8, plot = TRUE, 
+                               top_m = 15L, eps = 1e-8, plot = FALSE, 
                                fill = "#2b51a1", ...) {
   combs <- object[["combs3"]]
   

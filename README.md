@@ -132,7 +132,7 @@ plot(s)  # Or summary(s) for numeric output
 3. Pairwise statistics $H^2_{jk}$ measures interaction strength relative to the combined effect of the two features. This does not necessarily show which interactions are strongest in absolute numbers. To do so, we can study unnormalized statistics:
 
 ```r
-h2_pairwise(s, normalize = FALSE, squared = FALSE, top_m = 5)
+h2_pairwise(s, normalize = FALSE, squared = FALSE, top_m = 5, plot = TRUE)
 ```
 
 ![](man/figures/hstats_pairwise.svg)
@@ -192,7 +192,7 @@ plot(ice(fit, v = "tot_lvg_area", X = X_train, BY = BY), center = TRUE)
 In the spirit of [1], and related to [4], we can extract from the "hstats" objects a partial dependence based variable importance measure. It measures not only the main effect strength (see [4]), but also all its interaction effects. It is rather experimental, so use it with care (details in the section "Background"):
 
 ```r
-pd_importance(s) +
+pd_importance(s, plot = TRUE) +
   ggtitle("PD-based importance (experimental)")
 
 # Compared with repeated permutation importance regarding MSE

@@ -1,7 +1,7 @@
 #' Pairwise Interaction Strength
 #' 
 #' Friedman and Popescu's statistic of pairwise interaction strength, see Details. 
-#' By default, the results are plotted as barplot. Set `plot = FALSE` to get numbers.
+#' Set `plot = TRUE` to plot the results as barplot.
 #' 
 #' @details
 #' Following Friedman and Popescu (2008), if there are no interaction effects between 
@@ -56,20 +56,19 @@
 #' @examples
 #' # MODEL 1: Linear regression
 #' fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
-#' s <- hstats(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
+#' s <- hstats(fit, X = iris[-1])
 #' 
 #' # Proportion of joint effect coming from pairwise interaction
 #' # (for features with strongest overall interactions)
-#' h2_pairwise(s, plot = FALSE)
+#' h2_pairwise(s)
 #' 
 #' # Absolute measure as alternative
-#' h2_pairwise(s, normalize = FALSE, squared = FALSE, plot = FALSE)
+#' h2_pairwise(s, normalize = FALSE, squared = FALSE)
 #' 
 #' # MODEL 2: Multi-response linear regression
 #' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
-#' v <- c("Petal.Length", "Petal.Width", "Species")
-#' s <- hstats(fit, v = v, X = iris, verbose = FALSE)
-#' h2_pairwise(s)
+#' s <- hstats(fit, X = iris[3:5], verbose = FALSE)
+#' h2_pairwise(s, plot = TRUE)
 h2_pairwise <- function(object, ...) {
   UseMethod("h2_pairwise")
 }
@@ -83,7 +82,7 @@ h2_pairwise.default <- function(object, ...) {
 #' @describeIn h2_pairwise Pairwise interaction strength from "hstats" object.
 #' @export
 h2_pairwise.hstats <- function(object, normalize = TRUE, squared = TRUE, sort = TRUE, 
-                               top_m = 15L, eps = 1e-8, plot = TRUE, 
+                               top_m = 15L, eps = 1e-8, plot = FALSE, 
                                fill = "#2b51a1", ...) {
   combs <- object[["combs2"]]
   

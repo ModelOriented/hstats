@@ -10,6 +10,7 @@ Note that such a custom function needs to return per-row losses, not their avera
 ## Major changes in defaults
 
 - `hstats()` now uses the default feature vector `v = colnames(X)`, simplifying the API in most cases. The typical call is now `hstats(object, X = Feature data)`. 
+- `h2_overall()`, `h2_pairwise()`, `h2_threeway()`, `pd_importance()` by default do not plot results anymore. Set `plot = TRUE` to do so.
 
 ## Minor changes
 
