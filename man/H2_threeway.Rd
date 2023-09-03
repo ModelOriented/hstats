@@ -17,7 +17,7 @@ h2_threeway(object, ...)
   sort = TRUE,
   top_m = 15L,
   eps = 1e-08,
-  plot = TRUE,
+  plot = FALSE,
   fill = "#2b51a1",
   ...
 )
@@ -49,7 +49,7 @@ statistics have been calculated, the function returns \code{NULL}.
 }
 \description{
 Friedman and Popescu's statistic of three-way interaction strength, see Details.
-By default, the results are plotted as barplot. Set \code{plot = FALSE} to get numbers.
+Set \code{plot = TRUE} to plot the results as barplot.
 }
 \details{
 Friedman and Popescu (2008) describe a test statistic to measure three-way
@@ -93,16 +93,16 @@ Similar remarks as for \code{\link[=h2_pairwise]{h2_pairwise()}} apply.
 \examples{
 # MODEL 1: Linear regression
 fit <- lm(uptake ~ Type * Treatment * conc, data = CO2)
-s <- hstats(fit, v = names(CO2[2:4]), X = CO2, verbose = FALSE)
-h2_threeway(s, plot = FALSE)
+s <- hstats(fit, X = CO2[2:4], verbose = FALSE)
+h2_threeway(s)
 
 #' MODEL 2: Multivariate output (taking just twice the same response as example)
 fit <- lm(cbind(up = uptake, up2 = 2 * uptake) ~ Type * Treatment * conc, data = CO2)
-s <- hstats(fit, v = names(CO2[2:4]), X = CO2, verbose = FALSE)
-h2_threeway(s, plot = FALSE)
+s <- hstats(fit, X = CO2[2:4], verbose = FALSE)
+h2_threeway(s)
 
 # Unnormalized H
-h2_threeway(s, normalize = FALSE, squared = FALSE, plot = FALSE)
+h2_threeway(s, normalize = FALSE, squared = FALSE)
 }
 \references{
 Friedman, Jerome H., and Bogdan E. Popescu. \emph{"Predictive Learning via Rule Ensembles."}

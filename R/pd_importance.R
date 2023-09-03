@@ -3,8 +3,7 @@
 #' Experimental variable importance method based on partial dependence functions. 
 #' While related to Greenwell et al., our suggestion measures not only main effect
 #' strength but also interaction effects. It is very closely related to \eqn{H^2_j}, 
-#' see Details. By default, the results are plotted as barplot.
-#' Set `plot = FALSE` to get numbers.
+#' see Details. Set `plot = TRUE` to plot the results as barplot.
 #' 
 #' @details
 #' If \eqn{x_j} has no effects, the (centered) prediction function \eqn{F}
@@ -37,15 +36,14 @@
 #' @examples
 #' # MODEL 1: Linear regression
 #' fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
-#' s <- hstats(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
+#' s <- hstats(fit, X = iris[-1])
 #' pd_importance(s)
-#' pd_importance(s, plot = FALSE)
+#' pd_importance(s, plot = TRUE)
 #' 
 #' # MODEL 2: Multi-response linear regression
 #' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
-#' v <- c("Petal.Length", "Petal.Width", "Species")
-#' s <- hstats(fit, v = v, X = iris, verbose = FALSE)
-#' pd_importance(s)
+#' s <- hstats(fit, X = iris[3:5])
+#' pd_importance(s, plot = TRUE)
 pd_importance <- function(object, ...) {
   UseMethod("pd_importance")
 }
@@ -59,7 +57,7 @@ pd_importance.default <- function(object, ...) {
 #' @describeIn pd_importance PD based feature importance from "hstats" object.
 #' @export
 pd_importance.hstats <- function(object, normalize = TRUE, squared = TRUE, 
-                                 sort = TRUE, top_m = 15L, eps = 1e-8, plot = TRUE, 
+                                 sort = TRUE, top_m = 15L, eps = 1e-8, plot = FALSE, 
                                  fill = "#2b51a1", ...) {
   num <- with(
     object, matrix(nrow = length(v), ncol = K, dimnames = list(v, pred_names))

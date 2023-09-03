@@ -17,7 +17,7 @@ pd_importance(object, ...)
   sort = TRUE,
   top_m = 15L,
   eps = 1e-08,
-  plot = TRUE,
+  plot = FALSE,
   fill = "#2b51a1",
   ...
 )
@@ -50,8 +50,7 @@ or a "ggplot" object (if \code{plot = TRUE}).
 Experimental variable importance method based on partial dependence functions.
 While related to Greenwell et al., our suggestion measures not only main effect
 strength but also interaction effects. It is very closely related to \eqn{H^2_j},
-see Details. By default, the results are plotted as barplot.
-Set \code{plot = FALSE} to get numbers.
+see Details. Set \code{plot = TRUE} to plot the results as barplot.
 }
 \details{
 If \eqn{x_j} has no effects, the (centered) prediction function \eqn{F}
@@ -84,15 +83,14 @@ Remarks 1 to 4 of \code{\link[=h2_overall]{h2_overall()}} also apply here.
 \examples{
 # MODEL 1: Linear regression
 fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
-s <- hstats(fit, v = names(iris[-1]), X = iris, verbose = FALSE)
+s <- hstats(fit, X = iris[-1])
 pd_importance(s)
-pd_importance(s, plot = FALSE)
+pd_importance(s, plot = TRUE)
 
 # MODEL 2: Multi-response linear regression
 fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
-v <- c("Petal.Length", "Petal.Width", "Species")
-s <- hstats(fit, v = v, X = iris, verbose = FALSE)
-pd_importance(s)
+s <- hstats(fit, X = iris[3:5])
+pd_importance(s, plot = TRUE)
 }
 \references{
 Greenwell, Brandon M., Bradley C. Boehmke, and Andrew J. McCarthy.
