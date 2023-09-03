@@ -15,7 +15,7 @@ Note that such a custom function needs to return per-row losses, not their avera
 ## Minor changes
 
 - `summary.hstats()` now returns an object of class "summary_hstats" with its own `print()` method. Like this, one can use `su <- summary()` without printing to the console.
-- The output of `summary.hstats()` is printed sligthly more compact.
+- The output of `summary.hstats()` is printed slightly more compact.
 - `plot.hstats()` has recieved a `rotate_x = FALSE` argument for rotating x labels by 45 degrees.
 - `plot.hstats()` and `summary.hstats()` have received explicit arguments `normalize`, `squared`, `sort`, `eps` instead of passing them via `...`.
 - `plot.hstats()` now passes `...` to `geom_bar()`.

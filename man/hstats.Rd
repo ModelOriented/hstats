@@ -86,13 +86,13 @@ selected from \code{X}. In this case, set a random seed for reproducibility.}
 
 \item{pairwise_m}{Number of features for which pairwise statistics are to be
 calculated. The features are selected based on Friedman and Popescu's overall
-interaction strength \eqn{H^2_j}.
-Set to \code{length(v)} to calculate every pair and to 0 to avoid pairwise calculations.
+interaction strength \eqn{H^2_j}. Set to to 0 to avoid pairwise calculations.
 For multivariate predictions, the union of the column-wise strongest variable
 names is taken. This can lead to very long run-times.}
 
 \item{threeway_m}{Same as \code{pairwise_m}, but controlling the number of features for
-which threeway interactions should be calculated. Not larger than \code{pairwise_m}.}
+which threeway interactions should be calculated. Not larger than \code{pairwise_m}.
+Set to 0 to avoid threeway calculations.}
 
 \item{verbose}{Should a progress bar be shown? The default is \code{TRUE}.}
 }
