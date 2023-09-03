@@ -84,7 +84,7 @@ For "classification_error", both predictions and responses can be non-numeric.}
 
 \item{w}{Optional vector of case weights for each row of \code{X}.}
 
-\item{v}{Vector of feature names.}
+\item{v}{Vector of feature names, by default \code{colnames(X)}.}
 }
 \value{
 A matrix with one row per group and one column per loss dimension.

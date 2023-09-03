@@ -62,8 +62,8 @@ To demonstrate the typical workflow, we use a beautiful house price dataset with
 ### Fit model
 
 ```r
-library(ggplot2)
 library(hstats)
+library(ggplot2)
 library(xgboost)
 library(shapviz)
 
@@ -105,7 +105,7 @@ Let's calculate different H-statistics via `hstats()`:
 # 3 seconds on simple laptop - a random forest will take 1-2 minutes
 set.seed(782)
 system.time(
-  s <- hstats(fit, v = x, X = X_train)
+  s <- hstats(fit, X = X_train)
 )
 s
 # Proportion of prediction variability unexplained by main effects of v
@@ -213,9 +213,9 @@ Permutation importance returns the same order in this case:
 The main functions work smoothly on DALEX explainers:
 
 ```r
+library(hstats)
 library(DALEX)
 library(ranger)
-library(hstats)
 
 set.seed(1)
 
@@ -249,15 +249,15 @@ Strongest relative interaction shown as ICE plot.
 {hstats} works also with multivariate output such as probabilistic classification.
 
 ```r
+library(hstats)
 library(ranger)
 library(ggplot2)
-library(hstats)
 
 set.seed(1)
 fit <- ranger(Species ~ ., data = iris, probability = TRUE)
 average_loss(fit, X = iris, y = iris$Species, loss = "mlogloss")  # 0.054
 
-s <- hstats(fit, v = colnames(iris)[-5], X = iris)
+s <- hstats(fit, X = iris[-5])
 s
 # Proportion of prediction variability unexplained by main effects of v:
 #      setosa  versicolor   virginica 
@@ -305,7 +305,7 @@ iris_wf <- workflow() %>%
 fit <- iris_wf %>%
   fit(iris)
   
-s <- hstats(fit, v = colnames(iris[-1]), X = iris)
+s <- hstats(fit, X = iris[-1])
 s # 0 -> no interactions
 plot(partial_dep(fit, v = "Petal.Width", X = iris))
 
@@ -331,7 +331,7 @@ fit <- train(
   trControl = trainControl(method = "none")
 )
 
-h2(hstats(fit, v = colnames(iris[-1]), X = iris))  # 0
+h2(hstats(fit, X = iris[-1]))  # 0
 
 plot(ice(fit, v = "Petal.Width", X = iris), center = TRUE)
 plot(perm_importance(fit, X = iris[-1], y = iris$Sepal.Length))
@@ -348,8 +348,7 @@ library(mlr3learners)
 task_iris <- TaskClassif$new(id = "class", backend = iris, target = "Species")
 fit_rf <- lrn("classif.ranger", predict_type = "prob")
 fit_rf$train(task_iris)
-v <- colnames(iris[-5])
-s <- hstats(fit_rf, v = v, X = iris, threeway_m = 0)
+s <- hstats(fit_rf, X = iris[-5], threeway_m = 0)
 plot(s)
 
 # Permutation importance

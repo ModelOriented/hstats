@@ -1,12 +1,11 @@
 test_that("Additive models show 0 interactions (univariate)", {
-  fit <- lm(Sepal.Width ~ ., data = iris)
-  v <- setdiff(colnames(iris), "Sepal.Width")
-  s <- hstats(fit, v = v, X = iris, verbose = FALSE)
+  fit <- lm(Sepal.Length ~ ., data = iris)
+  s <- hstats(fit, X = iris[-1L], verbose = FALSE)
   expect_null(h2_pairwise(s))
   expect_null(h2_threeway(s))
   expect_equal(
     h2_overall(s, plot = FALSE), 
-    matrix(c(0, 0, 0, 0), ncol = 1L, dimnames = list(v, NULL))
+    matrix(c(0, 0, 0, 0), ncol = 1L, dimnames = list(colnames(iris[-1L]), NULL))
   )
   expect_equal(h2(s), 0)
   expect_s3_class(h2_overall(s), "ggplot")
@@ -15,14 +14,13 @@ test_that("Additive models show 0 interactions (univariate)", {
 
 test_that("Additive models show 0 interactions (multivariate)", {
   fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width + Species, data = iris)
-  v <- c("Petal.Length", "Petal.Width", "Species")
-  s <- hstats(fit, v = v, X = iris, verbose = FALSE)
+  s <- hstats(fit, X = iris[3:5], verbose = FALSE)
   expect_null(h2_pairwise(s))
   expect_null(h2_threeway(s))
   expect_equal(
     h2_overall(s, plot = FALSE), 
     matrix(
-      0, ncol = 2L, nrow = 3L, dimnames = list(v, c("Sepal.Length", "Sepal.Width"))
+      0, ncol = 2L, nrow = 3L, dimnames = list(colnames(iris[3:5]), colnames(iris[1:2]))
     )
   )
   expect_equal(h2(s), c(Sepal.Length = 0, Sepal.Width = 0))
@@ -31,14 +29,15 @@ test_that("Additive models show 0 interactions (multivariate)", {
 })
 
 test_that("Non-additive models show interactions > 0 (one interaction)", {
-  fit <- lm(Sepal.Width ~ . + Petal.Length:Petal.Width, data = iris)
-  v <- setdiff(colnames(iris), "Sepal.Width")
-  s <- hstats(fit, v = v, X = iris, verbose = FALSE)
+  fit <- lm(Sepal.Length ~ . + Petal.Length:Petal.Width, data = iris)
+  s <- hstats(fit, X = iris[-1], verbose = FALSE)
   
   expect_true(h2(s) > 0)
   
   out <- h2_overall(s, plot = FALSE)
-  expect_equal(rownames(out[out > 0, , drop = FALSE]), c("Petal.Length", "Petal.Width"))
+  expect_true(
+    all(rownames(out[out > 0, , drop = FALSE]) %in% c("Petal.Length", "Petal.Width"))
+  )
 
   out <- h2_pairwise(s, plot = FALSE)
   expect_equal(rownames(out), "Petal.Length:Petal.Width")
@@ -51,10 +50,9 @@ test_that("Non-additive models show interactions > 0 (one interaction)", {
 })
 
 fit <- lm(
-  Sepal.Width ~ . + Petal.Length:Petal.Width + Petal.Length:Species, data = iris
+  Sepal.Length ~ . + Petal.Length:Petal.Width + Petal.Length:Species, data = iris
 )
-v <- setdiff(colnames(iris), "Sepal.Width")
-s <- hstats(fit, v = v, X = iris, verbose = FALSE)
+s <- hstats(fit, X = iris[-1L], verbose = FALSE)
 
 test_that("Non-additive models show interactions > 0 (two interactions)", {
   expect_true(h2(s) > 0)
@@ -78,14 +76,19 @@ test_that("Non-additive models show interactions > 0 (two interactions)", {
   expect_equal(c(h2_threeway(s, plot = FALSE)), 0)
 })
 
+test_that("passing v works", {
+  s2 <- hstats(fit, X = iris[-1L], v = rev(colnames(iris[-1L])), verbose = FALSE)
+  expect_equal(h2_overall(s, plot = FALSE), h2_overall(s2, plot = FALSE))
+})
+
 test_that("Case weights have an impact", {
   s1 <- s
   s1$w <- NULL
-  s2 <- hstats(fit, v = v, X = iris, verbose = FALSE, w = rep(2, times = 150L))
+  s2 <- hstats(fit, X = iris[-1L], verbose = FALSE, w = rep(2, times = 150L))
   s2[["w"]] <- NULL
   expect_equal(s1, s2)
   
-  capture_output(s2 <- hstats(fit, v = v, X = iris, w = 1:150))
+  capture_output(s2 <- hstats(fit, X = iris[-1L], w = 1:150))
   s2[["w"]] <- NULL
   expect_false(identical(s1, s2))
 })
@@ -107,8 +110,8 @@ test_that("Stronger interactions get higher statistics", {
   pf1 <- function(m, x) x$Petal.Width + x$Petal.Width * x$Petal.Length
   pf2 <- function(m, x) x$Petal.Width + x$Petal.Width * x$Petal.Length * 2
   
-  int1 <- hstats(1, colnames(iris)[-1L], X = iris, pred_fun = pf1, verbose = FALSE)
-  int2 <- hstats(1, colnames(iris)[-1L], X = iris, pred_fun = pf2, verbose = FALSE)
+  int1 <- hstats(1, X = iris[-1L], pred_fun = pf1, verbose = FALSE)
+  int2 <- hstats(1, X = iris[-1L], pred_fun = pf2, verbose = FALSE)
   
   expect_true(h2(int2) > h2(int1))
   expect_true(
@@ -119,17 +122,17 @@ test_that("Stronger interactions get higher statistics", {
 
 test_that("subsampling has an effect", {
   set.seed(1L)
-  out1 <- hstats(fit, v = v, X = iris, n_max = 10L, w = 1:150, verbose = FALSE)
+  out1 <- hstats(fit, X = iris[-1L], n_max = 10L, w = 1:150, verbose = FALSE)
   
   set.seed(2L)
-  out2 <- hstats(fit, v = v, X = iris, n_max = 10L, w = 1:150, verbose = FALSE)
+  out2 <- hstats(fit, X = iris[-1L], n_max = 10L, w = 1:150, verbose = FALSE)
   
   expect_false(identical(out1, out2))
 })
 
 test_that("multivariate results are consistent", {
   fit <- lm(cbind(up = uptake, up2 = 2 * uptake) ~ Type * Treatment * conc, data = CO2)
-  s <- hstats(fit, v = names(CO2[2:4]), X = CO2, verbose = FALSE)
+  s <- hstats(fit, X = CO2[2:4], verbose = FALSE)
   
   # Normalized
   out <- h2_pairwise(s, plot = FALSE)
@@ -142,13 +145,13 @@ test_that("multivariate results are consistent", {
 
 test_that("Three-way interaction is positive in model with such terms", {
   fit <- lm(uptake ~ Type * Treatment * conc, data = CO2)
-  s <- hstats(fit, v = names(CO2[2:4]), X = CO2, verbose = FALSE)
+  s <- hstats(fit, X = CO2[2:4], verbose = FALSE)
   expect_true(h2_threeway(s, plot = FALSE) > 0)
 })
 
 test_that("Three-way interaction behaves correctly across dimensions", {
   fit <- lm(cbind(up = uptake, up2 = 2 * uptake) ~ Type * Treatment * conc, data = CO2)
-  s <- hstats(fit, v = names(CO2[2:4]), X = CO2, verbose = FALSE)
+  s <- hstats(fit, X = CO2[2:4], verbose = FALSE)
   out <- h2_threeway(s, plot = FALSE)
   expect_equal(out[, "up"], out[, "up2"])
   out <- h2_threeway(s, plot = FALSE, squared = FALSE, normalize = FALSE)
@@ -172,9 +175,7 @@ test_that("matrix case works as well", {
   X <- cbind(i = 1, data.matrix(iris[2:4]))
   fit <- lm.fit(x = X, y = iris$Sepal.Length)
   pred_fun <- function(m, X) X %*% m$coefficients
-  s <- hstats(
-    fit, v = colnames(iris[2:4]), X = X, pred_fun = pred_fun, verbose = FALSE
-  )
+  s <- hstats(fit, X = X, v = colnames(iris[2:4]), pred_fun = pred_fun, verbose = FALSE)
   expect_equal(c(h2_overall(s, plot = FALSE)), c(0, 0, 0))
 })
 

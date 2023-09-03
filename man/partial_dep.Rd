@@ -80,7 +80,7 @@ partial_dep(object, ...)
 \item{...}{Additional arguments passed to \code{pred_fun(object, X, ...)},
 for instance \code{type = "response"} in a \code{\link[=glm]{glm()}} model.}
 
-\item{v}{Vector of feature names.}
+\item{v}{Vector of feature names, by default \code{colnames(X)}.}
 
 \item{X}{A data.frame or matrix serving as background dataset.}
 

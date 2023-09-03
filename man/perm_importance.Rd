@@ -62,7 +62,7 @@ perm_importance(object, ...)
   object,
   X = object[["data"]],
   y = object[["y"]],
-  v = colnames(object[["data"]]),
+  v = colnames(X),
   pred_fun = object[["predict_function"]],
   loss = "squared_error",
   perms = 4L,
