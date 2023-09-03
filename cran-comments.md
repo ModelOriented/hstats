@@ -1,34 +1,20 @@
-# Resubmission
-
-- Fixing an indirect URL in the README
-- Sticking to "authors (year) <doi>" reference in DESCRIPTION.
-
-# Original message
+# hstats 0.2.0
 
 Hello CRAN team
 
-Trying to submit a new package that calculates Friedman and Popescu's H statistics in many variants.
+{hstats} received a fast, multivariate permutation importance function, and some API improvements. Not yet ready for version 1.0.0, but almost :-).
 
-If we can't fit it before your summer break - no hurry :-).
-
-Thanks for all your hard work
+Thanks a lot for caring about R so much
 
 Michael
 
-## Local checks seem ok
-
-❯ checking HTML version of manual ... NOTE
-  Skipping checking HTML validation: no command 'tidy' found
+## Local checks: OK
   
-## Rhub fires some false alarms on spelling mistakes
+## Rhub has its typical notes
 
-New submission
+* checking HTML version of manual ... NOTE
+Skipping checking HTML validation: no command 'tidy' found
+Skipping checking math rendering: package 'V8' unavailable
 
-Possibly misspelled words in DESCRIPTION:
-  explainers (13:32)
-
-## Winbuilder seems ok
-
-Status: 1 NOTE
-R Under development (unstable) (2023-07-15 r84693 ucrt)
+## Winbuilder: OK
 
