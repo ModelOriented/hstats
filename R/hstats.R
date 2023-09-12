@@ -138,7 +138,7 @@ hstats.default <- function(object, X, v = colnames(X),
   show_bar <- verbose && p >= 2L
   if (show_bar) {
     cat("1-way calculations...\n")
-    pb <- utils::txtProgressBar(1L, max = p, style = 3)
+    pb <- utils::txtProgressBar(max = p, style = 3)
   }
   
   F_j <- F_not_j <- stats::setNames(vector("list", length = p), v)
@@ -432,7 +432,7 @@ mway <- function(object, v, X, pred_fun = stats::predict, w = NULL,
   show_bar <- verb && (n_combs >= way)
   if (show_bar) {
     cat(way, "way calculations...\n", sep = "-")
-    pb <- utils::txtProgressBar(1L, max = n_combs, style = 3)
+    pb <- utils::txtProgressBar(max = n_combs, style = 3)
   }
   
   for (i in seq_len(n_combs)) {

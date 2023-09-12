@@ -1,3 +1,9 @@
+# hstats 0.2.1
+
+## Bug fixes
+
+- All progress bars were initialized 1 step too late. This has been fixed.
+
 # hstats 0.2.0
 
 ## New major features

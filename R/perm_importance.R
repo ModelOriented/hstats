@@ -128,7 +128,7 @@ perm_importance.default <- function(object, X, y, v = colnames(X),
   
   # Step 0: Performance after shuffling (expensive)
   if (verbose) {
-    pb <- utils::txtProgressBar(1L, max = p, style = 3)
+    pb <- utils::txtProgressBar(max = p, style = 3)
   }
   S <- array(
     dim = c(p, length(perf), perms), dimnames = list(names(v), names(perf), NULL)
