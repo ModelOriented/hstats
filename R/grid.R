@@ -1,14 +1,14 @@
 #' Univariate Grid
 #' 
 #' @description
-#' Finds evaluation grid for any numeric or non-numeric vector `z`. 
+#' Creates evaluation grid for any numeric or non-numeric vector `z`. 
 #' 
 #' For discrete `z` (non-numeric, or numeric with at most `grid_size` unique values), 
 #' this is simply `sort(unique(z))`.
 #' 
 #' Otherwise, if `strategy = "uniform"` (default), the evaluation points form a regular
 #' grid over the trimmed range of `z`. By trimmed range we mean the
-#' range of `z` after removing values outside the `trim[1]` and `trim[2]` quantiles.
+#' range of `z` after removing values outside `trim[1]` and `trim[2]` quantiles.
 #' Set `trim = 0:1` for no trimming.
 #' 
 #' If `strategy = "quantile"`, the evaluation points are quantiles over a regular grid 
@@ -20,11 +20,11 @@
 #' @param z A vector or factor.
 #' @param grid_size Approximate grid size.
 #' @param trim The default `c(0.01, 0.99)` means that values outside the 
-#'   1% and 99% quantile of a non-discrete numeric `z` are removed before calculating 
-#'   the grid values. Set to `0:1` for no trimming.
-#' @param strategy How to find evaluation points of non-discrete numeric columns? 
+#'   1% and 99% quantiles of non-discrete numeric columns are removed before calculation 
+#'   of grid values. Set to `0:1` for no trimming.
+#' @param strategy How to find grid values of non-discrete numeric columns? 
 #'   Either "uniform" or "quantile", see description of [univariate_grid()].
-#' @returns A vector/factor of evaluation points.
+#' @returns A vector or factor of evaluation points.
 #' @seealso [multivariate_grid()]
 #' @export
 #' @examples

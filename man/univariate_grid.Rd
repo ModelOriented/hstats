@@ -17,24 +17,24 @@ univariate_grid(
 \item{grid_size}{Approximate grid size.}
 
 \item{trim}{The default \code{c(0.01, 0.99)} means that values outside the
-1\% and 99\% quantile of a non-discrete numeric \code{z} are removed before calculating
-the grid values. Set to \code{0:1} for no trimming.}
+1\% and 99\% quantiles of non-discrete numeric columns are removed before calculation
+of grid values. Set to \code{0:1} for no trimming.}
 
-\item{strategy}{How to find evaluation points of non-discrete numeric columns?
+\item{strategy}{How to find grid values of non-discrete numeric columns?
 Either "uniform" or "quantile", see description of \code{\link[=univariate_grid]{univariate_grid()}}.}
 }
 \value{
-A vector/factor of evaluation points.
+A vector or factor of evaluation points.
 }
 \description{
-Finds evaluation grid for any numeric or non-numeric vector \code{z}.
+Creates evaluation grid for any numeric or non-numeric vector \code{z}.
 
 For discrete \code{z} (non-numeric, or numeric with at most \code{grid_size} unique values),
 this is simply \code{sort(unique(z))}.
 
 Otherwise, if \code{strategy = "uniform"} (default), the evaluation points form a regular
 grid over the trimmed range of \code{z}. By trimmed range we mean the
-range of \code{z} after removing values outside the \code{trim[1]} and \code{trim[2]} quantiles.
+range of \code{z} after removing values outside \code{trim[1]} and \code{trim[2]} quantiles.
 Set \code{trim = 0:1} for no trimming.
 
 If \code{strategy = "quantile"}, the evaluation points are quantiles over a regular grid

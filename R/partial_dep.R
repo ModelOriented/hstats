@@ -31,8 +31,8 @@
 #' 
 #' @inheritParams hstats
 #' @inheritParams multivariate_grid
-#' @param grid A vector (if `length(v) == 1L`), or a matrix/data.frame otherwise.
-#'   If `NULL`, calculated via [multivariate_grid()].
+#' @param grid Evaluation grid. A vector (if `length(v) == 1L`), or a matrix/data.frame 
+#'   otherwise. If `NULL`, calculated via [multivariate_grid()].
 #' @param BY Optional grouping vector or a column name. The partial dependence
 #'   function is calculated per `BY` group. Each `BY` group
 #'   uses the same evaluation grid to improve assessment of (non-)additivity.
