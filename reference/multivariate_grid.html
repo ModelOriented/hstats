@@ -78,12 +78,12 @@ Combinations are then formed by calling <code><a href="https://rdrr.io/r/base/ex
 
 <dt>trim</dt>
 <dd><p>The default <code>c(0.01, 0.99)</code> means that values outside the
-1% and 99% quantile of a non-discrete numeric <code>z</code> are removed before calculating
-the grid values. Set to <code>0:1</code> for no trimming.</p></dd>
+1% and 99% quantiles of non-discrete numeric columns are removed before calculation
+of grid values. Set to <code>0:1</code> for no trimming.</p></dd>
 
 
 <dt>strategy</dt>
-<dd><p>How to find evaluation points of non-discrete numeric columns?
+<dd><p>How to find grid values of non-discrete numeric columns?
 Either "uniform" or "quantile", see description of <code><a href="univariate_grid.html">univariate_grid()</a></code>.</p></dd>
 
 </dl></div>

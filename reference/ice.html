@@ -155,8 +155,8 @@ discrete.</p></dd>
 
 
 <dt>grid</dt>
-<dd><p>A vector (if <code>length(v) == 1L</code>), or a matrix/data.frame otherwise.
-If <code>NULL</code>, calculated via <code><a href="multivariate_grid.html">multivariate_grid()</a></code>.</p></dd>
+<dd><p>Evaluation grid. A vector (if <code>length(v) == 1L</code>), or a matrix/data.frame
+otherwise. If <code>NULL</code>, calculated via <code><a href="multivariate_grid.html">multivariate_grid()</a></code>.</p></dd>
 
 
 <dt>grid_size</dt>
@@ -166,12 +166,12 @@ If <code>NULL</code>, calculated via <code><a href="multivariate_grid.html">mult
 
 <dt>trim</dt>
 <dd><p>The default <code>c(0.01, 0.99)</code> means that values outside the
-1% and 99% quantile of a non-discrete numeric <code>z</code> are removed before calculating
-the grid values. Set to <code>0:1</code> for no trimming.</p></dd>
+1% and 99% quantiles of non-discrete numeric columns are removed before calculation
+of grid values. Set to <code>0:1</code> for no trimming.</p></dd>
 
 
 <dt>strategy</dt>
-<dd><p>How to find evaluation points of non-discrete numeric columns?
+<dd><p>How to find grid values of non-discrete numeric columns?
 Either "uniform" or "quantile", see description of <code><a href="univariate_grid.html">univariate_grid()</a></code>.</p></dd>
 
 
@@ -219,9 +219,9 @@ Journal of Computational and Graphical Statistics, 24, no. 1 (2015): 44-65.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 'ice' object (4300 rows). Extract via $data. Top rows:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   obs_ Petal.Length        y    Species</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1    1            1 2.419421  virginica</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2    2            1 3.592569 versicolor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3    3            1 4.947573     setosa</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1    1            1 2.431060  virginica</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2    2            1 3.564433 versicolor</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3    3            1 3.699296 versicolor</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">ic</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="ice-2.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">ic</span>, center <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
