@@ -18,10 +18,10 @@ multivariate_grid(
 (non-discrete) column will be reduced to about the p-th root of \code{grid_size} values.}
 
 \item{trim}{The default \code{c(0.01, 0.99)} means that values outside the
-1\% and 99\% quantile of a non-discrete numeric \code{z} are removed before calculating
-the grid values. Set to \code{0:1} for no trimming.}
+1\% and 99\% quantiles of non-discrete numeric columns are removed before calculation
+of grid values. Set to \code{0:1} for no trimming.}
 
-\item{strategy}{How to find evaluation points of non-discrete numeric columns?
+\item{strategy}{How to find grid values of non-discrete numeric columns?
 Either "uniform" or "quantile", see description of \code{\link[=univariate_grid]{univariate_grid()}}.}
 }
 \value{
