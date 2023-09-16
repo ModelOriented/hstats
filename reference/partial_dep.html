@@ -19,7 +19,7 @@ By default, the resulting values are plotted."><meta property="og:image" content
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">hstats</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.2.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.3.0</span>
       </span>
     </div>
 
@@ -181,14 +181,14 @@ If <code>NULL</code>, calculated via <code><a href="multivariate_grid.html">mult
 
 
 <dt>trim</dt>
-<dd><p>A non-discrete numeric variable is trimmed at these quantile
-probabilities before calculations. Set to <code>c(0, 1)</code> for no trimming.</p></dd>
+<dd><p>The default <code>c(0.01, 0.99)</code> means that values outside the
+1% and 99% quantile of a non-discrete numeric <code>z</code> are removed before calculating
+the grid values. Set to <code>0:1</code> for no trimming.</p></dd>
 
 
 <dt>strategy</dt>
 <dd><p>How to find evaluation points of non-discrete numeric columns?
-Either "uniform" (via <code><a href="https://rdrr.io/r/base/pretty.html" class="external-link">pretty()</a></code>) or "quantile", see description of
-<code><a href="univariate_grid.html">univariate_grid()</a></code>.</p></dd>
+Either "uniform" or "quantile", see description of <code><a href="univariate_grid.html">univariate_grid()</a></code>.</p></dd>
 
 
 <dt>n_max</dt>
@@ -290,19 +290,15 @@ Annals of Statistics 29, no. 5 (2001): 1189-1232.</p>
 <span class="r-in"><span><span class="co"># Multivariate, multivariable, and BY (no plot available)</span></span></span>
 <span class="r-in"><span><span class="va">pd</span> <span class="op">&lt;-</span> <span class="fu">partial_dep</span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Petal.Width"</span>, <span class="st">"Petal.Length"</span><span class="op">)</span>, X <span class="op">=</span> <span class="va">iris</span>, BY <span class="op">=</span> <span class="st">"Species"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">pd</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Partial dependence object (126 rows). Extract via $data. Top rows:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Partial dependence object (147 rows). Extract via $data. Top rows:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Species Petal.Width Petal.Length Sepal.Length Sepal.Width</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1  setosa         0.0            1     4.469355    3.177012</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2  setosa         0.5            1     4.677664    3.558038</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3  setosa         1.0            1     4.885973    3.939064</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  setosa         0.1          1.1     4.604991    3.266967</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  setosa         0.5          1.1     4.771638    3.571788</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3  setosa         0.9          1.1     4.938285    3.876608</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># MODEL 3: Gamma GLM -&gt; pass options to predict() via ...</span></span></span>
-<span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>  <span class="va">Sepal.Length</span> <span class="op">~</span> <span class="va">.</span> <span class="op">+</span> <span class="va">Petal.Width</span><span class="op">:</span><span class="va">Species</span>, </span></span>
-<span class="r-in"><span>  data <span class="op">=</span> <span class="va">iris</span>, </span></span>
-<span class="r-in"><span>  family <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/family.html" class="external-link">Gamma</a></span><span class="op">(</span>link <span class="op">=</span> <span class="va">log</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm</a></span><span class="op">(</span><span class="va">Sepal.Length</span> <span class="op">~</span> <span class="va">.</span>, data <span class="op">=</span> <span class="va">iris</span>, family <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/family.html" class="external-link">Gamma</a></span><span class="op">(</span>link <span class="op">=</span> <span class="va">log</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu">partial_dep</span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="st">"Petal.Length"</span>, X <span class="op">=</span> <span class="va">iris</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="partial_dep-7.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu">partial_dep</span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="st">"Petal.Length"</span>, X <span class="op">=</span> <span class="va">iris</span>, type <span class="op">=</span> <span class="st">"response"</span><span class="op">)</span><span class="op">)</span></span></span>

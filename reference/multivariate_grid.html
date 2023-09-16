@@ -19,7 +19,7 @@ Combinations are then formed by calling expand.grid()."><meta property="og:image
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">hstats</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.2.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.3.0</span>
       </span>
     </div>
 
@@ -77,14 +77,14 @@ Combinations are then formed by calling <code><a href="https://rdrr.io/r/base/ex
 
 
 <dt>trim</dt>
-<dd><p>A non-discrete numeric variable is trimmed at these quantile
-probabilities before calculations. Set to <code>c(0, 1)</code> for no trimming.</p></dd>
+<dd><p>The default <code>c(0.01, 0.99)</code> means that values outside the
+1% and 99% quantile of a non-discrete numeric <code>z</code> are removed before calculating
+the grid values. Set to <code>0:1</code> for no trimming.</p></dd>
 
 
 <dt>strategy</dt>
 <dd><p>How to find evaluation points of non-discrete numeric columns?
-Either "uniform" (via <code><a href="https://rdrr.io/r/base/pretty.html" class="external-link">pretty()</a></code>) or "quantile", see description of
-<code><a href="univariate_grid.html">univariate_grid()</a></code>.</p></dd>
+Either "uniform" or "quantile", see description of <code><a href="univariate_grid.html">univariate_grid()</a></code>.</p></dd>
 
 </dl></div>
     <div id="value">
@@ -101,19 +101,11 @@ Either "uniform" (via <code><a href="https://rdrr.io/r/base/pretty.html" class="
     <div id="ref-examples">
     <h2>Examples</h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">multivariate_grid</span><span class="op">(</span><span class="va">iris</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">]</span>, grid_size <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    Sepal.Length Sepal.Width</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1             4           2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2             6           2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3             8           2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4             4           3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5             6           3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6             8           3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7             4           4</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 8             6           4</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 9             8           4</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10            4           5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 11            6           5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 12            8           5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Sepal.Length Sepal.Width</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1          4.4         2.2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2          7.7         2.2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3          4.4         4.2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4          7.7         4.2</span>
 <span class="r-in"><span><span class="fu">multivariate_grid</span><span class="op">(</span><span class="va">iris</span><span class="op">$</span><span class="va">Species</span><span class="op">)</span>  <span class="co"># Works also in the univariate case</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] setosa     versicolor virginica </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Levels: setosa versicolor virginica</span>

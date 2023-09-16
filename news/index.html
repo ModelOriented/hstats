@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">hstats</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.2.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.3.0</span>
       </span>
     </div>
 
@@ -48,9 +48,13 @@
     </div>
 
     <div class="section level2">
-<h2 class="page-header" data-toc-text="0.2.1" id="hstats-021">hstats 0.2.1<a class="anchor" aria-label="anchor" href="#hstats-021"></a></h2>
+<h2 class="page-header" data-toc-text="0.3.0" id="hstats-030">hstats 0.3.0<a class="anchor" aria-label="anchor" href="#hstats-030"></a></h2>
 <div class="section level3">
-<h3 id="bug-fixes-0-2-1">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-2-1"></a></h3>
+<h3 id="major-user-visible-changes-0-3-0">Major user visible changes<a class="anchor" aria-label="anchor" href="#major-user-visible-changes-0-3-0"></a></h3>
+<ul><li>Grid calculation: So far, the default grid strategy “uniform” used <code><a href="https://rdrr.io/r/base/pretty.html" class="external-link">pretty()</a></code> to generate the evaluation points. To provide more predictable grid sizes, and to be more in line with other implementations of partial dependence and ICE, we now use <code><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq()</a></code> to create the uniform grid. This affects <code><a href="../reference/ice.html">ice()</a></code>, <code><a href="../reference/partial_dep.html">partial_dep()</a></code> and the exported helper functions <code><a href="../reference/univariate_grid.html">univariate_grid()</a></code> and <code><a href="../reference/multivariate_grid.html">multivariate_grid()</a></code>.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="bug-fixes-0-3-0">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-3-0"></a></h3>
 <ul><li>All progress bars were initialized 1 step too late. This has been fixed.</li>
 </ul></div>
 </div>
