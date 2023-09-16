@@ -34,7 +34,8 @@ test_that("univariate_grid() reacts on grid_size (mode 'uniform')", {
   r0 <- univariate_grid(x, grid_size = 10L, strategy = "uniform")
   r1 <- univariate_grid(x, grid_size = 20L, strategy = "uniform")
   
-  expect_true(length(r0) < length(r1))
+  expect_equal(length(r0), 10L)
+  expect_equal(length(r1), 20L)
 })
 
 test_that("multivariate_grid() equals univariate_grid() for univariate input", {

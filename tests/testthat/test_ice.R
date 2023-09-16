@@ -56,10 +56,10 @@ test_that("ice() does subsampling", {
 
 test_that("ice() reacts on grid strategy", {
   ic1 <- ice(
-    fit1, v = "Sepal.Width", X = iris2, strategy = "uni", grid_size = 5L
+    fit1, v = "Sepal.Width", X = iris2, strategy = "uniform", grid_size = 5L
   )
   ic2 <- ice(
-    fit1, v = "Sepal.Width", X = iris2, strategy = "quant", grid_size = 5L
+    fit1, v = "Sepal.Width", X = iris2, strategy = "quantile", grid_size = 5L
   )
   expect_false(identical(ic1, ic2))
 })
@@ -191,3 +191,4 @@ test_that("Plots give 'ggplot' objects", {
   ic <- ice(fit, v = "Petal.Length", X = iris2, BY = c("Petal.Width", "Species"))
   expect_error(plot(ic, facet_scales = "fixed"))
 })
+

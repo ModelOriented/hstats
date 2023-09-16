@@ -156,10 +156,10 @@ test_that("partial_dep() does subsampling", {
 
 test_that("partial_dep() reacts on grid strategy", {
   pd1 <- partial_dep(
-    fit1, v = "Sepal.Width", X = iris, strategy = "uni", grid_size = 5L
+    fit1, v = "Sepal.Width", X = iris, strategy = "uniform", grid_size = 5L
   )
   pd2 <- partial_dep(
-    fit1, v = "Sepal.Width", X = iris, strategy = "quant", grid_size = 5L
+    fit1, v = "Sepal.Width", X = iris, strategy = "quantile", grid_size = 5L
   )
   expect_false(identical(pd1, pd2))
 })
@@ -172,11 +172,19 @@ test_that("partial_dep() reacts on grid size", {
     fit1, v = "Sepal.Width", X = iris, strategy = "q", grid_size = 10L
   )
   expect_false(identical(pd1, pd2))
+  
+  pd1 <- partial_dep(
+    fit1, v = "Sepal.Width", X = iris, strategy = "u", grid_size = 5L
+  )
+  pd2 <- partial_dep(
+    fit1, v = "Sepal.Width", X = iris, strategy = "u", grid_size = 10L
+  )
+  expect_false(identical(pd1, pd2))
 })
 
 test_that("partial_dep() reacts on grid", {
   g <- 1:4
-  pd1 <- partial_dep(fit1, v = "Sepal.Width", X = iris, strategy = "q", grid = g)
+  pd1 <- partial_dep(fit1, v = "Sepal.Width", X = iris, grid = g)
   pd2 <- partial_dep(fit1, v = "Sepal.Width", X = iris, strategy = "q")
   expect_false(identical(pd1, pd2))
 })
@@ -197,6 +205,24 @@ test_that("partial_dep() reacts on trim", {
     X = iris, 
     plot = FALSE, 
     strategy = "q",
+    trim = 0:1, 
+    grid_size = 5L,
+  )
+  expect_false(identical(pd1, pd2))
+  
+  pd1 <- partial_dep(
+    fit1, 
+    v = "Sepal.Width", 
+    X = iris, 
+    plot = FALSE, 
+    trim = c(0.2, 0.8),
+    grid_size = 5L
+  )
+  pd2 <- partial_dep(
+    fit1, 
+    v = "Sepal.Width", 
+    X = iris, 
+    plot = FALSE, 
     trim = 0:1, 
     grid_size = 5L,
   )

@@ -6,22 +6,24 @@
 #' For discrete `z` (non-numeric, or numeric with at most `grid_size` unique values), 
 #' this is simply `sort(unique(z))`.
 #' 
-#' Otherwise, if `strategy = "uniform"` (default), the evaluation points are the 
-#' result of [pretty()] over the trimmed range of `z`.
-#' If `strategy = "quantile"`, the evaluation points are computed
-#' as quantiles over a regular grid of probabilities from `trim[1]` to `trim[2]`. 
-#' Set `trim = c(0, 1)` for no trimming.
+#' Otherwise, if `strategy = "uniform"` (default), the evaluation points form a regular
+#' grid over the trimmed range of `z`. By trimmed range we mean the
+#' range of `z` after removing values outside the `trim[1]` and `trim[2]` quantiles.
+#' Set `trim = 0:1` for no trimming.
 #' 
-#' Quantiles are calculated based on the inverse of the ECDF, i.e., with
+#' If `strategy = "quantile"`, the evaluation points are quantiles over a regular grid 
+#' of probabilities from `trim[1]` to `trim[2]`.
+#' 
+#' All quantiles are calculated via the inverse of the ECDF, i.e., via
 #' `stats::quantile(..., type = 1`).
 #' 
-#' @param z A vector/factor.
+#' @param z A vector or factor.
 #' @param grid_size Approximate grid size.
-#' @param trim A non-discrete numeric variable is trimmed at these quantile 
-#'   probabilities before calculations. Set to `c(0, 1)` for no trimming.
+#' @param trim The default `c(0.01, 0.99)` means that values outside the 
+#'   1% and 99% quantile of a non-discrete numeric `z` are removed before calculating 
+#'   the grid values. Set to `0:1` for no trimming.
 #' @param strategy How to find evaluation points of non-discrete numeric columns? 
-#'   Either "uniform" (via [pretty()]) or "quantile", see description of 
-#'   [univariate_grid()].
+#'   Either "uniform" or "quantile", see description of [univariate_grid()].
 #' @returns A vector/factor of evaluation points.
 #' @seealso [multivariate_grid()]
 #' @export
@@ -31,7 +33,7 @@
 #' 
 #' x <- iris$Sepal.Width
 #' univariate_grid(x, grid_size = 5)                        # Quantile binning
-#' univariate_grid(x, grid_size = 3, strategy = "uniform")  # Uniform pretty
+#' univariate_grid(x, grid_size = 5, strategy = "uniform")  # Uniform
 univariate_grid <- function(z, grid_size = 49L, trim = c(0.01, 0.99), 
                             strategy = c("uniform", "quantile")) {
   strategy <- match.arg(strategy)
@@ -47,9 +49,10 @@ univariate_grid <- function(z, grid_size = 49L, trim = c(0.01, 0.99),
     return(unique(g))
   }
   
-  # strategy = "uniform" (should use range() if trim = c(0, 1)?)
+  # strategy = "uniform" (could use range() if trim = 0:1)
   r <- stats::quantile(z, probs = trim, names = FALSE, type = 1L, na.rm = TRUE)
-  pretty(r, n = grid_size)
+  # pretty(r, n = grid_size)  # Until version 0.2.0
+  seq(r[1L], r[2L], length.out = grid_size)
 }
 
 #' Multivariate Grid
