@@ -12,16 +12,16 @@ univariate_grid(
 )
 }
 \arguments{
-\item{z}{A vector/factor.}
+\item{z}{A vector or factor.}
 
 \item{grid_size}{Approximate grid size.}
 
-\item{trim}{A non-discrete numeric variable is trimmed at these quantile
-probabilities before calculations. Set to \code{c(0, 1)} for no trimming.}
+\item{trim}{The default \code{c(0.01, 0.99)} means that values outside the
+1\% and 99\% quantile of a non-discrete numeric \code{z} are removed before calculating
+the grid values. Set to \code{0:1} for no trimming.}
 
 \item{strategy}{How to find evaluation points of non-discrete numeric columns?
-Either "uniform" (via \code{\link[=pretty]{pretty()}}) or "quantile", see description of
-\code{\link[=univariate_grid]{univariate_grid()}}.}
+Either "uniform" or "quantile", see description of \code{\link[=univariate_grid]{univariate_grid()}}.}
 }
 \value{
 A vector/factor of evaluation points.
@@ -32,13 +32,15 @@ Finds evaluation grid for any numeric or non-numeric vector \code{z}.
 For discrete \code{z} (non-numeric, or numeric with at most \code{grid_size} unique values),
 this is simply \code{sort(unique(z))}.
 
-Otherwise, if \code{strategy = "uniform"} (default), the evaluation points are the
-result of \code{\link[=pretty]{pretty()}} over the trimmed range of \code{z}.
-If \code{strategy = "quantile"}, the evaluation points are computed
-as quantiles over a regular grid of probabilities from \code{trim[1]} to \code{trim[2]}.
-Set \code{trim = c(0, 1)} for no trimming.
+Otherwise, if \code{strategy = "uniform"} (default), the evaluation points form a regular
+grid over the trimmed range of \code{z}. By trimmed range we mean the
+range of \code{z} after removing values outside the \code{trim[1]} and \code{trim[2]} quantiles.
+Set \code{trim = 0:1} for no trimming.
 
-Quantiles are calculated based on the inverse of the ECDF, i.e., with
+If \code{strategy = "quantile"}, the evaluation points are quantiles over a regular grid
+of probabilities from \code{trim[1]} to \code{trim[2]}.
+
+All quantiles are calculated via the inverse of the ECDF, i.e., via
 \verb{stats::quantile(..., type = 1}).
 }
 \examples{
@@ -47,7 +49,7 @@ univariate_grid(rev(iris$Species))                       # Same
 
 x <- iris$Sepal.Width
 univariate_grid(x, grid_size = 5)                        # Quantile binning
-univariate_grid(x, grid_size = 3, strategy = "uniform")  # Uniform pretty
+univariate_grid(x, grid_size = 5, strategy = "uniform")  # Uniform
 }
 \seealso{
 \code{\link[=multivariate_grid]{multivariate_grid()}}

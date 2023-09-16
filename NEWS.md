@@ -1,4 +1,8 @@
-# hstats 0.2.1
+# hstats 0.3.0
+
+## Major user visible changes
+
+- Grid calculation: So far, the default grid strategy "uniform" used `pretty()` to generate the evaluation points. To provide more predictable grid sizes, and to be more in line with other implementations of partial dependence and ICE, we now use `seq()` to create the uniform grid. This affects `ice()`, `partial_dep()` and the exported helper functions `univariate_grid()` and `multivariate_grid()`.
 
 ## Bug fixes
 

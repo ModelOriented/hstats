@@ -82,11 +82,7 @@
 #' pd
 #' 
 #' # MODEL 3: Gamma GLM -> pass options to predict() via ...
-#' fit <- glm(
-#'   Sepal.Length ~ . + Petal.Width:Species, 
-#'   data = iris, 
-#'   family = Gamma(link = log)
-#' )
+#' fit <- glm(Sepal.Length ~ ., data = iris, family = Gamma(link = log))
 #' plot(partial_dep(fit, v = "Petal.Length", X = iris))
 #' plot(partial_dep(fit, v = "Petal.Length", X = iris, type = "response"))
 partial_dep <- function(object, ...) {

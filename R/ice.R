@@ -45,11 +45,7 @@
 #' plot(ic, center = TRUE)
 #'
 #' # MODEL 3: Gamma GLM -> pass options to predict() via ...
-#' fit <- glm(
-#'   Sepal.Length ~ . + Petal.Width:Species,
-#'   data = iris,
-#'   family = Gamma(link = log)
-#' )
+#' fit <- glm(Sepal.Length ~ ., data = iris, family = Gamma(link = log))
 #' plot(ice(fit, v = "Petal.Length", X = iris, BY = "Species"))
 #' plot(ice(fit, v = "Petal.Length", X = iris, type = "response", BY = "Species"))
 ice <- function(object, ...) {

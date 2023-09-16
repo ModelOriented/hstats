@@ -158,7 +158,7 @@ Let's study different plots to understand *how* the strong interaction between d
 They all reveal a substantial interaction between the two variables in the sense that the age effect gets weaker the closer to the ocean. Note that numeric `BY` features are automatically binned into quartile groups.
 
 ```r
-plot(partial_dep(fit, v = "age", X = X_train, BY = "log_ocean"))
+plot(partial_dep(fit, v = "age", X = X_train, BY = "log_ocean"), show_points = FALSE)
 ```
 
 ![](man/figures/pdp_ocean_age.svg)
