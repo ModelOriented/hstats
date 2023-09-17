@@ -174,6 +174,7 @@ test_that("Statistics react on normalize", {
   expect_false(identical(h2_overall(s), h2_overall(s, normalize = FALSE)))
   expect_false(identical(h2_pairwise(s), h2_pairwise(s, normalize = FALSE)))
   expect_false(identical(h2_threeway(s), h2_threeway(s, normalize = FALSE)))
+  expect_false(identical(summary(s), summary(s, normalize = FALSE)))
 })
 
 test_that("Statistics react on squared", {
@@ -184,6 +185,7 @@ test_that("Statistics react on squared", {
   expect_false(identical(h2_overall(s), h2_overall(s, squared = FALSE)))
   expect_false(identical(h2_pairwise(s), h2_pairwise(s, squared = FALSE)))
   expect_false(identical(h2_threeway(s), h2_threeway(s, squared = FALSE)))
+  expect_false(identical(summary(s), summary(s, squared = FALSE)))
 })
 
 test_that("Statistics are sorted", {
