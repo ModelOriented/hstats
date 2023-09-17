@@ -67,11 +67,28 @@ h2.default <- function(object, ...) {
 #' @export
 h2.hstats <- function(object, normalize = TRUE, squared = TRUE, eps = 1e-8, ...) {
   postprocess(
-    num = with(object, wcolMeans((f - Reduce("+", F_j))^2, w = w)),
-    denom = object[["mean_f2"]],
+    num = object$h2$num,
+    denom = object$h2$denom,
     normalize = normalize, 
     squared = squared, 
     sort = FALSE, 
     eps = eps
   )
 }
+
+#' Raw H2
+#' 
+#' Internal helper function that calculates numerator and denominator of
+#' statistic in title.
+#' 
+#' @noRd
+#' @keywords internal
+#' @param x A list containing the elements "f", "F_j", "w", and "mean_f2".
+#' @returns A list with the numerator and denominator statistics.
+h2_raw <- function(x) {
+  list(
+    num = with(x, wcolMeans((f - Reduce("+", F_j))^2, w = w)), 
+    denom = x[["mean_f2"]]
+  )
+}
+

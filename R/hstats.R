@@ -57,18 +57,26 @@
 #'     functions \eqn{F_{\setminus j}} of other features.
 #'   - `K`: Number of columns of prediction matrix.
 #'   - `pred_names`: Column names of prediction matrix.
+#'   - `h2`: List with numerator and denominator of \eqn{H^2}.
+#'   - `h2_overall`: List with numerator and denominator of \eqn{H^2_j}. 
 #'   - `v_pairwise`: Subset of `v` with largest `h2_overall()` used for pairwise 
 #'     calculations.
 #'   - `combs2`: Named list of variable pairs for which pairwise partial 
-#'     dependence functions are available.
+#'     dependence functions are available. Only if pairwise calculations are done.
 #'   - `F_jk`: List of matrices, each representing (centered) bivariate 
-#'     partial dependence functions \eqn{F_{jk}}.
+#'     partial dependence functions \eqn{F_{jk}}. 
+#'     Only if pairwise calculations are done.
+#'   - `h2_pairwise`: List with numerator and denominator of \eqn{H^2_{jk}}.
+#'     Only if pairwise calculations are done.
 #'   - `v_threeway`: Subset of `v` with largest `h2_overall()` used for three-way 
 #'     calculations.
 #'   - `combs3`: Named list of variable triples for which three-way partial 
-#'     dependence functions are available.
+#'     dependence functions are available. Only if threeway calculations are done.
 #'   - `F_jkl`: List of matrices, each representing (centered) three-way 
-#'     partial dependence functions \eqn{F_{jkl}}.
+#'     partial dependence functions \eqn{F_{jkl}}. 
+#'     Only if threeway calculations are done.
+#'   - `h2_threeway`: List with numerator and denominator of \eqn{H^2_{jkl}}.
+#'     Only if threeway calculations are done.
 #' @references
 #'   Friedman, Jerome H., and Bogdan E. Popescu. *"Predictive Learning via Rule Ensembles."*
 #'     The Annals of Applied Statistics 2, no. 3 (2008): 916-54.
@@ -176,45 +184,41 @@ hstats.default <- function(object, X, v = colnames(X),
   }
   
   # Initialize output
-  out <- structure(
-    list(
-      X = X,
-      w = w,
-      v = v,
-      f = f,
-      mean_f2 = mean_f2,
-      F_j = F_j, 
-      F_not_j = F_not_j, 
-      K = ncol(f),
-      pred_names = colnames(f),
-      v_pairwise = NULL,
-      combs2 = NULL,
-      F_jk = NULL,
-      v_threeway = NULL,
-      combs3 = NULL,
-      F_jkl = NULL
-    ), 
-    class = "hstats"
+  out <- list(
+    X = X,
+    w = w,
+    v = v,
+    f = f,
+    mean_f2 = mean_f2,
+    F_j = F_j, 
+    F_not_j = F_not_j, 
+    K = ncol(f),
+    pred_names = colnames(f)
   )
   
-  # 2+way stats are calculated only for subset of features with large interactions
-  H <- h2_overall(out, normalize = FALSE, sort = FALSE, plot = FALSE)
-  
-  out[["v_pairwise"]] <- v2 <- get_v(H, m = pairwise_m)
+  # 0-way and 1-way stats
+  out[["h2"]] <- h2_raw(out)
+  out[["h2_overall"]] <- h2_overall_raw(out)
+
+  # 2+way stats are calculated only for features with largest overall interactions
+  h2_ov <- .zap_small(out$h2_overall$num, eps = 1e-8)  # Does eps need to be passed?
+  out[["v_pairwise"]] <- v2 <- get_v(h2_ov, m = pairwise_m)
   if (min(pairwise_m, length(v2)) >= 2L) {
     out[c("combs2", "F_jk")] <- mway(
       object, v = v2, X = X, pred_fun = pred_fun, w = w, way = 2L, verb = verbose, ...
     )
+    out[["h2_pairwise"]] <- h2_pairwise_raw(out)
   }
   
-  # Threeway interactions
-  out[["v_threeway"]] <- v3 <- get_v(H, m = threeway_m)
+  out[["v_threeway"]] <- v3 <- get_v(h2_ov, m = threeway_m)
   if (min(threeway_m, length(v3)) >= 3L) {
     out[c("combs3", "F_jkl")] <- mway(
       object, v = v3, X = X, pred_fun = pred_fun, w = w, way = 3L, verb = verbose, ...
     )
+    out[["h2_threeway"]] <- h2_threeway_raw(out)
   }
-  out
+  
+  structure(out, class = "hstats")
 }
 
 #' @describeIn hstats Method for "ranger" models.
@@ -415,7 +419,8 @@ plot.hstats <- function(x, which = 1:2, normalize = TRUE, squared = TRUE, sort =
 #' @noRd
 #' @keywords internal
 #' 
-#' @inheritParams hstats H Unnormalized, unsorted H_j values.
+#' @param v Vector of column names to calculate `way` order interactions.
+#' @inheritParams hstats
 #' @param way Pairwise (`way = 2`) or three-way (`way = 3`) interactions.
 #' @param verb Verbose (`TRUE`/`FALSE`).
 #' 
@@ -453,14 +458,14 @@ mway <- function(object, v, X, pred_fun = stats::predict, w = NULL,
 
 #' Get Feature Names
 #' 
-#' This function takes the unsorted and unnormalized H_j matrix and extracts the top
-#' m feature names (unsorted). If H_j has multiple columns, this is done per column and
+#' This function takes the unsorted and unnormalized H2_j matrix and extracts the top
+#' m feature names (unsorted). If H2_j has multiple columns, this is done per column and
 #' then the union is returned.
 #' 
 #' @noRd
 #' @keywords internal
 #' 
-#' @param H Unnormalized, unsorted H_j values.
+#' @param H Unnormalized, unsorted H2_j values.
 #' @param m Number of features to pick per column.
 #' 
 #' @returns A vector of feature names.

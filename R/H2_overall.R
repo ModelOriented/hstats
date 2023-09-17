@@ -80,15 +80,10 @@ h2_overall.default <- function(object, ...) {
 h2_overall.hstats <- function(object, normalize = TRUE, squared = TRUE, sort = TRUE, 
                               top_m = 15L, eps = 1e-8, plot = FALSE, fill = "#2b51a1", 
                               ...) {
-  num <- with(
-    object, matrix(nrow = length(v), ncol = K, dimnames = list(v, pred_names))
-  )
-  for (z in object[["v"]]) {
-    num[z, ] <- with(object, wcolMeans((f - F_j[[z]] - F_not_j[[z]])^2, w = w))
-  }
+  s <- object$h2_overall
   out <- postprocess(
-    num = num,
-    denom = object[["mean_f2"]],
+    num = s$num,
+    denom = s$denom,
     normalize = normalize, 
     squared = squared, 
     sort = sort, 
@@ -96,4 +91,26 @@ h2_overall.hstats <- function(object, normalize = TRUE, squared = TRUE, sort = T
     eps = eps
   )
   if (plot) plot_stat(out, fill = fill, ...) else out
+}
+
+# Helper function
+
+#' Raw H2 Overall
+#' 
+#' Internal helper function that calculates numerator and denominator of
+#' statistic in title.
+#' 
+#' @noRd
+#' @keywords internal
+#' @param x A list containing the elements "v", "K", "pred_names", 
+#'   "f", "F_not_j", "F_j", "mean_f2", and "w".
+#' @returns A list with the numerator and denominator statistics.
+h2_overall_raw <- function(x) {
+  num <- with(x, matrix(nrow = length(v), ncol = K, dimnames = list(v, pred_names)))
+  
+  for (z in x[["v"]]) {
+    num[z, ] <- with(x, wcolMeans((f - F_j[[z]] - F_not_j[[z]])^2, w = w))
+  }
+  
+  list(num = num, denom = x[["mean_f2"]])
 }

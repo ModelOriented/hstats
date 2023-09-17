@@ -147,6 +147,16 @@ test_that("Three-way interaction is positive in model with such terms", {
   expect_true(h2_threeway(s) > 0)
 })
 
+test_that("Three-way interaction can be suppressed", {
+  fit <- lm(uptake ~ Type * Treatment * conc, data = CO2)
+  s <- hstats(fit, X = CO2[2:4], verbose = FALSE, threeway_m = 0L)
+  expect_null(h2_threeway(s))
+  
+  s <- hstats(fit, X = CO2[2:4], verbose = FALSE, pairwise_m = 0L)
+  expect_null(h2_pairwise(s))
+  expect_null(h2_threeway(s))
+})
+
 test_that("Three-way interaction behaves correctly across dimensions", {
   fit <- lm(cbind(up = uptake, up2 = 2 * uptake) ~ Type * Treatment * conc, data = CO2)
   s <- hstats(fit, X = CO2[2:4], verbose = FALSE)
@@ -154,6 +164,34 @@ test_that("Three-way interaction behaves correctly across dimensions", {
   expect_equal(out[, "up"], out[, "up2"])
   out <- h2_threeway(s, squared = FALSE, normalize = FALSE)
   expect_equal(2 * out[, "up"], out[, "up2"])
+})
+
+test_that("Statistics react on normalize", {
+  fit <- lm(uptake ~ Type * Treatment * conc, data = CO2)
+  s <- hstats(fit, X = CO2[2:4], verbose = FALSE)
+  
+  expect_false(identical(h2(s), h2(s, normalize = FALSE)))
+  expect_false(identical(h2_overall(s), h2_overall(s, normalize = FALSE)))
+  expect_false(identical(h2_pairwise(s), h2_pairwise(s, normalize = FALSE)))
+  expect_false(identical(h2_threeway(s), h2_threeway(s, normalize = FALSE)))
+})
+
+test_that("Statistics react on squared", {
+  fit <- lm(uptake ~ Type * Treatment * conc, data = CO2)
+  s <- hstats(fit, X = CO2[2:4], verbose = FALSE)
+  
+  expect_false(identical(h2(s), h2(s, squared = FALSE)))
+  expect_false(identical(h2_overall(s), h2_overall(s, squared = FALSE)))
+  expect_false(identical(h2_pairwise(s), h2_pairwise(s, squared = FALSE)))
+  expect_false(identical(h2_threeway(s), h2_threeway(s, squared = FALSE)))
+})
+
+test_that("Statistics are sorted", {
+  fit <- lm(uptake ~ Type * Treatment * conc, data = CO2)
+  s <- hstats(fit, X = CO2[2:4], verbose = FALSE)
+  
+  expect_false(is.unsorted(-h2_overall(s)))
+  expect_false(is.unsorted(-h2_pairwise(s)))
 })
 
 test_that("get_v() works", {
