@@ -71,33 +71,13 @@ h2_threeway.default <- function(object, ...) {
 h2_threeway.hstats <- function(object, normalize = TRUE, squared = TRUE, sort = TRUE, 
                                top_m = 15L, eps = 1e-8, plot = FALSE, 
                                fill = "#2b51a1", ...) {
-  combs <- object[["combs3"]]
-  
-  if (is.null(combs)) {
+  s <- object$h2_threeway
+  if (is.null(s)) {
     return(NULL)
   }
-  
-  # Note that the F_jkl are in the same order as combs
-  num <- denom <- with(
-    object,
-    matrix(
-      nrow = length(combs), ncol = K, dimnames = list(names(combs), pred_names)
-    )
-  )
-  
-  for (i in seq_along(combs)) {
-    z <- combs[[i]]
-    zz <- sapply(utils::combn(z, 2L, simplify = FALSE), paste, collapse = ":")
-
-    num[i, ] <- with(
-      object, 
-      wcolMeans((F_jkl[[i]] - Reduce("+", F_jk[zz]) + Reduce("+", F_j[z]))^2, w = w)
-    )
-    denom[i, ] <- if (normalize) with(object, wcolMeans(F_jkl[[i]]^2, w = w)) else 1
-  }
   out <- postprocess(
-    num = num,
-    denom = denom,
+    num = s$num,
+    denom = s$denom,
     normalize = normalize, 
     squared = squared, 
     sort = sort, 
@@ -105,4 +85,35 @@ h2_threeway.hstats <- function(object, normalize = TRUE, squared = TRUE, sort = 
     eps = eps
   )
   if (plot) plot_stat(out, fill = fill, ...) else out
+}
+
+#' Raw H2 Threeway
+#' 
+#' Internal helper function that calculates numerator and denominator of
+#' statistic in title.
+#' 
+#' @noRd
+#' @keywords internal
+#' @param x A list containing the elements "combs3", "K", "pred_names", 
+#'   "F_jkl", "F_jk", "F_j", and "w".
+#' @returns A list with the numerator and denominator statistics.
+h2_threeway_raw <- function(x) {
+  combs <- x[["combs3"]]
+ 
+  # Note that the F_jkl are in the same order as combs
+  num <- denom <- with(
+    x, matrix(nrow = length(combs), ncol = K, dimnames = list(names(combs), pred_names))
+  )
+  
+  for (i in seq_along(combs)) {
+    z <- combs[[i]]
+    zz <- sapply(utils::combn(z, 2L, simplify = FALSE), paste, collapse = ":")
+    
+    num[i, ] <- with(
+      x, wcolMeans((F_jkl[[i]] - Reduce("+", F_jk[zz]) + Reduce("+", F_j[z]))^2, w = w)
+    )
+    denom[i, ] <- with(x, wcolMeans(F_jkl[[i]]^2, w = w))
+  }
+  
+  list(num = num, denom = denom)
 }
