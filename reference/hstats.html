@@ -215,18 +215,26 @@ partial dependence functions \(F_j\).</p></li>
 functions \(F_{\setminus j}\) of other features.</p></li>
 <li><p><code>K</code>: Number of columns of prediction matrix.</p></li>
 <li><p><code>pred_names</code>: Column names of prediction matrix.</p></li>
+<li><p><code>h2</code>: List with numerator and denominator of \(H^2\).</p></li>
+<li><p><code>h2_overall</code>: List with numerator and denominator of \(H^2_j\).</p></li>
 <li><p><code>v_pairwise</code>: Subset of <code>v</code> with largest <code><a href="H2_overall.html">h2_overall()</a></code> used for pairwise
 calculations.</p></li>
 <li><p><code>combs2</code>: Named list of variable pairs for which pairwise partial
-dependence functions are available.</p></li>
+dependence functions are available. Only if pairwise calculations have been done.</p></li>
 <li><p><code>F_jk</code>: List of matrices, each representing (centered) bivariate
-partial dependence functions \(F_{jk}\).</p></li>
+partial dependence functions \(F_{jk}\).
+Only if pairwise calculations have been done.</p></li>
+<li><p><code>h2_pairwise</code>: List with numerator and denominator of \(H^2_{jk}\).
+Only if pairwise calculations have been done.</p></li>
 <li><p><code>v_threeway</code>: Subset of <code>v</code> with largest <code><a href="H2_overall.html">h2_overall()</a></code> used for three-way
 calculations.</p></li>
 <li><p><code>combs3</code>: Named list of variable triples for which three-way partial
-dependence functions are available.</p></li>
+dependence functions are available. Only if threeway calculations have been done.</p></li>
 <li><p><code>F_jkl</code>: List of matrices, each representing (centered) three-way
-partial dependence functions \(F_{jkl}\).</p></li>
+partial dependence functions \(F_{jkl}\).
+Only if threeway calculations have been done.</p></li>
+<li><p><code>h2_threeway</code>: List with numerator and denominator of \(H^2_{jkl}\).
+Only if threeway calculations have been done.</p></li>
 </ul></div>
     <div id="methods-by-class-">
     <h2>Methods (by class)</h2>
