@@ -147,6 +147,15 @@ test_that("Three-way interaction is positive in model with such terms", {
   expect_true(h2_threeway(s) > 0)
 })
 
+test_that("Three-way interaction behaves correctly across dimensions", {
+  fit <- lm(cbind(up = uptake, up2 = 2 * uptake) ~ Type * Treatment * conc, data = CO2)
+  s <- hstats(fit, X = CO2[2:4], verbose = FALSE)
+  out <- h2_threeway(s)
+  expect_equal(out[, "up"], out[, "up2"])
+  out <- h2_threeway(s, squared = FALSE, normalize = FALSE)
+  expect_equal(2 * out[, "up"], out[, "up2"])
+})
+
 test_that("Three-way interaction can be suppressed", {
   fit <- lm(uptake ~ Type * Treatment * conc, data = CO2)
   s <- hstats(fit, X = CO2[2:4], verbose = FALSE, threeway_m = 0L)
@@ -157,41 +166,37 @@ test_that("Three-way interaction can be suppressed", {
   expect_null(h2_threeway(s))
 })
 
-test_that("Three-way interaction behaves correctly across dimensions", {
-  fit <- lm(cbind(up = uptake, up2 = 2 * uptake) ~ Type * Treatment * conc, data = CO2)
-  s <- hstats(fit, X = CO2[2:4], verbose = FALSE)
-  out <- h2_threeway(s)
-  expect_equal(out[, "up"], out[, "up2"])
-  out <- h2_threeway(s, squared = FALSE, normalize = FALSE)
-  expect_equal(2 * out[, "up"], out[, "up2"])
-})
+fit <- lm(uptake ~ Type * Treatment * conc, data = CO2)
+s <- hstats(fit, X = CO2[2:4], verbose = FALSE)
 
-test_that("Statistics react on normalize", {
-  fit <- lm(uptake ~ Type * Treatment * conc, data = CO2)
-  s <- hstats(fit, X = CO2[2:4], verbose = FALSE)
+test_that("Statistics react on normalize and squaring", {
+  expect_identical(h2(s), s$h2$num / s$h2$denom)
+  expect_identical(h2(s, normalize = FALSE), s$h2$num)
+  expect_identical(h2(s, normalize = FALSE, squared = FALSE), sqrt(s$h2$num))
   
-  expect_false(identical(h2(s), h2(s, normalize = FALSE)))
-  expect_false(identical(h2_overall(s), h2_overall(s, normalize = FALSE)))
-  expect_false(identical(h2_pairwise(s), h2_pairwise(s, normalize = FALSE)))
-  expect_false(identical(h2_threeway(s), h2_threeway(s, normalize = FALSE)))
-  expect_false(identical(summary(s), summary(s, normalize = FALSE)))
-})
-
-test_that("Statistics react on squared", {
-  fit <- lm(uptake ~ Type * Treatment * conc, data = CO2)
-  s <- hstats(fit, X = CO2[2:4], verbose = FALSE)
+  expect_identical(h2_overall(s), s$h2_overall$num / s$h2_overall$denom)
+  expect_identical(h2_overall(s, normalize = FALSE), s$h2_overall$num)
+  expect_identical(
+    h2_overall(s, normalize = FALSE, squared = FALSE), 
+    sqrt(s$h2_overall$num)
+  )
   
-  expect_false(identical(h2(s), h2(s, squared = FALSE)))
-  expect_false(identical(h2_overall(s), h2_overall(s, squared = FALSE)))
-  expect_false(identical(h2_pairwise(s), h2_pairwise(s, squared = FALSE)))
-  expect_false(identical(h2_threeway(s), h2_threeway(s, squared = FALSE)))
-  expect_false(identical(summary(s), summary(s, squared = FALSE)))
+  expect_identical(h2_pairwise(s), s$h2_pairwise$num / s$h2_pairwise$denom)
+  expect_identical(h2_pairwise(s, normalize = FALSE), s$h2_pairwise$num)
+  expect_identical(
+    h2_pairwise(s, normalize = FALSE, squared = FALSE), 
+    sqrt(s$h2_pairwise$num)
+  )
+  
+  expect_identical(h2_threeway(s), s$h2_threeway$num / s$h2_threeway$denom)
+  expect_identical(h2_threeway(s, normalize = FALSE), s$h2_threeway$num)
+  expect_identical(
+    h2_threeway(s, normalize = FALSE, squared = FALSE), 
+    sqrt(s$h2_threeway$num)
+  )
 })
 
 test_that("Statistics are sorted", {
-  fit <- lm(uptake ~ Type * Treatment * conc, data = CO2)
-  s <- hstats(fit, X = CO2[2:4], verbose = FALSE)
-  
   expect_false(is.unsorted(-h2_overall(s)))
   expect_false(is.unsorted(-h2_pairwise(s)))
 })

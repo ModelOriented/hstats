@@ -115,21 +115,21 @@ functions \eqn{F_{\setminus j}} of other features.
 \item \code{v_pairwise}: Subset of \code{v} with largest \code{h2_overall()} used for pairwise
 calculations.
 \item \code{combs2}: Named list of variable pairs for which pairwise partial
-dependence functions are available. Only if pairwise calculations are done.
+dependence functions are available. Only if pairwise calculations have been done.
 \item \code{F_jk}: List of matrices, each representing (centered) bivariate
 partial dependence functions \eqn{F_{jk}}.
-Only if pairwise calculations are done.
+Only if pairwise calculations have been done.
 \item \code{h2_pairwise}: List with numerator and denominator of \eqn{H^2_{jk}}.
-Only if pairwise calculations are done.
+Only if pairwise calculations have been done.
 \item \code{v_threeway}: Subset of \code{v} with largest \code{h2_overall()} used for three-way
 calculations.
 \item \code{combs3}: Named list of variable triples for which three-way partial
-dependence functions are available. Only if threeway calculations are done.
+dependence functions are available. Only if threeway calculations have been done.
 \item \code{F_jkl}: List of matrices, each representing (centered) three-way
 partial dependence functions \eqn{F_{jkl}}.
-Only if threeway calculations are done.
+Only if threeway calculations have been done.
 \item \code{h2_threeway}: List with numerator and denominator of \eqn{H^2_{jkl}}.
-Only if threeway calculations are done.
+Only if threeway calculations have been done.
 }
 }
 \description{
