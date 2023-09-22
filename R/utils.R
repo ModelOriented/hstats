@@ -35,7 +35,6 @@ wrowmean <- function(x, ngroups = 1L, w = NULL) {
   if (ngroups == 1L) {
     return(rbind(wcolMeans(x, w = w)))
   }
-  p <- NCOL(x)
   n_bg <- NROW(x) %/% ngroups
   g <- rep(seq_len(ngroups), each = n_bg)
   # Even faster: cbind(collapse::fmean(x, g = g, w = w))
