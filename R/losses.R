@@ -148,7 +148,7 @@ check_dim <- function(actual, predicted) {
 
 #' Calculates x*log(y)
 #' 
-#' Internal function.
+#' Internal function. Returns 0 whenever x = 0 and y >= 0.
 #' 
 #' @noRd
 #' @keywords internal
@@ -157,10 +157,9 @@ check_dim <- function(actual, predicted) {
 #' @param y A numeric vector/matrix.
 #' @returns A numeric vector or matrix.
 xlogy <- function(x, y) {
-  out <- x
-  p <- x != 0
-  out[p] <- x[p] * log(y[p])
-  out
+  out <- x * log(y)
+  out[x == 0] <- 0
+  return(out)
 }
 
 #' String to function
