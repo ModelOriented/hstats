@@ -321,7 +321,8 @@ print.hstats <- function(x, ...) {
 #' @inheritParams h2_overall
 #' @param ... Currently not used.
 #' @returns 
-#'   An object of class "summary_hstats" representing a named list with statistics.
+#'   An object of class "summary_hstats" representing a named list with statistics
+#'   and `normalize`.
 #' @export
 #' @seealso See [hstats()] for examples.
 summary.hstats <- function(object, normalize = TRUE, squared = TRUE, sort = TRUE, 
@@ -339,7 +340,8 @@ summary.hstats <- function(object, normalize = TRUE, squared = TRUE, sort = TRUE
     h2 = h2(object, normalize = normalize, squared = squared, eps = eps), 
     h2_overall = do.call(h2_overall, args), 
     h2_pairwise = do.call(h2_pairwise, args), 
-    h2_threeway = do.call(h2_threeway, args)
+    h2_threeway = do.call(h2_threeway, args),
+    normalize = normalize
   )
   class(out) <- "summary_hstats"
   out
@@ -355,14 +357,15 @@ summary.hstats <- function(object, normalize = TRUE, squared = TRUE, sort = TRUE
 #' @export
 #' @seealso See [hstats()] for examples.
 print.summary_hstats <- function(x, ...) {
+  flag <- if (x[["normalize"]]) "relative" else "absolute"
   txt <- c(
-    h2 = "Proportion of prediction variability unexplained by main effects of v",
-    h2_overall = "Strongest overall interactions", 
-    h2_pairwise = "Strongest pairwise interactions",
-    h2_threeway = "Strongest three-way interactions"
+    h2 = sprintf("Prediction variability unexplained by main effects of v (%s)", flag),
+    h2_overall = sprintf("Strongest %s overall interactions", flag), 
+    h2_pairwise = sprintf("Strongest %s pairwise interactions", flag),
+    h2_threeway = sprintf("Strongest %s three-way interactions", flag)
   )
   
-  for (nm in names(Filter(Negate(is.null), x))) {
+  for (nm in setdiff(names(Filter(Negate(is.null), x)), "normalize")) {
     cat(txt[[nm]])
     cat("\n")
     print(utils::head(drop(x[[nm]])))
