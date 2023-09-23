@@ -58,8 +58,15 @@
 <ul><li>All available H-statistics are now calculated within <code><a href="../reference/hstats.html">hstats()</a></code> and attached to the resulting object. Each statistic is stored as list with numerator and denominator matrices/vectors. The functions <code><a href="../reference/H2.html">h2()</a></code>, <code><a href="../reference/H2_overall.html">h2_overall()</a></code>, <code><a href="../reference/H2_pairwise.html">h2_pairwise()</a></code>, and <code><a href="../reference/H2_threeway.html">h2_threeway()</a></code>, <code><a href="../reference/print.hstats.html">print.hstats()</a></code>, <code>summary().hstats()</code>, <code><a href="../reference/plot.hstats.html">plot.hstats()</a></code> will use these without having to recalculate the required numerators and denominators. The results, however, are unchanged.</li>
 </ul></div>
 <div class="section level3">
+<h3 id="minor-improvements-0-3-0">Minor improvements<a class="anchor" aria-label="anchor" href="#minor-improvements-0-3-0"></a></h3>
+<ul><li>
+<code><a href="../reference/perm_importance.html">perm_importance()</a></code> and <code><a href="../reference/average_loss.html">average_loss()</a></code> will now recycle a univariate response when combined with multivariate predictions. This is useful, e.g., when the prediction function represents the predictions of multiple models that should be evaluated against a common response.</li>
+</ul></div>
+<div class="section level3">
 <h3 id="bug-fixes-0-3-0">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-3-0"></a></h3>
-<ul><li>All progress bars were initialized 1 step too late. This has been fixed.</li>
+<ul><li>All progress bars were initialized 1 step too late.</li>
+<li>
+<code><a href="../reference/perm_importance.html">perm_importance()</a></code> and <code><a href="../reference/average_loss.html">average_loss()</a></code> would fail for “mlogloss” in case the response <code>y</code> was univariate <em>and</em> non-factor/non-character.</li>
 </ul></div>
 </div>
     <div class="section level2">

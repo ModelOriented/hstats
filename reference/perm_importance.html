@@ -164,7 +164,7 @@ matrix of predictions will be used as default column names in the results.</p></
 can be provided that turns observed and predicted values into a numeric vector or
 matrix of unit losses of the same length as <code>X</code>.
 For "mlogloss", the response <code>y</code> can either be a dummy matrix or a discrete vector.
-The latter case is handled via <code>model.matrix(~ y + 0)</code>.
+The latter case is handled via <code>model.matrix(~ as.factor(y) + 0)</code>.
 For "classification_error", both predictions and responses can be non-numeric.</p></dd>
 
 
@@ -242,14 +242,15 @@ situations. If there are K classes and n observations, the predictions form
 a (n x K) matrix of probabilities (with row-sums 1).
 The observed values <code>y</code> are either passed as (n x K) dummy matrix,
 or as discrete vector with corresponding levels.
-The latter case is turned into a dummy matrix via <code>model.matrix(~ y + 0)</code>.</p></li>
-<li><p>"classification_error": Misclassification error. This is currently the
-only prespecified loss that accepts non-numeric predictions. Both the
+The latter case is turned into a dummy matrix via
+<code>model.matrix(~ as.factor(y) + 0)</code>.</p></li>
+<li><p>"classification_error": Misclassification error. Both the
 observed values <code>y</code> and the predictions can be character/factor. This
 loss function can be used in non-probabilistic classification settings.
-BUT: Probabilistic classification (with "mlogloss") is preferred.</p></li>
+BUT: Probabilistic classification (with "mlogloss") is clearly preferred in most
+situations.</p></li>
 <li><p>A function with signature <code>f(actual, predicted)</code>, returning a numeric
-vector of length n or a matrix with n rows, where n is the number of rows of <code>X</code>.</p></li>
+vector or matrix of the same length as the input.</p></li>
 </ul></div>
     <div id="references">
     <h2>References</h2>
@@ -265,19 +266,19 @@ Models, using Model Class Reliance. Arxiv.</p>
 <span class="r-in"><span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu">perm_importance</span><span class="op">(</span><span class="va">fit</span>, X <span class="op">=</span> <span class="va">iris</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span><span class="op">]</span>, y <span class="op">=</span> <span class="va">iris</span><span class="op">$</span><span class="va">Sepal.Length</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">s</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Length      Species  Petal.Width  Sepal.Width </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    4.2669140    0.3596843    0.1152940    0.0842679 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    4.2619843    0.3894065    0.1187237    0.1042459 </span>
 <span class="r-in"><span><span class="va">s</span><span class="op">$</span><span class="va">imp</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                   [,1]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Length 4.2669140</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Species      0.3596843</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Width  0.1152940</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Sepal.Width  0.0842679</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Length 4.2619843</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Species      0.3894065</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Width  0.1187237</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Sepal.Width  0.1042459</span>
 <span class="r-in"><span><span class="va">s</span><span class="op">$</span><span class="va">SE</span>  <span class="co"># Standard errors are available thanks to repeated shuffling</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                     [,1]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Length 0.165800920</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Species      0.014547579</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Width  0.009480464</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Sepal.Width  0.003014392</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Length 0.050102111</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Species      0.024992444</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Width  0.005912741</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Sepal.Width  0.005688791</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">s</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="perm_importance-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">s</span>, err_type <span class="op">=</span> <span class="st">"sd"</span><span class="op">)</span>  <span class="co"># Standard deviations instead of standard errors</span></span></span>
@@ -288,16 +289,16 @@ Models, using Model Class Reliance. Arxiv.</p>
 <span class="r-in"><span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu">perm_importance</span><span class="op">(</span><span class="va">fit</span>, X <span class="op">=</span> <span class="va">iris</span>, y <span class="op">=</span> <span class="va">iris</span><span class="op">$</span><span class="va">Sepal.Length</span>, v <span class="op">=</span> <span class="va">v</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">s</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     petal   species </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2.8814140 0.3897532 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3.1416201 0.3827723 </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># MODEL 2: Multi-response linear regression</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">iris</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span> <span class="op">~</span> <span class="va">Petal.Length</span> <span class="op">+</span> <span class="va">Petal.Width</span> <span class="op">+</span> <span class="va">Species</span>, data <span class="op">=</span> <span class="va">iris</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu">perm_importance</span><span class="op">(</span><span class="va">fit</span>, X <span class="op">=</span> <span class="va">iris</span><span class="op">[</span><span class="fl">3</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span>, y <span class="op">=</span> <span class="va">iris</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">s</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>               Sepal.Length Sepal.Width</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Length  5.308759e+00   0.1399955</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Species       1.679281e+00   1.8929010</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Width  -9.445346e-05   0.4194594</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>              Sepal.Length Sepal.Width</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Length 5.000750e+00   0.1437420</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Species      1.699431e+00   1.8932125</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Width  5.704695e-05   0.4321672</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">s</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="perm_importance-3.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">s</span>, rotate_x <span class="op">=</span> <span class="cn">TRUE</span>, facet_scale <span class="op">=</span> <span class="st">"free_x"</span>, err_type <span class="op">=</span> <span class="st">"sd"</span><span class="op">)</span></span></span>
