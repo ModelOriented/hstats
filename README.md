@@ -255,7 +255,7 @@ library(ggplot2)
 
 set.seed(1)
 fit <- ranger(Species ~ ., data = iris, probability = TRUE)
-average_loss(fit, X = iris, y = iris$Species, loss = "mlogloss")  # 0.054
+average_loss(fit, X = iris, y = iris$Species, loss = "mlogloss")  # 0.0521
 
 s <- hstats(fit, X = iris[-5])
 s

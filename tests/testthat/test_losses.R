@@ -11,15 +11,25 @@ test_that("losses are identical to stats package for specific case", {
 })
 
 test_that("losses are identical to stats package for specific case (multivariate)", {
-  y <- replicate(2, 1:10)
-  p <- y^2
-  expect_equal(loss_squared_error(y, p), gaussian()$dev.resid(y, p, 1))
-  expect_equal(loss_gamma(y, p), Gamma()$dev.resid(y, p, 1))
+  y <- 1:10
+  y2 <- replicate(2, y)
+  p <- y2^2
   
-  y <- replicate(2, c(0, 0, 0, 1, 1, 1))
+  expect_equal(loss_squared_error(y2, p), gaussian()$dev.resid(y2, p, 1))
+  expect_equal(loss_squared_error(y, p), gaussian()$dev.resid(y2, p, 1))
+  
+  expect_equal(loss_gamma(y2, p), Gamma()$dev.resid(y2, p, 1))
+  expect_equal(loss_gamma(y, p), Gamma()$dev.resid(y2, p, 1))
+  
+  y <- c(0, 0, 0, 1, 1, 1)
+  y2 <- replicate(2, y)
   p <- replicate(2, c(0, 1, 0.1, 1, 0, 0.9))
-  expect_equal(loss_poisson(y, p), poisson()$dev.resid(y, p, 1))
-  expect_equal(loss_logloss(y, p), binomial()$dev.resid(y, p, 1) / 2)
+  
+  expect_equal(loss_poisson(y2, p), poisson()$dev.resid(y2, p, 1))
+  expect_equal(loss_poisson(y, p), poisson()$dev.resid(y2, p, 1))
+  
+  expect_equal(loss_logloss(y2, p), binomial()$dev.resid(y2, p, 1) / 2)
+  expect_equal(loss_logloss(y, p), binomial()$dev.resid(y2, p, 1) / 2)
 })
 
 test_that("loss_absolute_error() works for specific case", {
@@ -29,9 +39,12 @@ test_that("loss_absolute_error() works for specific case", {
 })
 
 test_that("loss_absolute_error() works for specific case (multivariate)", {
-  y <- replicate(2, 1:10)
-  p <- y^2
-  expect_equal(loss_absolute_error(y, p), abs(y - p))
+  y <- 1:10
+  y2 <- replicate(2, y)
+  p <- y2^2
+  colnames(p) <- c("a", "b")
+  expect_equal(loss_absolute_error(y2, p), abs(y2 - p))
+  expect_equal(loss_absolute_error(y, p), abs(y2 - p))
 })
 
 test_that("loss_classification_error() works for specific case", {
@@ -40,10 +53,36 @@ test_that("loss_classification_error() works for specific case", {
   expect_equal(loss_classification_error(y, p), 0 + (y != p))
 })
 
-test_that("loss_classification_error() works for specific case (multivariate case)", {
-  y <- replicate(2, iris$Species)
-  p <- y[nrow(y):1, ]
-  expect_equal(loss_classification_error(y, p), 0 + (y != p))
+test_that("loss_classification_error() works for specific case (multivariate)", {
+  y <- iris$Species
+  y2 <- replicate(2L, y)
+  p <- y2[nrow(y2):1, ]
+  colnames(p) <- c("a", "b")
+  expect_equal(loss_classification_error(y2, p), 0 + (y2 != p))
+  expect_equal(loss_classification_error(y, p), 0 + (y2 != p))
+})
+
+test_that("loss_mlogloss() is in line with loss_logloss() in binary case", {
+  y <- c(0, 0, 0, 1, 1)
+  pred <- c(0, 0.1, 0.2, 1, 0.9)
+  y2 <- cbind(a = 1 - y, b = y)
+  pred2 <- cbind(1 - pred, pred)
+  expect_equal(loss_mlogloss(y2, pred2), loss_logloss(y, pred))
+  expect_equal(loss_mlogloss(y, pred2), loss_logloss(y, pred))
+})
+
+test_that("loss_mlogloss() either understands matrix responses or factors", {
+  y <- iris$Species
+  Y <- model.matrix(~ Species + 0, data = iris)
+  fit <- lm(Y ~ Sepal.Width, data = iris)
+  pf <- function(m, X) {
+    out <- predict(m, X)
+    out[out < 0] <- 0
+    out[out > 1] <- 1
+    out
+  }
+  pred <- pf(fit, iris)
+  expect_equal(loss_mlogloss(Y, pred), loss_mlogloss(y, pred))
 })
 
 test_that("Some errors are thrown", {
@@ -72,4 +111,16 @@ test_that("xlogy works (univariate and multivariate)", {
 test_that("get_loss_fun() works", {
   expect_error(get_loss_fun("no_loss"))
   expect_equal(get_loss_fun("poisson"), loss_poisson)
+})
+
+test_that("expand_actual() works", {
+  expect_equal(expand_actual(5:1, 1:5), 5:1)
+  expect_equal(expand_actual(head(iris), head(iris)), head(iris))
+  
+  xpected <- replicate(5L, 1:6)
+  colnames(xpected) <- colnames(iris)
+  expect_equal(expand_actual(1:6, head(iris)), xpected)
+  expect_equal(expand_actual(data.frame(a = 1:6), head(iris)), xpected)
+  expect_equal(expand_actual(cbind(a = 1:6), head(iris)), xpected)
+  expect_error(expand_actual(cbind(a = 1:6, b = 6:1), head(iris)))
 })

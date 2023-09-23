@@ -103,7 +103,7 @@ test_that("matrix case works as well", {
   )
 })
 
-test_that("non-numeric predictions can work as well", {
+test_that("non-numeric predictions can work as well (classification error)", {
   expect_equal(
     c(perm_importance(
       1, 
@@ -253,3 +253,36 @@ test_that("mlogloss works with either matrix y or vector y", {
   )
   expect_equal(s1, s2)
 })
+
+test_that("Single output multiple models works without recycling y", {
+  y <- iris$Sepal.Length
+  Y <- cbind(f1 = y, f2 = y)
+  fit1 <- lm(y ~ Petal.Length + Species, data = iris)
+  fit2 <- lm(y ~ Petal.Width + Sepal.Width, data = iris)
+  fit <- list(f1 = fit1, f2 = fit2)
+  pf <- function(m, x) sapply(fit, FUN = predict, newdata = x)
+  
+  set.seed(1L)
+  s1 <- perm_importance(fit, X = iris[-1L], y = Y, loss = "poisson", pred_fun = pf)
+  set.seed(1L)
+  s2 <- perm_importance(fit, X = iris[-1L], y = y, loss = "poisson", pred_fun = pf)
+  expect_equal(s1, s2)
+})
+
+test_that("loss_mlogloss() is in line with loss_logloss() in binary case", {
+  y <- iris$Species == "setosa"
+  Y <- cbind(no = 1 - y, yes = y)
+  fit <- glm(y ~ Sepal.Length, data = iris, family = binomial())
+  pf <- function(m, X, multi = FALSE) {
+    out <- predict(m, X, type = "response")
+    if (multi) cbind(no = 1 - out, yes = out) else out
+  }
+  set.seed(1L)
+  imp1 <- perm_importance(fit, X = iris[-5L], y = y, pred_fun = pf, loss = "logloss")
+  set.seed(1L)
+  imp2 <- perm_importance(
+    fit, X = iris[-5L], y = Y, pred_fun = pf, loss = "mlogloss", multi = TRUE
+  )
+  expect_equal(imp1, imp2)
+})
+
