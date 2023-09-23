@@ -107,21 +107,25 @@ h2_pairwise.hstats <- function(object, normalize = TRUE, squared = TRUE, sort = 
 #' 
 #' @noRd
 #' @keywords internal
-#' @param x A list containing the elements "combs2", "K", "pred_names", 
+#' @param x A list containing the elements "combs2", "v_pairwise_0", "K", "pred_names", 
 #'   "F_jk", "F_j", and "w".
 #' @returns A list with the numerator and denominator statistics.
 h2_pairwise_raw <- function(x) {
-  combs <- x[["combs2"]]
-  
-  # Note that F_jk are in the same order as combs
-  num <- denom <- with(
-    x, matrix(nrow = length(combs), ncol = K, dimnames = list(names(combs), pred_names))
+  # Initialize matrices
+  cn0 <- combn(x[["v_pairwise_0"]], 2L, FUN = paste, collapse = ":")
+  num <- with(
+    x, matrix(0, nrow = length(cn0), ncol = K, dimnames = list(cn0, pred_names))
   )
-  
-  for (i in seq_along(combs)) {
-    z <- combs[[i]]
-    num[i, ] <- with(x, wcolMeans((F_jk[[i]] - F_j[[z[1L]]] - F_j[[z[2L]]])^2, w = w))
-    denom[i, ] <- with(x, wcolMeans(F_jk[[i]]^2, w = w))
+  denom <- num + 1
+    
+  # Note that F_jk are in the same order as x[["combs2"]]
+  combs <- x[["combs2"]]
+  if (!is.null(combs)) {
+    for (nm in names(combs)) {
+      z <- combs[[nm]]
+      num[nm, ] <- with(x, wcolMeans((F_jk[[nm]] - F_j[[z[1L]]] - F_j[[z[2L]]])^2, w = w))
+      denom[nm, ] <- with(x, wcolMeans(F_jk[[nm]]^2, w = w))
+    }    
   }
   
   list(num = num, denom = denom)

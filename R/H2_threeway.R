@@ -94,26 +94,31 @@ h2_threeway.hstats <- function(object, normalize = TRUE, squared = TRUE, sort = 
 #' 
 #' @noRd
 #' @keywords internal
-#' @param x A list containing the elements "combs3", "K", "pred_names", 
+#' @param x A list containing the elements "combs3", "v_threeway_0", "K", "pred_names", 
 #'   "F_jkl", "F_jk", "F_j", and "w".
 #' @returns A list with the numerator and denominator statistics.
 h2_threeway_raw <- function(x) {
-  combs <- x[["combs3"]]
- 
-  # Note that the F_jkl are in the same order as combs
-  num <- denom <- with(
-    x, matrix(nrow = length(combs), ncol = K, dimnames = list(names(combs), pred_names))
+  # Initialize matrices
+  cn0 <- utils::combn(x[["v_threeway_0"]], 3L, FUN = paste, collapse = ":")
+  num <- with(
+    x, matrix(0, nrow = length(cn0), ncol = K, dimnames = list(cn0, pred_names))
   )
+  denom <- num + 1
   
-  for (i in seq_along(combs)) {
-    z <- combs[[i]]
-    zz <- sapply(utils::combn(z, 2L, simplify = FALSE), paste, collapse = ":")
-    
-    num[i, ] <- with(
-      x, wcolMeans((F_jkl[[i]] - Reduce("+", F_jk[zz]) + Reduce("+", F_j[z]))^2, w = w)
-    )
-    denom[i, ] <- with(x, wcolMeans(F_jkl[[i]]^2, w = w))
+  # Note that the F_jkl are in the same order as x[["combs3"]]
+  combs <- x[["combs3"]]
+  if (!is.null(combs)) {
+    for (nm in names(combs)) {
+      z <- combs[[nm]]
+      zz <- utils::combn(z, 2L, paste, collapse = ":")
+      
+      num[nm, ] <- with(
+        x, 
+        wcolMeans((F_jkl[[nm]] - Reduce("+", F_jk[zz]) + Reduce("+", F_j[z]))^2, w = w)
+      )
+      denom[nm, ] <- with(x, wcolMeans(F_jkl[[nm]]^2, w = w))
+    }    
   }
-  
+
   list(num = num, denom = denom)
 }

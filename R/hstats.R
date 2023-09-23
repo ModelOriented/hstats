@@ -61,6 +61,7 @@
 #'   - `h2_overall`: List with numerator and denominator of \eqn{H^2_j}. 
 #'   - `v_pairwise`: Subset of `v` with largest `h2_overall()` used for pairwise 
 #'     calculations.
+#'   - `v_pairwise_0`: Like `v_pairwise`, but padded to length `pairwise_m`.
 #'   - `combs2`: Named list of variable pairs for which pairwise partial 
 #'     dependence functions are available. Only if pairwise calculations have been done.
 #'   - `F_jk`: List of matrices, each representing (centered) bivariate 
@@ -70,6 +71,7 @@
 #'     Only if pairwise calculations have been done.
 #'   - `v_threeway`: Subset of `v` with largest `h2_overall()` used for three-way 
 #'     calculations.
+#'   - `v_threeway_0`: Like `v_threeway`, but padded to length `threeway_m`.
 #'   - `combs3`: Named list of variable triples for which three-way partial 
 #'     dependence functions are available. Only if threeway calculations have been done.
 #'   - `F_jkl`: List of matrices, each representing (centered) three-way 
@@ -126,7 +128,13 @@ hstats.default <- function(object, X, v = colnames(X),
                            w = NULL, pairwise_m = 5L, threeway_m = pairwise_m,
                            verbose = TRUE, ...) {
   basic_check(X = X, v = v, pred_fun = pred_fun, w = w)
-  stopifnot(threeway_m <= pairwise_m)
+  p <- length(v)
+  stopifnot(
+    p >= 2L, 
+    threeway_m <= pairwise_m
+  )
+  pairwise_m <- min(pairwise_m, p)
+  threeway_m <- min(threeway_m, p)
   
   # Reduce size of X (and w)
   if (nrow(X) > n_max) {
@@ -143,8 +151,7 @@ hstats.default <- function(object, X, v = colnames(X),
   
   # Initialize first progress bar
   p <- length(v)
-  show_bar <- verbose && p >= 2L
-  if (show_bar) {
+  if (verbose) {
     cat("1-way calculations...\n")
     pb <- utils::txtProgressBar(max = p, style = 3)
   }
@@ -175,11 +182,11 @@ hstats.default <- function(object, X, v = colnames(X),
       w = w
     )
     
-    if (show_bar) {
+    if (verbose) {
       utils::setTxtProgressBar(pb, j)
     }
   }
-  if (show_bar) {
+  if (verbose) {
     cat("\n")
   }
   
@@ -199,25 +206,29 @@ hstats.default <- function(object, X, v = colnames(X),
   # 0-way and 1-way stats
   out[["h2"]] <- h2_raw(out)
   out[["h2_overall"]] <- h2_overall_raw(out)
-
-  # 2+way stats are calculated only for features with largest overall interactions
   h2_ov <- .zap_small(out$h2_overall$num, eps = 1e-8)  # Does eps need to be passed?
-  out[["v_pairwise"]] <- v2 <- get_v(h2_ov, m = pairwise_m)
-  if (min(pairwise_m, length(v2)) >= 2L) {
-    out[c("combs2", "F_jk")] <- mway(
-      object, v = v2, X = X, pred_fun = pred_fun, w = w, way = 2L, verb = verbose, ...
-    )
-    out[["h2_pairwise"]] <- h2_pairwise_raw(out)
-  }
   
-  out[["v_threeway"]] <- v3 <- get_v(h2_ov, m = threeway_m)
-  if (min(threeway_m, length(v3)) >= 3L) {
-    out[c("combs3", "F_jkl")] <- mway(
-      object, v = v3, X = X, pred_fun = pred_fun, w = w, way = 3L, verb = verbose, ...
-    )
-    out[["h2_threeway"]] <- h2_threeway_raw(out)
+  if (pairwise_m >= 2L) {
+    out[c("v_pairwise", "v_pairwise_0")] <- get_v(h2_ov, m = pairwise_m)
+    v2 <- out[["v_pairwise"]]
+    if (length(v2) >= 2L) {
+      out[c("combs2", "F_jk")] <- mway(
+        object, v = v2, X = X, pred_fun = pred_fun, w = w, way = 2L, verb = verbose, ...
+      )
+      out[["h2_pairwise"]] <- h2_pairwise_raw(out)
+    }
   }
-  
+  if (threeway_m >= 3L) {
+    out[c("v_threeway", "v_threeway_0")] <- get_v(h2_ov, m = threeway_m)
+    v3 <- out[["v_threeway"]]
+    if (length(v3) >= 3L) {
+      out[c("combs3", "F_jkl")] <- mway(
+        object, v = v3, X = X, pred_fun = pred_fun, w = w, way = 3L, verb = verbose, ...
+      )
+      out[["h2_threeway"]] <- h2_threeway_raw(out)
+    }
+  }
+
   structure(out, class = "hstats")
 }
 
@@ -344,12 +355,11 @@ summary.hstats <- function(object, normalize = TRUE, squared = TRUE, sort = TRUE
 #' @export
 #' @seealso See [hstats()] for examples.
 print.summary_hstats <- function(x, ...) {
-  addon <- "(for features with strong overall interactions)"
   txt <- c(
     h2 = "Proportion of prediction variability unexplained by main effects of v",
     h2_overall = "Strongest overall interactions", 
-    h2_pairwise = paste0("Strongest relative pairwise interactions\n", addon),
-    h2_threeway = paste0("Strongest relative three-way interactions\n", addon)
+    h2_pairwise = "Strongest pairwise interactions",
+    h2_threeway = "Strongest three-way interactions"
   )
   
   for (nm in names(Filter(Negate(is.null), x))) {
@@ -434,8 +444,7 @@ mway <- function(object, v, X, pred_fun = stats::predict, w = NULL,
   F_way <- vector("list", length = n_combs)
   names(F_way) <- names(combs) <- sapply(combs, paste, collapse = ":")
   
-  show_bar <- verb && (n_combs >= way)
-  if (show_bar) {
+  if (verb) {
     cat(way, "way calculations...\n", sep = "-")
     pb <- utils::txtProgressBar(max = n_combs, style = 3)
   }
@@ -446,11 +455,11 @@ mway <- function(object, v, X, pred_fun = stats::predict, w = NULL,
       pd_raw(object, v = z, X = X, grid = X[, z], pred_fun = pred_fun, w = w, ...),
       w = w
     )
-    if (show_bar) {
+    if (verb) {
       utils::setTxtProgressBar(pb, i)
     }
   }
-  if (show_bar) {
+  if (verb) {
     cat("\n")
   }
   list(combs, F_way)
@@ -468,17 +477,29 @@ mway <- function(object, v, X, pred_fun = stats::predict, w = NULL,
 #' @param H Unnormalized, unsorted H2_j values.
 #' @param m Number of features to pick per column.
 #' 
-#' @returns A vector of feature names.
+#' @returns A list with two vectors of feature names. The first contains
+#'   only the m most important features (union over columns), while the first
+#'   is a padded version of length m. It is necessary in cases where less than m
+#'   features show interactions.
 get_v <- function(H, m) {
-  # Get largest m positive values per column
+  v <- rownames(H)
+  
+  # Get m strongest features per column
   selector <- function(vv) names(utils::head(sort(-vv[vv > 0]), m))
   if (NCOL(H) == 1L) {
     v_cand <- selector(drop(H))
   } else {
     v_cand <- Reduce(union, lapply(asplit(H, MARGIN = 2L), FUN = selector))
   }
-  # Same order as in v
-  v <- rownames(H)
-  v[v %in% v_cand]
+  
+  # Do we need to add some features without interactions?
+  m_miss <- m - length(v_cand)
+  if (m_miss > 0L) {
+    v_cand_0 <- c(v_cand, utils::head(setdiff(v, v_cand), m_miss))
+  } else {
+    v_cand_0 <- v_cand
+  }
+  # Bring vectors into same order as v
+  return(list(v[v %in% v_cand], v[v %in% v_cand_0]))
 }
 
