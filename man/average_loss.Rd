@@ -79,7 +79,7 @@ matrix of predictions will be used as default column names in the results.}
 can be provided that turns observed and predicted values into a numeric vector or
 matrix of unit losses of the same length as \code{X}.
 For "mlogloss", the response \code{y} can either be a dummy matrix or a discrete vector.
-The latter case is handled via \code{model.matrix(~ y + 0)}.
+The latter case is handled via \code{model.matrix(~ as.factor(y) + 0)}.
 For "classification_error", both predictions and responses can be non-numeric.}
 
 \item{w}{Optional vector of case weights for each row of \code{X}.}
@@ -123,14 +123,15 @@ situations. If there are K classes and n observations, the predictions form
 a (n x K) matrix of probabilities (with row-sums 1).
 The observed values \code{y} are either passed as (n x K) dummy matrix,
 or as discrete vector with corresponding levels.
-The latter case is turned into a dummy matrix via \code{model.matrix(~ y + 0)}.
-\item "classification_error": Misclassification error. This is currently the
-only prespecified loss that accepts non-numeric predictions. Both the
+The latter case is turned into a dummy matrix via
+\code{model.matrix(~ as.factor(y) + 0)}.
+\item "classification_error": Misclassification error. Both the
 observed values \code{y} and the predictions can be character/factor. This
 loss function can be used in non-probabilistic classification settings.
-BUT: Probabilistic classification (with "mlogloss") is preferred.
+BUT: Probabilistic classification (with "mlogloss") is clearly preferred in most
+situations.
 \item A function with signature \code{f(actual, predicted)}, returning a numeric
-vector of length n or a matrix with n rows, where n is the number of rows of \code{X}.
+vector or matrix of the same length as the input.
 }
 }
 

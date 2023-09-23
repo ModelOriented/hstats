@@ -9,7 +9,7 @@
 #' @param predicted A numeric vector/matrix.
 #' @returns Vector or matrix of numeric losses.
 loss_squared_error <- function(actual, predicted) {
-  check_dim(actual = actual, predicted = predicted)
+  actual <- expand_actual(actual = actual, predicted = predicted)
   (actual - predicted)^2
 }
 
@@ -24,7 +24,7 @@ loss_squared_error <- function(actual, predicted) {
 #' @param predicted A numeric vector/matrix.
 #' @returns Vector or matrix of numeric losses.
 loss_absolute_error <- function(actual, predicted) {
-  check_dim(actual = actual, predicted = predicted)
+  actual <- expand_actual(actual = actual, predicted = predicted)
   abs(actual - predicted)
 }
 
@@ -39,7 +39,7 @@ loss_absolute_error <- function(actual, predicted) {
 #' @param predicted A numeric vector/matrix with non-negative values.
 #' @returns Vector or matrix of numeric losses.
 loss_poisson <- function(actual, predicted) {
-  check_dim(actual = actual, predicted = predicted)
+  actual <- expand_actual(actual = actual, predicted = predicted)
   stopifnot(
     all(predicted >= 0),
     all(actual >= 0)
@@ -61,7 +61,7 @@ loss_poisson <- function(actual, predicted) {
 #' @param predicted A numeric vector/matrix with positive values.
 #' @returns Vector or matrix of numeric losses.
 loss_gamma <- function(actual, predicted) {
-  check_dim(actual = actual, predicted = predicted)
+  actual <- expand_actual(actual = actual, predicted = predicted)
   stopifnot(
     all(predicted > 0), 
     all(actual > 0)
@@ -76,11 +76,11 @@ loss_gamma <- function(actual, predicted) {
 #' @noRd
 #' @keywords internal
 #'
-#' @param actual A vector/matrix with discrete values.
-#' @param predicted A vector/matrix with discrete values.
+#' @param actual A vector/factor/matrix with discrete values.
+#' @param predicted A vector/factor/matrix with discrete values.
 #' @returns Vector or matrix of numeric losses.
 loss_classification_error <- function(actual, predicted) {
-  check_dim(actual = actual, predicted = predicted)
+  actual <- expand_actual(actual = actual, predicted = predicted)
   (actual != predicted) * 1.0
 }
 
@@ -96,7 +96,7 @@ loss_classification_error <- function(actual, predicted) {
 #' @param predicted A numeric vector/matrix with values between 0 and 1.
 #' @returns Vector or matrix of numeric losses.
 loss_logloss <- function(actual, predicted) {
-  check_dim(actual = actual, predicted = predicted)
+  actual <- expand_actual(actual = actual, predicted = predicted)
   stopifnot(
     all(predicted >= 0), 
     all(predicted <= 1),
@@ -114,41 +114,58 @@ loss_logloss <- function(actual, predicted) {
 #' @noRd
 #' @keywords internal
 #'
-#' @param actual A numeric vector/matrix with values between 0 and 1.
-#' @param predicted A numeric vector/matrix with values between 0 and 1.
+#' @param actual A numeric matrix with values between 0 and 1, or a 
+#'   discrete vector that will be one-hot-encoded via 
+#'   `model.matrix(~ as.factor(actual) + 0)`.
+#'   The column order of `predicted` must be in line with this!
+#' @param predicted A numeric matrix with values between 0 and 1.
 #' @returns `TRUE` (or an error message).
 loss_mlogloss <- function(actual, predicted) {
-  check_dim(actual = actual, predicted = predicted)
+  if (NCOL(actual) == 1L && NCOL(predicted) > 1L) {
+    actual <- stats::model.matrix(~ as.factor(actual) + 0)
+  }
   stopifnot(
+    NCOL(actual) == NCOL(predicted),
     all(predicted >= 0), 
     all(predicted <= 1),
     all(actual >= 0),
     all(actual <= 1)
   )
-  -rowSums(xlogy(actual, predicted))
+  unname(-rowSums(xlogy(actual, predicted)))
 }
 
-#' Consistency Check on Dimensions
+#' Expands 1D actual to NCOL(predicted)
 #' 
-#' Internal function. Checks if the number of columns of the two inputs are identical.
+#' Internal function. Checks consistency of column counts. If `NCOL(actual) == 1`
+#' and `NCOL(predicted) > 1`, replicates `actual` into a matrix.
 #' 
 #' @noRd
 #' @keywords internal
 #'
-#' @param actual A numeric vector/matrix.
-#' @param predicted A numeric vector/matrix.
-#' @returns `TRUE` (or an error message).
-check_dim <- function(actual, predicted) {
-  stopifnot(
-    # NROW(actual) == NROW(predicted),
-    NCOL(actual) == NCOL(predicted)
-  )
-  TRUE
+#' @param actual A vector/matrix/data.frame.
+#' @param predicted A vector/matrix/data.frame.
+#' @returns A matrix.
+expand_actual <- function(actual, predicted) {
+  pp <- NCOL(predicted)
+  pa <- NCOL(actual)
+  if (pa == pp) {
+    return(actual)
+  }
+  if (pp > 1L && pa == 1L) {
+    if (is.data.frame(actual)) {
+      actual <- as.matrix(actual)
+    }
+    actual <- matrix(actual, nrow = NROW(actual), ncol = pp, byrow = FALSE)
+    colnames(actual) <- colnames(predicted)
+  } else {
+    stop("NCOL(actual) should be identical to NCOL(predicted), or equal to 1")
+  }
+  return(actual)
 }
 
 #' Calculates x*log(y)
 #' 
-#' Internal function.
+#' Internal function. Returns 0 whenever x = 0 and y >= 0.
 #' 
 #' @noRd
 #' @keywords internal
@@ -157,10 +174,9 @@ check_dim <- function(actual, predicted) {
 #' @param y A numeric vector/matrix.
 #' @returns A numeric vector or matrix.
 xlogy <- function(x, y) {
-  out <- x
-  p <- x != 0
-  out[p] <- x[p] * log(y[p])
-  out
+  out <- x * log(y)
+  out[x == 0] <- 0
+  return(out)
 }
 
 #' String to function

@@ -72,9 +72,6 @@ perm_importance.default <- function(object, X, y, v = colnames(X),
     pred_fun = pred_fun, 
     w = w
   )
-  if (!is.function(loss) && loss == "mlogloss" && NCOL(y) == 1L) {
-    y <- stats::model.matrix(~y + 0)
-  }
   stopifnot(
     NROW(y) == nrow(X),
     perms >= 1L
