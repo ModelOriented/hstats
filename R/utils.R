@@ -216,9 +216,9 @@ basic_check <- function(X, v, pred_fun, w = NULL) {
 #' @inheritParams H2_overall
 #' @param num Matrix or vector of statistic.
 #' @param denom Denominator of statistic (a matrix, number, or vector compatible with `num`).
-#' @returns Matrix or vector of statistics.
+#' @returns Matrix or vector of statistics. If length of output is 0, then `NULL`.
 postprocess <- function(num, denom = 1, normalize = TRUE, squared = TRUE, 
-                        sort = TRUE, top_m = Inf, eps = 1e-8) {
+                        sort = TRUE, top_m = Inf, zero = TRUE, eps = 1e-8) {
   out <- .zap_small(num, eps = eps)
   if (normalize) {
     if (length(denom) == 1L || length(num) == length(denom)) {
@@ -239,7 +239,15 @@ postprocess <- function(num, denom = 1, normalize = TRUE, squared = TRUE,
       out <- sort(out, decreasing = TRUE)
     }
   }
-  utils::head(out, n = top_m)
+  if (!zero) {
+    if (is.matrix(out)) {
+      out <- out[rowSums(out) > 0, , drop = FALSE]
+    } else {
+      out <- out[out > 0]
+    }
+  }
+  out <- utils::head(out, n = top_m)
+  if (length(out) == 0L) NULL else out
 }
 
 #' Zap Small Values
@@ -339,8 +347,11 @@ qcut <- function(x, m) {
 #' @param x A matrix of statistics with rownames.
 #' @param fill Color of bar (only for univariate statistics).
 #' @param ... Arguments passed to `geom_bar()`.
-#' @returns An object of class "ggplot".
+#' @returns An object of class "ggplot", or `NULL`.
 plot_stat <- function(x, fill = "#2b51a1", ...) {
+  if (is.null(x)) {
+    return(NULL)
+  }
   p <- ggplot2::ggplot(mat2df(x), ggplot2::aes(x = value_, y = variable_)) +
     ggplot2::ylab(ggplot2::element_blank()) +
     ggplot2::xlab("Value")

@@ -321,7 +321,8 @@ print.hstats <- function(x, ...) {
 #' @param ... Currently not used.
 #' @returns 
 #'   An object of class "summary_hstats" representing a named list with statistics
-#'   and `normalize`.
+#'   "h2", "h2_overall", "h2_pairwise", "h2_threeway", and the input flag "normalize".
+#'   Statistics that equal `NULL` are omitted from the list.
 #' @export
 #' @seealso See [hstats()] for examples.
 summary.hstats <- function(object, normalize = TRUE, squared = TRUE, sort = TRUE, 
@@ -336,15 +337,15 @@ summary.hstats <- function(object, normalize = TRUE, squared = TRUE, sort = TRUE
     eps = eps,
     plot = FALSE
   )
-   out <- list(
+  out <- list(
     h2 = h2(object, eps = eps), 
     h2_overall = do.call(h2_overall, args), 
     h2_pairwise = do.call(h2_pairwise, args), 
     h2_threeway = do.call(h2_threeway, args),
     normalize = normalize
   )
-  class(out) <- "summary_hstats"
-  out
+  out <- out[!sapply(out, is.null)]
+  structure(out, class = "summary_hstats")
 }
 
 #' Print Method
@@ -365,7 +366,7 @@ print.summary_hstats <- function(x, ...) {
     h2_threeway = sprintf("Strongest %s three-way interactions", flag)
   )
   
-  for (nm in setdiff(names(Filter(Negate(is.null), x)), "normalize")) {
+  for (nm in setdiff(names(x), "normalize")) {
     cat(txt[[nm]])
     cat("\n")
     print(utils::head(x[[nm]]))
@@ -402,10 +403,17 @@ plot.hstats <- function(x, which = 1:2, normalize = TRUE, squared = TRUE, sort =
     zero = zero,
     eps = eps
   )
-  nms <- c("h2_overall", "h2_pairwise", "h2_threeway")
-  ids <- c("Overall", "Pairwise", "Threeway")
-  dat <- lapply(which, FUN = function(j) mat2df(su[[nms[j]]], id = ids[j]))
+  
+  nms <- c(Overall = "h2_overall", Pairwise = "h2_pairwise", Threeway = "h2_threeway")
+  su <- su[nms[which]]
+  
+  if (length(su) == 0L) {
+    return(NULL)
+  }
+  
+  dat <- lapply(names(su), FUN = function(nm) mat2df(su[[nm]], id = nm))
   dat <- do.call(rbind, dat)
+  
   p <- ggplot2::ggplot(dat, ggplot2::aes(x = value_, y = variable_)) +
     ggplot2::ylab(ggplot2::element_blank()) +
     ggplot2::xlab("Value")
