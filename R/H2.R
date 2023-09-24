@@ -65,13 +65,12 @@ h2.default <- function(object, ...) {
 
 #' @describeIn h2 Total interaction strength from "interact" object.
 #' @export
-h2.hstats <- function(object, normalize = TRUE, squared = TRUE, eps = 1e-8, ...) {
+h2.hstats <- function(object, eps = 1e-8, ...) {
   postprocess(
     num = object$h2$num,
     denom = object$h2$denom,
-    normalize = normalize, 
-    squared = squared, 
-    sort = FALSE, 
+    sort = FALSE,
+    drop_zero = FALSE,
     eps = eps
   )
 }

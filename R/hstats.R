@@ -91,6 +91,7 @@
 #' s <- hstats(fit, X = iris[-1])
 #' s
 #' plot(s)
+#' plot(s, drop_zero = FALSE)
 #' summary(s)
 #'   
 #' # Absolute pairwise interaction strengths
@@ -150,7 +151,6 @@ hstats.default <- function(object, X, v = colnames(X),
   mean_f2 <- wcolMeans(f^2, w = w)  # A vector
   
   # Initialize first progress bar
-  p <- length(v)
   if (verbose) {
     cat("1-way calculations...\n")
     pb <- utils::txtProgressBar(max = p, style = 3)
@@ -215,8 +215,8 @@ hstats.default <- function(object, X, v = colnames(X),
       out[c("combs2", "F_jk")] <- mway(
         object, v = v2, X = X, pred_fun = pred_fun, w = w, way = 2L, verb = verbose, ...
       )
-      out[["h2_pairwise"]] <- h2_pairwise_raw(out)
     }
+    out[["h2_pairwise"]] <- h2_pairwise_raw(out)
   }
   if (threeway_m >= 3L) {
     out[c("v_threeway", "v_threeway_0")] <- get_v(h2_ov, m = threeway_m)
@@ -225,8 +225,8 @@ hstats.default <- function(object, X, v = colnames(X),
       out[c("combs3", "F_jkl")] <- mway(
         object, v = v3, X = X, pred_fun = pred_fun, w = w, way = 3L, verb = verbose, ...
       )
-      out[["h2_threeway"]] <- h2_threeway_raw(out)
     }
+    out[["h2_threeway"]] <- h2_threeway_raw(out)
   }
 
   structure(out, class = "hstats")
@@ -316,7 +316,8 @@ print.hstats <- function(x, ...) {
 
 #' Summary Method
 #' 
-#' Summary method for "hstats" object.
+#' Summary method for "hstats" object. Note that \eqn{H^2} is not affected by
+#' the arguments `normalize` and `squared`.
 #'
 #' @inheritParams h2_overall
 #' @param ... Currently not used.
@@ -326,18 +327,19 @@ print.hstats <- function(x, ...) {
 #' @export
 #' @seealso See [hstats()] for examples.
 summary.hstats <- function(object, normalize = TRUE, squared = TRUE, sort = TRUE, 
-                           top_m = Inf, eps = 1e-8, ...) {
+                           top_m = Inf, drop_zero = TRUE, eps = 1e-8, ...) {
   args <- list(
     object = object, 
     normalize = normalize, 
     squared = squared, 
     sort = sort,
     top_m = top_m,
+    drop_zero = drop_zero,
     eps = eps,
     plot = FALSE
   )
    out <- list(
-    h2 = h2(object, normalize = normalize, squared = squared, eps = eps), 
+    h2 = h2(object, eps = eps), 
     h2_overall = do.call(h2_overall, args), 
     h2_pairwise = do.call(h2_pairwise, args), 
     h2_threeway = do.call(h2_threeway, args),
@@ -359,7 +361,7 @@ summary.hstats <- function(object, normalize = TRUE, squared = TRUE, sort = TRUE
 print.summary_hstats <- function(x, ...) {
   flag <- if (x[["normalize"]]) "relative" else "absolute"
   txt <- c(
-    h2 = sprintf("Prediction variability unexplained by main effects of v (%s)", flag),
+    h2 = "Proportion of prediction variability unexplained by main effects of v",
     h2_overall = sprintf("Strongest %s overall interactions", flag), 
     h2_pairwise = sprintf("Strongest %s pairwise interactions", flag),
     h2_threeway = sprintf("Strongest %s three-way interactions", flag)
@@ -391,10 +393,16 @@ print.summary_hstats <- function(x, ...) {
 #' @export
 #' @seealso See [hstats()] for examples.
 plot.hstats <- function(x, which = 1:2, normalize = TRUE, squared = TRUE, sort = TRUE, 
-                        top_m = 15L, eps = 1e-8, fill = "#2b51a1", 
+                        top_m = 15L, drop_zero = TRUE, eps = 1e-8, fill = "#2b51a1", 
                         facet_scales = "free", ncol = 2L, rotate_x = FALSE, ...) {
   su <- summary(
-    x, normalize = normalize, squared = squared, sort = sort, top_m = top_m, eps = eps
+    x, 
+    normalize = normalize, 
+    squared = squared, 
+    sort = sort, 
+    top_m = top_m,
+    drop_zero = drop_zero,
+    eps = eps
   )
   nms <- c("h2_overall", "h2_pairwise", "h2_threeway")
   ids <- c("Overall", "Pairwise", "Threeway")
