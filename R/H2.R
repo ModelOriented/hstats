@@ -70,7 +70,6 @@ h2.hstats <- function(object, eps = 1e-8, ...) {
     num = object$h2$num,
     denom = object$h2$denom,
     sort = FALSE,
-    drop_zero = FALSE,
     eps = eps
   )
 }

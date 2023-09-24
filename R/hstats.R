@@ -91,7 +91,7 @@
 #' s <- hstats(fit, X = iris[-1])
 #' s
 #' plot(s)
-#' plot(s, drop_zero = FALSE)
+#' plot(s, zero = FALSE)
 #' summary(s)
 #'   
 #' # Absolute pairwise interaction strengths
@@ -112,9 +112,7 @@
 #' 
 #' # On original scale, we have interactions everywhere...
 #' s <- hstats(fit, X = iris[-1], type = "response", verbose = FALSE)
-#' 
-#' # All three types use different denominators
-#' plot(s, which = 1:3, ncol = 1)
+#' plot(s, which = 1:3, ncol = 1)  # All three types use different denominators
 #' 
 #' # All statistics on same scale (of predictions)
 #' plot(s, which = 1:3, squared = FALSE, normalize = FALSE, facet_scale = "free_y")
@@ -327,14 +325,14 @@ print.hstats <- function(x, ...) {
 #' @export
 #' @seealso See [hstats()] for examples.
 summary.hstats <- function(object, normalize = TRUE, squared = TRUE, sort = TRUE, 
-                           top_m = Inf, drop_zero = TRUE, eps = 1e-8, ...) {
+                           top_m = Inf, zero = TRUE, eps = 1e-8, ...) {
   args <- list(
     object = object, 
     normalize = normalize, 
     squared = squared, 
     sort = sort,
     top_m = top_m,
-    drop_zero = drop_zero,
+    zero = zero,
     eps = eps,
     plot = FALSE
   )
@@ -370,7 +368,7 @@ print.summary_hstats <- function(x, ...) {
   for (nm in setdiff(names(Filter(Negate(is.null), x)), "normalize")) {
     cat(txt[[nm]])
     cat("\n")
-    print(utils::head(drop(x[[nm]])))
+    print(utils::head(x[[nm]]))
     cat("\n")
   }
   invisible(x)
@@ -393,7 +391,7 @@ print.summary_hstats <- function(x, ...) {
 #' @export
 #' @seealso See [hstats()] for examples.
 plot.hstats <- function(x, which = 1:2, normalize = TRUE, squared = TRUE, sort = TRUE, 
-                        top_m = 15L, drop_zero = TRUE, eps = 1e-8, fill = "#2b51a1", 
+                        top_m = 15L, zero = TRUE, eps = 1e-8, fill = "#2b51a1", 
                         facet_scales = "free", ncol = 2L, rotate_x = FALSE, ...) {
   su <- summary(
     x, 
@@ -401,7 +399,7 @@ plot.hstats <- function(x, which = 1:2, normalize = TRUE, squared = TRUE, sort =
     squared = squared, 
     sort = sort, 
     top_m = top_m,
-    drop_zero = drop_zero,
+    zero = zero,
     eps = eps
   )
   nms <- c("h2_overall", "h2_pairwise", "h2_threeway")

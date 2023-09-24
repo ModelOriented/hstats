@@ -62,8 +62,8 @@
 #' # (for features with strongest overall interactions)
 #' h2_pairwise(s)
 #' 
-#' # Do not drop zeros
-#' h2_pairwise(s, drop_zero = FALSE)
+#' # Drop 0
+#' h2_pairwise(s, zero = FALSE)
 #' 
 #' # Absolute measure as alternative
 #' h2_pairwise(s, normalize = FALSE, squared = FALSE)
@@ -72,9 +72,7 @@
 #' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
 #' s <- hstats(fit, X = iris[3:5], verbose = FALSE)
 #' h2_pairwise(s, plot = TRUE)
-#' 
-#' # Do not drop zeros
-#' h2_pairwise(s, drop_zero = FALSE, plot = TRUE)
+#' h2_pairwise(s, zero = FALSE, plot = TRUE)
 h2_pairwise <- function(object, ...) {
   UseMethod("h2_pairwise")
 }
@@ -88,7 +86,7 @@ h2_pairwise.default <- function(object, ...) {
 #' @describeIn h2_pairwise Pairwise interaction strength from "hstats" object.
 #' @export
 h2_pairwise.hstats <- function(object, normalize = TRUE, squared = TRUE, sort = TRUE, 
-                               top_m = 15L, drop_zero = TRUE, eps = 1e-8, 
+                               top_m = 15L, zero = TRUE, eps = 1e-8, 
                                plot = FALSE, fill = "#2b51a1", ...) {
   s <- object$h2_pairwise
   if (is.null(s)) {
@@ -101,7 +99,7 @@ h2_pairwise.hstats <- function(object, normalize = TRUE, squared = TRUE, sort = 
     squared = squared, 
     sort = sort, 
     top_m = top_m,
-    drop_zero = drop_zero,
+    zero = zero,
     eps = eps
   )
   if (plot) plot_stat(out, fill = fill, ...) else out

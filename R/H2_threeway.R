@@ -69,7 +69,7 @@ h2_threeway.default <- function(object, ...) {
 #' @describeIn h2_threeway Pairwise interaction strength from "hstats" object.
 #' @export
 h2_threeway.hstats <- function(object, normalize = TRUE, squared = TRUE, sort = TRUE, 
-                               top_m = 15L, drop_zero = TRUE, eps = 1e-8, 
+                               top_m = 15L, zero = TRUE, eps = 1e-8, 
                                plot = FALSE, fill = "#2b51a1", ...) {
   s <- object$h2_threeway
   if (is.null(s)) {
@@ -82,7 +82,7 @@ h2_threeway.hstats <- function(object, normalize = TRUE, squared = TRUE, sort = 
     squared = squared, 
     sort = sort, 
     top_m = top_m,
-    drop_zero = drop_zero,
+    zero = zero,
     eps = eps
   )
   if (plot) plot_stat(out, fill = fill, ...) else out

@@ -3,12 +3,12 @@
 ## Visible changes
 
 - `ice()` and `partial_dep()`: So far, the default grid strategy "uniform" used `pretty()` to generate the evaluation points. To provide more predictable grid sizes, and to be more in line with other implementations of partial dependence and ICE, we now use `seq()` to create the uniform grid.
-- `h2()` will now always show the normalized $H^2$. The options `normalize` and `squared` have been removed.
-- `h2_overall()` will only show features with positive interaction.
+- `h2()` will now always show the normalized $H^2$. Its options `normalize` and `squared` have been removed.
+- `h2_pairwise()` and `h2_threeway()` will now also include (some) combinations with value 0. Use `zero = FALSE` to drop them, see below.
 
 ## Improvements
 
-- `h2_overall()`, `h2_pairwise()`, `h2_threeway()`, `plot.hstats()`, and `summary.hstats()` have received an argument `drop_zero = TRUE`. Set to `FALSE` to also show statistics having value 0.
+- `h2_overall()`, `h2_pairwise()`, `h2_threeway()`, `plot.hstats()`, and `summary.hstats()` have received an argument `zero = TRUE`. Set to `FALSE` to drop statistics having value 0.
 - `perm_importance()` and `average_loss()` will now recycle a univariate response when combined with multivariate predictions. This is useful, e.g., when the prediction function represents the predictions of multiple models that should be evaluated against a common response.
 
 ## Bug fixes

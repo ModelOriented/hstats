@@ -44,7 +44,7 @@
 #' @param sort Should results be sorted? Default is `TRUE`.
 #'   (Multioutput is sorted by row means.)
 #' @param top_m How many rows should be shown? (`Inf` to show all.)
-#' @param drop_zero Should rows with all 0 be dropped? Default is `TRUE`.
+#' @param zero Should rows with all 0 be shown? Default is `TRUE`.
 #' @param eps Threshold below which numerator values are set to 0.
 #' @param plot Should results be plotted as barplot? Default is `FALSE`.
 #' @param fill Color of bar (only for univariate statistics).
@@ -65,7 +65,7 @@
 #' # MODEL 2: Multi-response linear regression
 #' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
 #' s <- hstats(fit, X = iris[3:5], verbose = FALSE)
-#' h2_overall(s, plot = TRUE)
+#' h2_overall(s, plot = TRUE, zero = FALSE)
 h2_overall <- function(object, ...) {
   UseMethod("h2_overall")
 }
@@ -79,7 +79,7 @@ h2_overall.default <- function(object, ...) {
 #' @describeIn h2_overall Overall interaction strength from "hstats" object.
 #' @export
 h2_overall.hstats <- function(object, normalize = TRUE, squared = TRUE, sort = TRUE, 
-                              top_m = 15L, drop_zero = TRUE, eps = 1e-8, 
+                              top_m = 15L, zero = TRUE, eps = 1e-8, 
                               plot = FALSE, fill = "#2b51a1", ...) {
   s <- object$h2_overall
   out <- postprocess(
@@ -89,7 +89,7 @@ h2_overall.hstats <- function(object, normalize = TRUE, squared = TRUE, sort = T
     squared = squared, 
     sort = sort, 
     top_m = top_m,
-    drop_zero = drop_zero,
+    zero = zero,
     eps = eps
   )
   if (plot) plot_stat(out, fill = fill, ...) else out
