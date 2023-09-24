@@ -5,6 +5,8 @@
 - `ice()` and `partial_dep()`: So far, the default grid strategy "uniform" used `pretty()` to generate the evaluation points. To provide more predictable grid sizes, and to be more in line with other implementations of partial dependence and ICE, we now use `seq()` to create the uniform grid.
 - `h2()` will now always show the normalized $H^2$. Its options `normalize` and `squared` have been removed.
 - `h2_pairwise()` and `h2_threeway()` will now also include (some) combinations with value 0. Use `zero = FALSE` to drop them, see below.
+- `hstats()`: The default number of features considered for *three-way interactions* has been changed from `threeway_m = pairwise_m` to the more cautious `threeway_m = min(pairwise_m, 5L)`.
+- The `print()` method of `summary.hstats()` is less verbose.
 
 ## Improvements
 

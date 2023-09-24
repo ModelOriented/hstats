@@ -57,9 +57,8 @@ pd_importance.default <- function(object, ...) {
 #' @describeIn pd_importance PD based feature importance from "hstats" object.
 #' @export
 pd_importance.hstats <- function(object, normalize = TRUE, squared = TRUE, 
-                                 sort = TRUE, top_m = 15L, zero = TRUE, 
-                                 eps = 1e-8, plot = FALSE, 
-                                 fill = "#2b51a1", ...) {
+                                 sort = TRUE, top_m = 15L, zero = TRUE, eps = 1e-8, 
+                                 plot = FALSE, fill = "#2b51a1", ...) {
   num <- with(
     object, matrix(nrow = length(v), ncol = K, dimnames = list(v, pred_names))
   )

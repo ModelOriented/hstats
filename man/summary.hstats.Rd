@@ -10,6 +10,7 @@
   squared = TRUE,
   sort = TRUE,
   top_m = Inf,
+  zero = TRUE,
   eps = 1e-08,
   ...
 )
@@ -26,15 +27,20 @@
 
 \item{top_m}{How many rows should be shown? (\code{Inf} to show all.)}
 
+\item{zero}{Should rows with all 0 be shown? Default is \code{TRUE}.}
+
 \item{eps}{Threshold below which numerator values are set to 0.}
 
 \item{...}{Currently not used.}
 }
 \value{
-An object of class "summary_hstats" representing a named list with statistics.
+An object of class "summary_hstats" representing a named list with statistics
+"h2", "h2_overall", "h2_pairwise", "h2_threeway", and the input flag "normalize".
+Statistics that equal \code{NULL} are omitted from the list.
 }
 \description{
-Summary method for "hstats" object.
+Summary method for "hstats" object. Note that \eqn{H^2} is not affected by
+the arguments \code{normalize} and \code{squared}.
 }
 \seealso{
 See \code{\link[=hstats]{hstats()}} for examples.

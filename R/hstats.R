@@ -15,7 +15,7 @@
 #' Furthermore, it allows to calculate an experimental partial dependence based
 #' measure of feature importance, \eqn{\textrm{PDI}_j^2}. It equals the proportion of
 #' prediction variability unexplained by other features, see [pd_importance()] 
-#' for details. (This statistic is not shown by `summary()` or `plot()`.) 
+#' for details. This statistic is not shown by `summary()` or `plot()`.
 #'  
 #' Instead of using `summary()`, interaction statistics can also be obtained via the 
 #' more flexible functions [h2()], [h2_overall()], [h2_pairwise()], and
@@ -36,11 +36,11 @@
 #' @param pairwise_m Number of features for which pairwise statistics are to be 
 #'   calculated. The features are selected based on Friedman and Popescu's overall 
 #'   interaction strength \eqn{H^2_j}. Set to to 0 to avoid pairwise calculations.
-#'   For multivariate predictions, the union of the column-wise strongest variable
-#'   names is taken. This can lead to very long run-times.
-#' @param threeway_m Same as `pairwise_m`, but controlling the number of features for
-#'   which threeway interactions should be calculated. Not larger than `pairwise_m`.
-#'   Set to 0 to avoid threeway calculations.
+#'   For multivariate predictions, the union of the `pairwise_m` column-wise 
+#'   strongest variable names is taken. This can lead to very long run-times.
+#' @param threeway_m Like `pairwise_m`, but controls the feature count for 
+#'   three-way interactions. Cannot be larger than `pairwise_m`. 
+#'   The default is `min(pairwise_m, 5)`. Set to 0 to avoid three-way calculations.
 #' @param verbose Should a progress bar be shown? The default is `TRUE`.
 #' @param ... Additional arguments passed to `pred_fun(object, X, ...)`, 
 #'   for instance `type = "response"` in a [glm()] model.
@@ -50,7 +50,8 @@
 #'   - `w`: Input `w` (sampled to `n_max` values, or `NULL`).
 #'   - `v`: Same as input `v`.
 #'   - `f`: Matrix with (centered) predictions \eqn{F}.
-#'   - `mean_f2`: (Weighted) column means of `f`. Used to normalize most statistics.
+#'   - `mean_f2`: (Weighted) column means of `f`. Used to normalize \eqn{H^2} and
+#'     \eqn{H^2_j}.
 #'   - `F_j`: List of matrices, each representing (centered) 
 #'     partial dependence functions \eqn{F_j}.
 #'   - `F_not_j`: List of matrices with (centered) partial dependence 
@@ -59,26 +60,23 @@
 #'   - `pred_names`: Column names of prediction matrix.
 #'   - `h2`: List with numerator and denominator of \eqn{H^2}.
 #'   - `h2_overall`: List with numerator and denominator of \eqn{H^2_j}. 
-#'   - `v_pairwise`: Subset of `v` with largest `h2_overall()` used for pairwise 
+#'   - `v_pairwise`: Subset of `v` with largest \eqn{H^2_j} used for pairwise 
 #'     calculations.
 #'   - `v_pairwise_0`: Like `v_pairwise`, but padded to length `pairwise_m`.
 #'   - `combs2`: Named list of variable pairs for which pairwise partial 
-#'     dependence functions are available. Only if pairwise calculations have been done.
+#'     dependence functions are available.
 #'   - `F_jk`: List of matrices, each representing (centered) bivariate 
-#'     partial dependence functions \eqn{F_{jk}}. 
-#'     Only if pairwise calculations have been done.
+#'     partial dependence functions \eqn{F_{jk}}.
 #'   - `h2_pairwise`: List with numerator and denominator of \eqn{H^2_{jk}}.
 #'     Only if pairwise calculations have been done.
 #'   - `v_threeway`: Subset of `v` with largest `h2_overall()` used for three-way 
 #'     calculations.
 #'   - `v_threeway_0`: Like `v_threeway`, but padded to length `threeway_m`.
 #'   - `combs3`: Named list of variable triples for which three-way partial 
-#'     dependence functions are available. Only if threeway calculations have been done.
+#'     dependence functions are available.
 #'   - `F_jkl`: List of matrices, each representing (centered) three-way 
-#'     partial dependence functions \eqn{F_{jkl}}. 
-#'     Only if threeway calculations have been done.
+#'     partial dependence functions \eqn{F_{jkl}}.
 #'   - `h2_threeway`: List with numerator and denominator of \eqn{H^2_{jkl}}.
-#'     Only if threeway calculations have been done.
 #' @references
 #'   Friedman, Jerome H., and Bogdan E. Popescu. *"Predictive Learning via Rule Ensembles."*
 #'     The Annals of Applied Statistics 2, no. 3 (2008): 916-54.
@@ -91,11 +89,11 @@
 #' s <- hstats(fit, X = iris[-1])
 #' s
 #' plot(s)
-#' plot(s, zero = FALSE)
+#' plot(s, zero = FALSE)  # Drop 0 interaction rows
 #' summary(s)
 #'   
 #' # Absolute pairwise interaction strengths
-#' h2_pairwise(s, normalize = FALSE, squared = FALSE, plot = FALSE)
+#' h2_pairwise(s, normalize = FALSE, squared = FALSE, plot = FALSE, zero = FALSE)
 #' 
 #' # MODEL 2: Multi-response linear regression
 #' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
@@ -124,7 +122,8 @@ hstats <- function(object, ...) {
 #' @export
 hstats.default <- function(object, X, v = colnames(X),
                            pred_fun = stats::predict, n_max = 300L, 
-                           w = NULL, pairwise_m = 5L, threeway_m = pairwise_m,
+                           w = NULL, pairwise_m = 5L, 
+                           threeway_m = min(pairwise_m, 5L),
                            verbose = TRUE, ...) {
   basic_check(X = X, v = v, pred_fun = pred_fun, w = w)
   p <- length(v)
@@ -235,7 +234,8 @@ hstats.default <- function(object, X, v = colnames(X),
 hstats.ranger <- function(object, X, v = colnames(X),
                           pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
                           n_max = 300L, w = NULL, pairwise_m = 5L, 
-                          threeway_m = pairwise_m, verbose = TRUE, ...) {
+                          threeway_m = min(pairwise_m, 5L),
+                          verbose = TRUE, ...) {
   hstats.default(
     object = object,
     X = X,
@@ -255,7 +255,8 @@ hstats.ranger <- function(object, X, v = colnames(X),
 hstats.Learner <- function(object, X, v = colnames(X),
                            pred_fun = NULL,
                            n_max = 300L, w = NULL, pairwise_m = 5L,
-                           threeway_m = pairwise_m, verbose = TRUE, ...) {
+                           threeway_m = min(pairwise_m, 5L), 
+                           verbose = TRUE, ...) {
   if (is.null(pred_fun)) {
     pred_fun <- mlr3_pred_fun(object, X = X)
   }
@@ -279,7 +280,8 @@ hstats.explainer <- function(object, X = object[["data"]],
                              v = colnames(X),
                              pred_fun = object[["predict_function"]],
                              n_max = 300L, w = object[["weights"]], 
-                             pairwise_m = 5L, threeway_m = pairwise_m,
+                             pairwise_m = 5L, 
+                             threeway_m = min(pairwise_m, 5L),
                              verbose = TRUE, ...) {
   hstats.default(
     object = object[["model"]],
@@ -305,7 +307,7 @@ hstats.explainer <- function(object, X = object[["data"]],
 #' @export
 #' @seealso See [hstats()] for examples.
 print.hstats <- function(x, ...) {
-  cat("'hstats' object. Run plot() or summary() for details.\n\n")
+  cat("'hstats' object. Use plot() or summary() for details.\n\n")
   cat("Proportion of prediction variability unexplained by main effects of v:\n")
   print(h2(x))
   cat("\n")
@@ -359,17 +361,19 @@ summary.hstats <- function(object, normalize = TRUE, squared = TRUE, sort = TRUE
 #' @seealso See [hstats()] for examples.
 print.summary_hstats <- function(x, ...) {
   flag <- if (x[["normalize"]]) "relative" else "absolute"
+
   txt <- c(
-    h2 = "Proportion of prediction variability unexplained by main effects of v",
+    h2 = "Relative prediction variability unexplained by main effects",
     h2_overall = sprintf("Strongest %s overall interactions", flag), 
     h2_pairwise = sprintf("Strongest %s pairwise interactions", flag),
-    h2_threeway = sprintf("Strongest %s three-way interactions", flag)
+    h2_threeway = sprintf("Strongest %s three-way interaction", flag)
   )
+  top_n <- c(h2 = 1L, h2_overall = 4L, h2_pairwise = 3L, h2_threeway = 1L)
   
   for (nm in setdiff(names(x), "normalize")) {
-    cat(txt[[nm]])
+    cat(txt[nm])
     cat("\n")
-    print(utils::head(x[[nm]]))
+    print(utils::head(x[[nm]], top_n[nm]))
     cat("\n")
   }
   invisible(x)
