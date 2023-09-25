@@ -406,14 +406,14 @@ plot.hstats <- function(x, which = 1:2, normalize = TRUE, squared = TRUE, sort =
     eps = eps
   )
   
-  nms <- c(Overall = "h2_overall", Pairwise = "h2_pairwise", Threeway = "h2_threeway")
-  su <- su[nms[which]]
-  
-  if (length(su) == 0L) {
+  # This part could be simplified, especially the "match()"
+  stat_names <- c("h2_overall", "h2_pairwise", "h2_threeway")[which]
+  stat_labs <- c("Overall", "Pairwise", "Three-way")[which]
+  ok <- stat_names[stat_names %in% names(su)]
+  if (length(ok) == 0L) {
     return(NULL)
   }
-  
-  dat <- lapply(names(su), FUN = function(nm) mat2df(su[[nm]], id = nm))
+  dat <- lapply(ok, FUN = function(nm) mat2df(su[[nm]], id = stat_labs[match(nm, stat_names)]))
   dat <- do.call(rbind, dat)
   
   p <- ggplot2::ggplot(dat, ggplot2::aes(x = value_, y = variable_)) +
