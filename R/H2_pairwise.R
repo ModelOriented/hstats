@@ -116,11 +116,7 @@ h2_pairwise.hstats <- function(object, normalize = TRUE, squared = TRUE, sort = 
 #'   "F_jk", "F_j", and "w".
 #' @returns A list with the numerator and denominator statistics.
 h2_pairwise_raw <- function(x) {
-  # Initialize matrices
-  cn0 <- combn(x[["v_pairwise_0"]], 2L, FUN = paste, collapse = ":")
-  num <- with(
-    x, matrix(0, nrow = length(cn0), ncol = K, dimnames = list(cn0, pred_names))
-  )
+  num <- init_numerator(x, way = 2L)
   denom <- num + 1
     
   # Note that F_jk are in the same order as x[["combs2"]]

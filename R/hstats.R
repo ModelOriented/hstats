@@ -58,11 +58,13 @@
 #'     functions \eqn{F_{\setminus j}} of other features.
 #'   - `K`: Number of columns of prediction matrix.
 #'   - `pred_names`: Column names of prediction matrix.
+#'   - `pairwise_m`: Like input `pairwise_m`, but capped at `length(v)`.
+#'   - `threeway_m`: Like input `threeway_m`, but capped at the smaller of 
+#'     `length(v)` and `pairwise_m`.
 #'   - `h2`: List with numerator and denominator of \eqn{H^2}.
 #'   - `h2_overall`: List with numerator and denominator of \eqn{H^2_j}. 
 #'   - `v_pairwise`: Subset of `v` with largest \eqn{H^2_j} used for pairwise 
 #'     calculations.
-#'   - `v_pairwise_0`: Like `v_pairwise`, but padded to length `pairwise_m`.
 #'   - `combs2`: Named list of variable pairs for which pairwise partial 
 #'     dependence functions are available.
 #'   - `F_jk`: List of matrices, each representing (centered) bivariate 
@@ -71,7 +73,6 @@
 #'     Only if pairwise calculations have been done.
 #'   - `v_threeway`: Subset of `v` with largest `h2_overall()` used for three-way 
 #'     calculations.
-#'   - `v_threeway_0`: Like `v_threeway`, but padded to length `threeway_m`.
 #'   - `combs3`: Named list of variable triples for which three-way partial 
 #'     dependence functions are available.
 #'   - `F_jkl`: List of matrices, each representing (centered) three-way 
@@ -127,12 +128,9 @@ hstats.default <- function(object, X, v = colnames(X),
                            verbose = TRUE, ...) {
   basic_check(X = X, v = v, pred_fun = pred_fun, w = w)
   p <- length(v)
-  stopifnot(
-    p >= 2L, 
-    threeway_m <= pairwise_m
-  )
+  stopifnot(p >= 2L)
   pairwise_m <- min(pairwise_m, p)
-  threeway_m <- min(threeway_m, p)
+  threeway_m <- min(threeway_m, pairwise_m, p)
   
   # Reduce size of X (and w)
   if (nrow(X) > n_max) {
@@ -197,7 +195,9 @@ hstats.default <- function(object, X, v = colnames(X),
     F_j = F_j, 
     F_not_j = F_not_j, 
     K = ncol(f),
-    pred_names = colnames(f)
+    pred_names = colnames(f),
+    pairwise_m = pairwise_m,
+    threeway_m = threeway_m
   )
   
   # 0-way and 1-way stats
@@ -206,8 +206,7 @@ hstats.default <- function(object, X, v = colnames(X),
   h2_ov <- .zap_small(out$h2_overall$num, eps = 1e-8)  # Does eps need to be passed?
   
   if (pairwise_m >= 2L) {
-    out[c("v_pairwise", "v_pairwise_0")] <- get_v(h2_ov, m = pairwise_m)
-    v2 <- out[["v_pairwise"]]
+    out[["v_pairwise"]] <- v2 <- get_v(h2_ov, m = pairwise_m)
     if (length(v2) >= 2L) {
       out[c("combs2", "F_jk")] <- mway(
         object, v = v2, X = X, pred_fun = pred_fun, w = w, way = 2L, verb = verbose, ...
@@ -216,8 +215,7 @@ hstats.default <- function(object, X, v = colnames(X),
     out[["h2_pairwise"]] <- h2_pairwise_raw(out)
   }
   if (threeway_m >= 3L) {
-    out[c("v_threeway", "v_threeway_0")] <- get_v(h2_ov, m = threeway_m)
-    v3 <- out[["v_threeway"]]
+    out[["v_threeway"]] <- v3 <- get_v(h2_ov, m = threeway_m)
     if (length(v3) >= 3L) {
       out[c("combs3", "F_jkl")] <- mway(
         object, v = v3, X = X, pred_fun = pred_fun, w = w, way = 3L, verb = verbose, ...
@@ -498,29 +496,15 @@ mway <- function(object, v, X, pred_fun = stats::predict, w = NULL,
 #' @param H Unnormalized, unsorted H2_j values.
 #' @param m Number of features to pick per column.
 #' 
-#' @returns A list with two vectors of feature names. The first contains
-#'   only the m most important features (union over columns), while the first
-#'   is a padded version of length m. It is necessary in cases where less than m
-#'   features show interactions.
+#' @returns A vector of the union of the m column-wise most important features.
 get_v <- function(H, m) {
   v <- rownames(H)
-  
-  # Get m strongest features per column
   selector <- function(vv) names(utils::head(sort(-vv[vv > 0]), m))
   if (NCOL(H) == 1L) {
     v_cand <- selector(drop(H))
   } else {
     v_cand <- Reduce(union, lapply(asplit(H, MARGIN = 2L), FUN = selector))
   }
-  
-  # Do we need to add some features without interactions?
-  m_miss <- m - length(v_cand)
-  if (m_miss > 0L) {
-    v_cand_0 <- c(v_cand, utils::head(setdiff(v, v_cand), m_miss))
-  } else {
-    v_cand_0 <- v_cand
-  }
-  # Bring vectors into same order as v
-  return(list(v[v %in% v_cand], v[v %in% v_cand_0]))
+  v[v %in% v_cand]
 }
 

@@ -59,9 +59,7 @@ pd_importance.default <- function(object, ...) {
 pd_importance.hstats <- function(object, normalize = TRUE, squared = TRUE, 
                                  sort = TRUE, top_m = 15L, zero = TRUE, eps = 1e-8, 
                                  plot = FALSE, fill = "#2b51a1", ...) {
-  num <- with(
-    object, matrix(nrow = length(v), ncol = K, dimnames = list(v, pred_names))
-  )
+  num <- init_numerator(object, way = 1L)
   for (z in object[["v"]]) {
     num[z, ] <- with(object, wcolMeans((f - F_not_j[[z]])^2, w = w))
   }

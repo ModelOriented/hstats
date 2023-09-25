@@ -111,11 +111,13 @@ partial dependence functions \eqn{F_j}.
 functions \eqn{F_{\setminus j}} of other features.
 \item \code{K}: Number of columns of prediction matrix.
 \item \code{pred_names}: Column names of prediction matrix.
+\item \code{pairwise_m}: Like input \code{pairwise_m}, but capped at \code{length(v)}.
+\item \code{threeway_m}: Like input \code{threeway_m}, but capped at the smaller of
+\code{length(v)} and \code{pairwise_m}.
 \item \code{h2}: List with numerator and denominator of \eqn{H^2}.
 \item \code{h2_overall}: List with numerator and denominator of \eqn{H^2_j}.
 \item \code{v_pairwise}: Subset of \code{v} with largest \eqn{H^2_j} used for pairwise
 calculations.
-\item \code{v_pairwise_0}: Like \code{v_pairwise}, but padded to length \code{pairwise_m}.
 \item \code{combs2}: Named list of variable pairs for which pairwise partial
 dependence functions are available.
 \item \code{F_jk}: List of matrices, each representing (centered) bivariate
@@ -124,7 +126,6 @@ partial dependence functions \eqn{F_{jk}}.
 Only if pairwise calculations have been done.
 \item \code{v_threeway}: Subset of \code{v} with largest \code{h2_overall()} used for three-way
 calculations.
-\item \code{v_threeway_0}: Like \code{v_threeway}, but padded to length \code{threeway_m}.
 \item \code{combs3}: Named list of variable triples for which three-way partial
 dependence functions are available.
 \item \code{F_jkl}: List of matrices, each representing (centered) three-way

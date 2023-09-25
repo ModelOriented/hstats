@@ -99,11 +99,7 @@ h2_threeway.hstats <- function(object, normalize = TRUE, squared = TRUE, sort = 
 #'   "F_jkl", "F_jk", "F_j", and "w".
 #' @returns A list with the numerator and denominator statistics.
 h2_threeway_raw <- function(x) {
-  # Initialize matrices
-  cn0 <- utils::combn(x[["v_threeway_0"]], 3L, FUN = paste, collapse = ":")
-  num <- with(
-    x, matrix(0, nrow = length(cn0), ncol = K, dimnames = list(cn0, pred_names))
-  )
+  num <- init_numerator(x, way = 3L)
   denom <- num + 1
   
   # Note that the F_jkl are in the same order as x[["combs3"]]

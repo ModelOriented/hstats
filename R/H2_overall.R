@@ -108,11 +108,9 @@ h2_overall.hstats <- function(object, normalize = TRUE, squared = TRUE, sort = T
 #'   "f", "F_not_j", "F_j", "mean_f2", and "w".
 #' @returns A list with the numerator and denominator statistics.
 h2_overall_raw <- function(x) {
-  num <- with(x, matrix(nrow = length(v), ncol = K, dimnames = list(v, pred_names)))
-  
+  num <- init_numerator(x, way = 1L)
   for (z in x[["v"]]) {
     num[z, ] <- with(x, wcolMeans((f - F_j[[z]] - F_not_j[[z]])^2, w = w))
   }
-  
   list(num = num, denom = x[["mean_f2"]])
 }
