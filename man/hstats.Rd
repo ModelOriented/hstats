@@ -173,7 +173,7 @@ fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
 s <- hstats(fit, X = iris[-1])
 s
 plot(s)
-plot(s, zero = FALSE)  # Drop 0 interaction rows
+plot(s, zero = FALSE)  # Drop 0
 summary(s)
   
 # Absolute pairwise interaction strengths

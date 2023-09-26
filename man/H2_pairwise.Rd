@@ -112,9 +112,7 @@ s <- hstats(fit, X = iris[-1])
 # Proportion of joint effect coming from pairwise interaction
 # (for features with strongest overall interactions)
 h2_pairwise(s)
-
-# Drop 0
-h2_pairwise(s, zero = FALSE)
+h2_pairwise(s, zero = FALSE)  # Drop 0
 
 # Absolute measure as alternative
 h2_pairwise(s, normalize = FALSE, squared = FALSE)
