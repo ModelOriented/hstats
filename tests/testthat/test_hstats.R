@@ -1,30 +1,47 @@
 test_that("Additive models show 0 interactions (univariate)", {
   fit <- lm(Sepal.Length ~ ., data = iris)
   s <- hstats(fit, X = iris[-1L], verbose = FALSE)
-  expect_null(h2_pairwise(s))
-  expect_null(h2_threeway(s))
+  expect_null(h2_pairwise(s, zero = FALSE))
+  expect_equal(c(h2_pairwise(s, sort = FALSE, top_m = Inf)), rep(0, choose(4, 2)))
+  
+  expect_null(h2_threeway(s, zero = FALSE))
+  expect_equal(c(h2_threeway(s, sort = FALSE, top_m = Inf)), rep(0, choose(4, 3)))
+  
   expect_equal(
-    h2_overall(s, plot = FALSE), 
+    h2_overall(s), 
     matrix(c(0, 0, 0, 0), ncol = 1L, dimnames = list(colnames(iris[-1L]), NULL))
   )
+  expect_null(h2_overall(s, zero = FALSE))
+  
   expect_equal(h2(s), 0)
+  
   expect_s3_class(h2_overall(s, plot = TRUE), "ggplot")
   expect_s3_class(plot(s, rotate_x = TRUE), "ggplot")
+  expect_null(h2_overall(s, zero = FALSE, plot = TRUE))
 })
 
 test_that("Additive models show 0 interactions (multivariate)", {
   fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width + Species, data = iris)
   s <- hstats(fit, X = iris[3:5], verbose = FALSE)
-  expect_null(h2_pairwise(s))
-  expect_null(h2_threeway(s))
+  
+  expect_null(h2_pairwise(s, zero = FALSE))
+  expect_true(all(h2_pairwise(s) == 0))
+  
+  expect_null(h2_threeway(s, zero = FALSE))
+  expect_equal(unname(h2_threeway(s)), cbind(0, 0))
+  
   expect_equal(
-    h2_overall(s, plot = FALSE), 
+    h2_overall(s, sort = FALSE), 
     matrix(
       0, ncol = 2L, nrow = 3L, dimnames = list(colnames(iris[3:5]), colnames(iris[1:2]))
     )
   )
+  expect_null(h2_overall(s, zero = FALSE))
+  
   expect_equal(h2(s), c(Sepal.Length = 0, Sepal.Width = 0))
+  
   expect_s3_class(h2_overall(s, plot = TRUE), "ggplot")
+  expect_null(h2_overall(s, zero = FALSE, plot = TRUE))
   expect_s3_class(plot(s), "ggplot")
 })
 
@@ -37,14 +54,19 @@ test_that("Non-additive models show interactions > 0 (one interaction)", {
   expect_true(
     all(rownames(out[out > 0, , drop = FALSE]) %in% c("Petal.Length", "Petal.Width"))
   )
+  out <- h2_overall(s, zero = FALSE, sort = FALSE)
+  expect_true(all(rownames(out) %in% c("Petal.Length", "Petal.Width")))
 
-  out <- h2_pairwise(s)
+  out <- h2_pairwise(s, zero = FALSE)
   expect_equal(rownames(out), "Petal.Length:Petal.Width")
+  out <- h2_pairwise(s)
+  expect_equal(rownames(out[out > 0, , drop = FALSE]), "Petal.Length:Petal.Width")
   
   expect_s3_class(h2_overall(s, plot = TRUE), "ggplot")
   expect_s3_class(h2_pairwise(s, plot = TRUE), "ggplot")
   expect_s3_class(plot(s), "ggplot")
-  expect_null(h2_threeway(s))
+  expect_null(h2_threeway(s, zero = FALSE))
+  expect_equal(c(h2_threeway(s)), rep(0, times = choose(4, 3)))
 })
 
 fit <- lm(
@@ -60,18 +82,27 @@ test_that("Non-additive models show interactions > 0 (two interactions)", {
     rownames(out[out > 0, , drop = FALSE]), 
     c("Petal.Length", "Petal.Width", "Species")
   )
+  out <- h2_overall(s, sort = FALSE, normalize = FALSE, squared = FALSE, zero = FALSE)
+  expect_equal(
+    rownames(out), c("Petal.Length", "Petal.Width", "Species")
+  )
   
   out <- h2_pairwise(s, sort = FALSE, normalize = FALSE, squared = FALSE)
   expect_equal(
     rownames(out[out > 0, , drop = FALSE]), 
     c("Petal.Length:Petal.Width", "Petal.Length:Species")
   )
+  out <- h2_pairwise(s, sort = FALSE, normalize = FALSE, squared = FALSE, zero = FALSE)
+  expect_equal(
+    rownames(out), c("Petal.Length:Petal.Width", "Petal.Length:Species")
+  )
   
   expect_s3_class(h2_overall(s, plot = TRUE), "ggplot")
   expect_s3_class(h2_pairwise(s, plot = TRUE), "ggplot")
   expect_s3_class(h2_threeway(s, plot = TRUE), "ggplot")
+  expect_null(h2_threeway(s, plot = TRUE, zero = FALSE))
   
-  expect_equal(c(h2_threeway(s)), 0)
+  expect_equal(c(h2_threeway(s)), rep(0, choose(4, 3)))
 })
 
 test_that("passing v works", {
@@ -115,7 +146,7 @@ test_that("Stronger interactions get higher statistics", {
   expect_true(
     all(h2_overall(int2, top_m = 2L) > h2_overall(int1, top_m = 2L))
   )
-  expect_true(h2_pairwise(int2) > h2_pairwise(int1))
+  expect_true(h2_pairwise(int2, zero = FALSE) > h2_pairwise(int1, zero = FALSE))
 })
 
 test_that("subsampling has an effect", {
@@ -156,12 +187,17 @@ test_that("Three-way interaction behaves correctly across dimensions", {
   expect_equal(2 * out[, "up"], out[, "up2"])
 })
 
-test_that("Three-way interaction can be suppressed", {
+test_that("Pairwise and three-way interactions can be suppressed", {
   fit <- lm(uptake ~ Type * Treatment * conc, data = CO2)
   s <- hstats(fit, X = CO2[2:4], verbose = FALSE, threeway_m = 0L)
   expect_null(h2_threeway(s))
   
+  s <- hstats(fit, X = CO2[2:4], verbose = FALSE, pairwise_m = 2L)
+  expect_equal(nrow(h2_pairwise(s)), 1L)
+  expect_null(h2_threeway(s))
+  
   s <- hstats(fit, X = CO2[2:4], verbose = FALSE, pairwise_m = 0L)
+  expect_equal(nrow(h2_overall(s)), 3L)
   expect_null(h2_pairwise(s))
   expect_null(h2_threeway(s))
 })
@@ -185,7 +221,10 @@ test_that("Statistics react on normalize, (sorting), squaring, and top m", {
     s$h2_overall$num[1:2, , drop = FALSE]
   )
   
-  expect_identical(h2_pairwise(s, sort = FALSE), s$h2_pairwise$num / s$h2_pairwise$denom)
+  expect_identical(
+    h2_pairwise(s, sort = FALSE), 
+    s$h2_pairwise$num / s$h2_pairwise$denom
+  )
   expect_identical(h2_pairwise(s, sort = FALSE, normalize = FALSE), s$h2_pairwise$num)
   expect_identical(
     h2_pairwise(s, sort = FALSE, normalize = FALSE, squared = FALSE), 

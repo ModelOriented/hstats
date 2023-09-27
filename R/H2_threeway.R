@@ -69,8 +69,8 @@ h2_threeway.default <- function(object, ...) {
 #' @describeIn h2_threeway Pairwise interaction strength from "hstats" object.
 #' @export
 h2_threeway.hstats <- function(object, normalize = TRUE, squared = TRUE, sort = TRUE, 
-                               top_m = 15L, eps = 1e-8, plot = FALSE, 
-                               fill = "#2b51a1", ...) {
+                               top_m = 15L, zero = TRUE, eps = 1e-8, 
+                               plot = FALSE, fill = "#2b51a1", ...) {
   s <- object$h2_threeway
   if (is.null(s)) {
     return(NULL)
@@ -81,7 +81,8 @@ h2_threeway.hstats <- function(object, normalize = TRUE, squared = TRUE, sort = 
     normalize = normalize, 
     squared = squared, 
     sort = sort, 
-    top_m = top_m, 
+    top_m = top_m,
+    zero = zero,
     eps = eps
   )
   if (plot) plot_stat(out, fill = fill, ...) else out
@@ -94,26 +95,27 @@ h2_threeway.hstats <- function(object, normalize = TRUE, squared = TRUE, sort = 
 #' 
 #' @noRd
 #' @keywords internal
-#' @param x A list containing the elements "combs3", "K", "pred_names", 
+#' @param x A list containing the elements "combs3", "v_threeway_0", "K", "pred_names", 
 #'   "F_jkl", "F_jk", "F_j", and "w".
 #' @returns A list with the numerator and denominator statistics.
 h2_threeway_raw <- function(x) {
+  num <- init_numerator(x, way = 3L)
+  denom <- num + 1
+  
+  # Note that the F_jkl are in the same order as x[["combs3"]]
   combs <- x[["combs3"]]
- 
-  # Note that the F_jkl are in the same order as combs
-  num <- denom <- with(
-    x, matrix(nrow = length(combs), ncol = K, dimnames = list(names(combs), pred_names))
-  )
-  
-  for (i in seq_along(combs)) {
-    z <- combs[[i]]
-    zz <- sapply(utils::combn(z, 2L, simplify = FALSE), paste, collapse = ":")
-    
-    num[i, ] <- with(
-      x, wcolMeans((F_jkl[[i]] - Reduce("+", F_jk[zz]) + Reduce("+", F_j[z]))^2, w = w)
-    )
-    denom[i, ] <- with(x, wcolMeans(F_jkl[[i]]^2, w = w))
+  if (!is.null(combs)) {
+    for (nm in names(combs)) {
+      z <- combs[[nm]]
+      zz <- utils::combn(z, 2L, paste, collapse = ":")
+      
+      num[nm, ] <- with(
+        x, 
+        wcolMeans((F_jkl[[nm]] - Reduce("+", F_jk[zz]) + Reduce("+", F_j[z]))^2, w = w)
+      )
+      denom[nm, ] <- with(x, wcolMeans(F_jkl[[nm]]^2, w = w))
+    }    
   }
-  
+
   list(num = num, denom = denom)
 }

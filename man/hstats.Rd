@@ -18,7 +18,7 @@ hstats(object, ...)
   n_max = 300L,
   w = NULL,
   pairwise_m = 5L,
-  threeway_m = pairwise_m,
+  threeway_m = min(pairwise_m, 5L),
   verbose = TRUE,
   ...
 )
@@ -31,7 +31,7 @@ hstats(object, ...)
   n_max = 300L,
   w = NULL,
   pairwise_m = 5L,
-  threeway_m = pairwise_m,
+  threeway_m = min(pairwise_m, 5L),
   verbose = TRUE,
   ...
 )
@@ -44,7 +44,7 @@ hstats(object, ...)
   n_max = 300L,
   w = NULL,
   pairwise_m = 5L,
-  threeway_m = pairwise_m,
+  threeway_m = min(pairwise_m, 5L),
   verbose = TRUE,
   ...
 )
@@ -57,7 +57,7 @@ hstats(object, ...)
   n_max = 300L,
   w = object[["weights"]],
   pairwise_m = 5L,
-  threeway_m = pairwise_m,
+  threeway_m = min(pairwise_m, 5L),
   verbose = TRUE,
   ...
 )
@@ -87,12 +87,12 @@ selected from \code{X}. In this case, set a random seed for reproducibility.}
 \item{pairwise_m}{Number of features for which pairwise statistics are to be
 calculated. The features are selected based on Friedman and Popescu's overall
 interaction strength \eqn{H^2_j}. Set to to 0 to avoid pairwise calculations.
-For multivariate predictions, the union of the column-wise strongest variable
-names is taken. This can lead to very long run-times.}
+For multivariate predictions, the union of the \code{pairwise_m} column-wise
+strongest variable names is taken. This can lead to very long run-times.}
 
-\item{threeway_m}{Same as \code{pairwise_m}, but controlling the number of features for
-which threeway interactions should be calculated. Not larger than \code{pairwise_m}.
-Set to 0 to avoid threeway calculations.}
+\item{threeway_m}{Like \code{pairwise_m}, but controls the feature count for
+three-way interactions. Cannot be larger than \code{pairwise_m}.
+The default is \code{min(pairwise_m, 5)}. Set to 0 to avoid three-way calculations.}
 
 \item{verbose}{Should a progress bar be shown? The default is \code{TRUE}.}
 }
@@ -103,33 +103,34 @@ An object of class "hstats" containing these elements:
 \item \code{w}: Input \code{w} (sampled to \code{n_max} values, or \code{NULL}).
 \item \code{v}: Same as input \code{v}.
 \item \code{f}: Matrix with (centered) predictions \eqn{F}.
-\item \code{mean_f2}: (Weighted) column means of \code{f}. Used to normalize most statistics.
+\item \code{mean_f2}: (Weighted) column means of \code{f}. Used to normalize \eqn{H^2} and
+\eqn{H^2_j}.
 \item \code{F_j}: List of matrices, each representing (centered)
 partial dependence functions \eqn{F_j}.
 \item \code{F_not_j}: List of matrices with (centered) partial dependence
 functions \eqn{F_{\setminus j}} of other features.
 \item \code{K}: Number of columns of prediction matrix.
 \item \code{pred_names}: Column names of prediction matrix.
+\item \code{pairwise_m}: Like input \code{pairwise_m}, but capped at \code{length(v)}.
+\item \code{threeway_m}: Like input \code{threeway_m}, but capped at the smaller of
+\code{length(v)} and \code{pairwise_m}.
 \item \code{h2}: List with numerator and denominator of \eqn{H^2}.
 \item \code{h2_overall}: List with numerator and denominator of \eqn{H^2_j}.
-\item \code{v_pairwise}: Subset of \code{v} with largest \code{h2_overall()} used for pairwise
+\item \code{v_pairwise}: Subset of \code{v} with largest \eqn{H^2_j} used for pairwise
 calculations.
 \item \code{combs2}: Named list of variable pairs for which pairwise partial
-dependence functions are available. Only if pairwise calculations have been done.
+dependence functions are available.
 \item \code{F_jk}: List of matrices, each representing (centered) bivariate
 partial dependence functions \eqn{F_{jk}}.
-Only if pairwise calculations have been done.
 \item \code{h2_pairwise}: List with numerator and denominator of \eqn{H^2_{jk}}.
 Only if pairwise calculations have been done.
 \item \code{v_threeway}: Subset of \code{v} with largest \code{h2_overall()} used for three-way
 calculations.
 \item \code{combs3}: Named list of variable triples for which three-way partial
-dependence functions are available. Only if threeway calculations have been done.
+dependence functions are available.
 \item \code{F_jkl}: List of matrices, each representing (centered) three-way
 partial dependence functions \eqn{F_{jkl}}.
-Only if threeway calculations have been done.
 \item \code{h2_threeway}: List with numerator and denominator of \eqn{H^2_{jkl}}.
-Only if threeway calculations have been done.
 }
 }
 \description{
@@ -149,7 +150,7 @@ see \code{\link[=h2_threeway]{h2_threeway()}} for details.
 Furthermore, it allows to calculate an experimental partial dependence based
 measure of feature importance, \eqn{\textrm{PDI}_j^2}. It equals the proportion of
 prediction variability unexplained by other features, see \code{\link[=pd_importance]{pd_importance()}}
-for details. (This statistic is not shown by \code{summary()} or \code{plot()}.)
+for details. This statistic is not shown by \code{summary()} or \code{plot()}.
 
 Instead of using \code{summary()}, interaction statistics can also be obtained via the
 more flexible functions \code{\link[=h2]{h2()}}, \code{\link[=h2_overall]{h2_overall()}}, \code{\link[=h2_pairwise]{h2_pairwise()}}, and
@@ -172,10 +173,11 @@ fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
 s <- hstats(fit, X = iris[-1])
 s
 plot(s)
+plot(s, zero = FALSE)  # Drop 0
 summary(s)
   
 # Absolute pairwise interaction strengths
-h2_pairwise(s, normalize = FALSE, squared = FALSE, plot = FALSE)
+h2_pairwise(s, normalize = FALSE, squared = FALSE, plot = FALSE, zero = FALSE)
 
 # MODEL 2: Multi-response linear regression
 fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
@@ -192,9 +194,7 @@ summary(s)
 
 # On original scale, we have interactions everywhere...
 s <- hstats(fit, X = iris[-1], type = "response", verbose = FALSE)
-
-# All three types use different denominators
-plot(s, which = 1:3, ncol = 1)
+plot(s, which = 1:3, ncol = 1)  # All three types use different denominators
 
 # All statistics on same scale (of predictions)
 plot(s, which = 1:3, squared = FALSE, normalize = FALSE, facet_scale = "free_y")

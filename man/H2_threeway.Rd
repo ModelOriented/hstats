@@ -16,6 +16,7 @@ h2_threeway(object, ...)
   squared = TRUE,
   sort = TRUE,
   top_m = 15L,
+  zero = TRUE,
   eps = 1e-08,
   plot = FALSE,
   fill = "#2b51a1",
@@ -35,6 +36,8 @@ h2_threeway(object, ...)
 (Multioutput is sorted by row means.)}
 
 \item{top_m}{How many rows should be shown? (\code{Inf} to show all.)}
+
+\item{zero}{Should rows with all 0 be shown? Default is \code{TRUE}.}
 
 \item{eps}{Threshold below which numerator values are set to 0.}
 

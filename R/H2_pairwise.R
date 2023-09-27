@@ -61,6 +61,7 @@
 #' # Proportion of joint effect coming from pairwise interaction
 #' # (for features with strongest overall interactions)
 #' h2_pairwise(s)
+#' h2_pairwise(s, zero = FALSE)  # Drop 0
 #' 
 #' # Absolute measure as alternative
 #' h2_pairwise(s, normalize = FALSE, squared = FALSE)
@@ -69,6 +70,7 @@
 #' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
 #' s <- hstats(fit, X = iris[3:5], verbose = FALSE)
 #' h2_pairwise(s, plot = TRUE)
+#' h2_pairwise(s, zero = FALSE, plot = TRUE)
 h2_pairwise <- function(object, ...) {
   UseMethod("h2_pairwise")
 }
@@ -82,8 +84,8 @@ h2_pairwise.default <- function(object, ...) {
 #' @describeIn h2_pairwise Pairwise interaction strength from "hstats" object.
 #' @export
 h2_pairwise.hstats <- function(object, normalize = TRUE, squared = TRUE, sort = TRUE, 
-                               top_m = 15L, eps = 1e-8, plot = FALSE, 
-                               fill = "#2b51a1", ...) {
+                               top_m = 15L, zero = TRUE, eps = 1e-8, 
+                               plot = FALSE, fill = "#2b51a1", ...) {
   s <- object$h2_pairwise
   if (is.null(s)) {
     return(NULL)
@@ -94,7 +96,8 @@ h2_pairwise.hstats <- function(object, normalize = TRUE, squared = TRUE, sort = 
     normalize = normalize, 
     squared = squared, 
     sort = sort, 
-    top_m = top_m, 
+    top_m = top_m,
+    zero = zero,
     eps = eps
   )
   if (plot) plot_stat(out, fill = fill, ...) else out
@@ -107,21 +110,21 @@ h2_pairwise.hstats <- function(object, normalize = TRUE, squared = TRUE, sort = 
 #' 
 #' @noRd
 #' @keywords internal
-#' @param x A list containing the elements "combs2", "K", "pred_names", 
+#' @param x A list containing the elements "combs2", "v_pairwise_0", "K", "pred_names", 
 #'   "F_jk", "F_j", and "w".
 #' @returns A list with the numerator and denominator statistics.
 h2_pairwise_raw <- function(x) {
+  num <- init_numerator(x, way = 2L)
+  denom <- num + 1
+    
+  # Note that F_jk are in the same order as x[["combs2"]]
   combs <- x[["combs2"]]
-  
-  # Note that F_jk are in the same order as combs
-  num <- denom <- with(
-    x, matrix(nrow = length(combs), ncol = K, dimnames = list(names(combs), pred_names))
-  )
-  
-  for (i in seq_along(combs)) {
-    z <- combs[[i]]
-    num[i, ] <- with(x, wcolMeans((F_jk[[i]] - F_j[[z[1L]]] - F_j[[z[2L]]])^2, w = w))
-    denom[i, ] <- with(x, wcolMeans(F_jk[[i]]^2, w = w))
+  if (!is.null(combs)) {
+    for (nm in names(combs)) {
+      z <- combs[[nm]]
+      num[nm, ] <- with(x, wcolMeans((F_jk[[nm]] - F_j[[z[1L]]] - F_j[[z[2L]]])^2, w = w))
+      denom[nm, ] <- with(x, wcolMeans(F_jk[[nm]]^2, w = w))
+    }    
   }
   
   list(num = num, denom = denom)

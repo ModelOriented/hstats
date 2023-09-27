@@ -1,21 +1,25 @@
 # hstats 0.3.0
 
-## Major user visible changes
+## Visible changes
 
-- Grid calculation: So far, the default grid strategy "uniform" used `pretty()` to generate the evaluation points. To provide more predictable grid sizes, and to be more in line with other implementations of partial dependence and ICE, we now use `seq()` to create the uniform grid. This affects `ice()`, `partial_dep()` and the exported helper functions `univariate_grid()` and `multivariate_grid()`.
+- Grid of `ice()` and `partial_dep()`: So far, the default grid strategy "uniform" used `pretty()` to generate the evaluation points. To provide more predictable grid sizes, and to be more in line with other implementations of partial dependence and ICE, we now use `seq()` to create the uniform grid.
+- `h2_pairwise()` and `h2_threeway()` will now also include 0 values. Use `zero = FALSE` to drop them, see below. The padding with 0 is done at no computational cost, and will affect only up to `pairwise_m` and `threeway_m` features.
+- `hstats()`: The default number of features considered for *three-way interactions* has been changed from `threeway_m = pairwise_m` to the more cautious `threeway_m = min(pairwise_m, 5L)`. Furthermore, `threeway_m` is capped at `pairwise_m`.
+- The `print()` method of `summary.hstats()` is less verbose.
 
-## Internal major changes
+## Improvements
 
-- All available H-statistics are now calculated within `hstats()` and attached to the resulting object. Each statistic is stored as list with numerator and denominator matrices/vectors. The functions `h2()`, `h2_overall()`, `h2_pairwise()`, and `h2_threeway()`, `print.hstats()`, `summary().hstats()`, `plot.hstats()` will use these without having to recalculate the required numerators and denominators. The results, however, are unchanged.
-
-## Minor improvements
-
+- `h2_overall()`, `h2_pairwise()`, `h2_threeway()`, `plot.hstats()`, and `summary.hstats()` have received an argument `zero = TRUE`. Set to `FALSE` to drop statistics having value 0.
 - `perm_importance()` and `average_loss()` will now recycle a univariate response when combined with multivariate predictions. This is useful, e.g., when the prediction function represents the predictions of multiple models that should be evaluated against a common response.
 
 ## Bug fixes
 
 - All progress bars were initialized 1 step too late.
 - `perm_importance()` and `average_loss()` would fail for "mlogloss" in case the response `y` was univariate *and* non-factor/non-character.
+
+## Other changes
+
+- All available H-statistics are now calculated within `hstats()` and attached to the resulting object. Each statistic is stored as list with numerator and denominator matrices/vectors. The functions `h2()`, `h2_overall()`, `h2_pairwise()`, and `h2_threeway()`, `print.hstats()`, `summary().hstats()`, `plot.hstats()` will use these without having to recalculate the required numerators and denominators. The results, however, are unchanged.
 
 # hstats 0.2.0
 

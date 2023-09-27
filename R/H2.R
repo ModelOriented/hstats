@@ -70,8 +70,8 @@ h2.hstats <- function(object, normalize = TRUE, squared = TRUE, eps = 1e-8, ...)
     num = object$h2$num,
     denom = object$h2$denom,
     normalize = normalize, 
-    squared = squared, 
-    sort = FALSE, 
+    squared = squared,
+    sort = FALSE,
     eps = eps
   )
 }

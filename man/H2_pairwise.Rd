@@ -16,6 +16,7 @@ h2_pairwise(object, ...)
   squared = TRUE,
   sort = TRUE,
   top_m = 15L,
+  zero = TRUE,
   eps = 1e-08,
   plot = FALSE,
   fill = "#2b51a1",
@@ -35,6 +36,8 @@ h2_pairwise(object, ...)
 (Multioutput is sorted by row means.)}
 
 \item{top_m}{How many rows should be shown? (\code{Inf} to show all.)}
+
+\item{zero}{Should rows with all 0 be shown? Default is \code{TRUE}.}
 
 \item{eps}{Threshold below which numerator values are set to 0.}
 
@@ -109,6 +112,7 @@ s <- hstats(fit, X = iris[-1])
 # Proportion of joint effect coming from pairwise interaction
 # (for features with strongest overall interactions)
 h2_pairwise(s)
+h2_pairwise(s, zero = FALSE)  # Drop 0
 
 # Absolute measure as alternative
 h2_pairwise(s, normalize = FALSE, squared = FALSE)
@@ -117,6 +121,7 @@ h2_pairwise(s, normalize = FALSE, squared = FALSE)
 fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
 s <- hstats(fit, X = iris[3:5], verbose = FALSE)
 h2_pairwise(s, plot = TRUE)
+h2_pairwise(s, zero = FALSE, plot = TRUE)
 }
 \references{
 Friedman, Jerome H., and Bogdan E. Popescu. \emph{"Predictive Learning via Rule Ensembles."}

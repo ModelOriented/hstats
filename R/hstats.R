@@ -15,7 +15,7 @@
 #' Furthermore, it allows to calculate an experimental partial dependence based
 #' measure of feature importance, \eqn{\textrm{PDI}_j^2}. It equals the proportion of
 #' prediction variability unexplained by other features, see [pd_importance()] 
-#' for details. (This statistic is not shown by `summary()` or `plot()`.) 
+#' for details. This statistic is not shown by `summary()` or `plot()`.
 #'  
 #' Instead of using `summary()`, interaction statistics can also be obtained via the 
 #' more flexible functions [h2()], [h2_overall()], [h2_pairwise()], and
@@ -36,11 +36,11 @@
 #' @param pairwise_m Number of features for which pairwise statistics are to be 
 #'   calculated. The features are selected based on Friedman and Popescu's overall 
 #'   interaction strength \eqn{H^2_j}. Set to to 0 to avoid pairwise calculations.
-#'   For multivariate predictions, the union of the column-wise strongest variable
-#'   names is taken. This can lead to very long run-times.
-#' @param threeway_m Same as `pairwise_m`, but controlling the number of features for
-#'   which threeway interactions should be calculated. Not larger than `pairwise_m`.
-#'   Set to 0 to avoid threeway calculations.
+#'   For multivariate predictions, the union of the `pairwise_m` column-wise 
+#'   strongest variable names is taken. This can lead to very long run-times.
+#' @param threeway_m Like `pairwise_m`, but controls the feature count for 
+#'   three-way interactions. Cannot be larger than `pairwise_m`. 
+#'   The default is `min(pairwise_m, 5)`. Set to 0 to avoid three-way calculations.
 #' @param verbose Should a progress bar be shown? The default is `TRUE`.
 #' @param ... Additional arguments passed to `pred_fun(object, X, ...)`, 
 #'   for instance `type = "response"` in a [glm()] model.
@@ -50,33 +50,34 @@
 #'   - `w`: Input `w` (sampled to `n_max` values, or `NULL`).
 #'   - `v`: Same as input `v`.
 #'   - `f`: Matrix with (centered) predictions \eqn{F}.
-#'   - `mean_f2`: (Weighted) column means of `f`. Used to normalize most statistics.
+#'   - `mean_f2`: (Weighted) column means of `f`. Used to normalize \eqn{H^2} and
+#'     \eqn{H^2_j}.
 #'   - `F_j`: List of matrices, each representing (centered) 
 #'     partial dependence functions \eqn{F_j}.
 #'   - `F_not_j`: List of matrices with (centered) partial dependence 
 #'     functions \eqn{F_{\setminus j}} of other features.
 #'   - `K`: Number of columns of prediction matrix.
 #'   - `pred_names`: Column names of prediction matrix.
+#'   - `pairwise_m`: Like input `pairwise_m`, but capped at `length(v)`.
+#'   - `threeway_m`: Like input `threeway_m`, but capped at the smaller of 
+#'     `length(v)` and `pairwise_m`.
 #'   - `h2`: List with numerator and denominator of \eqn{H^2}.
 #'   - `h2_overall`: List with numerator and denominator of \eqn{H^2_j}. 
-#'   - `v_pairwise`: Subset of `v` with largest `h2_overall()` used for pairwise 
+#'   - `v_pairwise`: Subset of `v` with largest \eqn{H^2_j} used for pairwise 
 #'     calculations.
 #'   - `combs2`: Named list of variable pairs for which pairwise partial 
-#'     dependence functions are available. Only if pairwise calculations have been done.
+#'     dependence functions are available.
 #'   - `F_jk`: List of matrices, each representing (centered) bivariate 
-#'     partial dependence functions \eqn{F_{jk}}. 
-#'     Only if pairwise calculations have been done.
+#'     partial dependence functions \eqn{F_{jk}}.
 #'   - `h2_pairwise`: List with numerator and denominator of \eqn{H^2_{jk}}.
 #'     Only if pairwise calculations have been done.
 #'   - `v_threeway`: Subset of `v` with largest `h2_overall()` used for three-way 
 #'     calculations.
 #'   - `combs3`: Named list of variable triples for which three-way partial 
-#'     dependence functions are available. Only if threeway calculations have been done.
+#'     dependence functions are available.
 #'   - `F_jkl`: List of matrices, each representing (centered) three-way 
-#'     partial dependence functions \eqn{F_{jkl}}. 
-#'     Only if threeway calculations have been done.
+#'     partial dependence functions \eqn{F_{jkl}}.
 #'   - `h2_threeway`: List with numerator and denominator of \eqn{H^2_{jkl}}.
-#'     Only if threeway calculations have been done.
 #' @references
 #'   Friedman, Jerome H., and Bogdan E. Popescu. *"Predictive Learning via Rule Ensembles."*
 #'     The Annals of Applied Statistics 2, no. 3 (2008): 916-54.
@@ -89,10 +90,11 @@
 #' s <- hstats(fit, X = iris[-1])
 #' s
 #' plot(s)
+#' plot(s, zero = FALSE)  # Drop 0
 #' summary(s)
 #'   
 #' # Absolute pairwise interaction strengths
-#' h2_pairwise(s, normalize = FALSE, squared = FALSE, plot = FALSE)
+#' h2_pairwise(s, normalize = FALSE, squared = FALSE, plot = FALSE, zero = FALSE)
 #' 
 #' # MODEL 2: Multi-response linear regression
 #' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
@@ -109,9 +111,7 @@
 #' 
 #' # On original scale, we have interactions everywhere...
 #' s <- hstats(fit, X = iris[-1], type = "response", verbose = FALSE)
-#' 
-#' # All three types use different denominators
-#' plot(s, which = 1:3, ncol = 1)
+#' plot(s, which = 1:3, ncol = 1)  # All three types use different denominators
 #' 
 #' # All statistics on same scale (of predictions)
 #' plot(s, which = 1:3, squared = FALSE, normalize = FALSE, facet_scale = "free_y")
@@ -123,10 +123,14 @@ hstats <- function(object, ...) {
 #' @export
 hstats.default <- function(object, X, v = colnames(X),
                            pred_fun = stats::predict, n_max = 300L, 
-                           w = NULL, pairwise_m = 5L, threeway_m = pairwise_m,
+                           w = NULL, pairwise_m = 5L, 
+                           threeway_m = min(pairwise_m, 5L),
                            verbose = TRUE, ...) {
   basic_check(X = X, v = v, pred_fun = pred_fun, w = w)
-  stopifnot(threeway_m <= pairwise_m)
+  p <- length(v)
+  stopifnot(p >= 2L)
+  pairwise_m <- min(pairwise_m, p)
+  threeway_m <- min(threeway_m, pairwise_m, p)
   
   # Reduce size of X (and w)
   if (nrow(X) > n_max) {
@@ -142,9 +146,7 @@ hstats.default <- function(object, X, v = colnames(X),
   mean_f2 <- wcolMeans(f^2, w = w)  # A vector
   
   # Initialize first progress bar
-  p <- length(v)
-  show_bar <- verbose && p >= 2L
-  if (show_bar) {
+  if (verbose) {
     cat("1-way calculations...\n")
     pb <- utils::txtProgressBar(max = p, style = 3)
   }
@@ -175,11 +177,11 @@ hstats.default <- function(object, X, v = colnames(X),
       w = w
     )
     
-    if (show_bar) {
+    if (verbose) {
       utils::setTxtProgressBar(pb, j)
     }
   }
-  if (show_bar) {
+  if (verbose) {
     cat("\n")
   }
   
@@ -193,31 +195,35 @@ hstats.default <- function(object, X, v = colnames(X),
     F_j = F_j, 
     F_not_j = F_not_j, 
     K = ncol(f),
-    pred_names = colnames(f)
+    pred_names = colnames(f),
+    pairwise_m = pairwise_m,
+    threeway_m = threeway_m
   )
   
   # 0-way and 1-way stats
   out[["h2"]] <- h2_raw(out)
   out[["h2_overall"]] <- h2_overall_raw(out)
-
-  # 2+way stats are calculated only for features with largest overall interactions
   h2_ov <- .zap_small(out$h2_overall$num, eps = 1e-8)  # Does eps need to be passed?
-  out[["v_pairwise"]] <- v2 <- get_v(h2_ov, m = pairwise_m)
-  if (min(pairwise_m, length(v2)) >= 2L) {
-    out[c("combs2", "F_jk")] <- mway(
-      object, v = v2, X = X, pred_fun = pred_fun, w = w, way = 2L, verb = verbose, ...
-    )
+  
+  if (pairwise_m >= 2L) {
+    out[["v_pairwise"]] <- v2 <- get_v(h2_ov, m = pairwise_m)
+    if (length(v2) >= 2L) {
+      out[c("combs2", "F_jk")] <- mway(
+        object, v = v2, X = X, pred_fun = pred_fun, w = w, way = 2L, verb = verbose, ...
+      )
+    }
     out[["h2_pairwise"]] <- h2_pairwise_raw(out)
   }
-  
-  out[["v_threeway"]] <- v3 <- get_v(h2_ov, m = threeway_m)
-  if (min(threeway_m, length(v3)) >= 3L) {
-    out[c("combs3", "F_jkl")] <- mway(
-      object, v = v3, X = X, pred_fun = pred_fun, w = w, way = 3L, verb = verbose, ...
-    )
+  if (threeway_m >= 3L) {
+    out[["v_threeway"]] <- v3 <- get_v(h2_ov, m = threeway_m)
+    if (length(v3) >= 3L) {
+      out[c("combs3", "F_jkl")] <- mway(
+        object, v = v3, X = X, pred_fun = pred_fun, w = w, way = 3L, verb = verbose, ...
+      )
+    }
     out[["h2_threeway"]] <- h2_threeway_raw(out)
   }
-  
+
   structure(out, class = "hstats")
 }
 
@@ -226,7 +232,8 @@ hstats.default <- function(object, X, v = colnames(X),
 hstats.ranger <- function(object, X, v = colnames(X),
                           pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
                           n_max = 300L, w = NULL, pairwise_m = 5L, 
-                          threeway_m = pairwise_m, verbose = TRUE, ...) {
+                          threeway_m = min(pairwise_m, 5L),
+                          verbose = TRUE, ...) {
   hstats.default(
     object = object,
     X = X,
@@ -246,7 +253,8 @@ hstats.ranger <- function(object, X, v = colnames(X),
 hstats.Learner <- function(object, X, v = colnames(X),
                            pred_fun = NULL,
                            n_max = 300L, w = NULL, pairwise_m = 5L,
-                           threeway_m = pairwise_m, verbose = TRUE, ...) {
+                           threeway_m = min(pairwise_m, 5L), 
+                           verbose = TRUE, ...) {
   if (is.null(pred_fun)) {
     pred_fun <- mlr3_pred_fun(object, X = X)
   }
@@ -270,7 +278,8 @@ hstats.explainer <- function(object, X = object[["data"]],
                              v = colnames(X),
                              pred_fun = object[["predict_function"]],
                              n_max = 300L, w = object[["weights"]], 
-                             pairwise_m = 5L, threeway_m = pairwise_m,
+                             pairwise_m = 5L, 
+                             threeway_m = min(pairwise_m, 5L),
                              verbose = TRUE, ...) {
   hstats.default(
     object = object[["model"]],
@@ -296,7 +305,7 @@ hstats.explainer <- function(object, X = object[["data"]],
 #' @export
 #' @seealso See [hstats()] for examples.
 print.hstats <- function(x, ...) {
-  cat("'hstats' object. Run plot() or summary() for details.\n\n")
+  cat("'hstats' object. Use plot() or summary() for details.\n\n")
   cat("Proportion of prediction variability unexplained by main effects of v:\n")
   print(h2(x))
   cat("\n")
@@ -305,33 +314,38 @@ print.hstats <- function(x, ...) {
 
 #' Summary Method
 #' 
-#' Summary method for "hstats" object.
+#' Summary method for "hstats" object. Note that \eqn{H^2} is not affected by
+#' the arguments `normalize` and `squared`.
 #'
 #' @inheritParams h2_overall
 #' @param ... Currently not used.
 #' @returns 
-#'   An object of class "summary_hstats" representing a named list with statistics.
+#'   An object of class "summary_hstats" representing a named list with statistics
+#'   "h2", "h2_overall", "h2_pairwise", "h2_threeway", and the input flag "normalize".
+#'   Statistics that equal `NULL` are omitted from the list.
 #' @export
 #' @seealso See [hstats()] for examples.
 summary.hstats <- function(object, normalize = TRUE, squared = TRUE, sort = TRUE, 
-                           top_m = Inf, eps = 1e-8, ...) {
+                           top_m = Inf, zero = TRUE, eps = 1e-8, ...) {
   args <- list(
     object = object, 
     normalize = normalize, 
     squared = squared, 
     sort = sort,
     top_m = top_m,
+    zero = zero,
     eps = eps,
     plot = FALSE
   )
-   out <- list(
+  out <- list(
     h2 = h2(object, normalize = normalize, squared = squared, eps = eps), 
     h2_overall = do.call(h2_overall, args), 
     h2_pairwise = do.call(h2_pairwise, args), 
-    h2_threeway = do.call(h2_threeway, args)
+    h2_threeway = do.call(h2_threeway, args),
+    normalize = normalize
   )
-  class(out) <- "summary_hstats"
-  out
+  out <- out[!sapply(out, is.null)]
+  structure(out, class = "summary_hstats")
 }
 
 #' Print Method
@@ -344,18 +358,20 @@ summary.hstats <- function(object, normalize = TRUE, squared = TRUE, sort = TRUE
 #' @export
 #' @seealso See [hstats()] for examples.
 print.summary_hstats <- function(x, ...) {
-  addon <- "(for features with strong overall interactions)"
+  flag <- if (x[["normalize"]]) "relative" else "absolute"
+
   txt <- c(
-    h2 = "Proportion of prediction variability unexplained by main effects of v",
-    h2_overall = "Strongest overall interactions", 
-    h2_pairwise = paste0("Strongest relative pairwise interactions\n", addon),
-    h2_threeway = paste0("Strongest relative three-way interactions\n", addon)
+    h2 = "Prediction variability unexplained by main effects",
+    h2_overall = sprintf("Strongest %s overall interactions", flag), 
+    h2_pairwise = sprintf("Strongest %s pairwise interactions", flag),
+    h2_threeway = sprintf("Strongest %s three-way interaction", flag)
   )
+  top_n <- c(h2 = 1L, h2_overall = 4L, h2_pairwise = 3L, h2_threeway = 1L)
   
-  for (nm in names(Filter(Negate(is.null), x))) {
-    cat(txt[[nm]])
+  for (nm in setdiff(names(x), "normalize")) {
+    cat(txt[nm])
     cat("\n")
-    print(utils::head(drop(x[[nm]])))
+    print(utils::head(x[[nm]], top_n[nm]))
     cat("\n")
   }
   invisible(x)
@@ -378,15 +394,28 @@ print.summary_hstats <- function(x, ...) {
 #' @export
 #' @seealso See [hstats()] for examples.
 plot.hstats <- function(x, which = 1:2, normalize = TRUE, squared = TRUE, sort = TRUE, 
-                        top_m = 15L, eps = 1e-8, fill = "#2b51a1", 
+                        top_m = 15L, zero = TRUE, eps = 1e-8, fill = "#2b51a1", 
                         facet_scales = "free", ncol = 2L, rotate_x = FALSE, ...) {
   su <- summary(
-    x, normalize = normalize, squared = squared, sort = sort, top_m = top_m, eps = eps
+    x, 
+    normalize = normalize, 
+    squared = squared, 
+    sort = sort, 
+    top_m = top_m,
+    zero = zero,
+    eps = eps
   )
-  nms <- c("h2_overall", "h2_pairwise", "h2_threeway")
-  ids <- c("Overall", "Pairwise", "Threeway")
-  dat <- lapply(which, FUN = function(j) mat2df(su[[nms[j]]], id = ids[j]))
+  
+  # This part could be simplified, especially the "match()"
+  stat_names <- c("h2_overall", "h2_pairwise", "h2_threeway")[which]
+  stat_labs <- c("Overall", "Pairwise", "Three-way")[which]
+  ok <- stat_names[stat_names %in% names(su)]
+  if (length(ok) == 0L) {
+    return(NULL)
+  }
+  dat <- lapply(ok, FUN = function(nm) mat2df(su[[nm]], id = stat_labs[match(nm, stat_names)]))
   dat <- do.call(rbind, dat)
+  
   p <- ggplot2::ggplot(dat, ggplot2::aes(x = value_, y = variable_)) +
     ggplot2::ylab(ggplot2::element_blank()) +
     ggplot2::xlab("Value")
@@ -434,8 +463,7 @@ mway <- function(object, v, X, pred_fun = stats::predict, w = NULL,
   F_way <- vector("list", length = n_combs)
   names(F_way) <- names(combs) <- sapply(combs, paste, collapse = ":")
   
-  show_bar <- verb && (n_combs >= way)
-  if (show_bar) {
+  if (verb) {
     cat(way, "way calculations...\n", sep = "-")
     pb <- utils::txtProgressBar(max = n_combs, style = 3)
   }
@@ -446,11 +474,11 @@ mway <- function(object, v, X, pred_fun = stats::predict, w = NULL,
       pd_raw(object, v = z, X = X, grid = X[, z], pred_fun = pred_fun, w = w, ...),
       w = w
     )
-    if (show_bar) {
+    if (verb) {
       utils::setTxtProgressBar(pb, i)
     }
   }
-  if (show_bar) {
+  if (verb) {
     cat("\n")
   }
   list(combs, F_way)
@@ -468,17 +496,15 @@ mway <- function(object, v, X, pred_fun = stats::predict, w = NULL,
 #' @param H Unnormalized, unsorted H2_j values.
 #' @param m Number of features to pick per column.
 #' 
-#' @returns A vector of feature names.
+#' @returns A vector of the union of the m column-wise most important features.
 get_v <- function(H, m) {
-  # Get largest m positive values per column
+  v <- rownames(H)
   selector <- function(vv) names(utils::head(sort(-vv[vv > 0]), m))
   if (NCOL(H) == 1L) {
     v_cand <- selector(drop(H))
   } else {
     v_cand <- Reduce(union, lapply(asplit(H, MARGIN = 2L), FUN = selector))
   }
-  # Same order as in v
-  v <- rownames(H)
   v[v %in% v_cand]
 }
 

@@ -216,9 +216,9 @@ basic_check <- function(X, v, pred_fun, w = NULL) {
 #' @inheritParams H2_overall
 #' @param num Matrix or vector of statistic.
 #' @param denom Denominator of statistic (a matrix, number, or vector compatible with `num`).
-#' @returns Matrix or vector of statistics.
+#' @returns Matrix or vector of statistics. If length of output is 0, then `NULL`.
 postprocess <- function(num, denom = 1, normalize = TRUE, squared = TRUE, 
-                        sort = TRUE, top_m = Inf, eps = 1e-8) {
+                        sort = TRUE, top_m = Inf, zero = TRUE, eps = 1e-8) {
   out <- .zap_small(num, eps = eps)
   if (normalize) {
     if (length(denom) == 1L || length(num) == length(denom)) {
@@ -239,7 +239,15 @@ postprocess <- function(num, denom = 1, normalize = TRUE, squared = TRUE,
       out <- sort(out, decreasing = TRUE)
     }
   }
-  utils::head(out, n = top_m)
+  if (!zero) {
+    if (is.matrix(out)) {
+      out <- out[rowSums(out) > 0, , drop = FALSE]
+    } else {
+      out <- out[out > 0]
+    }
+  }
+  out <- utils::head(out, n = top_m)
+  if (length(out) == 0L) NULL else out
 }
 
 #' Zap Small Values
@@ -315,6 +323,51 @@ mat2df <- function(mat, id = "Overall") {
   poor_man_stack(out, to_stack = pred_names)
 }
 
+#' Initializor of Numerator Statistics
+#' 
+#' Internal helper function that returns a matrix of all zeros with the right
+#' column and row names for statistics of any "way". If some features have been dropped
+#' from the statistics calculations, they are added as 0.
+#' 
+#' @noRd
+#' @keywords internal
+#' @param x A list containing the elements "v", "K", "pred_names", "v_pairwise", 
+#'   "v_threeway", "pairwise_m", "threeway_m".
+#' @param way Integer between 1 and 3 of the order of the interaction.
+#' @returns A matrix of all zeros.
+init_numerator <- function(x, way = 1L) {
+  stopifnot(way %in% 1:3)
+  
+  v <- x[["v"]]
+  K <- x[["K"]]
+  pred_names <- x[["pred_names"]]
+  
+  # Simple case
+  if (way == 1L) {
+    return(matrix(nrow = length(v), ncol = K, dimnames = list(v, pred_names)))
+  }
+  
+  # Determine v_cand_0, which is v_cand with additional features to end up with length m
+  if (way == 2L) {
+    v_cand <- x[["v_pairwise"]]
+    m <- x[["pairwise_m"]]
+  } else {
+    v_cand <- x[["v_threeway"]]
+    m <- x[["threeway_m"]]
+  }
+  m_miss <- m - length(v_cand)
+  if (m_miss > 0L) {
+    v_cand_0 <- c(v_cand, utils::head(setdiff(v, v_cand), m_miss))
+    v_cand_0 <- v[v %in% v_cand_0]  # Bring into order of v
+  } else {
+    v_cand_0 <- v_cand
+  }
+  
+  # Get all interactions of order "way". c() turns the array into a vector
+  cn0 <- c(utils::combn(v_cand_0, m = way, FUN = paste, collapse = ":"))
+  matrix(0, nrow = length(cn0), ncol = K, dimnames = list(cn0, pred_names))
+}
+
 #' Bin into Quantiles
 #' 
 #' Internal function. Applies [cut()] to quantile breaks.
@@ -339,8 +392,11 @@ qcut <- function(x, m) {
 #' @param x A matrix of statistics with rownames.
 #' @param fill Color of bar (only for univariate statistics).
 #' @param ... Arguments passed to `geom_bar()`.
-#' @returns An object of class "ggplot".
+#' @returns An object of class "ggplot", or `NULL`.
 plot_stat <- function(x, fill = "#2b51a1", ...) {
+  if (is.null(x)) {
+    return(NULL)
+  }
   p <- ggplot2::ggplot(mat2df(x), ggplot2::aes(x = value_, y = variable_)) +
     ggplot2::ylab(ggplot2::element_blank()) +
     ggplot2::xlab("Value")
