@@ -363,8 +363,8 @@ init_numerator <- function(x, way = 1L) {
     v_cand_0 <- v_cand
   }
   
-  # Get all interactions of order "way"
-  cn0 <- combn(v_cand_0, m = way, FUN = paste, collapse = ":")
+  # Get all interactions of order "way". c() turns the array into a vector
+  cn0 <- c(utils::combn(v_cand_0, m = way, FUN = paste, collapse = ":"))
   matrix(0, nrow = length(cn0), ncol = K, dimnames = list(cn0, pred_names))
 }
 

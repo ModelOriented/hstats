@@ -221,7 +221,10 @@ test_that("Statistics react on normalize, (sorting), squaring, and top m", {
     s$h2_overall$num[1:2, , drop = FALSE]
   )
   
-  expect_identical(h2_pairwise(s, sort = FALSE), s$h2_pairwise$num / s$h2_pairwise$denom)
+  expect_identical(
+    h2_pairwise(s, sort = FALSE), 
+    s$h2_pairwise$num / s$h2_pairwise$denom
+  )
   expect_identical(h2_pairwise(s, sort = FALSE, normalize = FALSE), s$h2_pairwise$num)
   expect_identical(
     h2_pairwise(s, sort = FALSE, normalize = FALSE, squared = FALSE), 
