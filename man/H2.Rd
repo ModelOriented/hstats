@@ -10,12 +10,16 @@ h2(object, ...)
 
 \method{h2}{default}(object, ...)
 
-\method{h2}{hstats}(object, eps = 1e-08, ...)
+\method{h2}{hstats}(object, normalize = TRUE, squared = TRUE, eps = 1e-08, ...)
 }
 \arguments{
 \item{object}{Object of class "hstats".}
 
 \item{...}{Currently unused.}
+
+\item{normalize}{Should statistics be normalized? Default is \code{TRUE}.}
+
+\item{squared}{Should \emph{squared} statistics be returned? Default is \code{TRUE}.}
 
 \item{eps}{Threshold below which numerator values are set to 0.}
 }

@@ -74,8 +74,6 @@ fit <- lm(
 )
 s <- hstats(fit, X = iris[-1L], verbose = FALSE)
 
-
-# CONTINUE HERE
 test_that("Non-additive models show interactions > 0 (two interactions)", {
   expect_true(h2(s) > 0)
   
@@ -84,18 +82,27 @@ test_that("Non-additive models show interactions > 0 (two interactions)", {
     rownames(out[out > 0, , drop = FALSE]), 
     c("Petal.Length", "Petal.Width", "Species")
   )
+  out <- h2_overall(s, sort = FALSE, normalize = FALSE, squared = FALSE, zero = FALSE)
+  expect_equal(
+    rownames(out), c("Petal.Length", "Petal.Width", "Species")
+  )
   
   out <- h2_pairwise(s, sort = FALSE, normalize = FALSE, squared = FALSE)
   expect_equal(
     rownames(out[out > 0, , drop = FALSE]), 
     c("Petal.Length:Petal.Width", "Petal.Length:Species")
   )
+  out <- h2_pairwise(s, sort = FALSE, normalize = FALSE, squared = FALSE, zero = FALSE)
+  expect_equal(
+    rownames(out), c("Petal.Length:Petal.Width", "Petal.Length:Species")
+  )
   
   expect_s3_class(h2_overall(s, plot = TRUE), "ggplot")
   expect_s3_class(h2_pairwise(s, plot = TRUE), "ggplot")
   expect_s3_class(h2_threeway(s, plot = TRUE), "ggplot")
+  expect_null(h2_threeway(s, plot = TRUE, zero = FALSE))
   
-  expect_equal(c(h2_threeway(s)), 0)
+  expect_equal(c(h2_threeway(s)), rep(0, choose(4, 3)))
 })
 
 test_that("passing v works", {
@@ -139,7 +146,7 @@ test_that("Stronger interactions get higher statistics", {
   expect_true(
     all(h2_overall(int2, top_m = 2L) > h2_overall(int1, top_m = 2L))
   )
-  expect_true(h2_pairwise(int2) > h2_pairwise(int1))
+  expect_true(h2_pairwise(int2, zero = FALSE) > h2_pairwise(int1, zero = FALSE))
 })
 
 test_that("subsampling has an effect", {
@@ -180,12 +187,17 @@ test_that("Three-way interaction behaves correctly across dimensions", {
   expect_equal(2 * out[, "up"], out[, "up2"])
 })
 
-test_that("Three-way interaction can be suppressed", {
+test_that("Pairwise and three-way interactions can be suppressed", {
   fit <- lm(uptake ~ Type * Treatment * conc, data = CO2)
   s <- hstats(fit, X = CO2[2:4], verbose = FALSE, threeway_m = 0L)
   expect_null(h2_threeway(s))
   
+  s <- hstats(fit, X = CO2[2:4], verbose = FALSE, pairwise_m = 2L)
+  expect_equal(nrow(h2_pairwise(s)), 1L)
+  expect_null(h2_threeway(s))
+  
   s <- hstats(fit, X = CO2[2:4], verbose = FALSE, pairwise_m = 0L)
+  expect_equal(nrow(h2_overall(s)), 3L)
   expect_null(h2_pairwise(s))
   expect_null(h2_threeway(s))
 })

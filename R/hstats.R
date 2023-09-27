@@ -338,7 +338,7 @@ summary.hstats <- function(object, normalize = TRUE, squared = TRUE, sort = TRUE
     plot = FALSE
   )
   out <- list(
-    h2 = h2(object, eps = eps), 
+    h2 = h2(object, normalize = normalize, squared = squared, eps = eps), 
     h2_overall = do.call(h2_overall, args), 
     h2_pairwise = do.call(h2_pairwise, args), 
     h2_threeway = do.call(h2_threeway, args),
@@ -361,7 +361,7 @@ print.summary_hstats <- function(x, ...) {
   flag <- if (x[["normalize"]]) "relative" else "absolute"
 
   txt <- c(
-    h2 = "Relative prediction variability unexplained by main effects",
+    h2 = "Prediction variability unexplained by main effects",
     h2_overall = sprintf("Strongest %s overall interactions", flag), 
     h2_pairwise = sprintf("Strongest %s pairwise interactions", flag),
     h2_threeway = sprintf("Strongest %s three-way interaction", flag)
