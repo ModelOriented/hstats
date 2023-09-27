@@ -67,6 +67,7 @@ Set <code>plot = TRUE</code> to plot the results as barplot.</p>
 <span>  squared <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  sort <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  top_m <span class="op">=</span> <span class="fl">15L</span>,</span>
+<span>  zero <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  eps <span class="op">=</span> <span class="fl">1e-08</span>,</span>
 <span>  plot <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  fill <span class="op">=</span> <span class="st">"#2b51a1"</span>,</span>
@@ -99,6 +100,10 @@ Set <code>plot = TRUE</code> to plot the results as barplot.</p>
 
 <dt>top_m</dt>
 <dd><p>How many rows should be shown? (<code>Inf</code> to show all.)</p></dd>
+
+
+<dt>zero</dt>
+<dd><p>Should rows with all 0 be shown? Default is <code>TRUE</code>.</p></dd>
 
 
 <dt>eps</dt>
@@ -182,23 +187,40 @@ The Annals of Applied Statistics 2, no. 3 (2008): 916-54.</p>
 <span class="r-in"><span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="hstats.html">hstats</a></span><span class="op">(</span><span class="va">fit</span>, X <span class="op">=</span> <span class="va">iris</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1-way calculations...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                              |                                                                      |   0%  |                                                                              |==================                                                    |  25%  |                                                                              |===================================                                   |  50%  |                                                                              |====================================================                  |  75%  |                                                                              |======================================================================| 100%</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2-way calculations...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                              |                                                                      |   0%  |                                                                              |======================================================================| 100%</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Proportion of joint effect coming from pairwise interaction</span></span></span>
 <span class="r-in"><span><span class="co"># (for features with strongest overall interactions)</span></span></span>
 <span class="r-in"><span><span class="fu">h2_pairwise</span><span class="op">(</span><span class="va">s</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                [,1]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Width:Species      0.05546172</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Sepal.Width:Petal.Length 0.00000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Sepal.Width:Petal.Width  0.00000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Sepal.Width:Species      0.00000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Length:Petal.Width 0.00000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Length:Species     0.00000000</span>
+<span class="r-in"><span><span class="fu">h2_pairwise</span><span class="op">(</span><span class="va">s</span>, zero <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>  <span class="co"># Drop 0</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                           [,1]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Width:Species 0.05546172</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Absolute measure as alternative</span></span></span>
 <span class="r-in"><span><span class="fu">h2_pairwise</span><span class="op">(</span><span class="va">s</span>, normalize <span class="op">=</span> <span class="cn">FALSE</span>, squared <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                          [,1]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Width:Species 0.1726312</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                               [,1]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Width:Species      0.1726312</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Sepal.Width:Petal.Length 0.0000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Sepal.Width:Petal.Width  0.0000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Sepal.Width:Species      0.0000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Length:Petal.Width 0.0000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Length:Species     0.0000000</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># MODEL 2: Multi-response linear regression</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">iris</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span> <span class="op">~</span> <span class="va">Petal.Length</span> <span class="op">+</span> <span class="va">Petal.Width</span> <span class="op">*</span> <span class="va">Species</span>, data <span class="op">=</span> <span class="va">iris</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="hstats.html">hstats</a></span><span class="op">(</span><span class="va">fit</span>, X <span class="op">=</span> <span class="va">iris</span><span class="op">[</span><span class="fl">3</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">h2_pairwise</span><span class="op">(</span><span class="va">s</span>, plot <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="H2_pairwise-1.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span><span class="fu">h2_pairwise</span><span class="op">(</span><span class="va">s</span>, zero <span class="op">=</span> <span class="cn">FALSE</span>, plot <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="H2_pairwise-2.png" alt="" width="700" height="433"></span>
 </code></pre></div>
     </div>
   </div>

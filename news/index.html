@@ -50,16 +50,19 @@
     <div class="section level2">
 <h2 class="page-header" data-toc-text="0.3.0" id="hstats-030">hstats 0.3.0<a class="anchor" aria-label="anchor" href="#hstats-030"></a></h2>
 <div class="section level3">
-<h3 id="major-user-visible-changes-0-3-0">Major user visible changes<a class="anchor" aria-label="anchor" href="#major-user-visible-changes-0-3-0"></a></h3>
-<ul><li>Grid calculation: So far, the default grid strategy “uniform” used <code><a href="https://rdrr.io/r/base/pretty.html" class="external-link">pretty()</a></code> to generate the evaluation points. To provide more predictable grid sizes, and to be more in line with other implementations of partial dependence and ICE, we now use <code><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq()</a></code> to create the uniform grid. This affects <code><a href="../reference/ice.html">ice()</a></code>, <code><a href="../reference/partial_dep.html">partial_dep()</a></code> and the exported helper functions <code><a href="../reference/univariate_grid.html">univariate_grid()</a></code> and <code><a href="../reference/multivariate_grid.html">multivariate_grid()</a></code>.</li>
+<h3 id="visible-changes-0-3-0">Visible changes<a class="anchor" aria-label="anchor" href="#visible-changes-0-3-0"></a></h3>
+<ul><li>Grid of <code><a href="../reference/ice.html">ice()</a></code> and <code><a href="../reference/partial_dep.html">partial_dep()</a></code>: So far, the default grid strategy “uniform” used <code><a href="https://rdrr.io/r/base/pretty.html" class="external-link">pretty()</a></code> to generate the evaluation points. To provide more predictable grid sizes, and to be more in line with other implementations of partial dependence and ICE, we now use <code><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq()</a></code> to create the uniform grid.</li>
+<li>
+<code><a href="../reference/H2_pairwise.html">h2_pairwise()</a></code> and <code><a href="../reference/H2_threeway.html">h2_threeway()</a></code> will now also include 0 values. Use <code>zero = FALSE</code> to drop them, see below. The padding with 0 is done at no computational cost, and will affect only up to <code>pairwise_m</code> and <code>threeway_m</code> features.</li>
+<li>
+<code><a href="../reference/hstats.html">hstats()</a></code>: The default number of features considered for <em>three-way interactions</em> has been changed from <code>threeway_m = pairwise_m</code> to the more cautious <code>threeway_m = min(pairwise_m, 5L)</code>. Furthermore, <code>threeway_m</code> is capped at <code>pairwise_m</code>.</li>
+<li>The <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> method of <code><a href="../reference/summary.hstats.html">summary.hstats()</a></code> is less verbose.</li>
 </ul></div>
 <div class="section level3">
-<h3 id="internal-major-changes-0-3-0">Internal major changes<a class="anchor" aria-label="anchor" href="#internal-major-changes-0-3-0"></a></h3>
-<ul><li>All available H-statistics are now calculated within <code><a href="../reference/hstats.html">hstats()</a></code> and attached to the resulting object. Each statistic is stored as list with numerator and denominator matrices/vectors. The functions <code><a href="../reference/H2.html">h2()</a></code>, <code><a href="../reference/H2_overall.html">h2_overall()</a></code>, <code><a href="../reference/H2_pairwise.html">h2_pairwise()</a></code>, and <code><a href="../reference/H2_threeway.html">h2_threeway()</a></code>, <code><a href="../reference/print.hstats.html">print.hstats()</a></code>, <code>summary().hstats()</code>, <code><a href="../reference/plot.hstats.html">plot.hstats()</a></code> will use these without having to recalculate the required numerators and denominators. The results, however, are unchanged.</li>
-</ul></div>
-<div class="section level3">
-<h3 id="minor-improvements-0-3-0">Minor improvements<a class="anchor" aria-label="anchor" href="#minor-improvements-0-3-0"></a></h3>
+<h3 id="improvements-0-3-0">Improvements<a class="anchor" aria-label="anchor" href="#improvements-0-3-0"></a></h3>
 <ul><li>
+<code><a href="../reference/H2_overall.html">h2_overall()</a></code>, <code><a href="../reference/H2_pairwise.html">h2_pairwise()</a></code>, <code><a href="../reference/H2_threeway.html">h2_threeway()</a></code>, <code><a href="../reference/plot.hstats.html">plot.hstats()</a></code>, and <code><a href="../reference/summary.hstats.html">summary.hstats()</a></code> have received an argument <code>zero = TRUE</code>. Set to <code>FALSE</code> to drop statistics having value 0.</li>
+<li>
 <code><a href="../reference/perm_importance.html">perm_importance()</a></code> and <code><a href="../reference/average_loss.html">average_loss()</a></code> will now recycle a univariate response when combined with multivariate predictions. This is useful, e.g., when the prediction function represents the predictions of multiple models that should be evaluated against a common response.</li>
 </ul></div>
 <div class="section level3">
@@ -67,6 +70,10 @@
 <ul><li>All progress bars were initialized 1 step too late.</li>
 <li>
 <code><a href="../reference/perm_importance.html">perm_importance()</a></code> and <code><a href="../reference/average_loss.html">average_loss()</a></code> would fail for “mlogloss” in case the response <code>y</code> was univariate <em>and</em> non-factor/non-character.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="other-changes-0-3-0">Other changes<a class="anchor" aria-label="anchor" href="#other-changes-0-3-0"></a></h3>
+<ul><li>All available H-statistics are now calculated within <code><a href="../reference/hstats.html">hstats()</a></code> and attached to the resulting object. Each statistic is stored as list with numerator and denominator matrices/vectors. The functions <code><a href="../reference/H2.html">h2()</a></code>, <code><a href="../reference/H2_overall.html">h2_overall()</a></code>, <code><a href="../reference/H2_pairwise.html">h2_pairwise()</a></code>, and <code><a href="../reference/H2_threeway.html">h2_threeway()</a></code>, <code><a href="../reference/print.hstats.html">print.hstats()</a></code>, <code>summary().hstats()</code>, <code><a href="../reference/plot.hstats.html">plot.hstats()</a></code> will use these without having to recalculate the required numerators and denominators. The results, however, are unchanged.</li>
 </ul></div>
 </div>
     <div class="section level2">
