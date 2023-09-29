@@ -2,7 +2,7 @@
 #' 
 #' Estimates the partial dependence function of feature(s) `v` over a 
 #' grid of values. Both multivariate and multivariable situations are supported.
-#' By default, the resulting values are plotted.
+#' The resulting object can be plotted via `plot()`.
 #' 
 #' @section Partial Dependence Functions: 
 #' 

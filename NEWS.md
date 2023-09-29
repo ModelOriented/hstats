@@ -1,5 +1,7 @@
 # hstats 0.3.0
 
+This is intended to be the last version before 1.0.0.
+
 ## Visible changes
 
 - Grid of `ice()` and `partial_dep()`: So far, the default grid strategy "uniform" used `pretty()` to generate the evaluation points. To provide more predictable grid sizes, and to be more in line with other implementations of partial dependence and ICE, we now use `seq()` to create the uniform grid.

@@ -27,9 +27,9 @@
 #' @param pred_fun Prediction function of the form `function(object, X, ...)`,
 #'   providing \eqn{K \ge 1} predictions per row. Its first argument represents the 
 #'   model `object`, its second argument a data structure like `X`. Additional arguments 
-#'   (such as `type = "response"` in a GLM) can be passed via `...`. The default, 
-#'   [stats::predict()], will work in most cases. Note that column names in a resulting
-#'   matrix of predictions will be used as default column names in the results.
+#'   (such as `type = "response"` in a GLM, or `reshape = TRUE` in a multiclass XGBoost
+#'   model) can be passed via `...`. The default, [stats::predict()], will work in 
+#'   most cases.
 #' @param n_max If `X` has more than `n_max` rows, a random sample of `n_max` rows is
 #'   selected from `X`. In this case, set a random seed for reproducibility.
 #' @param w Optional vector of case weights for each row of `X`.

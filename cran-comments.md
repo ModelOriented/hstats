@@ -1,10 +1,8 @@
-# hstats 0.2.0
+# hstats 0.3.0
 
-Hello CRAN team
+Dear CRAN team
 
-{hstats} received a fast, multivariate permutation importance function, and some API improvements. Not yet ready for version 1.0.0, but almost :-).
-
-Thanks a lot for caring about R so much
+{hstats} is now one step away from stable version 1.0.0.
 
 Michael
 
