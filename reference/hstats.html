@@ -168,9 +168,9 @@ for instance <code>type = "response"</code> in a <code><a href="https://rdrr.io/
 <dd><p>Prediction function of the form <code>function(object, X, ...)</code>,
 providing \(K \ge 1\) predictions per row. Its first argument represents the
 model <code>object</code>, its second argument a data structure like <code>X</code>. Additional arguments
-(such as <code>type = "response"</code> in a GLM) can be passed via <code>...</code>. The default,
-<code><a href="https://rdrr.io/r/stats/predict.html" class="external-link">stats::predict()</a></code>, will work in most cases. Note that column names in a resulting
-matrix of predictions will be used as default column names in the results.</p></dd>
+(such as <code>type = "response"</code> in a GLM, or <code>reshape = TRUE</code> in a multiclass XGBoost
+model) can be passed via <code>...</code>. The default, <code><a href="https://rdrr.io/r/stats/predict.html" class="external-link">stats::predict()</a></code>, will work in
+most cases.</p></dd>
 
 
 <dt>n_max</dt>
