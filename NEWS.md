@@ -1,3 +1,9 @@
+# hstats 1.0.0
+
+## Visible changes
+
+- plot.perm_importance() now represents importance values of *multi-output* models as stacked bars. Set `multi_output = "facets"` for the old behaviour.
+
 # hstats 0.3.0
 
 This is intended to be the last version before 1.0.0.

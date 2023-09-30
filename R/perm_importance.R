@@ -53,7 +53,7 @@
 #' s <- perm_importance(fit, X = iris[3:5], y = iris[1:2])
 #' s
 #' plot(s)
-#' plot(s, rotate_x = TRUE, facet_scale = "free_x", err_type = "sd")
+#' plot(s, multi_output = "facets")
 perm_importance <- function(object, ...) {
   UseMethod("perm_importance")
 }
@@ -281,17 +281,24 @@ print.perm_importance <- function(x, ...) {
 #' @param x An object of class "perm_importance".
 #' @param err_type The error type to show, by default "se" (standard errors). Set to
 #'   "sd" for standard deviations (se * sqrt(perms)), or "no" for no bars.
+#' @param multi_output How should multi-output models be represented? 
+#'   Either "dodge" (dodged bars, the default) or via "facets".
 #' @inheritParams plot.hstats
 #' @param ... Arguments passed to [ggplot2::geom_bar].
 #' @export
 #' @returns An object of class "ggplot".
 #' @seealso See [perm_importance()] for examples.
 plot.perm_importance <- function(x, top_m = 15L, err_type = c("se", "sd", "no"),
+                                 multi_output = c("dodge", "facets"),
                                  facet_scales = "fixed", ncol = 2L, 
                                  rotate_x = FALSE, fill = "#2b51a1", ...) {
   err_type <- match.arg(err_type)
+  multi_output <- match.arg(multi_output)
+  
   S <- x[["imp"]]
   err <- x[["SE"]]
+  K <- ncol(x[["imp"]])
+  dodge <- multi_output == "dodge" && K > 1L
   
   if (err_type == "sd") {
     err <- err * sqrt(x[["perms"]])
@@ -300,16 +307,31 @@ plot.perm_importance <- function(x, top_m = 15L, err_type = c("se", "sd", "no"),
   err <- utils::head(err, n = top_m)
   df <- transform(mat2df(S), error_ = mat2df(err)[["value_"]])
   
-  p <- ggplot2::ggplot(df, ggplot2::aes(x = value_, y = variable_)) +
-    ggplot2::geom_bar(fill = fill, stat = "identity", ...)
-    if (err_type != "no") {
+  p <- ggplot2::ggplot(df, ggplot2::aes(x = value_, y = variable_))
+  if (!dodge) {
+    p <- p + ggplot2::geom_bar(fill = fill, stat = "identity", ...)
+  } else {
+    p <- p + ggplot2::geom_bar(
+      ggplot2::aes(fill = varying_), stat = "identity", position = "dodge", ...
+    )
+  }
+  if (err_type != "no") {
+    if (!dodge) {
       p <- p + ggplot2::geom_errorbar(
         ggplot2::aes(xmin = value_ - error_, xmax = value_ + error_), 
         width = 0, 
         color = "black"
       )
+    } else {
+      p <- p + ggplot2::geom_errorbar(
+        ggplot2::aes(xmin = value_ - error_, xmax = value_ + error_, group = varying_), 
+        width = 0, 
+        color = "black",
+        position = ggplot2::position_dodge(0.9)
+      ) + ggplot2::theme(legend.title = ggplot2::element_blank())
     }
-  if (length(unique(df[["varying_"]])) > 1L) {
+  }
+  if (K > 1L && multi_output == "facets") {
     p <- p + ggplot2::facet_wrap("varying_", ncol = ncol, scales = facet_scales)
   }
   if (rotate_x) {
