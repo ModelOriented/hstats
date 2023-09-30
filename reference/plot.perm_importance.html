@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">hstats</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.3.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0.0</span>
       </span>
     </div>
 
@@ -58,6 +58,7 @@
 <span>  <span class="va">x</span>,</span>
 <span>  top_m <span class="op">=</span> <span class="fl">15L</span>,</span>
 <span>  err_type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"se"</span>, <span class="st">"sd"</span>, <span class="st">"no"</span><span class="op">)</span>,</span>
+<span>  multi_output <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"grouped"</span>, <span class="st">"facets"</span><span class="op">)</span>,</span>
 <span>  facet_scales <span class="op">=</span> <span class="st">"fixed"</span>,</span>
 <span>  ncol <span class="op">=</span> <span class="fl">2L</span>,</span>
 <span>  rotate_x <span class="op">=</span> <span class="cn">FALSE</span>,</span>
@@ -79,6 +80,11 @@
 <dt>err_type</dt>
 <dd><p>The error type to show, by default "se" (standard errors). Set to
 "sd" for standard deviations (se * sqrt(perms)), or "no" for no bars.</p></dd>
+
+
+<dt>multi_output</dt>
+<dd><p>How should multi-output models be represented?
+Either "grouped" (the default) or via "facets".</p></dd>
 
 
 <dt>facet_scales</dt>
