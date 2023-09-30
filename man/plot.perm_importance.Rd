@@ -8,7 +8,7 @@
   x,
   top_m = 15L,
   err_type = c("se", "sd", "no"),
-  multi_output = c("dodge", "facets"),
+  multi_output = c("grouped", "facets"),
   facet_scales = "fixed",
   ncol = 2L,
   rotate_x = FALSE,
@@ -25,7 +25,7 @@
 "sd" for standard deviations (se * sqrt(perms)), or "no" for no bars.}
 
 \item{multi_output}{How should multi-output models be represented?
-Either "dodge" (dodged bars, the default) or via "facets".}
+Either "grouped" (the default) or via "facets".}
 
 \item{facet_scales}{Value passed to \code{ggplot2::facet_wrap(scales = ...)}.}
 

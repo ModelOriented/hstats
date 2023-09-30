@@ -282,14 +282,14 @@ print.perm_importance <- function(x, ...) {
 #' @param err_type The error type to show, by default "se" (standard errors). Set to
 #'   "sd" for standard deviations (se * sqrt(perms)), or "no" for no bars.
 #' @param multi_output How should multi-output models be represented? 
-#'   Either "dodge" (dodged bars, the default) or via "facets".
+#'   Either "grouped" (the default) or via "facets".
 #' @inheritParams plot.hstats
 #' @param ... Arguments passed to [ggplot2::geom_bar].
 #' @export
 #' @returns An object of class "ggplot".
 #' @seealso See [perm_importance()] for examples.
 plot.perm_importance <- function(x, top_m = 15L, err_type = c("se", "sd", "no"),
-                                 multi_output = c("dodge", "facets"),
+                                 multi_output = c("grouped", "facets"),
                                  facet_scales = "fixed", ncol = 2L, 
                                  rotate_x = FALSE, fill = "#2b51a1", ...) {
   err_type <- match.arg(err_type)
@@ -298,7 +298,7 @@ plot.perm_importance <- function(x, top_m = 15L, err_type = c("se", "sd", "no"),
   S <- x[["imp"]]
   err <- x[["SE"]]
   K <- ncol(x[["imp"]])
-  dodge <- multi_output == "dodge" && K > 1L
+  grouped <- multi_output == "grouped" && K > 1L
   
   if (err_type == "sd") {
     err <- err * sqrt(x[["perms"]])
@@ -308,7 +308,7 @@ plot.perm_importance <- function(x, top_m = 15L, err_type = c("se", "sd", "no"),
   df <- transform(mat2df(S), error_ = mat2df(err)[["value_"]])
   
   p <- ggplot2::ggplot(df, ggplot2::aes(x = value_, y = variable_))
-  if (!dodge) {
+  if (!grouped) {
     p <- p + ggplot2::geom_bar(fill = fill, stat = "identity", ...)
   } else {
     p <- p + ggplot2::geom_bar(
@@ -316,7 +316,7 @@ plot.perm_importance <- function(x, top_m = 15L, err_type = c("se", "sd", "no"),
     )
   }
   if (err_type != "no") {
-    if (!dodge) {
+    if (!grouped) {
       p <- p + ggplot2::geom_errorbar(
         ggplot2::aes(xmin = value_ - error_, xmax = value_ + error_), 
         width = 0, 
