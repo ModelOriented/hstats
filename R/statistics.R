@@ -100,6 +100,21 @@ get_description <- function(statistic, normalize = TRUE, squared = TRUE) {
   )
   paste0(
     stat_names[statistic], 
+    get_description_details(normalized = normalized, squared = squared)
+  )
+}
+
+#' Description Text Details
+#' 
+#' Internal helper function that provides the details of description text.
+#' 
+#' @noRd
+#' @keywords internal
+#' @param normalize Flag.
+#' @param squared Flag.
+#' @returns A character string.
+get_description_details <- function(normalize = TRUE, squared = TRUE) {
+  paste0(
     if (squared) "-squared" else "", 
     if (normalize) " (normalized)" else " (unnormalized)"
   )
@@ -112,14 +127,15 @@ get_description <- function(statistic, normalize = TRUE, squared = TRUE) {
 #' Print method for object of class "hstats_matrix".
 #'
 #' @param x An object of class "hstats_matrix".
-#' @param ... Further arguments passed from other methods.
+#' @param top_m Number of rows to print.
+#' @param ... Currently not used.
 #' @returns Invisibly, the input is returned.
 #' @export
-print.hstats_matrix <- function(x, ...) {
-  M <- x[["M"]]
+print.hstats_matrix <- function(x, top_m = Inf, ...) {
   cat(x[["description"]])
   cat("\n")
-  if (!(x[["statistic"]] %in% c("h2_pairwise", "h2_threeway"))) {
+  M <- utils::head(x[["M"]], top_m)
+  if (!(x[["statistic"]] %in% c("h2_pairwise", "h2_threeway")) || length(M) == 1L) {
     M <- drop(M)
   }
   print(M)
@@ -139,6 +155,7 @@ print.hstats_matrix <- function(x, ...) {
 plot.hstats_matrix <- function(x, top_m = 15L, fill = "#2b51a1", ...) {
   M <- x[["M"]]
   if (is.null(M)) {
+    message("Nothing to plot!")
     return(NULL)
   }
   M <- utils::head(M, top_m)

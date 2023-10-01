@@ -7,7 +7,11 @@
 
 ## Minor changes
 
-- The $H^2$ statistic stored in a "hstats" object is now a matrix with one row, not a vector anymore.
+- `H-squared`: The $H^2$ statistic stored in a "hstats" object is now a matrix with one row, not a vector anymore.
+- `pd_importance()`: The "hstats" object now contains precalculated PD-based importance values as slot "pd_importance".
+- `plot.hstats()` now clearly states the type of statistics shown.
+- Revised `print()` methods.
+- `summary.hstats()` now returns an object of class "hstats_summary" instead of "summary_hstats".
 
 # hstats 0.3.0
 

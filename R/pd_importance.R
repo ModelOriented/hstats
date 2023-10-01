@@ -14,7 +14,7 @@
 #' }
 #' Therefore, the following measure of variable importance follows:
 #' \deqn{
-#'   \textrm{PDI}_{j} = \frac{\frac{1}{n} \sum_{i = 1}^n\big[F(\mathbf{x}_i) - 
+#'   \textrm{PDI}_j = \frac{\frac{1}{n} \sum_{i = 1}^n\big[F(\mathbf{x}_i) - 
 #'   \hat F_{\setminus j}(\mathbf{x}_{i\setminus j})\big]^2}{\frac{1}{n} \sum_{i = 1}^n
 #'   \big[F(\mathbf{x}_i)\big]^2}.
 #' }
@@ -57,31 +57,31 @@ pd_importance.default <- function(object, ...) {
 #' @export
 pd_importance.hstats <- function(object, normalize = TRUE, squared = TRUE,
                                  sort = TRUE, zero = TRUE, eps = 1e-8, ...) {
-  num <- init_numerator(object, way = 1L)
-  for (z in object[["v"]]) {
-    num[z, ] <- with(object, wcolMeans((f - F_not_j[[z]])^2, w = w))
-  }
-  M <- postprocess(
-    num = num,
-    denom = object[["mean_f2"]],
+  get_hstat_matrix(
+    statistic = "pd_importance",
+    object = object,
     normalize = normalize, 
     squared = squared, 
-    sort = sort, 
+    sort = sort,
     zero = zero,
     eps = eps
   )
-  
-  st <- "pd_importance"
-  
-  structure(
-    list(
-      M = M, 
-      normalize = normalize, 
-      squared = squared, 
-      statistic = st,
-      description = get_description(st, normalize = normalize, squared = squared
-      )
-    ), 
-    class = "hstats_matrix"
-  )
+}
+
+#' Raw PDI
+#' 
+#' Internal helper function that calculates numerator and denominator of
+#' statistic in title.
+#' 
+#' @noRd
+#' @keywords internal
+#' @param x A list containing the elements "v", "K", "pred_names", 
+#'   "f", "F_not_j", "mean_f2", and "w".
+#' @returns A list with the numerator and denominator statistics.
+pd_importance_raw <- function(x) {
+  num <- init_numerator(x, way = 1L)
+  for (z in x[["v"]]) {
+    num[z, ] <- with(x, wcolMeans((f - F_not_j[[z]])^2, w = w))
+  }
+  list(num = num, denom = x[["mean_f2"]])
 }
