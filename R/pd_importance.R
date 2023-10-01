@@ -3,7 +3,7 @@
 #' Experimental variable importance method based on partial dependence functions. 
 #' While related to Greenwell et al., our suggestion measures not only main effect
 #' strength but also interaction effects. It is very closely related to \eqn{H^2_j}, 
-#' see Details. Set `plot = TRUE` to plot the results as barplot.
+#' see Details. Use `plot()` to get a barplot.
 #' 
 #' @details
 #' If \eqn{x_j} has no effects, the (centered) prediction function \eqn{F}
@@ -14,7 +14,7 @@
 #' }
 #' Therefore, the following measure of variable importance follows:
 #' \deqn{
-#'   \textrm{Imp}_{j} = \frac{\frac{1}{n} \sum_{i = 1}^n\big[F(\mathbf{x}_i) - 
+#'   \textrm{PDI}_{j} = \frac{\frac{1}{n} \sum_{i = 1}^n\big[F(\mathbf{x}_i) - 
 #'   \hat F_{\setminus j}(\mathbf{x}_{i\setminus j})\big]^2}{\frac{1}{n} \sum_{i = 1}^n
 #'   \big[F(\mathbf{x}_i)\big]^2}.
 #' }
@@ -37,13 +37,12 @@
 #' # MODEL 1: Linear regression
 #' fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
 #' s <- hstats(fit, X = iris[-1])
-#' pd_importance(s)
-#' pd_importance(s, plot = TRUE)
+#' plot(pd_importance(s))
 #' 
 #' # MODEL 2: Multi-response linear regression
 #' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
 #' s <- hstats(fit, X = iris[3:5])
-#' pd_importance(s, plot = TRUE)
+#' plot(pd_importance(s))
 pd_importance <- function(object, ...) {
   UseMethod("pd_importance")
 }
@@ -56,22 +55,33 @@ pd_importance.default <- function(object, ...) {
 
 #' @describeIn pd_importance PD based feature importance from "hstats" object.
 #' @export
-pd_importance.hstats <- function(object, normalize = TRUE, squared = TRUE, 
-                                 sort = TRUE, top_m = 15L, zero = TRUE, eps = 1e-8, 
-                                 plot = FALSE, fill = "#2b51a1", ...) {
+pd_importance.hstats <- function(object, normalize = TRUE, squared = TRUE,
+                                 sort = TRUE, zero = TRUE, eps = 1e-8, ...) {
   num <- init_numerator(object, way = 1L)
   for (z in object[["v"]]) {
     num[z, ] <- with(object, wcolMeans((f - F_not_j[[z]])^2, w = w))
   }
-  out <- postprocess(
+  M <- postprocess(
     num = num,
     denom = object[["mean_f2"]],
     normalize = normalize, 
     squared = squared, 
     sort = sort, 
-    top_m = top_m,
     zero = zero,
     eps = eps
   )
-  if (plot) plot_stat(out, fill = fill, ...) else out
+  
+  st <- "pd_importance"
+  
+  structure(
+    list(
+      M = M, 
+      normalize = normalize, 
+      squared = squared, 
+      statistic = st,
+      description = get_description(st, normalize = normalize, squared = squared
+      )
+    ), 
+    class = "hstats_matrix"
+  )
 }

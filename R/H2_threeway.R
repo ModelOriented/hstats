@@ -1,7 +1,7 @@
 #' Three-way Interaction Strength
 #' 
 #' Friedman and Popescu's statistic of three-way interaction strength, see Details. 
-#' Set `plot = TRUE` to plot the results as barplot.
+#' Use `plot()` to get a barplot.
 #' 
 #' @details
 #' Friedman and Popescu (2008) describe a test statistic to measure three-way 
@@ -36,10 +36,7 @@
 #' Similar remarks as for [h2_pairwise()] apply.
 #' 
 #' @inheritParams h2_overall
-#' @returns 
-#'   A matrix of statistics (one row per variable, one column per prediction dimension),
-#'   or a "ggplot" object (if `plot = TRUE`). If no three-way
-#'   statistics have been calculated, the function returns `NULL`.
+#' @inherit h2_overall return
 #' @inherit hstats references
 #' @export
 #' @seealso [hstats()], [h2()], [h2_overall()], [h2_pairwise()]
@@ -53,9 +50,7 @@
 #' fit <- lm(cbind(up = uptake, up2 = 2 * uptake) ~ Type * Treatment * conc, data = CO2)
 #' s <- hstats(fit, X = CO2[2:4], verbose = FALSE)
 #' h2_threeway(s)
-#' 
-#' # Unnormalized H
-#' h2_threeway(s, normalize = FALSE, squared = FALSE)
+#' h2_threeway(s, normalize = FALSE, squared = FALSE)  # Unnormalized H
 h2_threeway <- function(object, ...) {
   UseMethod("h2_threeway")
 }
@@ -68,24 +63,17 @@ h2_threeway.default <- function(object, ...) {
 
 #' @describeIn h2_threeway Pairwise interaction strength from "hstats" object.
 #' @export
-h2_threeway.hstats <- function(object, normalize = TRUE, squared = TRUE, sort = TRUE, 
-                               top_m = 15L, zero = TRUE, eps = 1e-8, 
-                               plot = FALSE, fill = "#2b51a1", ...) {
-  s <- object$h2_threeway
-  if (is.null(s)) {
-    return(NULL)
-  }
-  out <- postprocess(
-    num = s$num,
-    denom = s$denom,
+h2_threeway.hstats <- function(object, normalize = TRUE, squared = TRUE, 
+                               sort = TRUE, zero = TRUE, eps = 1e-8, ...) {
+  get_hstat_matrix(
+    statistic = "h2_threeway",
+    object = object,
     normalize = normalize, 
     squared = squared, 
-    sort = sort, 
-    top_m = top_m,
+    sort = sort,
     zero = zero,
     eps = eps
   )
-  if (plot) plot_stat(out, fill = fill, ...) else out
 }
 
 #' Raw H2 Threeway

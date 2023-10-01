@@ -206,50 +206,6 @@ basic_check <- function(X, v, pred_fun, w = NULL) {
   TRUE
 }
 
-#' Postprocessing of Statistics
-#' 
-#' Function to apply typical postprocessing steps to a Friedman-Popescu type statistic.
-#' 
-#' @noRd
-#' @keywords internal
-#' 
-#' @inheritParams H2_overall
-#' @param num Matrix or vector of statistic.
-#' @param denom Denominator of statistic (a matrix, number, or vector compatible with `num`).
-#' @returns Matrix or vector of statistics. If length of output is 0, then `NULL`.
-postprocess <- function(num, denom = 1, normalize = TRUE, squared = TRUE, 
-                        sort = TRUE, top_m = Inf, zero = TRUE, eps = 1e-8) {
-  out <- .zap_small(num, eps = eps)
-  if (normalize) {
-    if (length(denom) == 1L || length(num) == length(denom)) {
-      out <- out / denom
-    } else if (length(denom) == ncol(num)) {
-      out <- sweep(out, MARGIN = 2L, STATS = denom, FUN = "/")
-    } else {
-      stop("Normalization error")
-    }
-  }
-  if (!squared) {
-    out <- sqrt(out)
-  }
-  if (sort) {
-    if (is.matrix(out)) {
-      out <- out[order(-rowSums(out)), , drop = FALSE]
-    } else {
-      out <- sort(out, decreasing = TRUE)
-    }
-  }
-  if (!zero) {
-    if (is.matrix(out)) {
-      out <- out[rowSums(out) > 0, , drop = FALSE]
-    } else {
-      out <- out[out > 0]
-    }
-  }
-  out <- utils::head(out, n = top_m)
-  if (length(out) == 0L) NULL else out
-}
-
 #' Zap Small Values
 #' 
 #' Internal function. Sets very small or non-finite (NA, ...) values in vector, 
@@ -323,7 +279,7 @@ mat2df <- function(mat, id = "Overall") {
   poor_man_stack(out, to_stack = pred_names)
 }
 
-#' Initializor of Numerator Statistics
+#' Initializer of Numerator Statistics
 #' 
 #' Internal helper function that returns a matrix of all zeros with the right
 #' column and row names for statistics of any "way". If some features have been dropped
@@ -384,34 +340,6 @@ qcut <- function(x, m) {
   cut(x, breaks = unique(g), include.lowest = TRUE)
 }
 
-#' Plots Matrix of Statistics
-#' 
-#' @noRd
-#' @keywords internal
-#'
-#' @param x A matrix of statistics with rownames.
-#' @param fill Color of bar (only for univariate statistics).
-#' @param ... Arguments passed to `geom_bar()`.
-#' @returns An object of class "ggplot", or `NULL`.
-plot_stat <- function(x, fill = "#2b51a1", ...) {
-  if (is.null(x)) {
-    return(NULL)
-  }
-  p <- ggplot2::ggplot(mat2df(x), ggplot2::aes(x = value_, y = variable_)) +
-    ggplot2::ylab(ggplot2::element_blank()) +
-    ggplot2::xlab("Value")
-  
-  if (ncol(x) == 1L) {
-    p + ggplot2::geom_bar(fill = fill, stat = "identity", ...)
-  } else {
-    p + 
-      ggplot2::geom_bar(
-        ggplot2::aes(fill = varying_), stat = "identity", position = "dodge", ...
-      ) + 
-      ggplot2::labs(fill = "Response")
-  }
-}
-
 #' Utility "ggplot" Function
 #' 
 #' @noRd
@@ -447,4 +375,3 @@ mlr3_pred_fun <- function(object, X) {
   }
   function(m, X) m$predict_newdata(X)$response
 }
-

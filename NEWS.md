@@ -1,8 +1,13 @@
 # hstats 0.4.0
 
-## Visible changes
+## Major changes
 
+- `h2()`, `h2_overall()`, `h2_pairwise()`, `h2_threeway()`, and `pd_importance()` now return an object of type "hstats_matrix" with a `print()` and `plot()` method. The values can be extracted via `$M`. The argument `top_m` has been moved to `plot()`.
 - plot.perm_importance() now represents importance values of *multi-output* models as stacked bars. Set `multi_output = "facets"` for the old behaviour.
+
+## Minor changes
+
+- The $H^2$ statistic stored in a "hstats" object is now a matrix with one row, not a vector anymore.
 
 # hstats 0.3.0
 

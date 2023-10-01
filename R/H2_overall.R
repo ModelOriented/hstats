@@ -1,7 +1,7 @@
 #' Overall Interaction Strength
 #' 
 #' Friedman and Popescu's statistic of overall interaction strength per 
-#' feature, see Details. Set `plot = TRUE` to plot the results as barplot.
+#' feature, see Details. Use `plot()` to get a barplot.
 #' 
 #' @details
 #' The logic of Friedman and Popescu (2008) is as follows: 
@@ -50,8 +50,12 @@
 #' @param fill Color of bar (only for univariate statistics).
 #' @param ... Further parameters passed to `geom_bar()`.
 #' @returns 
-#'   A matrix of statistics (one row per variable, one column per prediction dimension),
-#'   or a "ggplot" object (if `plot = TRUE`).
+#'   An object of class "hstats_matrix" containing these elements:
+#'   - `M`: Matrix of statistics (one column per prediction dimension), or `NULL`.
+#'   - `normalize`: Same as input `normalize`.
+#'   - `squared`: Same as input `squared`.
+#'   - `statistic`: Name of the statistic.
+#'   - `description`: Description of the statistic.
 #' @inherit hstats references
 #' @seealso [hstats()], [h2()], [h2_pairwise()], [h2_threeway()]
 #' @export
@@ -78,21 +82,17 @@ h2_overall.default <- function(object, ...) {
 
 #' @describeIn h2_overall Overall interaction strength from "hstats" object.
 #' @export
-h2_overall.hstats <- function(object, normalize = TRUE, squared = TRUE, sort = TRUE, 
-                              top_m = 15L, zero = TRUE, eps = 1e-8, 
-                              plot = FALSE, fill = "#2b51a1", ...) {
-  s <- object$h2_overall
-  out <- postprocess(
-    num = s$num,
-    denom = s$denom,
+h2_overall.hstats <- function(object, normalize = TRUE, squared = TRUE, 
+                              sort = TRUE, zero = TRUE, eps = 1e-8, ...) {
+  get_hstat_matrix(
+    statistic = "h2_overall",
+    object = object,
     normalize = normalize, 
     squared = squared, 
-    sort = sort, 
-    top_m = top_m,
+    sort = sort,
     zero = zero,
     eps = eps
   )
-  if (plot) plot_stat(out, fill = fill, ...) else out
 }
 
 # Helper function

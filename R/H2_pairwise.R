@@ -1,7 +1,7 @@
 #' Pairwise Interaction Strength
 #' 
 #' Friedman and Popescu's statistic of pairwise interaction strength, see Details. 
-#' Set `plot = TRUE` to plot the results as barplot.
+#' Use `plot()` to get a barplot.
 #' 
 #' @details
 #' Following Friedman and Popescu (2008), if there are no interaction effects between 
@@ -46,10 +46,7 @@
 #' rather for those features with *strongest overall interactions*.
 #' 
 #' @inheritParams h2_overall
-#' @returns 
-#'   A matrix of statistics (one row per variable, one column per prediction dimension),
-#'   or a "ggplot" object (if `plot = TRUE`). If no pairwise
-#'   statistics have been calculated, the function returns `NULL`.
+#' @inherit h2_overall return
 #' @inherit hstats references
 #' @export
 #' @seealso [hstats()], [h2()], [h2_overall()], [h2_threeway()]
@@ -64,13 +61,15 @@
 #' h2_pairwise(s, zero = FALSE)  # Drop 0
 #' 
 #' # Absolute measure as alternative
-#' h2_pairwise(s, normalize = FALSE, squared = FALSE)
+#' abs_h <- h2_pairwise(s, normalize = FALSE, squared = FALSE, zero = FALSE)
+#' abs_h
+#' abs_h$M
 #' 
 #' # MODEL 2: Multi-response linear regression
 #' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
 #' s <- hstats(fit, X = iris[3:5], verbose = FALSE)
-#' h2_pairwise(s, plot = TRUE)
-#' h2_pairwise(s, zero = FALSE, plot = TRUE)
+#' h2_pairwise(s)
+#' h2_pairwise(s, zero = FALSE)
 h2_pairwise <- function(object, ...) {
   UseMethod("h2_pairwise")
 }
@@ -83,24 +82,17 @@ h2_pairwise.default <- function(object, ...) {
 
 #' @describeIn h2_pairwise Pairwise interaction strength from "hstats" object.
 #' @export
-h2_pairwise.hstats <- function(object, normalize = TRUE, squared = TRUE, sort = TRUE, 
-                               top_m = 15L, zero = TRUE, eps = 1e-8, 
-                               plot = FALSE, fill = "#2b51a1", ...) {
-  s <- object$h2_pairwise
-  if (is.null(s)) {
-    return(NULL)
-  }
-  out <- postprocess(
-    num = s$num,
-    denom = s$denom,
+h2_pairwise.hstats <- function(object, normalize = TRUE, squared = TRUE,
+                               sort = TRUE, zero = TRUE, eps = 1e-8, ...) {
+  get_hstat_matrix(
+    statistic = "h2_pairwise",
+    object = object,
     normalize = normalize, 
     squared = squared, 
-    sort = sort, 
-    top_m = top_m,
+    sort = sort,
     zero = zero,
     eps = eps
   )
-  if (plot) plot_stat(out, fill = fill, ...) else out
 }
 
 #' Raw H2 Pairwise
