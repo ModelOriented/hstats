@@ -76,12 +76,14 @@ pd_importance.hstats <- function(object, normalize = TRUE, squared = TRUE,
 #' @noRd
 #' @keywords internal
 #' @param x A list containing the elements "v", "K", "pred_names", 
-#'   "f", "F_not_j", "mean_f2", and "w".
+#'   "f", "F_not_j", "mean_f2", "eps", and "w".
 #' @returns A list with the numerator and denominator statistics.
 pd_importance_raw <- function(x) {
   num <- init_numerator(x, way = 1L)
   for (z in x[["v"]]) {
     num[z, ] <- with(x, wcolMeans((f - F_not_j[[z]])^2, w = w))
   }
+  num <- zap_small(num, eps = x[["eps"]])  # Numeric precision
+  
   list(num = num, denom = x[["mean_f2"]])
 }

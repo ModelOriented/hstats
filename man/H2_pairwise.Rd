@@ -15,11 +15,8 @@ h2_pairwise(object, ...)
   normalize = TRUE,
   squared = TRUE,
   sort = TRUE,
-  top_m = 15L,
   zero = TRUE,
   eps = 1e-08,
-  plot = FALSE,
-  fill = "#2b51a1",
   ...
 )
 }
@@ -35,24 +32,21 @@ h2_pairwise(object, ...)
 \item{sort}{Should results be sorted? Default is \code{TRUE}.
 (Multioutput is sorted by row means.)}
 
-\item{top_m}{How many rows should be shown? (\code{Inf} to show all.)}
-
 \item{zero}{Should rows with all 0 be shown? Default is \code{TRUE}.}
-
-\item{eps}{Threshold below which numerator values are set to 0.}
-
-\item{plot}{Should results be plotted as barplot? Default is \code{FALSE}.}
-
-\item{fill}{Color of bar (only for univariate statistics).}
 }
 \value{
-A matrix of statistics (one row per variable, one column per prediction dimension),
-or a "ggplot" object (if \code{plot = TRUE}). If no pairwise
-statistics have been calculated, the function returns \code{NULL}.
+An object of class "hstats_matrix" containing these elements:
+\itemize{
+\item \code{M}: Matrix of statistics (one column per prediction dimension), or \code{NULL}.
+\item \code{normalize}: Same as input \code{normalize}.
+\item \code{squared}: Same as input \code{squared}.
+\item \code{statistic}: Name of the statistic.
+\item \code{description}: Description of the statistic.
+}
 }
 \description{
 Friedman and Popescu's statistic of pairwise interaction strength, see Details.
-Set \code{plot = TRUE} to plot the results as barplot.
+Use \code{plot()} to get a barplot.
 }
 \details{
 Following Friedman and Popescu (2008), if there are no interaction effects between
@@ -115,13 +109,15 @@ h2_pairwise(s)
 h2_pairwise(s, zero = FALSE)  # Drop 0
 
 # Absolute measure as alternative
-h2_pairwise(s, normalize = FALSE, squared = FALSE)
+abs_h <- h2_pairwise(s, normalize = FALSE, squared = FALSE, zero = FALSE)
+abs_h
+abs_h$M
 
 # MODEL 2: Multi-response linear regression
 fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
 s <- hstats(fit, X = iris[3:5], verbose = FALSE)
-h2_pairwise(s, plot = TRUE)
-h2_pairwise(s, zero = FALSE, plot = TRUE)
+h2_pairwise(s)
+h2_pairwise(s, zero = FALSE)
 }
 \references{
 Friedman, Jerome H., and Bogdan E. Popescu. \emph{"Predictive Learning via Rule Ensembles."}

@@ -10,8 +10,8 @@
 #' @param denom Denominator of statistic (a matrix, number, or vector compatible with `num`).
 #' @returns Matrix or vector of statistics. If length of output is 0, then `NULL`.
 postprocess <- function(num, denom = 1, normalize = TRUE, squared = TRUE, 
-                        sort = TRUE, zero = TRUE, eps = 1e-8) {
-  out <- .zap_small(num, eps = eps)
+                        sort = TRUE, zero = TRUE) {
+  out <- num
   if (normalize) {
     if (length(denom) == 1L || length(num) == length(denom)) {
       out <- out / denom
@@ -52,7 +52,7 @@ postprocess <- function(num, denom = 1, normalize = TRUE, squared = TRUE,
 #' @inheritParams h2_overall
 #' @returns A character string.
 get_hstat_matrix <- function(statistic, object, normalize = TRUE, squared = TRUE, 
-                             sort = TRUE, zero = TRUE, eps = 1e-8, ...) {
+                             sort = TRUE, zero = TRUE, ...) {
   s <- object[[statistic]]
   if (!is.null(s)) {
     M <- postprocess(
@@ -61,8 +61,7 @@ get_hstat_matrix <- function(statistic, object, normalize = TRUE, squared = TRUE
       normalize = normalize, 
       squared = squared, 
       sort = sort,
-      zero = zero,
-      eps = eps
+      zero = zero
     )
   } else {
     M <- NULL

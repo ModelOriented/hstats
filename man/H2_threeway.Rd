@@ -15,11 +15,7 @@ h2_threeway(object, ...)
   normalize = TRUE,
   squared = TRUE,
   sort = TRUE,
-  top_m = 15L,
   zero = TRUE,
-  eps = 1e-08,
-  plot = FALSE,
-  fill = "#2b51a1",
   ...
 )
 }
@@ -35,24 +31,21 @@ h2_threeway(object, ...)
 \item{sort}{Should results be sorted? Default is \code{TRUE}.
 (Multioutput is sorted by row means.)}
 
-\item{top_m}{How many rows should be shown? (\code{Inf} to show all.)}
-
 \item{zero}{Should rows with all 0 be shown? Default is \code{TRUE}.}
-
-\item{eps}{Threshold below which numerator values are set to 0.}
-
-\item{plot}{Should results be plotted as barplot? Default is \code{FALSE}.}
-
-\item{fill}{Color of bar (only for univariate statistics).}
 }
 \value{
-A matrix of statistics (one row per variable, one column per prediction dimension),
-or a "ggplot" object (if \code{plot = TRUE}). If no three-way
-statistics have been calculated, the function returns \code{NULL}.
+An object of class "hstats_matrix" containing these elements:
+\itemize{
+\item \code{M}: Matrix of statistics (one column per prediction dimension), or \code{NULL}.
+\item \code{normalize}: Same as input \code{normalize}.
+\item \code{squared}: Same as input \code{squared}.
+\item \code{statistic}: Name of the statistic.
+\item \code{description}: Description of the statistic.
+}
 }
 \description{
 Friedman and Popescu's statistic of three-way interaction strength, see Details.
-Set \code{plot = TRUE} to plot the results as barplot.
+Use \code{plot()} to get a barplot.
 }
 \details{
 Friedman and Popescu (2008) describe a test statistic to measure three-way
@@ -103,9 +96,7 @@ h2_threeway(s)
 fit <- lm(cbind(up = uptake, up2 = 2 * uptake) ~ Type * Treatment * conc, data = CO2)
 s <- hstats(fit, X = CO2[2:4], verbose = FALSE)
 h2_threeway(s)
-
-# Unnormalized H
-h2_threeway(s, normalize = FALSE, squared = FALSE)
+h2_threeway(s, normalize = FALSE, squared = FALSE)  # Unnormalized H
 }
 \references{
 Friedman, Jerome H., and Bogdan E. Popescu. \emph{"Predictive Learning via Rule Ensembles."}

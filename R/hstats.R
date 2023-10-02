@@ -41,6 +41,7 @@
 #' @param threeway_m Like `pairwise_m`, but controls the feature count for 
 #'   three-way interactions. Cannot be larger than `pairwise_m`. 
 #'   The default is `min(pairwise_m, 5)`. Set to 0 to avoid three-way calculations.
+#' @param eps Threshold below which numerator values are set to 0. Default is 1e-10.
 #' @param verbose Should a progress bar be shown? The default is `TRUE`.
 #' @param ... Additional arguments passed to `pred_fun(object, X, ...)`, 
 #'   for instance `type = "response"` in a [glm()] model.
@@ -61,6 +62,7 @@
 #'   - `pairwise_m`: Like input `pairwise_m`, but capped at `length(v)`.
 #'   - `threeway_m`: Like input `threeway_m`, but capped at the smaller of 
 #'     `length(v)` and `pairwise_m`.
+#'   - `eps`: Like input `eps`.
 #'   - `pd_importance`: List with numerator and denominator of \eqn{\textrm{PDI}_j}.
 #'   - `h2`: List with numerator and denominator of \eqn{H^2}.
 #'   - `h2_overall`: List with numerator and denominator of \eqn{H^2_j}. 
@@ -126,7 +128,7 @@ hstats.default <- function(object, X, v = colnames(X),
                            pred_fun = stats::predict, n_max = 300L, 
                            w = NULL, pairwise_m = 5L, 
                            threeway_m = min(pairwise_m, 5L),
-                           verbose = TRUE, ...) {
+                           eps = 1e-10, verbose = TRUE, ...) {
   basic_check(X = X, v = v, pred_fun = pred_fun, w = w)
   p <- length(v)
   stopifnot(p >= 2L)
@@ -198,14 +200,15 @@ hstats.default <- function(object, X, v = colnames(X),
     K = ncol(f),
     pred_names = colnames(f),
     pairwise_m = pairwise_m,
-    threeway_m = threeway_m
+    threeway_m = threeway_m,
+    eps = eps
   )
   
   # 0-way and 1-way stats
   out[["pd_importance"]] <- pd_importance_raw(out)
   out[["h2"]] <- h2_raw(out)
   out[["h2_overall"]] <- h2_overall_raw(out)
-  h2_ov <- .zap_small(out$h2_overall$num, eps = 1e-8)  # Does eps need to be passed?
+  h2_ov <- out$h2_overall$num
   
   if (pairwise_m >= 2L) {
     out[["v_pairwise"]] <- v2 <- get_v(h2_ov, m = pairwise_m)
@@ -235,7 +238,7 @@ hstats.ranger <- function(object, X, v = colnames(X),
                           pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
                           n_max = 300L, w = NULL, pairwise_m = 5L, 
                           threeway_m = min(pairwise_m, 5L),
-                          verbose = TRUE, ...) {
+                          eps = 1e-10, verbose = TRUE, ...) {
   hstats.default(
     object = object,
     X = X,
@@ -245,6 +248,7 @@ hstats.ranger <- function(object, X, v = colnames(X),
     w = w,
     pairwise_m = pairwise_m,
     threeway_m = threeway_m,
+    eps = eps,
     verbose = verbose,
     ...
   )
@@ -256,7 +260,7 @@ hstats.Learner <- function(object, X, v = colnames(X),
                            pred_fun = NULL,
                            n_max = 300L, w = NULL, pairwise_m = 5L,
                            threeway_m = min(pairwise_m, 5L), 
-                           verbose = TRUE, ...) {
+                           eps = 1e-10, verbose = TRUE, ...) {
   if (is.null(pred_fun)) {
     pred_fun <- mlr3_pred_fun(object, X = X)
   }
@@ -269,6 +273,7 @@ hstats.Learner <- function(object, X, v = colnames(X),
     w = w,
     pairwise_m = pairwise_m,
     threeway_m = threeway_m,
+    eps = eps,
     verbose = verbose,
     ...
   )
@@ -282,7 +287,7 @@ hstats.explainer <- function(object, X = object[["data"]],
                              n_max = 300L, w = object[["weights"]], 
                              pairwise_m = 5L, 
                              threeway_m = min(pairwise_m, 5L),
-                             verbose = TRUE, ...) {
+                             eps = 1e-10, verbose = TRUE, ...) {
   hstats.default(
     object = object[["model"]],
     X = X,
@@ -292,6 +297,7 @@ hstats.explainer <- function(object, X = object[["data"]],
     w = w,
     pairwise_m = pairwise_m,
     threeway_m = threeway_m,
+    eps = eps,
     verbose = verbose,
     ...
   )

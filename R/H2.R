@@ -65,15 +65,14 @@ h2.default <- function(object, ...) {
 
 #' @describeIn h2 Total interaction strength from "interact" object.
 #' @export
-h2.hstats <- function(object, normalize = TRUE, squared = TRUE, eps = 1e-8, ...) {
+h2.hstats <- function(object, normalize = TRUE, squared = TRUE, ...) {
   get_hstat_matrix(
     statistic = "h2",
     object = object,
     normalize = normalize, 
     squared = squared, 
     sort = FALSE,
-    zero = TRUE,
-    eps = eps
+    zero = TRUE
   )
 }
 
@@ -84,12 +83,11 @@ h2.hstats <- function(object, normalize = TRUE, squared = TRUE, eps = 1e-8, ...)
 #' 
 #' @noRd
 #' @keywords internal
-#' @param x A list containing the elements "f", "F_j", "w", and "mean_f2".
+#' @param x A list containing the elements "f", "F_j", "w", "eps", and "mean_f2".
 #' @returns A list with the numerator and denominator statistics.
 h2_raw <- function(x) {
-  list(
-    num = with(x, rbind(wcolMeans((f - Reduce("+", F_j))^2, w = w))), 
-    denom = x[["mean_f2"]]
-  )
+  num <- with(x, rbind(wcolMeans((f - Reduce("+", F_j))^2, w = w)))
+  num <- zap_small(num, eps = x[["eps"]])  # Numeric precision
+  list(num = num, denom = x[["mean_f2"]])
 }
 

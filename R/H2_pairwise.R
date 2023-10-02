@@ -103,7 +103,7 @@ h2_pairwise.hstats <- function(object, normalize = TRUE, squared = TRUE,
 #' @noRd
 #' @keywords internal
 #' @param x A list containing the elements "combs2", "v_pairwise_0", "K", "pred_names", 
-#'   "F_jk", "F_j", and "w".
+#'   "F_jk", "F_j", "eps", and "w".
 #' @returns A list with the numerator and denominator statistics.
 h2_pairwise_raw <- function(x) {
   num <- init_numerator(x, way = 2L)
@@ -114,10 +114,13 @@ h2_pairwise_raw <- function(x) {
   if (!is.null(combs)) {
     for (nm in names(combs)) {
       z <- combs[[nm]]
-      num[nm, ] <- with(x, wcolMeans((F_jk[[nm]] - F_j[[z[1L]]] - F_j[[z[2L]]])^2, w = w))
+      num[nm, ] <- with(
+        x, wcolMeans((F_jk[[nm]] - F_j[[z[1L]]] - F_j[[z[2L]]])^2, w = w)
+      )
       denom[nm, ] <- with(x, wcolMeans(F_jk[[nm]]^2, w = w))
     }    
   }
+  num <- zap_small(num, eps = x[["eps"]])  # Numeric precision
   
   list(num = num, denom = denom)
 }

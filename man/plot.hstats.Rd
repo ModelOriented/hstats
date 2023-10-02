@@ -38,8 +38,6 @@ use \code{1:3}.}
 
 \item{zero}{Should rows with all 0 be shown? Default is \code{TRUE}.}
 
-\item{eps}{Threshold below which numerator values are set to 0.}
-
 \item{fill}{Color of bar (only for univariate statistics).}
 
 \item{facet_scales}{Value passed to \code{ggplot2::facet_wrap(scales = ...)}.}

@@ -1,5 +1,7 @@
 # hstats 0.4.0
 
+This release mainly comes with a cleaner output API. The numeric results are unchanged though. 
+
 ## Major changes
 
 - `h2()`, `h2_overall()`, `h2_pairwise()`, `h2_threeway()`, and `pd_importance()` now return an object of type "hstats_matrix" with a `print()` and `plot()` method. The values can be extracted via `$M`. The argument `top_m` has been moved to `plot()`.
@@ -8,6 +10,7 @@
 ## Minor changes
 
 - `H-squared`: The $H^2$ statistic stored in a "hstats" object is now a matrix with one row, not a vector anymore.
+- `eps`: The clipping threshold of squared numerator statistics has been reduced from 1e-8 to 1e-10. It is now handled in `hstats()` instead of the statistic functions.
 - `pd_importance()`: The "hstats" object now contains precalculated PD-based importance values as slot "pd_importance".
 - `plot.hstats()` now clearly states the type of statistics shown.
 - Revised `print()` methods.

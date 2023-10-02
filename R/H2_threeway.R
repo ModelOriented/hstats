@@ -64,15 +64,14 @@ h2_threeway.default <- function(object, ...) {
 #' @describeIn h2_threeway Pairwise interaction strength from "hstats" object.
 #' @export
 h2_threeway.hstats <- function(object, normalize = TRUE, squared = TRUE, 
-                               sort = TRUE, zero = TRUE, eps = 1e-8, ...) {
+                               sort = TRUE, zero = TRUE, ...) {
   get_hstat_matrix(
     statistic = "h2_threeway",
     object = object,
     normalize = normalize, 
     squared = squared, 
     sort = sort,
-    zero = zero,
-    eps = eps
+    zero = zero
   )
 }
 
@@ -84,7 +83,7 @@ h2_threeway.hstats <- function(object, normalize = TRUE, squared = TRUE,
 #' @noRd
 #' @keywords internal
 #' @param x A list containing the elements "combs3", "v_threeway_0", "K", "pred_names", 
-#'   "F_jkl", "F_jk", "F_j", and "w".
+#'   "F_jkl", "F_jk", "F_j", "eps", and "w".
 #' @returns A list with the numerator and denominator statistics.
 h2_threeway_raw <- function(x) {
   num <- init_numerator(x, way = 3L)
@@ -104,6 +103,7 @@ h2_threeway_raw <- function(x) {
       denom[nm, ] <- with(x, wcolMeans(F_jkl[[nm]]^2, w = w))
     }    
   }
+  num <- zap_small(num, eps = x[["eps"]])  # Numeric precision
 
   list(num = num, denom = denom)
 }

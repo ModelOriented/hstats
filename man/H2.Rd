@@ -10,7 +10,7 @@ h2(object, ...)
 
 \method{h2}{default}(object, ...)
 
-\method{h2}{hstats}(object, normalize = TRUE, squared = TRUE, eps = 1e-08, ...)
+\method{h2}{hstats}(object, normalize = TRUE, squared = TRUE, ...)
 }
 \arguments{
 \item{object}{Object of class "hstats".}
@@ -20,8 +20,6 @@ h2(object, ...)
 \item{normalize}{Should statistics be normalized? Default is \code{TRUE}.}
 
 \item{squared}{Should \emph{squared} statistics be returned? Default is \code{TRUE}.}
-
-\item{eps}{Threshold below which numerator values are set to 0.}
 }
 \value{
 Vector of total interaction strength (one value per prediction dimension).
