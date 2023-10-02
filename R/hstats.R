@@ -424,7 +424,7 @@ plot.hstats <- function(x, which = 1:2, normalize = TRUE, squared = TRUE,
       ggplot2::geom_bar(
         ggplot2::aes(fill = varying_), stat = "identity", position = "dodge", ...
       ) + 
-      ggplot2::labs(fill = "Dim")
+      ggplot2::theme(legend.title = ggplot2::element_blank())
   }
 }
 

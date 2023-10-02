@@ -182,8 +182,7 @@ plot.hstats_matrix <- function(x, top_m = 15L,
   } else {
     p <- p + ggplot2::geom_bar(
       ggplot2::aes(fill = varying_), stat = "identity", position = "dodge", ...
-    ) + 
-      ggplot2::labs(fill = "Response")
+    ) + ggplot2::theme(legend.title = ggplot2::element_blank())
   }
   if (err_type != "No") {
     if (!grouped) {
@@ -198,7 +197,7 @@ plot.hstats_matrix <- function(x, top_m = 15L,
         width = 0, 
         color = "black",
         position = ggplot2::position_dodge(0.9)
-      ) + ggplot2::theme(legend.title = ggplot2::element_blank())
+      )
     }
   }
   if (K > 1L && multi_output == "facets") {
