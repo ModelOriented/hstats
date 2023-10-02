@@ -44,15 +44,15 @@ postprocess <- function(num, denom = 1, normalize = TRUE, squared = TRUE,
 
 #' Basic Statistic Function
 #' 
-#' Internal helper function that provides an object of class "hstat_matrix".
+#' Internal helper function that provides an object of class "hstats_matrix".
 #' 
 #' @noRd
 #' @keywords internal
 #' @param statistic Name of statistic as stored in "hstats" object.
 #' @inheritParams h2_overall
 #' @returns A character string.
-get_hstat_matrix <- function(statistic, object, normalize = TRUE, squared = TRUE, 
-                             sort = TRUE, zero = TRUE, ...) {
+get_hstats_matrix <- function(statistic, object, normalize = TRUE, squared = TRUE, 
+                              sort = TRUE, zero = TRUE, ...) {
   s <- object[[statistic]]
   if (!is.null(s)) {
     M <- postprocess(
@@ -69,9 +69,9 @@ get_hstat_matrix <- function(statistic, object, normalize = TRUE, squared = TRUE
   
   structure(
     list(
-      M = M, 
-      normalize = normalize, 
-      squared = squared, 
+      M = M,
+      SE = NULL,
+      mrep = NULL,
       statistic = statistic,
       description = get_description(statistic, normalize = normalize, squared = squared)
     ), 
@@ -89,7 +89,7 @@ get_hstat_matrix <- function(statistic, object, normalize = TRUE, squared = TRUE
 #' @param normalize Flag.
 #' @param squared Flag.
 #' @returns A character string.
-get_description <- function(statistic, normalize = TRUE, squared = TRUE) {
+get_description <- function(statistic, normalize = TRUE, squared = FALSE) {
   stat_names <- c(
     h2 = "H",
     h2_overall = "Overall H", 
@@ -99,22 +99,7 @@ get_description <- function(statistic, normalize = TRUE, squared = TRUE) {
   )
   paste0(
     stat_names[statistic], 
-    get_description_details(normalized = normalized, squared = squared)
-  )
-}
-
-#' Description Text Details
-#' 
-#' Internal helper function that provides the details of description text.
-#' 
-#' @noRd
-#' @keywords internal
-#' @param normalize Flag.
-#' @param squared Flag.
-#' @returns A character string.
-get_description_details <- function(normalize = TRUE, squared = TRUE) {
-  paste0(
-    if (squared) "-squared" else "", 
+    if (squared) "^2" else "", 
     if (normalize) " (normalized)" else " (unnormalized)"
   )
 }
@@ -145,30 +130,82 @@ print.hstats_matrix <- function(x, top_m = Inf, ...) {
 #'
 #' Plot method for objects of class "hstats_matrix".
 #'
+#' @importFrom ggplot2 .data
 #' @param x An object of class "hstats_matrix".
-#' @inheritParams plot.hstats
-#' @param ... Arguments passed to [ggplot2::geom_bar].
+#' @param top_m How many rows should be plotted? (`Inf` for all.)
+#' @param multi_output How should multi-output models be represented? 
+#'   Either as "grouped" barplot (the default) or via "facets".
+#' @param fill Color of bars.
+#' @param facet_scales Value passed as `scales` argument to `[ggplot2::facet_wrap()]`.
+#' @param ncol Passed to `[ggplot2::facet_wrap()]`.
+#' @param rotate_x Should x axis labels be rotated by 45 degrees?
+#' @param err_type The error type to show, by default "SE" (standard errors). Set to
+#'   "SD" for standard deviations (SE * sqrt(m_rep)), or "No" for no bars. 
+#'   Currently, supported only for [perm_importance()].
+#' @param ... Passed to [ggplot2::geom_bar()].
 #' @export
 #' @returns An object of class "ggplot".
-#' @seealso See [perm_importance()] for examples.
-plot.hstats_matrix <- function(x, top_m = 15L, fill = "#2b51a1", ...) {
+plot.hstats_matrix <- function(x, top_m = 15L,
+                               multi_output = c("grouped", "facets"),
+                               fill = "#2b51a1", facet_scales = "free", 
+                               ncol = 2L, rotate_x = FALSE,
+                               err_type = c("SE", "SD", "No"), ...) {
+  err_type <- match.arg(err_type)
+  multi_output <- match.arg(multi_output)
+  
   M <- x[["M"]]
   if (is.null(M)) {
     message("Nothing to plot!")
     return(NULL)
   }
+  
   M <- utils::head(M, top_m)
-  p <- ggplot2::ggplot(mat2df(M), ggplot2::aes(x = value_, y = variable_)) +
+  err <- utils::head(x[["SE"]], top_m)
+  if (is.null(err)) {
+    err_type <- "No"
+  } else if (err_type == "SD") {
+    err <- err * sqrt(x[["m_rep"]])
+  }
+  df <- mat2df(M)
+  if (err_type != "No") {
+    df[["error_"]] <- mat2df(err)[["value_"]]
+  }
+  
+  p <- ggplot2::ggplot(df, ggplot2::aes(x = value_, y = variable_)) + 
     ggplot2::ylab(ggplot2::element_blank()) +
     ggplot2::xlab(x[["description"]])
   
-  if (ncol(M) == 1L) {
-    p + ggplot2::geom_bar(fill = fill, stat = "identity", ...)
+  K <- ncol(M)
+  grouped <- multi_output == "grouped" && K > 1L
+  if (!grouped) {
+    p <- p + ggplot2::geom_bar(fill = fill, stat = "identity", ...)
   } else {
-    p + 
-      ggplot2::geom_bar(
-        ggplot2::aes(fill = varying_), stat = "identity", position = "dodge", ...
-      ) + 
+    p <- p + ggplot2::geom_bar(
+      ggplot2::aes(fill = varying_), stat = "identity", position = "dodge", ...
+    ) + 
       ggplot2::labs(fill = "Response")
   }
+  if (err_type != "No") {
+    if (!grouped) {
+      p <- p + ggplot2::geom_errorbar(
+        ggplot2::aes(xmin = value_ - error_, xmax = value_ + error_), 
+        width = 0, 
+        color = "black"
+      )
+    } else {
+      p <- p + ggplot2::geom_errorbar(
+        ggplot2::aes(xmin = value_ - error_, xmax = value_ + error_, group = varying_), 
+        width = 0, 
+        color = "black",
+        position = ggplot2::position_dodge(0.9)
+      ) + ggplot2::theme(legend.title = ggplot2::element_blank())
+    }
+  }
+  if (K > 1L && multi_output == "facets") {
+    p <- p + ggplot2::facet_wrap("varying_", ncol = ncol, scales = facet_scales)
+  }
+  if (rotate_x) {
+    p + rotate_x_labs()
+  }
+  p
 }

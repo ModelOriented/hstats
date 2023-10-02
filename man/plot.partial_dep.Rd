@@ -20,7 +20,7 @@
 
 \item{color}{Color of lines and points (in case there is no color/fill aesthetic).}
 
-\item{facet_scales}{Value passed to \code{ggplot2::facet_wrap(scales = ...)}.}
+\item{facet_scales}{Value passed as \code{scales} argument to \verb{[ggplot2::facet_wrap()]}.}
 
 \item{show_points}{Logical flag indicating whether to show points (default) or not.}
 

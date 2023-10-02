@@ -1,19 +1,20 @@
 # hstats 0.4.0
 
-This release mainly comes with a cleaner output API. The numeric results are unchanged though. 
+This release comes with a cleaner output API. The numeric results are unchanged. 
 
 ## Major changes
 
-- `h2()`, `h2_overall()`, `h2_pairwise()`, `h2_threeway()`, and `pd_importance()` now return an object of type "hstats_matrix" with a `print()` and `plot()` method. The values can be extracted via `$M`. The argument `top_m` has been moved to `plot()`.
-- plot.perm_importance() now represents importance values of *multi-output* models as stacked bars. Set `multi_output = "facets"` for the old behaviour.
+- `h2()`, `h2_overall()`, `h2_pairwise()`, `h2_threeway()`, `perm_importance()`, and `pd_importance()` now return an object of type "hstats_matrix" with a `print()` and `plot()` method. The values can be extracted via `$M`. 
+- Their argument `top_m` has been moved to `plot()`.
+- `perm_importance()`: The `perms` argument has been renamed to `m_rep`. Since the output is now of class "hstats_matrix", the resulting importance values are stored as `$M`.
+- All `print()`, `summary()`, and `plot()` methods have been revised.
 
 ## Minor changes
 
-- `H-squared`: The $H^2$ statistic stored in a "hstats" object is now a matrix with one row, not a vector anymore.
+- Plotting the result of `perm_importance()` on a multi-output model now produces a stacked barplot. Set `multi_output = "facets"` for the old behaviour.
+- `H-squared`: The $H^2$ statistic stored in a "hstats" object is now a matrix with one row (it was a vector).
 - `eps`: The clipping threshold of squared numerator statistics has been reduced from 1e-8 to 1e-10. It is now handled in `hstats()` instead of the statistic functions.
-- `pd_importance()`: The "hstats" object now contains precalculated PD-based importance values as slot "pd_importance".
-- `plot.hstats()` now clearly states the type of statistics shown.
-- Revised `print()` methods.
+- `pd_importance()`: The "hstats" object now contains pre-calculated PD-based importance values in `$pd_importance`.
 - `summary.hstats()` now returns an object of class "hstats_summary" instead of "summary_hstats".
 
 # hstats 0.3.0

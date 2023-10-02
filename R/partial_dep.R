@@ -284,11 +284,10 @@ print.partial_dep <- function(x, n = 3L, ...) {
 #' 
 #' @importFrom ggplot2 .data
 #' @param x An object of class "partial_dep".
-#' @param rotate_x Should x axis labels be rotated by 45 degrees?
 #' @param color Color of lines and points (in case there is no color/fill aesthetic).
-#' @param facet_scales Value passed to `ggplot2::facet_wrap(scales = ...)`.
 #' @param show_points Logical flag indicating whether to show points (default) or not.
 #' @param ... Arguments passed to geometries.
+#' @inheritParams plot.hstats_matrix
 #' @export
 #' @returns An object of class "ggplot".
 #' @seealso See [partial_dep()] for examples.

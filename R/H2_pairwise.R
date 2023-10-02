@@ -3,7 +3,6 @@
 #' Friedman and Popescu's statistic of pairwise interaction strength, see Details. 
 #' Use `plot()` to get a barplot.
 #' 
-#' @details
 #' Following Friedman and Popescu (2008), if there are no interaction effects between 
 #' features \eqn{x_j} and \eqn{x_k}, their two-dimensional (centered) partial dependence 
 #' function \eqn{F_{jk}} can be written as the sum of the (centered) univariate partial 
@@ -69,7 +68,7 @@
 #' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
 #' s <- hstats(fit, X = iris[3:5], verbose = FALSE)
 #' h2_pairwise(s)
-#' h2_pairwise(s, zero = FALSE)
+#' plot(h2_pairwise(s))
 h2_pairwise <- function(object, ...) {
   UseMethod("h2_pairwise")
 }
@@ -83,15 +82,14 @@ h2_pairwise.default <- function(object, ...) {
 #' @describeIn h2_pairwise Pairwise interaction strength from "hstats" object.
 #' @export
 h2_pairwise.hstats <- function(object, normalize = TRUE, squared = TRUE,
-                               sort = TRUE, zero = TRUE, eps = 1e-8, ...) {
-  get_hstat_matrix(
+                               sort = TRUE, zero = TRUE, ...) {
+  get_hstats_matrix(
     statistic = "h2_pairwise",
     object = object,
     normalize = normalize, 
     squared = squared, 
     sort = sort,
-    zero = zero,
-    eps = eps
+    zero = zero
   )
 }
 
@@ -120,7 +118,7 @@ h2_pairwise_raw <- function(x) {
       denom[nm, ] <- with(x, wcolMeans(F_jk[[nm]]^2, w = w))
     }    
   }
-  num <- zap_small(num, eps = x[["eps"]])  # Numeric precision
+  num <- .zap_small(num, eps = x[["eps"]])  # Numeric precision
   
   list(num = num, denom = denom)
 }

@@ -275,6 +275,9 @@ mat2df <- function(mat, id = "Overall") {
     pred_names <- if (K == 1L) "y" else paste0("y", seq_len(K))
     colnames(mat) <- pred_names
   }
+  if (is.null(nm)) {
+    nm <- seq_along(nrow(mat))
+  }
   out <- cbind.data.frame(id_ = id, variable_ = factor(nm, levels = rev(nm)), mat)
   poor_man_stack(out, to_stack = pred_names)
 }

@@ -12,7 +12,6 @@
   sort = TRUE,
   top_m = 15L,
   zero = TRUE,
-  eps = 1e-08,
   fill = "#2b51a1",
   facet_scales = "free",
   ncol = 2L,
@@ -32,17 +31,17 @@ use \code{1:3}.}
 \item{squared}{Should \emph{squared} statistics be returned? Default is \code{TRUE}.}
 
 \item{sort}{Should results be sorted? Default is \code{TRUE}.
-(Multioutput is sorted by row means.)}
+(Multi-output is sorted by row means.)}
 
-\item{top_m}{How many rows should be shown? (\code{Inf} to show all.)}
+\item{top_m}{How many rows should be plotted? (\code{Inf} for all.)}
 
 \item{zero}{Should rows with all 0 be shown? Default is \code{TRUE}.}
 
-\item{fill}{Color of bar (only for univariate statistics).}
+\item{fill}{Color of bars.}
 
-\item{facet_scales}{Value passed to \code{ggplot2::facet_wrap(scales = ...)}.}
+\item{facet_scales}{Value passed as \code{scales} argument to \verb{[ggplot2::facet_wrap()]}.}
 
-\item{ncol}{Passed to \code{ggplot2::facet_wrap()}.}
+\item{ncol}{Passed to \verb{[ggplot2::facet_wrap()]}.}
 
 \item{rotate_x}{Should x axis labels be rotated by 45 degrees?}
 

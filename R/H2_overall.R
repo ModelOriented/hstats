@@ -3,7 +3,6 @@
 #' Friedman and Popescu's statistic of overall interaction strength per 
 #' feature, see Details. Use `plot()` to get a barplot.
 #' 
-#' @details
 #' The logic of Friedman and Popescu (2008) is as follows: 
 #' If there are no interactions involving feature \eqn{x_j}, we can decompose the 
 #' (centered) prediction function \eqn{F} into the sum of the (centered) partial 
@@ -42,18 +41,18 @@
 #' @param normalize Should statistics be normalized? Default is `TRUE`.
 #' @param squared Should *squared* statistics be returned? Default is `TRUE`. 
 #' @param sort Should results be sorted? Default is `TRUE`.
-#'   (Multioutput is sorted by row means.)
-#' @param top_m How many rows should be shown? (`Inf` to show all.)
+#'   (Multi-output is sorted by row means.)
 #' @param zero Should rows with all 0 be shown? Default is `TRUE`.
-#' @param plot Should results be plotted as barplot? Default is `FALSE`.
-#' @param fill Color of bar (only for univariate statistics).
-#' @param ... Further parameters passed to `geom_bar()`.
+#' @param ... Currently unused.
 #' @returns 
 #'   An object of class "hstats_matrix" containing these elements:
 #'   - `M`: Matrix of statistics (one column per prediction dimension), or `NULL`.
-#'   - `normalize`: Same as input `normalize`.
-#'   - `squared`: Same as input `squared`.
-#'   - `statistic`: Name of the statistic.
+#'   - `SE`: Matrix with standard errors of `M`, or `NULL`. 
+#'     Multiply with `sqrt(m_rep)` to get *standard deviations* instead. 
+#'     Currently, supported only for [perm_importance()].
+#'   - `m_rep`: The number of repetitions behind standard errors `SE`, or `NULL`.
+#'     Currently, supported only for [perm_importance()].
+#'   - `statistic`: Name of the function that generated the statistic.
 #'   - `description`: Description of the statistic.
 #' @inherit hstats references
 #' @seealso [hstats()], [h2()], [h2_pairwise()], [h2_threeway()]
@@ -63,12 +62,12 @@
 #' fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
 #' s <- hstats(fit, X = iris[-1])
 #' h2_overall(s)
-#' h2_overall(s, plot = TRUE)
+#' plot(h2_overall(s))
 #' 
 #' # MODEL 2: Multi-response linear regression
 #' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
 #' s <- hstats(fit, X = iris[3:5], verbose = FALSE)
-#' h2_overall(s, plot = TRUE, zero = FALSE)
+#' plot(h2_overall(s, zero = FALSE))
 h2_overall <- function(object, ...) {
   UseMethod("h2_overall")
 }
@@ -83,7 +82,7 @@ h2_overall.default <- function(object, ...) {
 #' @export
 h2_overall.hstats <- function(object, normalize = TRUE, squared = TRUE, 
                               sort = TRUE, zero = TRUE, ...) {
-  get_hstat_matrix(
+  get_hstats_matrix(
     statistic = "h2_overall",
     object = object,
     normalize = normalize, 
@@ -110,7 +109,7 @@ h2_overall_raw <- function(x) {
   for (z in x[["v"]]) {
     num[z, ] <- with(x, wcolMeans((f - F_j[[z]] - F_not_j[[z]])^2, w = w))
   }
-  num <- zap_small(num, eps = x[["eps"]])  # Numeric precision
+  num <- .zap_small(num, eps = x[["eps"]])  # Numeric precision
   
   list(num = num, denom = x[["mean_f2"]])
 }

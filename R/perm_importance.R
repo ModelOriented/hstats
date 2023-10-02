@@ -5,29 +5,21 @@
 #' 
 #' The permutation importance of a feature is defined as the increase in the average
 #' loss when shuffling the corresponding feature values before calculating predictions.
-#' By default, the process is repeated `perms = 4` times, and the results are averaged.
+#' By default, the process is repeated `m_rep = 4` times, and the results are averaged.
 #' In most of the cases, importance values should be derived from an independent test
 #' data set.
 #' 
 #' @inheritSection average_loss Losses
 #' 
 #' @param v Vector of feature names, or named list of feature groups.
-#' @param perms Number of permutations (default 4).
+#' @param m_rep Number of permutations (default 4).
 #' @param agg_cols Should multivariate losses be summed up? Default is `FALSE`.
 #' @param normalize Should importance statistics be divided by average loss?
 #'   Default is `FALSE`. If `TRUE`, an importance of 1 means that the average loss
 #'   has doubled by shuffling that feature's column.
 #' @inheritParams hstats
 #' @inheritParams average_loss
-#' @returns
-#'   An object of class "perm_importance" containing these elements:
-#'   - `imp`: (p x d) matrix containing the sorted (average) importance values, i.e.,
-#'     a row per feature (group) and a column per loss dimension.
-#'   - `SE`: (p x d) matrix with corresponding standard errors of `imp`.
-#'      Multiply with `sqrt(perms)` to get standard deviations.
-#'   - `perf`: Average loss before shuffling.
-#'   - `v`: Same as input `v`.
-#'   - `perms`: Same as input `perms`.
+#' @inherit h2_overall return
 #' @references
 #'   Fisher A., Rudin C., Dominici F. (2018). All Models are Wrong but many are Useful:
 #'     Variable Importance for Black-Box, Proprietary, or Misspecified Prediction
@@ -38,22 +30,23 @@
 #' fit <- lm(Sepal.Length ~ ., data = iris)
 #' s <- perm_importance(fit, X = iris[-1], y = iris$Sepal.Length)
 #' s
-#' s$imp
+#' s$M
 #' s$SE  # Standard errors are available thanks to repeated shuffling
 #' plot(s)
-#' plot(s, err_type = "sd")  # Standard deviations instead of standard errors
+#' plot(s, err_type = "SD")  # Standard deviations instead of standard errors
 #' 
 #' # Groups of features can be passed as named list
 #' v <- list(petal = c("Petal.Length", "Petal.Width"), species = "Species")
 #' s <- perm_importance(fit, X = iris, y = iris$Sepal.Length, v = v)
 #' s
+#' plot(s)
 #' 
 #' # MODEL 2: Multi-response linear regression
 #' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width + Species, data = iris)
-#' s <- perm_importance(fit, X = iris[3:5], y = iris[1:2])
+#' s <- perm_importance(fit, X = iris[3:5], y = iris[1:2], normalize = TRUE)
 #' s
 #' plot(s)
-#' plot(s, multi_output = "facets")
+#' plot(s, multi_output = "facets", top_m = 2)
 perm_importance <- function(object, ...) {
   UseMethod("perm_importance")
 }
@@ -63,7 +56,7 @@ perm_importance <- function(object, ...) {
 perm_importance.default <- function(object, X, y, v = colnames(X),
                                     pred_fun = stats::predict,
                                     loss = "squared_error", 
-                                    perms = 4L, agg_cols = FALSE,
+                                    m_rep = 4L, agg_cols = FALSE,
                                     normalize = FALSE, n_max = 10000L,
                                     w = NULL, verbose = FALSE, ...) {
   basic_check(
@@ -74,7 +67,7 @@ perm_importance.default <- function(object, X, y, v = colnames(X),
   )
   stopifnot(
     NROW(y) == nrow(X),
-    perms >= 1L
+    m_rep >= 1L
   )
   
   # Reduce size of X, y (and w)
@@ -106,8 +99,8 @@ perm_importance.default <- function(object, X, y, v = colnames(X),
   perf <- wcolMeans(L, w = w)
 
   # Stack y and X m times
-  if (perms > 1L) {
-    ind <- rep(seq_len(n), times = perms)
+  if (m_rep > 1L) {
+    ind <- rep(seq_len(n), times = m_rep)
     X <- X[ind, , drop = FALSE]
     if (is.vector(y) || is.factor(y)) {
       y <- y[ind]
@@ -117,10 +110,10 @@ perm_importance.default <- function(object, X, y, v = colnames(X),
   }
   
   shuffle_perf <- function(z, XX) {
-    ind <- c(replicate(perms, sample(seq_len(n))))
+    ind <- c(replicate(m_rep, sample(seq_len(n))))
     XX[, z] <- XX[ind, z]
     L <- as.matrix(loss(y, pred_fun(object, XX, ...)))
-    t(wrowmean(L, ngroups = perms, w = w))
+    t(wrowmean(L, ngroups = m_rep, w = w))
   }
   
   # Step 0: Performance after shuffling (expensive)
@@ -128,7 +121,7 @@ perm_importance.default <- function(object, X, y, v = colnames(X),
     pb <- utils::txtProgressBar(max = p, style = 3)
   }
   S <- array(
-    dim = c(p, length(perf), perms), dimnames = list(names(v), names(perf), NULL)
+    dim = c(p, length(perf), m_rep), dimnames = list(names(v), names(perf), NULL)
   )
   for (j in seq_len(p)) {
     z <- v[[j]]
@@ -151,7 +144,7 @@ perm_importance.default <- function(object, X, y, v = colnames(X),
   }
   
   # Step 2: Collapse over permutations
-  SE <- apply(S, MARGIN = 1:2, FUN = stats::sd) / sqrt(perms)
+  SE <- apply(S, MARGIN = 1:2, FUN = stats::sd) / sqrt(m_rep)
   S <- apply(S, MARGIN = 1:2, FUN = mean)
   
   # Step 3: Subtract perf (Steps 2 and 3 could be swapped)
@@ -169,8 +162,14 @@ perm_importance.default <- function(object, X, y, v = colnames(X),
   SE <- SE[ind, , drop = FALSE]
   
   structure(
-    list(imp = S, SE = SE, perf = perf, v = v, perms = perms), 
-    class = "perm_importance"
+    list(
+      M = S, 
+      SE = SE, 
+      m_rep = m_rep,
+      statistic = "perm_importance",
+      description = paste0("Permutation importance", if (normalize) " (relative)")
+    ), 
+    class = "hstats_matrix"
   )
 }
 
@@ -178,7 +177,7 @@ perm_importance.default <- function(object, X, y, v = colnames(X),
 #' @export
 perm_importance.ranger <- function(object, X, y, v = colnames(X),
                                    pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
-                                   loss = "squared_error", perms = 4L, 
+                                   loss = "squared_error", m_rep = 4L, 
                                    agg_cols = FALSE, 
                                    normalize = FALSE, n_max = 10000L, 
                                    w = NULL, verbose = FALSE, ...) {
@@ -189,7 +188,7 @@ perm_importance.ranger <- function(object, X, y, v = colnames(X),
     v = v,
     pred_fun = pred_fun,
     loss = loss,
-    perms = perms,
+    m_rep = m_rep,
     agg_cols = agg_cols,
     normalize = normalize,
     n_max = n_max,
@@ -203,7 +202,7 @@ perm_importance.ranger <- function(object, X, y, v = colnames(X),
 #' @export
 perm_importance.Learner <- function(object, X, y, v = colnames(X),
                                     pred_fun = NULL,
-                                    loss = "squared_error", perms = 4L, 
+                                    loss = "squared_error", m_rep = 4L, 
                                     agg_cols = FALSE, 
                                     normalize = FALSE, n_max = 10000L, 
                                     w = NULL, verbose = FALSE, ...) {
@@ -217,7 +216,7 @@ perm_importance.Learner <- function(object, X, y, v = colnames(X),
     v = v,
     pred_fun = pred_fun,
     loss = loss,
-    perms = perms,
+    m_rep = m_rep,
     agg_cols = agg_cols,
     normalize = normalize,
     n_max = n_max,
@@ -235,7 +234,7 @@ perm_importance.explainer <- function(object,
                                       v = colnames(X),
                                       pred_fun = object[["predict_function"]],
                                       loss = "squared_error", 
-                                      perms = 4L,
+                                      m_rep = 4L,
                                       agg_cols = FALSE,
                                       normalize = FALSE,
                                       n_max = 10000L, 
@@ -249,7 +248,7 @@ perm_importance.explainer <- function(object,
     v = v,
     pred_fun = pred_fun,
     loss = loss,
-    perms = perms,
+    m_rep = m_rep,
     agg_cols = agg_cols,
     normalize = normalize,
     n_max = n_max,
@@ -257,85 +256,4 @@ perm_importance.explainer <- function(object,
     verbose = verbose,
     ...
   )
-}
-
-#' Print Method
-#' 
-#' Print method for object of class "perm_importance".
-#'
-#' @param x An object of class "perm_importance".
-#' @param ... Further arguments passed from other methods.
-#' @returns Invisibly, the input is returned.
-#' @export
-#' @seealso See [perm_importance()] for examples.
-print.perm_importance <- function(x, ...) {
-  print(drop(utils::head(x[["imp"]], n = 15L)))
-  invisible(x)
-}
-
-#' Plots "perm_importance" Object
-#'
-#' Plot method for objects of class "perm_importance".
-#'
-#' @importFrom ggplot2 .data
-#' @param x An object of class "perm_importance".
-#' @param err_type The error type to show, by default "se" (standard errors). Set to
-#'   "sd" for standard deviations (se * sqrt(perms)), or "no" for no bars.
-#' @param multi_output How should multi-output models be represented? 
-#'   Either "grouped" (the default) or via "facets".
-#' @inheritParams plot.hstats
-#' @param ... Arguments passed to [ggplot2::geom_bar].
-#' @export
-#' @returns An object of class "ggplot".
-#' @seealso See [perm_importance()] for examples.
-plot.perm_importance <- function(x, top_m = 15L, err_type = c("se", "sd", "no"),
-                                 multi_output = c("grouped", "facets"),
-                                 facet_scales = "fixed", ncol = 2L, 
-                                 rotate_x = FALSE, fill = "#2b51a1", ...) {
-  err_type <- match.arg(err_type)
-  multi_output <- match.arg(multi_output)
-  
-  S <- x[["imp"]]
-  err <- x[["SE"]]
-  K <- ncol(x[["imp"]])
-  grouped <- multi_output == "grouped" && K > 1L
-  
-  if (err_type == "sd") {
-    err <- err * sqrt(x[["perms"]])
-  }
-  S <- utils::head(S, n = top_m)
-  err <- utils::head(err, n = top_m)
-  df <- transform(mat2df(S), error_ = mat2df(err)[["value_"]])
-  
-  p <- ggplot2::ggplot(df, ggplot2::aes(x = value_, y = variable_))
-  if (!grouped) {
-    p <- p + ggplot2::geom_bar(fill = fill, stat = "identity", ...)
-  } else {
-    p <- p + ggplot2::geom_bar(
-      ggplot2::aes(fill = varying_), stat = "identity", position = "dodge", ...
-    )
-  }
-  if (err_type != "no") {
-    if (!grouped) {
-      p <- p + ggplot2::geom_errorbar(
-        ggplot2::aes(xmin = value_ - error_, xmax = value_ + error_), 
-        width = 0, 
-        color = "black"
-      )
-    } else {
-      p <- p + ggplot2::geom_errorbar(
-        ggplot2::aes(xmin = value_ - error_, xmax = value_ + error_, group = varying_), 
-        width = 0, 
-        color = "black",
-        position = ggplot2::position_dodge(0.9)
-      ) + ggplot2::theme(legend.title = ggplot2::element_blank())
-    }
-  }
-  if (K > 1L && multi_output == "facets") {
-    p <- p + ggplot2::facet_wrap("varying_", ncol = ncol, scales = facet_scales)
-  }
-  if (rotate_x) {
-    p <- p + rotate_x_labs()
-  }
-  p + ggplot2::labs(y = ggplot2::element_blank(), x = "Average loss increase")
 }

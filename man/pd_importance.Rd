@@ -16,21 +16,20 @@ pd_importance(object, ...)
   squared = TRUE,
   sort = TRUE,
   zero = TRUE,
-  eps = 1e-08,
   ...
 )
 }
 \arguments{
 \item{object}{Object of class "hstats".}
 
-\item{...}{Further parameters passed to \code{geom_bar()}.}
+\item{...}{Currently unused.}
 
 \item{normalize}{Should statistics be normalized? Default is \code{TRUE}.}
 
 \item{squared}{Should \emph{squared} statistics be returned? Default is \code{TRUE}.}
 
 \item{sort}{Should results be sorted? Default is \code{TRUE}.
-(Multioutput is sorted by row means.)}
+(Multi-output is sorted by row means.)}
 
 \item{zero}{Should rows with all 0 be shown? Default is \code{TRUE}.}
 }
@@ -38,9 +37,12 @@ pd_importance(object, ...)
 An object of class "hstats_matrix" containing these elements:
 \itemize{
 \item \code{M}: Matrix of statistics (one column per prediction dimension), or \code{NULL}.
-\item \code{normalize}: Same as input \code{normalize}.
-\item \code{squared}: Same as input \code{squared}.
-\item \code{statistic}: Name of the statistic.
+\item \code{SE}: Matrix with standard errors of \code{M}, or \code{NULL}.
+Multiply with \code{sqrt(m_rep)} to get \emph{standard deviations} instead.
+Currently, supported only for \code{\link[=perm_importance]{perm_importance()}}.
+\item \code{m_rep}: The number of repetitions behind standard errors \code{SE}, or \code{NULL}.
+Currently, supported only for \code{\link[=perm_importance]{perm_importance()}}.
+\item \code{statistic}: Name of the function that generated the statistic.
 \item \code{description}: Description of the statistic.
 }
 }
@@ -80,12 +82,12 @@ Remarks 1 to 4 of \code{\link[=h2_overall]{h2_overall()}} also apply here.
 }}
 \examples{
 # MODEL 1: Linear regression
-fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
+fit <- lm(Sepal.Length ~ . , data = iris)
 s <- hstats(fit, X = iris[-1])
 plot(pd_importance(s))
 
 # MODEL 2: Multi-response linear regression
-fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
+fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width + Species, data = iris)
 s <- hstats(fit, X = iris[3:5])
 plot(pd_importance(s))
 }
@@ -94,5 +96,5 @@ Greenwell, Brandon M., Bradley C. Boehmke, and Andrew J. McCarthy.
 \emph{A Simple and Effective Model-Based Variable Importance Measure.} Arxiv (2018).
 }
 \seealso{
-\code{\link[=hstats]{hstats()}}, \code{\link[=h2_overall]{h2_overall()}}
+\code{\link[=hstats]{hstats()}}, \code{\link[=perm_importance]{perm_importance()}}
 }

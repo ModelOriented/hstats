@@ -5,7 +5,6 @@
 #' strength but also interaction effects. It is very closely related to \eqn{H^2_j}, 
 #' see Details. Use `plot()` to get a barplot.
 #' 
-#' @details
 #' If \eqn{x_j} has no effects, the (centered) prediction function \eqn{F}
 #' equals the (centered) partial dependence \eqn{F_{\setminus j}} on all other 
 #' features \eqn{\mathbf{x}_{\setminus j}}, i.e.,
@@ -28,19 +27,19 @@
 #' 
 #' @inheritParams h2_overall
 #' @inherit h2_overall return
-#' @seealso [hstats()], [h2_overall()]
+#' @seealso [hstats()], [perm_importance()]
 #' @references
 #'   Greenwell, Brandon M., Bradley C. Boehmke, and Andrew J. McCarthy.  
 #'     *A Simple and Effective Model-Based Variable Importance Measure.* Arxiv (2018).
 #' @export
 #' @examples
 #' # MODEL 1: Linear regression
-#' fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
+#' fit <- lm(Sepal.Length ~ . , data = iris)
 #' s <- hstats(fit, X = iris[-1])
 #' plot(pd_importance(s))
 #' 
 #' # MODEL 2: Multi-response linear regression
-#' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
+#' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width + Species, data = iris)
 #' s <- hstats(fit, X = iris[3:5])
 #' plot(pd_importance(s))
 pd_importance <- function(object, ...) {
@@ -56,15 +55,14 @@ pd_importance.default <- function(object, ...) {
 #' @describeIn pd_importance PD based feature importance from "hstats" object.
 #' @export
 pd_importance.hstats <- function(object, normalize = TRUE, squared = TRUE,
-                                 sort = TRUE, zero = TRUE, eps = 1e-8, ...) {
-  get_hstat_matrix(
+                                 sort = TRUE, zero = TRUE, ...) {
+  get_hstats_matrix(
     statistic = "pd_importance",
     object = object,
     normalize = normalize, 
     squared = squared, 
     sort = sort,
-    zero = zero,
-    eps = eps
+    zero = zero
   )
 }
 
@@ -83,7 +81,6 @@ pd_importance_raw <- function(x) {
   for (z in x[["v"]]) {
     num[z, ] <- with(x, wcolMeans((f - F_not_j[[z]])^2, w = w))
   }
-  num <- zap_small(num, eps = x[["eps"]])  # Numeric precision
-  
+  num <- .zap_small(num, eps = x[["eps"]])  # Numeric precision
   list(num = num, denom = x[["mean_f2"]])
 }

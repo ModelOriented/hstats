@@ -331,14 +331,13 @@ print.hstats <- function(x, ...) {
 #' @export
 #' @seealso See [hstats()] for examples.
 summary.hstats <- function(object, normalize = TRUE, squared = TRUE, 
-                           sort = TRUE, zero = TRUE, eps = 1e-8, ...) {
+                           sort = TRUE, zero = TRUE, ...) {
   args <- list(
     object = object, 
     normalize = normalize, 
     squared = squared, 
     sort = sort,
-    zero = zero,
-    eps = eps
+    zero = zero
   )
   out <- list(
     h2 = do.call(h2, args), 
@@ -381,27 +380,15 @@ print.hstats_summary <- function(x, ...) {
 #' @param which Which statistic(s) to be shown? Default is `1:2`, i.e., show both
 #'   \eqn{H^2_j} (1) and \eqn{H^2_{jk}} (2). To also show three-way interactions,
 #'   use `1:3`.
-#' @param facet_scales Value passed to `ggplot2::facet_wrap(scales = ...)`.
-#' @param ncol Passed to `ggplot2::facet_wrap()`.
-#' @param rotate_x Should x axis labels be rotated by 45 degrees?
-#' @param ... Passed to [ggplot2::geom_bar()].
+#' @inheritParams plot.hstats_matrix
 #' @inheritParams h2_overall
 #' @returns An object of class "ggplot".
 #' @export
 #' @seealso See [hstats()] for examples.
-plot.hstats <- function(x, which = 1:2, normalize = TRUE, squared = TRUE, sort = TRUE, 
-                        top_m = 15L, zero = TRUE, eps = 1e-8, fill = "#2b51a1", 
+plot.hstats <- function(x, which = 1:2, normalize = TRUE, squared = TRUE, 
+                        sort = TRUE, top_m = 15L, zero = TRUE, fill = "#2b51a1", 
                         facet_scales = "free", ncol = 2L, rotate_x = FALSE, ...) {
-  su <- summary(
-    x, 
-    normalize = normalize, 
-    squared = squared, 
-    sort = sort, 
-    zero = zero,
-    eps = eps
-  )
-
-  # Drop NULL statistics
+  su <- summary(x, normalize = normalize, squared = squared, sort = sort, zero = zero)
   su <- su[sapply(su, FUN = function(z) !is.null(z[["M"]]))]
   
   # This part could be simplified, especially the "match()"
@@ -421,9 +408,7 @@ plot.hstats <- function(x, which = 1:2, normalize = TRUE, squared = TRUE, sort =
   
   p <- ggplot2::ggplot(dat, ggplot2::aes(x = value_, y = variable_)) +
     ggplot2::ylab(ggplot2::element_blank()) +
-    ggplot2::xlab(
-      paste0("H", get_description_details(normalize = normalize, squared = squared))
-    )
+    ggplot2::xlab(su$h2$description)  # Generic enough?
   
   if (length(unique(dat[["id_"]])) > 1L) {
     p <- p + 

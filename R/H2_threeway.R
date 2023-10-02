@@ -3,7 +3,6 @@
 #' Friedman and Popescu's statistic of three-way interaction strength, see Details. 
 #' Use `plot()` to get a barplot.
 #' 
-#' @details
 #' Friedman and Popescu (2008) describe a test statistic to measure three-way 
 #' interactions: in case there are no three-way interactions between features 
 #' \eqn{x_j}, \eqn{x_k} and \eqn{x_l}, their (centered) three-dimensional partial 
@@ -51,6 +50,7 @@
 #' s <- hstats(fit, X = CO2[2:4], verbose = FALSE)
 #' h2_threeway(s)
 #' h2_threeway(s, normalize = FALSE, squared = FALSE)  # Unnormalized H
+#' plot(h2_threeway(s))
 h2_threeway <- function(object, ...) {
   UseMethod("h2_threeway")
 }
@@ -65,7 +65,7 @@ h2_threeway.default <- function(object, ...) {
 #' @export
 h2_threeway.hstats <- function(object, normalize = TRUE, squared = TRUE, 
                                sort = TRUE, zero = TRUE, ...) {
-  get_hstat_matrix(
+  get_hstats_matrix(
     statistic = "h2_threeway",
     object = object,
     normalize = normalize, 
@@ -103,7 +103,7 @@ h2_threeway_raw <- function(x) {
       denom[nm, ] <- with(x, wcolMeans(F_jkl[[nm]]^2, w = w))
     }    
   }
-  num <- zap_small(num, eps = x[["eps"]])  # Numeric precision
+  num <- .zap_small(num, eps = x[["eps"]])  # Numeric precision
 
   list(num = num, denom = denom)
 }

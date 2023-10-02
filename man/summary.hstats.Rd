@@ -10,7 +10,6 @@
   squared = TRUE,
   sort = TRUE,
   zero = TRUE,
-  eps = 1e-08,
   ...
 )
 }
@@ -22,7 +21,7 @@
 \item{squared}{Should \emph{squared} statistics be returned? Default is \code{TRUE}.}
 
 \item{sort}{Should results be sorted? Default is \code{TRUE}.
-(Multioutput is sorted by row means.)}
+(Multi-output is sorted by row means.)}
 
 \item{zero}{Should rows with all 0 be shown? Default is \code{TRUE}.}
 
