@@ -3,24 +3,24 @@ fit <- lm(Sepal.Length ~ Sepal.Width + Species, data = iris)
 y <- iris$Sepal.Length
 
 test_that("average_loss() works ungrouped for regression", {
-  s <- average_loss(fit, X = iris, y = y)
+  s <- average_loss(fit, X = iris, y = y)$M
   expect_equal(drop(s), mean((y - predict(fit, iris))^2))
   
-  s <- average_loss(fit, X = iris, y = y, loss = "absolute_error")
+  s <- average_loss(fit, X = iris, y = y, loss = "absolute_error")$M
   expect_equal(drop(s), mean(abs(y - predict(fit, iris))))
   
-  s <- average_loss(fit, X = iris, y = y, loss = "poisson")
+  s <- average_loss(fit, X = iris, y = y, loss = "poisson")$M
   expect_equal(drop(s), mean(poisson()$dev.resid(y, predict(fit, iris), 1)))
   
-  s <- average_loss(fit, X = iris, y = y, loss = "gamma")
+  s <- average_loss(fit, X = iris, y = y, loss = "gamma")$M
   expect_equal(drop(s), mean(Gamma()$dev.resid(y, predict(fit, iris), 1)))
   
-  s <- average_loss(fit, X = iris, y = y, loss = loss_absolute_error)
+  s <- average_loss(fit, X = iris, y = y, loss = loss_absolute_error)$M
   expect_equal(drop(s), mean(abs(y - predict(fit, iris))))
 })
 
 test_that("average_loss() works with groups for regression", {
-  s <- average_loss(fit, X = iris, y = y, BY = iris$Species)
+  s <- average_loss(fit, X = iris, y = y, BY = iris$Species)$M
   xpect <- by((y - predict(fit, iris))^2, FUN = mean, INDICES = iris$Species)
   expect_equal(drop(s), c(xpect))
 })
@@ -52,24 +52,24 @@ y <- as.matrix(iris[1:2])
 fit <- lm(y ~ Petal.Length + Species, data = iris)
 
 test_that("average_loss() works ungrouped (multi regression)", {
-  s <- average_loss(fit, X = iris, y = y)
+  s <- average_loss(fit, X = iris, y = y)$M
   expect_equal(drop(s), colMeans((y - predict(fit, iris))^2))
   
-  s <- average_loss(fit, X = iris, y = y, loss = "absolute_error")
+  s <- average_loss(fit, X = iris, y = y, loss = "absolute_error")$M
   expect_equal(drop(s), colMeans(abs(y - predict(fit, iris))))
   
-  s <- average_loss(fit, X = iris, y = y, loss = loss_absolute_error)
+  s <- average_loss(fit, X = iris, y = y, loss = loss_absolute_error)$M
   expect_equal(drop(s), colMeans(abs(y - predict(fit, iris))))
   
-  s <- average_loss(fit, X = iris, y = y, loss = "poisson")
+  s <- average_loss(fit, X = iris, y = y, loss = "poisson")$M
   expect_equal(drop(s), colMeans(poisson()$dev.resid(y, predict(fit, iris), 1)))
   
-  s <- average_loss(fit, X = iris, y = y, loss = "gamma")
+  s <- average_loss(fit, X = iris, y = y, loss = "gamma")$M
   expect_equal(drop(s), colMeans(Gamma()$dev.resid(y, predict(fit, iris), 1)))
 })
 
 test_that("average_loss() works with groups (multi regression)", {
-  s <- average_loss(fit, X = iris, y = y, BY = iris$Species)
+  s <- average_loss(fit, X = iris, y = y, BY = iris$Species)$M
   xpect <- by((y - predict(fit, iris))^2, FUN = colMeans, INDICES = iris$Species)
   expect_equal(s, do.call(rbind, xpect))
 })
@@ -101,16 +101,16 @@ test_that("Single output multiple models works without recycling y", {
   fit <- list(f1 = fit1, f2 = fit2)
   pf <- function(m, x) sapply(fit, FUN = predict, newdata = x)
   
-  s <- average_loss(fit, X = iris, y = y, pred_fun = pf)
+  s <- average_loss(fit, X = iris, y = y, pred_fun = pf)$M
   expect_equal(drop(s), colMeans((y - pf(fit, iris))^2))
   
-  s <- average_loss(fit, X = iris, y = y, loss = "absolute_error", pred_fun = pf)
+  s <- average_loss(fit, X = iris, y = y, loss = "absolute_error", pred_fun = pf)$M
   expect_equal(drop(s), colMeans(abs(y - pf(fit, iris))))
   
-  s <- average_loss(fit, X = iris, y = y, loss = "poisson", pred_fun = pf)
+  s <- average_loss(fit, X = iris, y = y, loss = "poisson", pred_fun = pf)$M
   expect_equal(drop(s), colMeans(poisson()$dev.resid(Y, pf(fit, iris), 1)))
   
-  s <- average_loss(fit, X = iris, y = y, loss = "gamma", pred_fun = pf)
+  s <- average_loss(fit, X = iris, y = y, loss = "gamma", pred_fun = pf)$M
   expect_equal(drop(s), colMeans(Gamma()$dev.resid(Y, pf(fit, iris), 1)))
 })
 
@@ -128,13 +128,13 @@ pf <- function(m, X) {
 }
 
 test_that("average_loss() works ungrouped (multivariate binary)", {
-  s <- average_loss(fit, X = iris, y = y, loss = "logloss", pred_fun = pf)
+  s <- average_loss(fit, X = iris, y = y, loss = "logloss", pred_fun = pf)$M
   expect_equal(drop(s), colMeans(binomial()$dev.resid(y, pf(fit, iris), 1)) / 2)
 })
 
 test_that("average_loss() works with groups (multivariate binary)", {
   s <- average_loss(fit, X = iris, y = y, loss = "logloss", 
-                    BY = iris$Species, pred_fun = pf)
+                    BY = iris$Species, pred_fun = pf)$M
   xpect <- by(binomial()$dev.resid(y, pf(fit, iris), 1) / 2, 
     FUN = colMeans, INDICES = iris$Species)
   xpect <- do.call(rbind, xpect)
@@ -199,7 +199,7 @@ test_that("classification_error works on factors", {
   expect_equal(
     c(average_loss(
       1, X = iris, y = iris$Species, pred_fun = pf, loss = "classification_error"
-    )),
+    )$M),
     2/3
   )
   expect_equal(
@@ -210,7 +210,7 @@ test_that("classification_error works on factors", {
       pred_fun = pf, 
       loss = "classification_error",
       BY = iris$Species
-    )),
+    )$M),
     c(0, 1, 1)
   )
 })

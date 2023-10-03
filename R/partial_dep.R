@@ -285,14 +285,19 @@ print.partial_dep <- function(x, n = 3L, ...) {
 #' @importFrom ggplot2 .data
 #' @param x An object of class "partial_dep".
 #' @param color Color of lines and points (in case there is no color/fill aesthetic).
+#'   The default equals the global option `hstats.color = "#3b528b"`. 
+#'   To change the global option, use `options(stats.color = new value)`.
 #' @param show_points Logical flag indicating whether to show points (default) or not.
 #' @param ... Arguments passed to geometries.
-#' @inheritParams plot.hstats_matrix
+#' @inheritParams plot.hstat_matrix
 #' @export
 #' @returns An object of class "ggplot".
 #' @seealso See [partial_dep()] for examples.
-plot.partial_dep <- function(x, rotate_x = FALSE, color = "#2b51a1", 
-                             facet_scales = "free_y", show_points = TRUE, ...) {
+plot.partial_dep <- function(x,
+                             color = getOption("hstats.color"),
+                             facet_scales = "free_y", 
+                             rotate_x = FALSE,
+                             show_points = TRUE, ...) {
   v <- x[["v"]]
   by_name <- x[["by_name"]]
   K <- x[["K"]]

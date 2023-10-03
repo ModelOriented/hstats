@@ -386,11 +386,13 @@ print.hstats_summary <- function(x, ...) {
 #' @export
 #' @seealso See [hstats()] for examples.
 plot.hstats <- function(x, which = 1:2, normalize = TRUE, squared = TRUE, 
-                        sort = TRUE, top_m = 15L, zero = TRUE, fill = "#2b51a1", 
+                        sort = TRUE, top_m = 15L, zero = TRUE, 
+                        fill = getOption("hstats.fill"), 
+                        scale_fill_d = getOption("hstats.scale_fill_d"),
                         facet_scales = "free", ncol = 2L, rotate_x = FALSE, ...) {
   su <- summary(x, normalize = normalize, squared = squared, sort = sort, zero = zero)
   su <- su[sapply(su, FUN = function(z) !is.null(z[["M"]]))]
-  
+
   # This part could be simplified, especially the "match()"
   stat_names <- c("h2_overall", "h2_pairwise", "h2_threeway")[which]
   stat_labs <- c("Overall", "Pairwise", "Three-way")[which]
@@ -410,21 +412,22 @@ plot.hstats <- function(x, which = 1:2, normalize = TRUE, squared = TRUE,
     ggplot2::ylab(ggplot2::element_blank()) +
     ggplot2::xlab(su$h2$description)  # Generic enough?
   
-  if (length(unique(dat[["id_"]])) > 1L) {
+  if (length(ok) > 1L) {
     p <- p + 
       ggplot2::facet_wrap(~ id_, ncol = ncol, scales = facet_scales)
   }
   if (rotate_x) {
     p <- p + rotate_x_labs()
   }
-  if (length(unique(dat[["varying_"]])) == 1L) {
+  if (x[["K"]] == 1L) {
     p + ggplot2::geom_bar(fill = fill, stat = "identity", ...)
   } else {
     p + 
       ggplot2::geom_bar(
         ggplot2::aes(fill = varying_), stat = "identity", position = "dodge", ...
       ) + 
-      ggplot2::theme(legend.title = ggplot2::element_blank())
+      ggplot2::theme(legend.title = ggplot2::element_blank()) +
+      scale_fill_d
   }
 }
 

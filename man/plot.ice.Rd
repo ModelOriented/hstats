@@ -9,7 +9,7 @@
   center = FALSE,
   alpha = 0.2,
   rotate_x = FALSE,
-  color = "#2b51a1",
+  color = getOption("hstats.color"),
   facet_scales = "fixed",
   ...
 )
@@ -23,7 +23,9 @@
 
 \item{rotate_x}{Should x axis labels be rotated by 45 degrees?}
 
-\item{color}{Color of lines and points (in case there is no color/fill aesthetic).}
+\item{color}{Color of lines and points (in case there is no color/fill aesthetic).
+The default equals the global option \code{hstats.color = "#3b528b"}.
+To change the global option, use \verb{options(stats.color = new value)}.}
 
 \item{facet_scales}{Value passed as \code{scales} argument to \verb{[ggplot2::facet_wrap()]}.}
 
