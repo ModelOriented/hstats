@@ -1,9 +1,8 @@
 #' Overall Interaction Strength
 #' 
 #' Friedman and Popescu's statistic of overall interaction strength per 
-#' feature, see Details. Set `plot = TRUE` to plot the results as barplot.
+#' feature, see Details. Use `plot()` to get a barplot.
 #' 
-#' @details
 #' The logic of Friedman and Popescu (2008) is as follows: 
 #' If there are no interactions involving feature \eqn{x_j}, we can decompose the 
 #' (centered) prediction function \eqn{F} into the sum of the (centered) partial 
@@ -42,16 +41,19 @@
 #' @param normalize Should statistics be normalized? Default is `TRUE`.
 #' @param squared Should *squared* statistics be returned? Default is `TRUE`. 
 #' @param sort Should results be sorted? Default is `TRUE`.
-#'   (Multioutput is sorted by row means.)
-#' @param top_m How many rows should be shown? (`Inf` to show all.)
+#'   (Multi-output is sorted by row means.)
 #' @param zero Should rows with all 0 be shown? Default is `TRUE`.
-#' @param eps Threshold below which numerator values are set to 0.
-#' @param plot Should results be plotted as barplot? Default is `FALSE`.
-#' @param fill Color of bar (only for univariate statistics).
-#' @param ... Further parameters passed to `geom_bar()`.
+#' @param ... Currently unused.
 #' @returns 
-#'   A matrix of statistics (one row per variable, one column per prediction dimension),
-#'   or a "ggplot" object (if `plot = TRUE`).
+#'   An object of class "hstats_matrix" containing these elements:
+#'   - `M`: Matrix of statistics (one column per prediction dimension), or `NULL`.
+#'   - `SE`: Matrix with standard errors of `M`, or `NULL`. 
+#'     Multiply with `sqrt(m_rep)` to get *standard deviations* instead. 
+#'     Currently, supported only for [perm_importance()].
+#'   - `m_rep`: The number of repetitions behind standard errors `SE`, or `NULL`.
+#'     Currently, supported only for [perm_importance()].
+#'   - `statistic`: Name of the function that generated the statistic.
+#'   - `description`: Description of the statistic.
 #' @inherit hstats references
 #' @seealso [hstats()], [h2()], [h2_pairwise()], [h2_threeway()]
 #' @export
@@ -60,12 +62,12 @@
 #' fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
 #' s <- hstats(fit, X = iris[-1])
 #' h2_overall(s)
-#' h2_overall(s, plot = TRUE)
+#' plot(h2_overall(s))
 #' 
 #' # MODEL 2: Multi-response linear regression
 #' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
 #' s <- hstats(fit, X = iris[3:5], verbose = FALSE)
-#' h2_overall(s, plot = TRUE, zero = FALSE)
+#' plot(h2_overall(s, zero = FALSE))
 h2_overall <- function(object, ...) {
   UseMethod("h2_overall")
 }
@@ -78,21 +80,16 @@ h2_overall.default <- function(object, ...) {
 
 #' @describeIn h2_overall Overall interaction strength from "hstats" object.
 #' @export
-h2_overall.hstats <- function(object, normalize = TRUE, squared = TRUE, sort = TRUE, 
-                              top_m = 15L, zero = TRUE, eps = 1e-8, 
-                              plot = FALSE, fill = "#2b51a1", ...) {
-  s <- object$h2_overall
-  out <- postprocess(
-    num = s$num,
-    denom = s$denom,
+h2_overall.hstats <- function(object, normalize = TRUE, squared = TRUE, 
+                              sort = TRUE, zero = TRUE, ...) {
+  get_hstats_matrix(
+    statistic = "h2_overall",
+    object = object,
     normalize = normalize, 
     squared = squared, 
-    sort = sort, 
-    top_m = top_m,
-    zero = zero,
-    eps = eps
+    sort = sort,
+    zero = zero
   )
-  if (plot) plot_stat(out, fill = fill, ...) else out
 }
 
 # Helper function
@@ -105,12 +102,14 @@ h2_overall.hstats <- function(object, normalize = TRUE, squared = TRUE, sort = T
 #' @noRd
 #' @keywords internal
 #' @param x A list containing the elements "v", "K", "pred_names", 
-#'   "f", "F_not_j", "F_j", "mean_f2", and "w".
+#'   "f", "F_not_j", "F_j", "mean_f2", "eps", and "w".
 #' @returns A list with the numerator and denominator statistics.
 h2_overall_raw <- function(x) {
   num <- init_numerator(x, way = 1L)
   for (z in x[["v"]]) {
     num[z, ] <- with(x, wcolMeans((f - F_j[[z]] - F_not_j[[z]])^2, w = w))
   }
+  num <- .zap_small(num, eps = x[["eps"]])  # Numeric precision
+  
   list(num = num, denom = x[["mean_f2"]])
 }

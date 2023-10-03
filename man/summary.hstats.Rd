@@ -9,9 +9,7 @@
   normalize = TRUE,
   squared = TRUE,
   sort = TRUE,
-  top_m = Inf,
   zero = TRUE,
-  eps = 1e-08,
   ...
 )
 }
@@ -23,24 +21,19 @@
 \item{squared}{Should \emph{squared} statistics be returned? Default is \code{TRUE}.}
 
 \item{sort}{Should results be sorted? Default is \code{TRUE}.
-(Multioutput is sorted by row means.)}
-
-\item{top_m}{How many rows should be shown? (\code{Inf} to show all.)}
+(Multi-output is sorted by row means.)}
 
 \item{zero}{Should rows with all 0 be shown? Default is \code{TRUE}.}
-
-\item{eps}{Threshold below which numerator values are set to 0.}
 
 \item{...}{Currently not used.}
 }
 \value{
 An object of class "summary_hstats" representing a named list with statistics
-"h2", "h2_overall", "h2_pairwise", "h2_threeway", and the input flag "normalize".
-Statistics that equal \code{NULL} are omitted from the list.
+"h2", "h2_overall", "h2_pairwise", "h2_threeway", all of class "hstats_matrix".
 }
 \description{
-Summary method for "hstats" object. Note that \eqn{H^2} is not affected by
-the arguments \code{normalize} and \code{squared}.
+Summary method for "hstats" object. Note that only the top 4 overall, the top 3
+pairwise and the top 1 three-way statistics are shown.
 }
 \seealso{
 See \code{\link[=hstats]{hstats()}} for examples.

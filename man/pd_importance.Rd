@@ -15,45 +15,42 @@ pd_importance(object, ...)
   normalize = TRUE,
   squared = TRUE,
   sort = TRUE,
-  top_m = 15L,
   zero = TRUE,
-  eps = 1e-08,
-  plot = FALSE,
-  fill = "#2b51a1",
   ...
 )
 }
 \arguments{
 \item{object}{Object of class "hstats".}
 
-\item{...}{Further parameters passed to \code{geom_bar()}.}
+\item{...}{Currently unused.}
 
 \item{normalize}{Should statistics be normalized? Default is \code{TRUE}.}
 
 \item{squared}{Should \emph{squared} statistics be returned? Default is \code{TRUE}.}
 
 \item{sort}{Should results be sorted? Default is \code{TRUE}.
-(Multioutput is sorted by row means.)}
-
-\item{top_m}{How many rows should be shown? (\code{Inf} to show all.)}
+(Multi-output is sorted by row means.)}
 
 \item{zero}{Should rows with all 0 be shown? Default is \code{TRUE}.}
-
-\item{eps}{Threshold below which numerator values are set to 0.}
-
-\item{plot}{Should results be plotted as barplot? Default is \code{FALSE}.}
-
-\item{fill}{Color of bar (only for univariate statistics).}
 }
 \value{
-A matrix of statistics (one row per variable, one column per prediction dimension),
-or a "ggplot" object (if \code{plot = TRUE}).
+An object of class "hstats_matrix" containing these elements:
+\itemize{
+\item \code{M}: Matrix of statistics (one column per prediction dimension), or \code{NULL}.
+\item \code{SE}: Matrix with standard errors of \code{M}, or \code{NULL}.
+Multiply with \code{sqrt(m_rep)} to get \emph{standard deviations} instead.
+Currently, supported only for \code{\link[=perm_importance]{perm_importance()}}.
+\item \code{m_rep}: The number of repetitions behind standard errors \code{SE}, or \code{NULL}.
+Currently, supported only for \code{\link[=perm_importance]{perm_importance()}}.
+\item \code{statistic}: Name of the function that generated the statistic.
+\item \code{description}: Description of the statistic.
+}
 }
 \description{
 Experimental variable importance method based on partial dependence functions.
 While related to Greenwell et al., our suggestion measures not only main effect
 strength but also interaction effects. It is very closely related to \eqn{H^2_j},
-see Details. Set \code{plot = TRUE} to plot the results as barplot.
+see Details. Use \code{plot()} to get a barplot.
 }
 \details{
 If \eqn{x_j} has no effects, the (centered) prediction function \eqn{F}
@@ -64,7 +61,7 @@ features \eqn{\mathbf{x}_{\setminus j}}, i.e.,
 }
 Therefore, the following measure of variable importance follows:
 \deqn{
-  \textrm{Imp}_{j} = \frac{\frac{1}{n} \sum_{i = 1}^n\big[F(\mathbf{x}_i) - 
+  \textrm{PDI}_j = \frac{\frac{1}{n} \sum_{i = 1}^n\big[F(\mathbf{x}_i) - 
   \hat F_{\setminus j}(\mathbf{x}_{i\setminus j})\big]^2}{\frac{1}{n} \sum_{i = 1}^n
   \big[F(\mathbf{x}_i)\big]^2}.
 }
@@ -85,20 +82,19 @@ Remarks 1 to 4 of \code{\link[=h2_overall]{h2_overall()}} also apply here.
 }}
 \examples{
 # MODEL 1: Linear regression
-fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
+fit <- lm(Sepal.Length ~ . , data = iris)
 s <- hstats(fit, X = iris[-1])
-pd_importance(s)
-pd_importance(s, plot = TRUE)
+plot(pd_importance(s))
 
 # MODEL 2: Multi-response linear regression
-fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
+fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width + Species, data = iris)
 s <- hstats(fit, X = iris[3:5])
-pd_importance(s, plot = TRUE)
+plot(pd_importance(s))
 }
 \references{
 Greenwell, Brandon M., Bradley C. Boehmke, and Andrew J. McCarthy.
 \emph{A Simple and Effective Model-Based Variable Importance Measure.} Arxiv (2018).
 }
 \seealso{
-\code{\link[=hstats]{hstats()}}, \code{\link[=h2_overall]{h2_overall()}}
+\code{\link[=hstats]{hstats()}}, \code{\link[=perm_importance]{perm_importance()}}
 }

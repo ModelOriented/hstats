@@ -10,7 +10,7 @@ h2(object, ...)
 
 \method{h2}{default}(object, ...)
 
-\method{h2}{hstats}(object, normalize = TRUE, squared = TRUE, eps = 1e-08, ...)
+\method{h2}{hstats}(object, normalize = TRUE, squared = TRUE, ...)
 }
 \arguments{
 \item{object}{Object of class "hstats".}
@@ -20,14 +20,23 @@ h2(object, ...)
 \item{normalize}{Should statistics be normalized? Default is \code{TRUE}.}
 
 \item{squared}{Should \emph{squared} statistics be returned? Default is \code{TRUE}.}
-
-\item{eps}{Threshold below which numerator values are set to 0.}
 }
 \value{
-Vector of total interaction strength (one value per prediction dimension).
+An object of class "hstats_matrix" containing these elements:
+\itemize{
+\item \code{M}: Matrix of statistics (one column per prediction dimension), or \code{NULL}.
+\item \code{SE}: Matrix with standard errors of \code{M}, or \code{NULL}.
+Multiply with \code{sqrt(m_rep)} to get \emph{standard deviations} instead.
+Currently, supported only for \code{\link[=perm_importance]{perm_importance()}}.
+\item \code{m_rep}: The number of repetitions behind standard errors \code{SE}, or \code{NULL}.
+Currently, supported only for \code{\link[=perm_importance]{perm_importance()}}.
+\item \code{statistic}: Name of the function that generated the statistic.
+\item \code{description}: Description of the statistic.
+}
 }
 \description{
 Proportion of prediction variability unexplained by main effects of \code{v}, see Details.
+Use \code{plot()} to get a barplot.
 }
 \details{
 If the model is additive in all features, then the (centered) prediction

@@ -108,7 +108,7 @@ system.time(
   s <- hstats(fit, X = X_train)
 )
 s
-# Proportion of prediction variability unexplained by main effects of v
+# H^2 (normalized)
 # [1] 0.10
 
 plot(s)  # Or summary(s) for numeric output
@@ -132,7 +132,7 @@ plot(s)  # Or summary(s) for numeric output
 3. Pairwise statistics $H^2_{jk}$ measures interaction strength relative to the combined effect of the two features. This does not necessarily show which interactions are strongest in absolute numbers. To do so, we can study unnormalized statistics:
 
 ```r
-h2_pairwise(s, normalize = FALSE, squared = FALSE, top_m = 5, plot = TRUE)
+plot(h2_pairwise(s, normalize = FALSE, squared = FALSE), top_m = 5)
 ```
 
 ![](man/figures/hstats_pairwise.svg)
@@ -192,14 +192,11 @@ plot(ice(fit, v = "tot_lvg_area", X = X_train, BY = BY), center = TRUE)
 In the spirit of [1], and related to [4], we can extract from the "hstats" objects a partial dependence based variable importance measure. It measures not only the main effect strength (see [4]), but also all its interaction effects. It is rather experimental, so use it with care (details in the section "Background"):
 
 ```r
-pd_importance(s, plot = TRUE) +
-  ggtitle("PD-based importance (experimental)")
+plot(pd_importance(s))
 
 # Compared with repeated permutation importance regarding MSE
 set.seed(10)
-imp <- perm_importance(fit, X = X_valid, y = y_valid)
-plot(imp) +
-  ggtitle("Permutation importance + standard errors")
+plot(perm_importance(fit, X = X_valid, y = y_valid))
 ```
 
 ![](man/figures/importance.svg)
@@ -223,7 +220,7 @@ fit <- ranger(Sepal.Length ~ ., data = iris)
 ex <- DALEX::explain(fit, data = iris[-1], y = iris[, 1])
 
 s <- hstats(ex)
-s  # Non-additivity index 0.054
+s  # 0.054
 plot(s)
 
 # Strongest relative interaction
@@ -231,9 +228,9 @@ plot(ice(ex, v = "Sepal.Width", BY = "Petal.Width"), center = TRUE)
 plot(partial_dep(ex, v = "Sepal.Width", BY = "Petal.Width"), show_points = FALSE)
 plot(partial_dep(ex, v = c("Sepal.Width", "Petal.Width"), grid_size = 200))
 
-# Check permutation importance
 perm_importance(ex)
 
+# Permutation importance
 # Petal.Length  Petal.Width  Sepal.Width      Species 
 #   0.59836442   0.11625137   0.08246635   0.03982554 
 ```
@@ -259,21 +256,19 @@ average_loss(fit, X = iris, y = iris$Species, loss = "mlogloss")  # 0.0521
 
 s <- hstats(fit, X = iris[-5])
 s
-# Proportion of prediction variability unexplained by main effects of v:
+# H^2 (normalized)
 #      setosa  versicolor   virginica 
 # 0.001547791 0.064550141 0.049758237
 
 plot(s, normalize = FALSE, squared = FALSE) +
-  ggtitle("Unnormalized statistics") +
   scale_fill_viridis_d(begin = 0.1, end = 0.9)
 
 ice(fit, v = "Petal.Length", X = iris, BY = "Petal.Width", n_max = 150) |> 
   plot(center = TRUE) +
   ggtitle("Centered ICE plots")
   
-# Permutation importance 
 perm_importance(fit, X = iris[-5], y = iris$Species, loss = "mlogloss")
- 
+# Permutation importance
 # Petal.Length  Petal.Width Sepal.Length  Sepal.Width 
 #   0.50941613   0.49187688   0.05669978   0.00950009 
 ```
@@ -311,6 +306,7 @@ plot(partial_dep(fit, v = "Petal.Width", X = iris))
 
 imp <- perm_importance(fit, X = iris[-1], y = iris$Sepal.Length)
 imp
+# Permutation importance
 # Petal.Length      Species  Petal.Width  Sepal.Width 
 #   4.44682039   0.34064367   0.10195946   0.09520902
 
@@ -516,7 +512,7 @@ $$
 Therefore, the following measure of variable importance follows:
 
 $$
-	Imp_{j} = \frac{\frac{1}{n} \sum_{i = 1}^n\big[F(\boldsymbol x_i) - \hat F_{\setminus j}(\boldsymbol x_{i\setminus j})\big]^2}{\frac{1}{n} \sum_{i = 1}^n\big[F(\boldsymbol x_i)\big]^2}.
+	PDI_{j} = \frac{\frac{1}{n} \sum_{i = 1}^n\big[F(\boldsymbol x_i) - \hat F_{\setminus j}(\boldsymbol x_{i\setminus j})\big]^2}{\frac{1}{n} \sum_{i = 1}^n\big[F(\boldsymbol x_i)\big]^2}.
 $$
 
 It differs from $H^2_j$ only by not subtracting the main effect of the $j$-th feature in the numerator. It can be read as the proportion of prediction variability unexplained by all other features. As such, it measures variable importance of the $j$-th feature, including its interaction effects.

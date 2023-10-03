@@ -15,44 +15,40 @@ h2_threeway(object, ...)
   normalize = TRUE,
   squared = TRUE,
   sort = TRUE,
-  top_m = 15L,
   zero = TRUE,
-  eps = 1e-08,
-  plot = FALSE,
-  fill = "#2b51a1",
   ...
 )
 }
 \arguments{
 \item{object}{Object of class "hstats".}
 
-\item{...}{Further parameters passed to \code{geom_bar()}.}
+\item{...}{Currently unused.}
 
 \item{normalize}{Should statistics be normalized? Default is \code{TRUE}.}
 
 \item{squared}{Should \emph{squared} statistics be returned? Default is \code{TRUE}.}
 
 \item{sort}{Should results be sorted? Default is \code{TRUE}.
-(Multioutput is sorted by row means.)}
-
-\item{top_m}{How many rows should be shown? (\code{Inf} to show all.)}
+(Multi-output is sorted by row means.)}
 
 \item{zero}{Should rows with all 0 be shown? Default is \code{TRUE}.}
-
-\item{eps}{Threshold below which numerator values are set to 0.}
-
-\item{plot}{Should results be plotted as barplot? Default is \code{FALSE}.}
-
-\item{fill}{Color of bar (only for univariate statistics).}
 }
 \value{
-A matrix of statistics (one row per variable, one column per prediction dimension),
-or a "ggplot" object (if \code{plot = TRUE}). If no three-way
-statistics have been calculated, the function returns \code{NULL}.
+An object of class "hstats_matrix" containing these elements:
+\itemize{
+\item \code{M}: Matrix of statistics (one column per prediction dimension), or \code{NULL}.
+\item \code{SE}: Matrix with standard errors of \code{M}, or \code{NULL}.
+Multiply with \code{sqrt(m_rep)} to get \emph{standard deviations} instead.
+Currently, supported only for \code{\link[=perm_importance]{perm_importance()}}.
+\item \code{m_rep}: The number of repetitions behind standard errors \code{SE}, or \code{NULL}.
+Currently, supported only for \code{\link[=perm_importance]{perm_importance()}}.
+\item \code{statistic}: Name of the function that generated the statistic.
+\item \code{description}: Description of the statistic.
+}
 }
 \description{
 Friedman and Popescu's statistic of three-way interaction strength, see Details.
-Set \code{plot = TRUE} to plot the results as barplot.
+Use \code{plot()} to get a barplot.
 }
 \details{
 Friedman and Popescu (2008) describe a test statistic to measure three-way
@@ -103,9 +99,8 @@ h2_threeway(s)
 fit <- lm(cbind(up = uptake, up2 = 2 * uptake) ~ Type * Treatment * conc, data = CO2)
 s <- hstats(fit, X = CO2[2:4], verbose = FALSE)
 h2_threeway(s)
-
-# Unnormalized H
-h2_threeway(s, normalize = FALSE, squared = FALSE)
+h2_threeway(s, normalize = FALSE, squared = FALSE)  # Unnormalized H
+plot(h2_threeway(s))
 }
 \references{
 Friedman, Jerome H., and Bogdan E. Popescu. \emph{"Predictive Learning via Rule Ensembles."}

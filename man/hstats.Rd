@@ -19,6 +19,7 @@ hstats(object, ...)
   w = NULL,
   pairwise_m = 5L,
   threeway_m = min(pairwise_m, 5L),
+  eps = 1e-10,
   verbose = TRUE,
   ...
 )
@@ -32,6 +33,7 @@ hstats(object, ...)
   w = NULL,
   pairwise_m = 5L,
   threeway_m = min(pairwise_m, 5L),
+  eps = 1e-10,
   verbose = TRUE,
   ...
 )
@@ -45,6 +47,7 @@ hstats(object, ...)
   w = NULL,
   pairwise_m = 5L,
   threeway_m = min(pairwise_m, 5L),
+  eps = 1e-10,
   verbose = TRUE,
   ...
 )
@@ -58,6 +61,7 @@ hstats(object, ...)
   w = object[["weights"]],
   pairwise_m = 5L,
   threeway_m = min(pairwise_m, 5L),
+  eps = 1e-10,
   verbose = TRUE,
   ...
 )
@@ -94,6 +98,8 @@ strongest variable names is taken. This can lead to very long run-times.}
 three-way interactions. Cannot be larger than \code{pairwise_m}.
 The default is \code{min(pairwise_m, 5)}. Set to 0 to avoid three-way calculations.}
 
+\item{eps}{Threshold below which numerator values are set to 0. Default is 1e-10.}
+
 \item{verbose}{Should a progress bar be shown? The default is \code{TRUE}.}
 }
 \value{
@@ -114,6 +120,8 @@ functions \eqn{F_{\setminus j}} of other features.
 \item \code{pairwise_m}: Like input \code{pairwise_m}, but capped at \code{length(v)}.
 \item \code{threeway_m}: Like input \code{threeway_m}, but capped at the smaller of
 \code{length(v)} and \code{pairwise_m}.
+\item \code{eps}: Like input \code{eps}.
+\item \code{pd_importance}: List with numerator and denominator of \eqn{\textrm{PDI}_j}.
 \item \code{h2}: List with numerator and denominator of \eqn{H^2}.
 \item \code{h2_overall}: List with numerator and denominator of \eqn{H^2_j}.
 \item \code{v_pairwise}: Subset of \code{v} with largest \eqn{H^2_j} used for pairwise
@@ -177,7 +185,7 @@ plot(s, zero = FALSE)  # Drop 0
 summary(s)
   
 # Absolute pairwise interaction strengths
-h2_pairwise(s, normalize = FALSE, squared = FALSE, plot = FALSE, zero = FALSE)
+h2_pairwise(s, normalize = FALSE, squared = FALSE, zero = FALSE)
 
 # MODEL 2: Multi-response linear regression
 fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)

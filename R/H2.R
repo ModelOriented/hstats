@@ -1,8 +1,8 @@
 #' Total Interaction Strength
 #' 
-#' Proportion of prediction variability unexplained by main effects of `v`, see Details. 
+#' Proportion of prediction variability unexplained by main effects of `v`, see Details.
+#' Use `plot()` to get a barplot. 
 #' 
-#' @details
 #' If the model is additive in all features, then the (centered) prediction 
 #' function \eqn{F} equals the sum of the (centered) partial dependence 
 #' functions \eqn{F_j(x_j)}, i.e.,
@@ -25,8 +25,7 @@
 #' A similar measure using accumulated local effects is discussed in Molnar (2020).
 #' 
 #' @inheritParams h2_overall
-#' @param ... Currently unused.
-#' @returns Vector of total interaction strength (one value per prediction dimension).
+#' @inherit h2_overall return
 #' @export
 #' @seealso [hstats()], [h2_overall()], [h2_pairwise()], [h2_threeway()]
 #' @references 
@@ -65,14 +64,14 @@ h2.default <- function(object, ...) {
 
 #' @describeIn h2 Total interaction strength from "interact" object.
 #' @export
-h2.hstats <- function(object, normalize = TRUE, squared = TRUE, eps = 1e-8, ...) {
-  postprocess(
-    num = object$h2$num,
-    denom = object$h2$denom,
+h2.hstats <- function(object, normalize = TRUE, squared = TRUE, ...) {
+  get_hstats_matrix(
+    statistic = "h2",
+    object = object,
     normalize = normalize, 
-    squared = squared,
+    squared = squared, 
     sort = FALSE,
-    eps = eps
+    zero = TRUE
   )
 }
 
@@ -83,12 +82,11 @@ h2.hstats <- function(object, normalize = TRUE, squared = TRUE, eps = 1e-8, ...)
 #' 
 #' @noRd
 #' @keywords internal
-#' @param x A list containing the elements "f", "F_j", "w", and "mean_f2".
+#' @param x A list containing the elements "f", "F_j", "w", "eps", and "mean_f2".
 #' @returns A list with the numerator and denominator statistics.
 h2_raw <- function(x) {
-  list(
-    num = with(x, wcolMeans((f - Reduce("+", F_j))^2, w = w)), 
-    denom = x[["mean_f2"]]
-  )
+  num <- with(x, rbind(wcolMeans((f - Reduce("+", F_j))^2, w = w)))
+  num <- .zap_small(num, eps = x[["eps"]])  # Numeric precision
+  list(num = num, denom = x[["mean_f2"]])
 }
 
