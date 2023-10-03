@@ -58,9 +58,9 @@ heatmaps.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># S3 method for partial_dep</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span></span>
 <span>  <span class="va">x</span>,</span>
-<span>  rotate_x <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  color <span class="op">=</span> <span class="st">"#2b51a1"</span>,</span>
+<span>  color <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"hstats.color"</span><span class="op">)</span>,</span>
 <span>  facet_scales <span class="op">=</span> <span class="st">"free_y"</span>,</span>
+<span>  rotate_x <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  show_points <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -72,16 +72,18 @@ heatmaps.</p>
 <dd><p>An object of class "partial_dep".</p></dd>
 
 
-<dt>rotate_x</dt>
-<dd><p>Should x axis labels be rotated by 45 degrees?</p></dd>
-
-
 <dt>color</dt>
-<dd><p>Color of lines and points (in case there is no color/fill aesthetic).</p></dd>
+<dd><p>Color of lines and points (in case there is no color/fill aesthetic).
+The default equals the global option <code>hstats.color = "#3b528b"</code>.
+To change the global option, use <code>options(stats.color = new value)</code>.</p></dd>
 
 
 <dt>facet_scales</dt>
 <dd><p>Value passed as <code>scales</code> argument to <code>[ggplot2::facet_wrap()]</code>.</p></dd>
+
+
+<dt>rotate_x</dt>
+<dd><p>Should x axis labels be rotated by 45 degrees?</p></dd>
 
 
 <dt>show_points</dt>

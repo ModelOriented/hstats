@@ -58,9 +58,9 @@
 <span>  <span class="va">x</span>,</span>
 <span>  center <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  alpha <span class="op">=</span> <span class="fl">0.2</span>,</span>
-<span>  rotate_x <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  color <span class="op">=</span> <span class="st">"#2b51a1"</span>,</span>
+<span>  color <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"hstats.color"</span><span class="op">)</span>,</span>
 <span>  facet_scales <span class="op">=</span> <span class="st">"fixed"</span>,</span>
+<span>  rotate_x <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -79,20 +79,22 @@
 <dd><p>Transparency passed to <code><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">ggplot2::geom_line()</a></code>.</p></dd>
 
 
-<dt>rotate_x</dt>
-<dd><p>Should x axis labels be rotated by 45 degrees?</p></dd>
-
-
 <dt>color</dt>
-<dd><p>Color of lines and points (in case there is no color/fill aesthetic).</p></dd>
+<dd><p>Color of lines and points (in case there is no color/fill aesthetic).
+The default equals the global option <code>hstats.color = "#3b528b"</code>.
+To change the global option, use <code>options(stats.color = new value)</code>.</p></dd>
 
 
 <dt>facet_scales</dt>
 <dd><p>Value passed as <code>scales</code> argument to <code>[ggplot2::facet_wrap()]</code>.</p></dd>
 
 
+<dt>rotate_x</dt>
+<dd><p>Should x axis labels be rotated by 45 degrees?</p></dd>
+
+
 <dt>...</dt>
-<dd><p>Arguments passed to geometries.</p></dd>
+<dd><p>Passed to <code><a href="https://ggplot2.tidyverse.org/reference/geom_bar.html" class="external-link">ggplot2::geom_bar()</a></code>.</p></dd>
 
 </dl></div>
     <div id="value">
