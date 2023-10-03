@@ -35,7 +35,7 @@ h2_threeway()."><meta property="og:image" content="/logo.png"><!-- mathjax --><s
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">hstats</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.4.0</span>
       </span>
     </div>
 
@@ -98,6 +98,7 @@ more flexible functions <code><a href="H2.html">h2()</a></code>, <code><a href="
 <span>  w <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  pairwise_m <span class="op">=</span> <span class="fl">5L</span>,</span>
 <span>  threeway_m <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">pairwise_m</span>, <span class="fl">5L</span><span class="op">)</span>,</span>
+<span>  eps <span class="op">=</span> <span class="fl">1e-10</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span>
@@ -112,6 +113,7 @@ more flexible functions <code><a href="H2.html">h2()</a></code>, <code><a href="
 <span>  w <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  pairwise_m <span class="op">=</span> <span class="fl">5L</span>,</span>
 <span>  threeway_m <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">pairwise_m</span>, <span class="fl">5L</span><span class="op">)</span>,</span>
+<span>  eps <span class="op">=</span> <span class="fl">1e-10</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span>
@@ -126,6 +128,7 @@ more flexible functions <code><a href="H2.html">h2()</a></code>, <code><a href="
 <span>  w <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  pairwise_m <span class="op">=</span> <span class="fl">5L</span>,</span>
 <span>  threeway_m <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">pairwise_m</span>, <span class="fl">5L</span><span class="op">)</span>,</span>
+<span>  eps <span class="op">=</span> <span class="fl">1e-10</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span>
@@ -140,6 +143,7 @@ more flexible functions <code><a href="H2.html">h2()</a></code>, <code><a href="
 <span>  w <span class="op">=</span> <span class="va">object</span><span class="op">[[</span><span class="st">"weights"</span><span class="op">]</span><span class="op">]</span>,</span>
 <span>  pairwise_m <span class="op">=</span> <span class="fl">5L</span>,</span>
 <span>  threeway_m <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">pairwise_m</span>, <span class="fl">5L</span><span class="op">)</span>,</span>
+<span>  eps <span class="op">=</span> <span class="fl">1e-10</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -196,6 +200,10 @@ three-way interactions. Cannot be larger than <code>pairwise_m</code>.
 The default is <code>min(pairwise_m, 5)</code>. Set to 0 to avoid three-way calculations.</p></dd>
 
 
+<dt>eps</dt>
+<dd><p>Threshold below which numerator values are set to 0. Default is 1e-10.</p></dd>
+
+
 <dt>verbose</dt>
 <dd><p>Should a progress bar be shown? The default is <code>TRUE</code>.</p></dd>
 
@@ -219,6 +227,8 @@ functions \(F_{\setminus j}\) of other features.</p></li>
 <li><p><code>pairwise_m</code>: Like input <code>pairwise_m</code>, but capped at <code>length(v)</code>.</p></li>
 <li><p><code>threeway_m</code>: Like input <code>threeway_m</code>, but capped at the smaller of
 <code>length(v)</code> and <code>pairwise_m</code>.</p></li>
+<li><p><code>eps</code>: Like input <code>eps</code>.</p></li>
+<li><p><code>pd_importance</code>: List with numerator and denominator of \(\textrm{PDI}_j\).</p></li>
 <li><p><code>h2</code>: List with numerator and denominator of \(H^2\).</p></li>
 <li><p><code>h2_overall</code>: List with numerator and denominator of \(H^2_j\).</p></li>
 <li><p><code>v_pairwise</code>: Subset of <code>v</code> with largest \(H^2_j\) used for pairwise
@@ -268,39 +278,36 @@ and <code><a href="pd_importance.html">pd_importance()</a></code> for specific s
 <span class="r-in"><span><span class="va">s</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 'hstats' object. Use plot() or summary() for details.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Proportion of prediction variability unexplained by main effects of v:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> H^2 (normalized)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.0502364</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">s</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="hstats-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">s</span>, zero <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>  <span class="co"># Drop 0</span></span></span>
 <span class="r-plt img"><img src="hstats-2.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">s</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Prediction variability unexplained by main effects</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> *H^2 (normalized)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.0502364</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Strongest relative overall interactions</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                   [,1]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Species      0.0502364</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Width  0.0502364</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Sepal.Width  0.0000000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Length 0.0000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> *Largest Overall H^2 (normalized)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      Species  Petal.Width  Sepal.Width Petal.Length </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    0.0502364    0.0502364    0.0000000    0.0000000 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Strongest relative pairwise interactions</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> *Largest Pairwise H^2 (normalized)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                                [,1]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Width:Species      0.05546172</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Sepal.Width:Petal.Length 0.00000000</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Sepal.Width:Petal.Width  0.00000000</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Strongest relative three-way interaction</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                      [,1]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Sepal.Width:Petal.Length:Petal.Width    0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> *Largest Three-way H^2 (normalized)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Sepal.Width:Petal.Length:Petal.Width </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                    0 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span>  </span></span>
 <span class="r-in"><span><span class="co"># Absolute pairwise interaction strengths</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="H2_pairwise.html">h2_pairwise</a></span><span class="op">(</span><span class="va">s</span>, normalize <span class="op">=</span> <span class="cn">FALSE</span>, squared <span class="op">=</span> <span class="cn">FALSE</span>, plot <span class="op">=</span> <span class="cn">FALSE</span>, zero <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                          [,1]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Width:Species 0.1726312</span>
+<span class="r-in"><span><span class="fu"><a href="H2_pairwise.html">h2_pairwise</a></span><span class="op">(</span><span class="va">s</span>, normalize <span class="op">=</span> <span class="cn">FALSE</span>, squared <span class="op">=</span> <span class="cn">FALSE</span>, zero <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Pairwise H (unnormalized)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Width:Species </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           0.1726312 </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># MODEL 2: Multi-response linear regression</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">iris</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span> <span class="op">~</span> <span class="va">Petal.Length</span> <span class="op">+</span> <span class="va">Petal.Width</span> <span class="op">*</span> <span class="va">Species</span>, data <span class="op">=</span> <span class="va">iris</span><span class="op">)</span></span></span>
@@ -308,23 +315,23 @@ and <code><a href="pd_importance.html">pd_importance()</a></code> for specific s
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">s</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="hstats-3.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">s</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Prediction variability unexplained by main effects</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Sepal.Length </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   0.04758952 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> *H^2 (normalized)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Sepal.Length  Sepal.Width </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   0.04758952   0.03963575 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Strongest relative overall interactions</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> *Largest Overall H^2 (normalized)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>              Sepal.Length Sepal.Width</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Species        0.04758952  0.03963575</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Width    0.04758952  0.03963575</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Length   0.00000000  0.00000000</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Strongest relative pairwise interactions</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> *Largest Pairwise H^2 (normalized)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                          Sepal.Length Sepal.Width</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Width:Species        0.02937378  0.01637166</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Length:Petal.Width   0.00000000  0.00000000</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Length:Species       0.00000000  0.00000000</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Strongest relative three-way interaction</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> *Largest Three-way H^2 (normalized)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                                  Sepal.Length Sepal.Width</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Length:Petal.Width:Species            0           0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -335,25 +342,22 @@ and <code><a href="pd_importance.html">pd_importance()</a></code> for specific s
 <span class="r-in"><span><span class="co"># No interactions for additive features, at least on link scale</span></span></span>
 <span class="r-in"><span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu">hstats</span><span class="op">(</span><span class="va">fit</span>, X <span class="op">=</span> <span class="va">iris</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span><span class="op">]</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">s</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Prediction variability unexplained by main effects</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> *H^2 (normalized)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Strongest relative overall interactions</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>              [,1]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Sepal.Width     0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Length    0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Width     0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Species         0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> *Largest Overall H^2 (normalized)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  Sepal.Width Petal.Length  Petal.Width      Species </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            0            0            0            0 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Strongest relative pairwise interactions</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> *Largest Pairwise H^2 (normalized)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                          [,1]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Sepal.Width:Petal.Length    0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Sepal.Width:Petal.Width     0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Sepal.Width:Species         0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Strongest relative three-way interaction</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                      [,1]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Sepal.Width:Petal.Length:Petal.Width    0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> *Largest Three-way H^2 (normalized)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Sepal.Width:Petal.Length:Petal.Width </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                    0 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># On original scale, we have interactions everywhere...</span></span></span>

@@ -49,7 +49,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">hstats</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.4.0</span>
       </span>
     </div>
 
@@ -217,7 +217,7 @@
 <span>  <span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/hstats.html">hstats</a></span><span class="op">(</span><span class="va">fit</span>, X <span class="op">=</span> <span class="va">X_train</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">s</span></span>
-<span><span class="co"># Proportion of prediction variability unexplained by main effects of v</span></span>
+<span><span class="co"># H^2 (normalized)</span></span>
 <span><span class="co"># [1] 0.10</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">s</span><span class="op">)</span>  <span class="co"># Or summary(s) for numeric output</span></span>
@@ -241,7 +241,7 @@
 <li>Pairwise statistics <span class="math inline"><em>H</em><sub><em>j</em><em>k</em></sub><sup>2</sup></span> measures interaction strength relative to the combined effect of the two features. This does not necessarily show which interactions are strongest in absolute numbers. To do so, we can study unnormalized statistics:</li>
 </ol>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="reference/H2_pairwise.html">h2_pairwise</a></span><span class="op">(</span><span class="va">s</span>, normalize <span class="op">=</span> <span class="cn">FALSE</span>, squared <span class="op">=</span> <span class="cn">FALSE</span>, top_m <span class="op">=</span> <span class="fl">5</span>, plot <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="reference/H2_pairwise.html">h2_pairwise</a></span><span class="op">(</span><span class="va">s</span>, normalize <span class="op">=</span> <span class="cn">FALSE</span>, squared <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>, top_m <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></code></pre></div>
 <p><img src="reference/figures/hstats_pairwise.svg"></p>
 <p>Since distance to the ocean and age have high values in overall interaction strength, it is not surprising that a strong relative pairwise interaction is translated into a strong absolute one.</p>
 <p>{hstats} crunches three-way interaction statistics <span class="math inline"><em>H</em><sub><em>j</em><em>k</em><em>l</em></sub><sup>2</sup></span> as well. The following plot shows them together with the other statistics on prediction scale (<code>normalize = FALSE</code> and <code>squared = FALSE</code>). The three-way interactions are weaker than the pairwise interactions, yet not negligible:</p>
@@ -282,14 +282,11 @@
 </h3>
 <p>In the spirit of [1], and related to [4], we can extract from the “hstats” objects a partial dependence based variable importance measure. It measures not only the main effect strength (see [4]), but also all its interaction effects. It is rather experimental, so use it with care (details in the section “Background”):</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="reference/pd_importance.html">pd_importance</a></span><span class="op">(</span><span class="va">s</span>, plot <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ggtitle</a></span><span class="op">(</span><span class="st">"PD-based importance (experimental)"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="reference/pd_importance.html">pd_importance</a></span><span class="op">(</span><span class="va">s</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Compared with repeated permutation importance regarding MSE</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">10</span><span class="op">)</span></span>
-<span><span class="va">imp</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/perm_importance.html">perm_importance</a></span><span class="op">(</span><span class="va">fit</span>, X <span class="op">=</span> <span class="va">X_valid</span>, y <span class="op">=</span> <span class="va">y_valid</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">imp</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ggtitle</a></span><span class="op">(</span><span class="st">"Permutation importance + standard errors"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="reference/perm_importance.html">perm_importance</a></span><span class="op">(</span><span class="va">fit</span>, X <span class="op">=</span> <span class="va">X_valid</span>, y <span class="op">=</span> <span class="va">y_valid</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="reference/figures/importance.svg"></p>
 <p>Permutation importance returns the same order in this case:</p>
 <p><img src="reference/figures/importance_perm.svg"></p>
@@ -310,7 +307,7 @@
 <span><span class="va">ex</span> <span class="op">&lt;-</span> <span class="fu">DALEX</span><span class="fu">::</span><span class="fu">explain</span><span class="op">(</span><span class="va">fit</span>, data <span class="op">=</span> <span class="va">iris</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span><span class="op">]</span>, y <span class="op">=</span> <span class="va">iris</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/hstats.html">hstats</a></span><span class="op">(</span><span class="va">ex</span><span class="op">)</span></span>
-<span><span class="va">s</span>  <span class="co"># Non-additivity index 0.054</span></span>
+<span><span class="va">s</span>  <span class="co"># 0.054</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">s</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Strongest relative interaction</span></span>
@@ -318,9 +315,9 @@
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="reference/partial_dep.html">partial_dep</a></span><span class="op">(</span><span class="va">ex</span>, v <span class="op">=</span> <span class="st">"Sepal.Width"</span>, BY <span class="op">=</span> <span class="st">"Petal.Width"</span><span class="op">)</span>, show_points <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="reference/partial_dep.html">partial_dep</a></span><span class="op">(</span><span class="va">ex</span>, v <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Sepal.Width"</span>, <span class="st">"Petal.Width"</span><span class="op">)</span>, grid_size <span class="op">=</span> <span class="fl">200</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Check permutation importance</span></span>
 <span><span class="fu"><a href="reference/perm_importance.html">perm_importance</a></span><span class="op">(</span><span class="va">ex</span><span class="op">)</span></span>
 <span></span>
+<span><span class="co"># Permutation importance</span></span>
 <span><span class="co"># Petal.Length  Petal.Width  Sepal.Width      Species </span></span>
 <span><span class="co">#   0.59836442   0.11625137   0.08246635   0.03982554 </span></span></code></pre></div>
 <p><img src="reference/figures/dalex_hstats.svg"></p>
@@ -342,21 +339,19 @@
 <span></span>
 <span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/hstats.html">hstats</a></span><span class="op">(</span><span class="va">fit</span>, X <span class="op">=</span> <span class="va">iris</span><span class="op">[</span><span class="op">-</span><span class="fl">5</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="va">s</span></span>
-<span><span class="co"># Proportion of prediction variability unexplained by main effects of v:</span></span>
+<span><span class="co"># H^2 (normalized)</span></span>
 <span><span class="co">#      setosa  versicolor   virginica </span></span>
 <span><span class="co"># 0.001547791 0.064550141 0.049758237</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">s</span>, normalize <span class="op">=</span> <span class="cn">FALSE</span>, squared <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ggtitle</a></span><span class="op">(</span><span class="st">"Unnormalized statistics"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_viridis.html" class="external-link">scale_fill_viridis_d</a></span><span class="op">(</span>begin <span class="op">=</span> <span class="fl">0.1</span>, end <span class="op">=</span> <span class="fl">0.9</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="reference/ice.html">ice</a></span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="st">"Petal.Length"</span>, X <span class="op">=</span> <span class="va">iris</span>, BY <span class="op">=</span> <span class="st">"Petal.Width"</span>, n_max <span class="op">=</span> <span class="fl">150</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span>center <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ggtitle</a></span><span class="op">(</span><span class="st">"Centered ICE plots"</span><span class="op">)</span></span>
 <span>  </span>
-<span><span class="co"># Permutation importance </span></span>
 <span><span class="fu"><a href="reference/perm_importance.html">perm_importance</a></span><span class="op">(</span><span class="va">fit</span>, X <span class="op">=</span> <span class="va">iris</span><span class="op">[</span><span class="op">-</span><span class="fl">5</span><span class="op">]</span>, y <span class="op">=</span> <span class="va">iris</span><span class="op">$</span><span class="va">Species</span>, loss <span class="op">=</span> <span class="st">"mlogloss"</span><span class="op">)</span></span>
-<span> </span>
+<span><span class="co"># Permutation importance</span></span>
 <span><span class="co"># Petal.Length  Petal.Width Sepal.Length  Sepal.Width </span></span>
 <span><span class="co">#   0.50941613   0.49187688   0.05669978   0.00950009 </span></span></code></pre></div>
 <p><img src="reference/figures/multivariate.svg"></p>
@@ -392,6 +387,7 @@
 <span></span>
 <span><span class="va">imp</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/perm_importance.html">perm_importance</a></span><span class="op">(</span><span class="va">fit</span>, X <span class="op">=</span> <span class="va">iris</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span><span class="op">]</span>, y <span class="op">=</span> <span class="va">iris</span><span class="op">$</span><span class="va">Sepal.Length</span><span class="op">)</span></span>
 <span><span class="va">imp</span></span>
+<span><span class="co"># Permutation importance</span></span>
 <span><span class="co"># Petal.Length      Species  Petal.Width  Sepal.Width </span></span>
 <span><span class="co">#   4.44682039   0.34064367   0.10195946   0.09520902</span></span>
 <span></span>
@@ -552,7 +548,7 @@ $$</span></p>
 <p><span class="math display"><em>F</em>(<strong>x</strong>) = <em>F</em><sub>\<em>j</em></sub>(<strong>x</strong><sub>\<em>j</em></sub>).</span></p>
 <p>Therefore, the following measure of variable importance follows:</p>
 <p><span class="math display">$$
-    Imp_{j} = \frac{\frac{1}{n} \sum_{i = 1}^n\big[F(\boldsymbol x_i) - \hat F_{\setminus j}(\boldsymbol x_{i\setminus j})\big]^2}{\frac{1}{n} \sum_{i = 1}^n\big[F(\boldsymbol x_i)\big]^2}.
+    PDI_{j} = \frac{\frac{1}{n} \sum_{i = 1}^n\big[F(\boldsymbol x_i) - \hat F_{\setminus j}(\boldsymbol x_{i\setminus j})\big]^2}{\frac{1}{n} \sum_{i = 1}^n\big[F(\boldsymbol x_i)\big]^2}.
 $$</span></p>
 <p>It differs from <span class="math inline"><em>H</em><sub><em>j</em></sub><sup>2</sup></span> only by not subtracting the main effect of the <span class="math inline"><em>j</em></span>-th feature in the numerator. It can be read as the proportion of prediction variability unexplained by all other features. As such, it measures variable importance of the <span class="math inline"><em>j</em></span>-th feature, including its interaction effects.</p>
 </div>

@@ -55,28 +55,28 @@
     <loc>/reference/plot.hstats.html</loc>
   </url>
   <url>
+    <loc>/reference/plot.hstats_matrix.html</loc>
+  </url>
+  <url>
     <loc>/reference/plot.ice.html</loc>
   </url>
   <url>
     <loc>/reference/plot.partial_dep.html</loc>
   </url>
   <url>
-    <loc>/reference/plot.perm_importance.html</loc>
+    <loc>/reference/print.hstats.html</loc>
   </url>
   <url>
-    <loc>/reference/print.hstats.html</loc>
+    <loc>/reference/print.hstats_matrix.html</loc>
+  </url>
+  <url>
+    <loc>/reference/print.hstats_summary.html</loc>
   </url>
   <url>
     <loc>/reference/print.ice.html</loc>
   </url>
   <url>
     <loc>/reference/print.partial_dep.html</loc>
-  </url>
-  <url>
-    <loc>/reference/print.perm_importance.html</loc>
-  </url>
-  <url>
-    <loc>/reference/print.summary_hstats.html</loc>
   </url>
   <url>
     <loc>/reference/summary.hstats.html</loc>
