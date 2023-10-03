@@ -87,11 +87,21 @@ For "classification_error", both predictions and responses can be non-numeric.}
 \item{v}{Vector of feature names, by default \code{colnames(X)}.}
 }
 \value{
-A matrix with one row per group and one column per loss dimension.
+An object of class "hstats_matrix" containing these elements:
+\itemize{
+\item \code{M}: Matrix of statistics (one column per prediction dimension), or \code{NULL}.
+\item \code{SE}: Matrix with standard errors of \code{M}, or \code{NULL}.
+Multiply with \code{sqrt(m_rep)} to get \emph{standard deviations} instead.
+Currently, supported only for \code{\link[=perm_importance]{perm_importance()}}.
+\item \code{m_rep}: The number of repetitions behind standard errors \code{SE}, or \code{NULL}.
+Currently, supported only for \code{\link[=perm_importance]{perm_importance()}}.
+\item \code{statistic}: Name of the function that generated the statistic.
+\item \code{description}: Description of the statistic.
+}
 }
 \description{
 Calculates the average loss of a model on a given dataset,
-optionally grouped by a discrete vector.
+optionally grouped by a discrete vector. Use \code{plot()} to get a barplot.
 }
 \section{Methods (by class)}{
 \itemize{
@@ -144,5 +154,8 @@ average_loss(fit, X = iris, y = iris$Sepal.Length, BY = iris$Species)
 # MODEL 2: Multi-response linear regression
 fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width + Species, data = iris)
 average_loss(fit, X = iris, y = iris[1:2])
-average_loss(fit, X = iris, y = iris[1:2], loss = "gamma", BY = iris$Species)
+L <- average_loss(fit, X = iris, y = iris[1:2], loss = "gamma", BY = iris$Species)
+L
+plot(L)
+plot(L, multi_output = "facets")
 }

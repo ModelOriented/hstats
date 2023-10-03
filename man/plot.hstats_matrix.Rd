@@ -7,8 +7,9 @@
 \method{plot}{hstats_matrix}(
   x,
   top_m = 15L,
+  fill = getOption("hstats.fill"),
   multi_output = c("grouped", "facets"),
-  fill = "#2b51a1",
+  scale_fill_d = getOption("hstats.scale_fill_d"),
   facet_scales = "free",
   ncol = 2L,
   rotate_x = FALSE,
@@ -19,12 +20,19 @@
 \arguments{
 \item{x}{An object of class "hstats_matrix".}
 
-\item{top_m}{How many rows should be plotted? (\code{Inf} for all.)}
+\item{top_m}{How many rows should be plotted? \code{Inf} for all.}
+
+\item{fill}{Fill color of ungrouped bars. The default equals the global option
+\code{hstats.fill = "#fca50a"}. To change the global option, use
+\verb{options(stats.fill = new value)}.}
 
 \item{multi_output}{How should multi-output models be represented?
 Either as "grouped" barplot (the default) or via "facets".}
 
-\item{fill}{Color of bars.}
+\item{scale_fill_d}{Discrete fill scale for grouped bars. The default equals the
+global option \code{hstats.scale_fill_d}, which equals
+\code{scale_fill_viridis_d(begin = 0.25, end = 0.85, option = "inferno")}.
+To change the global option, use \verb{options(hstats.scale_fill_d = new value)}.}
 
 \item{facet_scales}{Value passed as \code{scales} argument to \verb{[ggplot2::facet_wrap()]}.}
 

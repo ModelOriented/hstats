@@ -132,10 +132,16 @@ print.hstats_matrix <- function(x, top_m = Inf, ...) {
 #'
 #' @importFrom ggplot2 .data
 #' @param x An object of class "hstats_matrix".
-#' @param top_m How many rows should be plotted? (`Inf` for all.)
+#' @param top_m How many rows should be plotted? `Inf` for all.
+#' @param fill Fill color of ungrouped bars. The default equals the global option
+#'   `hstats.fill = "#fca50a"`. To change the global option, use
+#'   `options(stats.fill = new value)`.
 #' @param multi_output How should multi-output models be represented? 
 #'   Either as "grouped" barplot (the default) or via "facets".
-#' @param fill Color of bars.
+#' @param scale_fill_d Discrete fill scale for grouped bars. The default equals the 
+#'   global option `hstats.scale_fill_d`, which equals 
+#'   `scale_fill_viridis_d(begin = 0.25, end = 0.85, option = "inferno")`. 
+#'   To change the global option, use `options(hstats.scale_fill_d = new value)`.
 #' @param facet_scales Value passed as `scales` argument to `[ggplot2::facet_wrap()]`.
 #' @param ncol Passed to `[ggplot2::facet_wrap()]`.
 #' @param rotate_x Should x axis labels be rotated by 45 degrees?
@@ -146,8 +152,10 @@ print.hstats_matrix <- function(x, top_m = Inf, ...) {
 #' @export
 #' @returns An object of class "ggplot".
 plot.hstats_matrix <- function(x, top_m = 15L,
+                               fill = getOption("hstats.fill"),
                                multi_output = c("grouped", "facets"),
-                               fill = "#2b51a1", facet_scales = "free", 
+                               scale_fill_d = getOption("hstats.scale_fill_d"),
+                               facet_scales = "free", 
                                ncol = 2L, rotate_x = FALSE,
                                err_type = c("SE", "SD", "No"), ...) {
   err_type <- match.arg(err_type)
@@ -182,7 +190,9 @@ plot.hstats_matrix <- function(x, top_m = 15L,
   } else {
     p <- p + ggplot2::geom_bar(
       ggplot2::aes(fill = varying_), stat = "identity", position = "dodge", ...
-    ) + ggplot2::theme(legend.title = ggplot2::element_blank())
+    ) + 
+      ggplot2::theme(legend.title = ggplot2::element_blank()) +
+      scale_fill_d
   }
   if (err_type != "No") {
     if (!grouped) {

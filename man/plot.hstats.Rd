@@ -12,7 +12,8 @@
   sort = TRUE,
   top_m = 15L,
   zero = TRUE,
-  fill = "#2b51a1",
+  fill = getOption("hstats.fill"),
+  scale_fill_d = getOption("hstats.scale_fill_d"),
   facet_scales = "free",
   ncol = 2L,
   rotate_x = FALSE,
@@ -33,11 +34,18 @@ use \code{1:3}.}
 \item{sort}{Should results be sorted? Default is \code{TRUE}.
 (Multi-output is sorted by row means.)}
 
-\item{top_m}{How many rows should be plotted? (\code{Inf} for all.)}
+\item{top_m}{How many rows should be plotted? \code{Inf} for all.}
 
 \item{zero}{Should rows with all 0 be shown? Default is \code{TRUE}.}
 
-\item{fill}{Color of bars.}
+\item{fill}{Fill color of ungrouped bars. The default equals the global option
+\code{hstats.fill = "#fca50a"}. To change the global option, use
+\verb{options(stats.fill = new value)}.}
+
+\item{scale_fill_d}{Discrete fill scale for grouped bars. The default equals the
+global option \code{hstats.scale_fill_d}, which equals
+\code{scale_fill_viridis_d(begin = 0.25, end = 0.85, option = "inferno")}.
+To change the global option, use \verb{options(hstats.scale_fill_d = new value)}.}
 
 \item{facet_scales}{Value passed as \code{scales} argument to \verb{[ggplot2::facet_wrap()]}.}
 

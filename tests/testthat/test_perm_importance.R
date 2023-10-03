@@ -12,7 +12,7 @@ test_that("print() does not give error (univariate)", {
 test_that("normalize works (univariate)", {
   set.seed(1L)
   s2 <- perm_importance(fit, X = iris[-1L], y = y, normalize = TRUE)
-  perf <- average_loss(fit, X = iris, y = y)
+  perf <- average_loss(fit, X = iris, y = y)$M
   expect_equal(s1$M, s2$M * drop(perf))
   expect_equal(s1$SE, s2$SE * drop(perf))
 })
@@ -127,7 +127,7 @@ fit <- lm(y ~ Petal.Length + Species, data = iris)
 v <- c("Petal.Length", "Petal.Width", "Species")
 set.seed(1L)
 s1 <- perm_importance(fit, X = iris[3:5], y = y)
-perf <- average_loss(fit, X = iris, y = y)
+perf <- average_loss(fit, X = iris, y = y)$M
 
 test_that("print() does not give error (multivariate)", {
   capture_output(expect_no_error(print(s1)))
@@ -136,7 +136,7 @@ test_that("print() does not give error (multivariate)", {
 test_that("agg_cols works (multivariate)", {
   set.seed(1L)
   s2 <- perm_importance(fit, X = iris[3:5], y = y, agg_cols = TRUE)
-  expect_equal(unname(rowSums(s1$M)), c(s2$M))
+  expect_equal(rowSums(s1$M), drop(s2$M))
 })
 
 test_that("normalize works (multivariate, non-aggregated)", {
@@ -152,7 +152,7 @@ test_that("normalize works (multivariate, non-aggregated)", {
 test_that("normalize works (multivariate, aggregated)", {
   set.seed(1L)
   s2 <- perm_importance(fit, X = iris[3:5], y = y, agg_cols = TRUE)
-  perf2 <- rowSums(average_loss(fit, X = iris, y = y))
+  perf2 <- rowSums(average_loss(fit, X = iris, y = y)$M)
   i2 <- s2$M / perf2
   
   set.seed(1L)

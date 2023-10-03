@@ -260,8 +260,7 @@ s
 #      setosa  versicolor   virginica 
 # 0.001547791 0.064550141 0.049758237
 
-plot(s, normalize = FALSE, squared = FALSE) +
-  scale_fill_viridis_d(begin = 0.1, end = 0.9)
+plot(s, normalize = FALSE, squared = FALSE)
 
 ice(fit, v = "Petal.Length", X = iris, BY = "Petal.Width", n_max = 150) |> 
   plot(center = TRUE) +

@@ -1,19 +1,19 @@
 # hstats 0.4.0
 
-This release comes with a cleaner output API. The numeric results are unchanged. 
+This release mainly changes the *output*. The numeric results are unchanged.
 
 ## Major changes
 
-- `h2()`, `h2_overall()`, `h2_pairwise()`, `h2_threeway()`, `perm_importance()`, and `pd_importance()` now return an object of type "hstats_matrix" with a `print()` and `plot()` method. The values can be extracted via `$M`. 
-- Their argument `top_m` has been moved to `plot()`.
-- `perm_importance()`: The `perms` argument has been renamed to `m_rep`. Since the output is now of class "hstats_matrix", the resulting importance values are stored as `$M`.
-- All `print()`, `summary()`, and `plot()` methods have been revised.
+- Revised plots: The colors have changed and can (also) be controlled via global options. For instance, to change the fill color of all bars, set `options(stats.fill = new value)`. Value labels are more clear, and there are more options. Stacked barplots use viridis.
+- "hstats_matrix" object: All statistics functions, e.g., `h2_pairwise()` or `perm_importance()`, return a "hstats_matrix" object. The values are stored in `$M` and can be plotted via `plot()`.
+- `perm_importance()`: The `perms` argument has been changed to `m_rep`.
+- All `print()` and `summary()` methods have been revised.
 
 ## Minor changes
 
-- Plotting the result of `perm_importance()` on a multi-output model now produces a stacked barplot. Set `multi_output = "facets"` for the old behaviour.
+- Statistics: Their argument `top_m` has been moved to the `plot()` method.
+- Statistics: The clipping threshold `eps` of squared numerator statistics has been reduced from `1e-8` to `1e-10`. It is now handled in `hstats()` instead of the statistic functions.
 - `H-squared`: The $H^2$ statistic stored in a "hstats" object is now a matrix with one row (it was a vector).
-- `eps`: The clipping threshold of squared numerator statistics has been reduced from 1e-8 to 1e-10. It is now handled in `hstats()` instead of the statistic functions.
 - `pd_importance()`: The "hstats" object now contains pre-calculated PD-based importance values in `$pd_importance`.
 - `summary.hstats()` now returns an object of class "hstats_summary" instead of "summary_hstats".
 

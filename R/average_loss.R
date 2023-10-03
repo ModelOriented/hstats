@@ -1,7 +1,7 @@
 #' Average Loss
 #'
 #' Calculates the average loss of a model on a given dataset, 
-#' optionally grouped by a discrete vector.
+#' optionally grouped by a discrete vector. Use `plot()` to get a barplot.
 #' 
 #' @section Losses: 
 #' 
@@ -40,7 +40,7 @@
 #'   The latter case is handled via `model.matrix(~ as.factor(y) + 0)`.
 #'   For "classification_error", both predictions and responses can be non-numeric.
 #' @param BY Optional grouping vector.
-#' @returns A matrix with one row per group and one column per loss dimension.
+#' @inherit h2_overall return
 #' @export
 #' @examples
 #' # MODEL 1: Linear regression
@@ -51,7 +51,10 @@
 #' # MODEL 2: Multi-response linear regression
 #' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width + Species, data = iris)
 #' average_loss(fit, X = iris, y = iris[1:2])
-#' average_loss(fit, X = iris, y = iris[1:2], loss = "gamma", BY = iris$Species)
+#' L <- average_loss(fit, X = iris, y = iris[1:2], loss = "gamma", BY = iris$Species)
+#' L
+#' plot(L)
+#' plot(L, multi_output = "facets")
 average_loss <- function(object, ...) {
   UseMethod("average_loss")
 }
@@ -81,7 +84,18 @@ average_loss.default <- function(object, X, y,
   
   # Real work
   L <- as.matrix(loss(y, pred_fun(object, X, ...)))
-  gwColMeans(L, g = BY, w = w)
+  M <- gwColMeans(L, g = BY, w = w)
+  
+  structure(
+    list(
+      M = M, 
+      SE = NULL, 
+      mrep = NULL, 
+      statistic = "average_loss", 
+      description = "Average loss"
+    ), 
+    class = "hstats_matrix"
+  )
 }
 
 #' @describeIn average_loss Method for "ranger" models.

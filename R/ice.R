@@ -219,6 +219,7 @@ print.ice <- function(x, n = 3L, ...) {
 #' Plot method for objects of class "ice".
 #'
 #' @importFrom ggplot2 .data
+#' @inheritParams plot.hstats_matrix
 #' @inheritParams plot.partial_dep
 #' @param x An object of class "ice".
 #' @param center Should curves be centered? Default is `FALSE`.
@@ -226,8 +227,10 @@ print.ice <- function(x, n = 3L, ...) {
 #' @export
 #' @returns An object of class "ggplot".
 #' @seealso See [ice()] for examples.
-plot.ice <- function(x, center = FALSE, alpha = 0.2, rotate_x = FALSE, 
-                     color = "#2b51a1", facet_scales = "fixed", ...) {
+plot.ice <- function(x, center = FALSE, alpha = 0.2, 
+                     color = getOption("hstats.color"),
+                     facet_scales = "fixed", 
+                     rotate_x = FALSE, ...) {
   v <- x[["v"]]
   K <- x[["K"]]
   data <- x[["data"]]
