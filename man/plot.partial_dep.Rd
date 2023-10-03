@@ -6,9 +6,9 @@
 \usage{
 \method{plot}{partial_dep}(
   x,
-  rotate_x = FALSE,
   color = getOption("hstats.color"),
   facet_scales = "free_y",
+  rotate_x = FALSE,
   show_points = TRUE,
   ...
 )
@@ -16,13 +16,13 @@
 \arguments{
 \item{x}{An object of class "partial_dep".}
 
-\item{rotate_x}{Should x axis labels be rotated by 45 degrees?}
-
 \item{color}{Color of lines and points (in case there is no color/fill aesthetic).
 The default equals the global option \code{hstats.color = "#3b528b"}.
 To change the global option, use \verb{options(stats.color = new value)}.}
 
 \item{facet_scales}{Value passed as \code{scales} argument to \verb{[ggplot2::facet_wrap()]}.}
+
+\item{rotate_x}{Should x axis labels be rotated by 45 degrees?}
 
 \item{show_points}{Logical flag indicating whether to show points (default) or not.}
 

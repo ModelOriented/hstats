@@ -219,7 +219,7 @@ print.ice <- function(x, n = 3L, ...) {
 #' Plot method for objects of class "ice".
 #'
 #' @importFrom ggplot2 .data
-#' @inheritParams plot.hstat_matrix
+#' @inheritParams plot.hstats_matrix
 #' @inheritParams plot.partial_dep
 #' @param x An object of class "ice".
 #' @param center Should curves be centered? Default is `FALSE`.

@@ -289,7 +289,7 @@ print.partial_dep <- function(x, n = 3L, ...) {
 #'   To change the global option, use `options(stats.color = new value)`.
 #' @param show_points Logical flag indicating whether to show points (default) or not.
 #' @param ... Arguments passed to geometries.
-#' @inheritParams plot.hstat_matrix
+#' @inheritParams plot.hstats_matrix
 #' @export
 #' @returns An object of class "ggplot".
 #' @seealso See [partial_dep()] for examples.

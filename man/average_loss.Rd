@@ -156,5 +156,6 @@ fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width + Species, data = ir
 average_loss(fit, X = iris, y = iris[1:2])
 L <- average_loss(fit, X = iris, y = iris[1:2], loss = "gamma", BY = iris$Species)
 L
+plot(L)
 plot(L, multi_output = "facets")
 }
