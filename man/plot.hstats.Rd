@@ -13,7 +13,7 @@
   top_m = 15L,
   zero = TRUE,
   fill = getOption("hstats.fill"),
-  scale_fill_d = getOption("hstats.scale_fill_d"),
+  viridis_args = getOption("hstats.viridis_args"),
   facet_scales = "free",
   ncol = 2L,
   rotate_x = FALSE,
@@ -42,10 +42,12 @@ use \code{1:3}.}
 \code{hstats.fill = "#fca50a"}. To change the global option, use
 \verb{options(stats.fill = new value)}.}
 
-\item{scale_fill_d}{Discrete fill scale for grouped bars. The default equals the
-global option \code{hstats.scale_fill_d}, which equals
-\code{scale_fill_viridis_d(begin = 0.25, end = 0.85, option = "inferno")}.
-To change the global option, use \verb{options(hstats.scale_fill_d = new value)}.}
+\item{viridis_args}{List of viridis color scale arguments, see
+\verb{[ggplot2::scale_color_viridis_c()]}.
+The default points to the global option \code{hstats.viridis_args},
+which corresponds to \code{list(begin = 0.25, end = 0.85, option = "B")}.
+E.g., to switch to a standard viridis scale, you can change the default via
+\code{options(hstats.viridis_args = list())}, or set \code{viridis_args = list()}.}
 
 \item{facet_scales}{Value passed as \code{scales} argument to \verb{[ggplot2::facet_wrap()]}.}
 

@@ -138,7 +138,7 @@ The permutation importance of a feature is defined as the increase in the averag
 loss when shuffling the corresponding feature values before calculating predictions.
 By default, the process is repeated \code{m_rep = 4} times, and the results are averaged.
 In most of the cases, importance values should be derived from an independent test
-data set.
+data set. Set \code{normalize = TRUE} to get \emph{relative} increases in average loss.
 }
 \section{Methods (by class)}{
 \itemize{

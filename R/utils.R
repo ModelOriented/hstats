@@ -343,6 +343,39 @@ qcut <- function(x, m) {
   cut(x, breaks = unique(g), include.lowest = TRUE)
 }
 
+#' Prepares Group BY Variable
+#' 
+#' Internal function that prepares a BY variable or BY column name.
+#' 
+#' @noRd
+#' @keywords internal
+#' @param BY Vector/factor or column name in `X`.
+#' @param X Matrix-like.
+#' @param by_size Determines if numeric `X` is discrete or needs to be binned.
+#' 
+#' @returns A list.
+prepare_by <- function(BY, X, by_size) {
+  if (length(BY) == 1L && BY %in% colnames(X)) {
+    by_name <- BY
+    BY <- X[, by_name]
+  } else {
+    stopifnot(
+      NCOL(BY) == 1L,
+      is.vector(BY) || is.factor(BY),
+      length(BY) == nrow(X)
+    )
+    by_name <- "Group"
+  }
+  
+  # Binning
+  by_values <- unique(BY)
+  if (is.numeric(BY) && length(by_values) > by_size) {
+    BY <- qcut(BY, m = by_size)
+    by_values <- unique(BY)
+  }
+  list(BY = BY, by_values = by_values, by_name = by_name)
+}
+
 #' Utility "ggplot" Function
 #' 
 #' @noRd

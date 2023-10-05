@@ -7,7 +7,10 @@
 \method{plot}{partial_dep}(
   x,
   color = getOption("hstats.color"),
+  multi_output = c("grouped", "facets"),
+  viridis_args = getOption("hstats.viridis_args"),
   facet_scales = "free_y",
+  ncol = 2L,
   rotate_x = FALSE,
   show_points = TRUE,
   ...
@@ -20,7 +23,18 @@
 The default equals the global option \code{hstats.color = "#3b528b"}.
 To change the global option, use \verb{options(stats.color = new value)}.}
 
+\item{multi_output}{How should multi-output models (with single \code{v}) be represented?}
+
+\item{viridis_args}{List of viridis color scale arguments, see
+\verb{[ggplot2::scale_color_viridis_c()]}.
+The default points to the global option \code{hstats.viridis_args},
+which corresponds to \code{list(begin = 0.25, end = 0.85, option = "B")}.
+E.g., to switch to a standard viridis scale, you can change the default via
+\code{options(hstats.viridis_args = list())}, or set \code{viridis_args = list()}.}
+
 \item{facet_scales}{Value passed as \code{scales} argument to \verb{[ggplot2::facet_wrap()]}.}
+
+\item{ncol}{Passed to \verb{[ggplot2::facet_wrap()]}.}
 
 \item{rotate_x}{Should x axis labels be rotated by 45 degrees?}
 

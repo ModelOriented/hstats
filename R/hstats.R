@@ -388,8 +388,12 @@ print.hstats_summary <- function(x, ...) {
 plot.hstats <- function(x, which = 1:2, normalize = TRUE, squared = TRUE, 
                         sort = TRUE, top_m = 15L, zero = TRUE, 
                         fill = getOption("hstats.fill"), 
-                        scale_fill_d = getOption("hstats.scale_fill_d"),
+                        viridis_args = getOption("hstats.viridis_args"),
                         facet_scales = "free", ncol = 2L, rotate_x = FALSE, ...) {
+  if (is.null(viridis_args)) {
+    viridis_args <- list()
+  }
+  
   su <- summary(x, normalize = normalize, squared = squared, sort = sort, zero = zero)
   su <- su[sapply(su, FUN = function(z) !is.null(z[["M"]]))]
 
@@ -427,7 +431,7 @@ plot.hstats <- function(x, which = 1:2, normalize = TRUE, squared = TRUE,
         ggplot2::aes(fill = varying_), stat = "identity", position = "dodge", ...
       ) + 
       ggplot2::theme(legend.title = ggplot2::element_blank()) +
-      scale_fill_d
+      do.call(ggplot2::scale_fill_viridis_d, viridis_args)
   }
 }
 

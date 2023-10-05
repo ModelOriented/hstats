@@ -9,7 +9,7 @@
   top_m = 15L,
   fill = getOption("hstats.fill"),
   multi_output = c("grouped", "facets"),
-  scale_fill_d = getOption("hstats.scale_fill_d"),
+  viridis_args = getOption("hstats.viridis_args"),
   facet_scales = "free",
   ncol = 2L,
   rotate_x = FALSE,
@@ -29,10 +29,12 @@
 \item{multi_output}{How should multi-output models be represented?
 Either as "grouped" barplot (the default) or via "facets".}
 
-\item{scale_fill_d}{Discrete fill scale for grouped bars. The default equals the
-global option \code{hstats.scale_fill_d}, which equals
-\code{scale_fill_viridis_d(begin = 0.25, end = 0.85, option = "inferno")}.
-To change the global option, use \verb{options(hstats.scale_fill_d = new value)}.}
+\item{viridis_args}{List of viridis color scale arguments, see
+\verb{[ggplot2::scale_color_viridis_c()]}.
+The default points to the global option \code{hstats.viridis_args},
+which corresponds to \code{list(begin = 0.25, end = 0.85, option = "B")}.
+E.g., to switch to a standard viridis scale, you can change the default via
+\code{options(hstats.viridis_args = list())}, or set \code{viridis_args = list()}.}
 
 \item{facet_scales}{Value passed as \code{scales} argument to \verb{[ggplot2::facet_wrap()]}.}
 
