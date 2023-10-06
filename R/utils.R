@@ -376,7 +376,7 @@ prepare_by <- function(BY, X, by_size) {
   list(BY = BY, by_values = by_values, by_name = by_name)
 }
 
-#' Utility "ggplot" Function
+#' Rotate x labels in plots
 #' 
 #' @noRd
 #' @keywords internal
@@ -386,6 +386,18 @@ rotate_x_labs <- function() {
   ggplot2::theme(
     axis.text.x = ggplot2::element_text(angle = 45, hjust = 1, vjust = 1)
   )
+}
+
+#' Color Scale based on column
+#' 
+#' @noRd
+#' @keywords internal
+#' @param x A vector/factor.
+#' 
+#' @returns Discrete or continuous viridis color scale
+get_color_scale <- function(x) {
+  disc <- is.factor(x) || is.character(x) || is.logical(x)
+  if (disc) ggplot2::scale_color_viridis_d else ggplot2::scale_color_viridis_c
 }
 
 #' mlr3 Helper

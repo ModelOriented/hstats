@@ -273,8 +273,8 @@ print.partial_dep <- function(x, n = 3L, ...) {
 #' @param color Color of lines and points (in case there is no color/fill aesthetic).
 #'   The default equals the global option `hstats.color = "#3b528b"`. 
 #'   To change the global option, use `options(stats.color = new value)`.
-#' @param multi_output How should multi-output models (with single `v`) be represented? 
 #' @param show_points Logical flag indicating whether to show points (default) or not.
+#'   No effect for 2D PDPs.
 #' @param ... Arguments passed to geometries.
 #' @inheritParams plot.hstats_matrix
 #' @export
@@ -282,14 +282,10 @@ print.partial_dep <- function(x, n = 3L, ...) {
 #' @seealso See [partial_dep()] for examples.
 plot.partial_dep <- function(x,
                              color = getOption("hstats.color"),
-                             multi_output = c("grouped", "facets"),
+                             swap_dim = FALSE,
                              viridis_args = getOption("hstats.viridis_args"),
-                             facet_scales = "free_y",
-                             ncol = 2L, rotate_x = FALSE, show_points = TRUE, ...) {
-  multi_output <- match.arg(multi_output)
-  if (is.null(viridis_args)) {
-    viridis_args <- list()
-  }
+                             facet_scales = "fixed",
+                             rotate_x = FALSE, show_points = TRUE, ...) {
   v <- x[["v"]]
   by_name <- x[["by_name"]]
   K <- x[["K"]]
@@ -299,46 +295,61 @@ plot.partial_dep <- function(x,
   if ((K > 1L) + (!is.null(by_name)) + length(v) > 3L) {
     stop("No plot implemented for this case.")
   }
-  data <- with(x, poor_man_stack(data, to_stack = pred_names))
+  if (is.null(viridis_args)) {
+    viridis_args <- list()
+  }
   
-  # Line plots
+  data <- with(x, poor_man_stack(data, to_stack = pred_names))
+
+  wrp <- NULL
   if (length(v) == 1L) {
+    # Line plots
+    grp <- if (is.null(by_name) && K > 1L) "varying_" else by_name  # can be NULL
+    wrp <- if (!is.null(by_name) && K > 1L) "varying_"
+    if (swap_dim) {
+      tmp <- grp
+      grp <- wrp
+      wrp <- tmp
+    }
     p <- ggplot2::ggplot(data, ggplot2::aes(x = .data[[v]], y = value_)) +
       ggplot2::labs(x = v, y = "PD")
-    
-    if (is.null(by_name)) {
+
+    if (is.null(grp)) {
       p <- p + ggplot2::geom_line(color = color, group = 1, ...)
       if (show_points) {
-        p <- p + ggplot2::geom_point(color = color, ...)
+        p <- p + ggplot2::geom_point(color = color)
       }
     } else {
       p <- p + 
         ggplot2::geom_line(
-          ggplot2::aes(color = .data[[by_name]], group = .data[[by_name]]), ...
+          ggplot2::aes(color = .data[[grp]], group = .data[[grp]]), ...
         ) +
-        ggplot2::labs(color = by_name)
+        ggplot2::labs(color = grp) +
+        ggplot2::theme(legend.title = ggplot2::element_blank()) +
+        do.call(get_color_scale(data[[grp]]), viridis_args)
       if (show_points) {
         p <- p + ggplot2::geom_point(
-          ggplot2::aes(color = .data[[by_name]], group = .data[[by_name]]), ...
+          ggplot2::aes(color = .data[[grp]], group = .data[[grp]])
         )
       }
     }
-    if (K > 1L) {
-      p <- p + ggplot2::facet_wrap(~ varying_, ncol = ncol, scales = facet_scales)
-    }
   } else if (length(v) == 2L) {
     # Heat maps
+    if (K > 1L || !is.null(by_name)) {  # Only one is possible
+      wrp <- if (K > 1L) "varying_" else by_name
+    }
     p <- ggplot2::ggplot(
       data, ggplot2::aes(x = .data[[v[1L]]], y = .data[[v[2L]]], fill = value_)
     ) + 
-      do.call(ggplot2::scale_fill_viridis_c, viridis_args) +
       ggplot2::geom_tile(...) +
+      do.call(ggplot2::scale_fill_viridis_c, viridis_args) +
       ggplot2::labs(fill = "PD")
-    
-    if (K > 1L || !is.null(by_name)) {  # Only one is possible
-      wrp <- if (K > 1L) "varying_" else by_name
-      p <- p + ggplot2::facet_wrap(wrp, ncol = ncol, scales = facet_scales)
-    }
   }
-  if (rotate_x) p + rotate_x_labs() else p
+  if (!is.null(wrp)) {
+    p <- p + ggplot2::facet_wrap(wrp, scales = facet_scales)
+  }
+  if (rotate_x) {
+    p <- p + rotate_x_labs()
+  }
+  p
 }

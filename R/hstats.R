@@ -416,23 +416,23 @@ plot.hstats <- function(x, which = 1:2, normalize = TRUE, squared = TRUE,
     ggplot2::ylab(ggplot2::element_blank()) +
     ggplot2::xlab(su$h2$description)  # Generic enough?
   
-  if (length(ok) > 1L) {
-    p <- p + 
-      ggplot2::facet_wrap(~ id_, ncol = ncol, scales = facet_scales)
-  }
-  if (rotate_x) {
-    p <- p + rotate_x_labs()
-  }
   if (x[["K"]] == 1L) {
-    p + ggplot2::geom_bar(fill = fill, stat = "identity", ...)
+    p <- p + ggplot2::geom_bar(fill = fill, stat = "identity", ...)
   } else {
-    p + 
+    p <- p + 
       ggplot2::geom_bar(
         ggplot2::aes(fill = varying_), stat = "identity", position = "dodge", ...
       ) + 
       ggplot2::theme(legend.title = ggplot2::element_blank()) +
       do.call(ggplot2::scale_fill_viridis_d, viridis_args)
   }
+  if (length(ok) > 1L) {
+    p <- p + ggplot2::facet_wrap(~ id_, ncol = ncol, scales = facet_scales)
+  }
+  if (rotate_x) {
+    p <- p + rotate_x_labs()
+  }
+  p
 }
 
 # Helper functions used only in this script

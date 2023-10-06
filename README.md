@@ -347,7 +347,8 @@ s <- hstats(fit_rf, X = iris[-5], threeway_m = 0)
 plot(s)
 
 # Permutation importance
-plot(perm_importance(fit_rf, X = iris[-5], y = iris$Species, loss = "mlogloss"))
+perm_importance(fit_rf, X = iris[-5], y = iris$Species, loss = "mlogloss") |> 
+  plot()
 ```
 
 ## Background

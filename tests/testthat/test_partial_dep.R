@@ -211,20 +211,10 @@ test_that("partial_dep() reacts on trim", {
   expect_false(identical(pd1, pd2))
   
   pd1 <- partial_dep(
-    fit1, 
-    v = "Sepal.Width", 
-    X = iris, 
-    plot = FALSE, 
-    trim = c(0.2, 0.8),
-    grid_size = 5L
+    fit1, v = "Sepal.Width", X = iris, trim = c(0.2, 0.8), grid_size = 5L
   )
   pd2 <- partial_dep(
-    fit1, 
-    v = "Sepal.Width", 
-    X = iris, 
-    plot = FALSE, 
-    trim = 0:1, 
-    grid_size = 5L,
+    fit1, v = "Sepal.Width", X = iris, trim = 0:1, grid_size = 5L,
   )
   expect_false(identical(pd1, pd2))
 })
@@ -286,20 +276,18 @@ test_that("Plots give 'ggplot' objects", {
   expect_s3_class(plot(partial_dep(fit, v = "Species", X = iris)), "ggplot")
   
   # One v, with by, univariate
-  expect_s3_class(
-    plot(partial_dep(fit, v = "Species", X = iris, BY = "Petal.Width")), 
-    "ggplot"
-  )
+  pd <- partial_dep(fit, v = "Species", X = iris, BY = "Petal.Width")
+  expect_s3_class(plot(pd), "ggplot")
+  expect_s3_class(plot(pd, swap_dim = TRUE), "ggplot")
   
   # Two v, no by, univariate
   v <- c("Species", "Petal.Width")
-  expect_s3_class(plot(partial_dep(fit, v = v, X = iris)), "ggplot")
+  pd <- partial_dep(fit, v = v, X = iris)
+  expect_s3_class(plot(pd), "ggplot")
   
   # Two v, with by, univariate
-  expect_s3_class(
-    plot(partial_dep(fit, v = v, X = iris, BY = "Petal.Width"), show_points = FALSE), 
-    "ggplot"
-  )
+  pd <- partial_dep(fit, v = v, X = iris, BY = "Sepal.Width")
+  expect_s3_class(plot(pd), "ggplot")
   
   # Three v gives error
   pd <- partial_dep(fit, v = c(v, "Petal.Length"), X = iris)
@@ -309,27 +297,21 @@ test_that("Plots give 'ggplot' objects", {
   fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
   
   # One v, no by, multivariate
-  expect_s3_class(
-    plot(partial_dep(fit, v = "Species", X = iris), color = "red"), 
-    "ggplot"
-  )
+  pd <- partial_dep(fit, v = "Species", X = iris)
+  expect_s3_class(plot(pd), "ggplot")
+  expect_s3_class(plot(pd, color = "red", swap_dim = TRUE), "ggplot")
   
   # One v, with by, multivariate
-  expect_s3_class(
-    plot(
-      partial_dep(fit, v = "Species", X = iris, BY = "Petal.Width"), 
-      facet_scales = "fixed"
-    ), 
-    "ggplot"
-  )
+  pd <- partial_dep(fit, v = "Species", X = iris, BY = "Petal.Width")
+  expect_s3_class(plot(pd, facet_scales = "free_y"), "ggplot")
+  expect_s3_class(plot(pd, swap_dim = TRUE), "ggplot")
   
   # Two v, no by, multivariate
-  expect_s3_class(
-    plot(partial_dep(fit, v = v, X = iris), rotate_x = TRUE), 
-    "ggplot"
-  )
+  pd <- partial_dep(fit, v = v, X = iris)
+  expect_s3_class(plot(pd, rotate_x = TRUE), "ggplot")
   
   # Two v, with by, multivariate gives error
   pd <- partial_dep(fit, v = v, X = iris, BY = "Petal.Width")
   expect_error(plot(pd))
 })
+

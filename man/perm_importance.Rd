@@ -203,7 +203,7 @@ fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width + Species, data = ir
 s <- perm_importance(fit, X = iris[3:5], y = iris[1:2], normalize = TRUE)
 s
 plot(s)
-plot(s, multi_output = "facets", top_m = 2)
+plot(s, swap_dim = TRUE, top_m = 2)
 }
 \references{
 Fisher A., Rudin C., Dominici F. (2018). All Models are Wrong but many are Useful:

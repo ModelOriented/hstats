@@ -7,10 +7,9 @@
 \method{plot}{partial_dep}(
   x,
   color = getOption("hstats.color"),
-  multi_output = c("grouped", "facets"),
+  swap_dim = FALSE,
   viridis_args = getOption("hstats.viridis_args"),
-  facet_scales = "free_y",
-  ncol = 2L,
+  facet_scales = "fixed",
   rotate_x = FALSE,
   show_points = TRUE,
   ...
@@ -23,22 +22,21 @@
 The default equals the global option \code{hstats.color = "#3b528b"}.
 To change the global option, use \verb{options(stats.color = new value)}.}
 
-\item{multi_output}{How should multi-output models (with single \code{v}) be represented?}
+\item{swap_dim}{Switches the role of grouping and facetting (default is \code{FALSE}).}
 
 \item{viridis_args}{List of viridis color scale arguments, see
-\verb{[ggplot2::scale_color_viridis_c()]}.
+\verb{[ggplot2::scale_color_viridis_d()]}.
 The default points to the global option \code{hstats.viridis_args},
-which corresponds to \code{list(begin = 0.25, end = 0.85, option = "B")}.
+which corresponds to \code{list(begin = 0.2, end = 0.8, option = "B")}.
 E.g., to switch to a standard viridis scale, you can change the default via
 \code{options(hstats.viridis_args = list())}, or set \code{viridis_args = list()}.}
 
 \item{facet_scales}{Value passed as \code{scales} argument to \verb{[ggplot2::facet_wrap()]}.}
 
-\item{ncol}{Passed to \verb{[ggplot2::facet_wrap()]}.}
-
 \item{rotate_x}{Should x axis labels be rotated by 45 degrees?}
 
-\item{show_points}{Logical flag indicating whether to show points (default) or not.}
+\item{show_points}{Logical flag indicating whether to show points (default) or not.
+No effect for 2D PDPs.}
 
 \item{...}{Arguments passed to geometries.}
 }

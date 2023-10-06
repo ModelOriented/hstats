@@ -30,3 +30,4 @@ test_that("postprocess() works for vector input", {
   expect_equal(postprocess(num = 0:1, denom = c(2, 2), zero = FALSE), 0.5)
   expect_null(postprocess(num = 0, zero = FALSE))
 })
+

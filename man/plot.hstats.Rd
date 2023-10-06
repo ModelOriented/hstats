@@ -43,9 +43,9 @@ use \code{1:3}.}
 \verb{options(stats.fill = new value)}.}
 
 \item{viridis_args}{List of viridis color scale arguments, see
-\verb{[ggplot2::scale_color_viridis_c()]}.
+\verb{[ggplot2::scale_color_viridis_d()]}.
 The default points to the global option \code{hstats.viridis_args},
-which corresponds to \code{list(begin = 0.25, end = 0.85, option = "B")}.
+which corresponds to \code{list(begin = 0.2, end = 0.8, option = "B")}.
 E.g., to switch to a standard viridis scale, you can change the default via
 \code{options(hstats.viridis_args = list())}, or set \code{viridis_args = list()}.}
 

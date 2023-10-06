@@ -8,9 +8,9 @@
   x,
   top_m = 15L,
   fill = getOption("hstats.fill"),
-  multi_output = c("grouped", "facets"),
+  swap_dim = FALSE,
   viridis_args = getOption("hstats.viridis_args"),
-  facet_scales = "free",
+  facet_scales = "fixed",
   ncol = 2L,
   rotate_x = FALSE,
   err_type = c("SE", "SD", "No"),
@@ -26,13 +26,12 @@
 \code{hstats.fill = "#fca50a"}. To change the global option, use
 \verb{options(stats.fill = new value)}.}
 
-\item{multi_output}{How should multi-output models be represented?
-Either as "grouped" barplot (the default) or via "facets".}
+\item{swap_dim}{Switches the role of grouping and facetting (default is \code{FALSE}).}
 
 \item{viridis_args}{List of viridis color scale arguments, see
-\verb{[ggplot2::scale_color_viridis_c()]}.
+\verb{[ggplot2::scale_color_viridis_d()]}.
 The default points to the global option \code{hstats.viridis_args},
-which corresponds to \code{list(begin = 0.25, end = 0.85, option = "B")}.
+which corresponds to \code{list(begin = 0.2, end = 0.8, option = "B")}.
 E.g., to switch to a standard viridis scale, you can change the default via
 \code{options(hstats.viridis_args = list())}, or set \code{viridis_args = list()}.}
 

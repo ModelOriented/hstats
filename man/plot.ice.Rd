@@ -9,6 +9,8 @@
   center = FALSE,
   alpha = 0.2,
   color = getOption("hstats.color"),
+  swap_dim = FALSE,
+  viridis_args = getOption("hstats.viridis_args"),
   facet_scales = "fixed",
   rotate_x = FALSE,
   ...
@@ -24,6 +26,15 @@
 \item{color}{Color of lines and points (in case there is no color/fill aesthetic).
 The default equals the global option \code{hstats.color = "#3b528b"}.
 To change the global option, use \verb{options(stats.color = new value)}.}
+
+\item{swap_dim}{Switches the role of grouping and facetting (default is \code{FALSE}).}
+
+\item{viridis_args}{List of viridis color scale arguments, see
+\verb{[ggplot2::scale_color_viridis_d()]}.
+The default points to the global option \code{hstats.viridis_args},
+which corresponds to \code{list(begin = 0.2, end = 0.8, option = "B")}.
+E.g., to switch to a standard viridis scale, you can change the default via
+\code{options(hstats.viridis_args = list())}, or set \code{viridis_args = list()}.}
 
 \item{facet_scales}{Value passed as \code{scales} argument to \verb{[ggplot2::facet_wrap()]}.}
 

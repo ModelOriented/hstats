@@ -213,13 +213,13 @@ test_that("perm_importance() accepts functions as losses (multivariate)", {
 
 test_that("plot() gives ggplot object (multivariate)", {
   expect_s3_class(plot(s1, rotate_x = TRUE), "ggplot")
-  expect_s3_class(plot(s1, rotate_x = TRUE, multi_output = "facets"), "ggplot")
+  expect_s3_class(plot(s1, rotate_x = TRUE, swap_dim = TRUE), "ggplot")
   expect_s3_class(plot(s1, err_type = "No"), "ggplot")
-  expect_s3_class(plot(s1, err_type = "No", multi_output = "facets"), "ggplot")
+  expect_s3_class(plot(s1, err_type = "No", swap_dim = TRUE), "ggplot")
   
   s2 <- perm_importance(fit, X = iris[3:5], y = y, m_rep = 1L)
   expect_s3_class(plot(s2), "ggplot")
-  expect_s3_class(plot(s2, multi_output = "facets", fill = "red"), "ggplot")
+  expect_s3_class(plot(s2, swap_dim = TRUE, fill = "red"), "ggplot")
 })
 
 test_that("Subsetting has an impact (multivariate)", {

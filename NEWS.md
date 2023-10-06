@@ -5,9 +5,9 @@ This release mainly changes the *output*. The numeric results are unchanged.
 ## Major changes
 
 - Revised plots: The colors and color palettes have changed and can (also) be controlled via global options. For instance, to change the fill color of all bars, set `options(hstats.fill = new value)`. Value labels are more clear, and there are more options. Varying color/fill scales now use viridis (inferno). This can be modified on the fly or via `options(hstats.viridis_args = list(...))`.
-- "hstats_matrix" object: All statistics functions, e.g., `h2_pairwise()` or `perm_importance()`, return a "hstats_matrix" object. The values are stored in `$M` and can be plotted via `plot()`.
+- "hstats_matrix" object: All statistics functions, e.g., `h2_pairwise()` or `perm_importance()`, now return a "hstats_matrix". The values are stored in `$M` and can be plotted via `plot()`.
 - `perm_importance()`: The `perms` argument has been changed to `m_rep`.
-- All `print()` and `summary()` methods have been revised.
+- `print()` and `summary()` methods have been revised.
 
 ## Minor changes
 
