@@ -247,7 +247,8 @@ poor_man_stack <- function(data, to_stack) {
     to_stack, 
     FUN = function(z) cbind.data.frame(data[keep], varying_ = z, value_ = data[, z])
   )
-  do.call(rbind, out)
+  out <- do.call(rbind, out)
+  transform(out, varying_ = factor(varying_, levels = to_stack))
 }
 
 #' Matrix to DF
@@ -278,7 +279,7 @@ mat2df <- function(mat, id = "Overall") {
   if (is.null(nm)) {
     nm <- seq_along(nrow(mat))
   }
-  out <- cbind.data.frame(id_ = id, variable_ = factor(nm, levels = rev(nm)), mat)
+  out <- cbind.data.frame(id_ = id, variable_ = factor(nm, levels = nm), mat)
   poor_man_stack(out, to_stack = pred_names)
 }
 
@@ -398,6 +399,24 @@ rotate_x_labs <- function() {
 get_color_scale <- function(x) {
   disc <- is.factor(x) || is.character(x) || is.logical(x)
   if (disc) ggplot2::scale_color_viridis_d else ggplot2::scale_color_viridis_c
+}
+
+#' Revert Levels
+#' 
+#' Horizontal barplots use unintuitive sortings. This function reverts
+#' the factor levels of a data.frame returned by `mat2df()`.
+#' 
+#' @noRd
+#' @keywords internal
+#' @param df A data.frame.
+#' 
+#' @returns A data.frame with reverted factor levels.
+barplot_reverter <- function(df) {
+  transform(
+    df, 
+    variable_ = factor(variable_, levels = rev(levels(variable_))),
+    varying_ = factor(varying_, levels = rev(levels(varying_)))
+  )
 }
 
 #' mlr3 Helper

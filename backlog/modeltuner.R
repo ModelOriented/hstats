@@ -1,5 +1,6 @@
-library(modeltuner)
 library(hstats)
+
+library(modeltuner)
 
 fit_lm <- model(lm(Sepal.Length ~ ., iris))
 fit_glm <- model(glm(Sepal.Length ~ ., iris, family = Gamma(link = "log")))

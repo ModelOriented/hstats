@@ -411,6 +411,7 @@ plot.hstats <- function(x, which = 1:2, normalize = TRUE, squared = TRUE,
       mat2df(utils::head(su[[nm]]$M, top_m), id = stat_labs[match(nm, stat_names)])
   )
   dat <- do.call(rbind, dat)
+  dat <- barplot_reverter(dat)
   
   p <- ggplot2::ggplot(dat, ggplot2::aes(x = value_, y = variable_)) +
     ggplot2::ylab(ggplot2::element_blank()) +
@@ -424,7 +425,8 @@ plot.hstats <- function(x, which = 1:2, normalize = TRUE, squared = TRUE,
         ggplot2::aes(fill = varying_), stat = "identity", position = "dodge", ...
       ) + 
       ggplot2::theme(legend.title = ggplot2::element_blank()) +
-      do.call(ggplot2::scale_fill_viridis_d, viridis_args)
+      do.call(ggplot2::scale_fill_viridis_d, viridis_args) +
+      ggplot2::guides(fill = ggplot2::guide_legend(reverse = TRUE))
   }
   if (length(ok) > 1L) {
     p <- p + ggplot2::facet_wrap(~ id_, ncol = ncol, scales = facet_scales)

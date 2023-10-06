@@ -178,7 +178,8 @@ plot.hstats_matrix <- function(x, top_m = 15L,
   if (err_type != "No") {
     df[["error_"]] <- mat2df(err)[["value_"]]
   }
-  
+  df <- barplot_reverter(df)
+
   if (is.null(viridis_args)) {
     viridis_args <- list()
   }
@@ -196,7 +197,8 @@ plot.hstats_matrix <- function(x, top_m = 15L,
       ggplot2::aes(fill = varying_), stat = "identity", position = "dodge", ...
     ) + 
       ggplot2::theme(legend.title = ggplot2::element_blank()) +
-      do.call(ggplot2::scale_fill_viridis_d, viridis_args)
+      do.call(ggplot2::scale_fill_viridis_d, viridis_args) +
+      ggplot2::guides(fill = ggplot2::guide_legend(reverse = TRUE))
   }
   if (err_type != "No") {
     if (!grouped) {
