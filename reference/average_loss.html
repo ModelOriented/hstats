@@ -127,7 +127,7 @@ for instance <code>type = "response"</code> in a <code><a href="https://rdrr.io/
 
 
 <dt>y</dt>
-<dd><p>Vector/matrix of the response corresponding to <code>X</code>.</p></dd>
+<dd><p>Vector/matrix of the response, or the corresponding column names in <code>X</code>.</p></dd>
 
 
 <dt>pred_fun</dt>
@@ -224,14 +224,14 @@ vector or matrix of the same length as the input.</p></li>
     <h2>Examples</h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># MODEL 1: Linear regression</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="va">Sepal.Length</span> <span class="op">~</span> <span class="va">.</span>, data <span class="op">=</span> <span class="va">iris</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">average_loss</span><span class="op">(</span><span class="va">fit</span>, X <span class="op">=</span> <span class="va">iris</span>, y <span class="op">=</span> <span class="va">iris</span><span class="op">$</span><span class="va">Sepal.Length</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">average_loss</span><span class="op">(</span><span class="va">fit</span>, X <span class="op">=</span> <span class="va">iris</span>, y <span class="op">=</span> <span class="st">"Sepal.Length"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Average loss</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.09037657</span>
-<span class="r-in"><span><span class="fu">average_loss</span><span class="op">(</span><span class="va">fit</span>, X <span class="op">=</span> <span class="va">iris</span>, y <span class="op">=</span> <span class="va">iris</span><span class="op">$</span><span class="va">Sepal.Length</span>, BY <span class="op">=</span> <span class="va">iris</span><span class="op">$</span><span class="va">Species</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">average_loss</span><span class="op">(</span><span class="va">fit</span>, X <span class="op">=</span> <span class="va">iris</span>, y <span class="op">=</span> <span class="va">iris</span><span class="op">$</span><span class="va">Sepal.Length</span>, BY <span class="op">=</span> <span class="va">iris</span><span class="op">$</span><span class="va">Sepal.Width</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Average loss</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     setosa versicolor  virginica </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 0.06463433 0.10839144 0.09810394 </span>
-<span class="r-in"><span><span class="fu">average_loss</span><span class="op">(</span><span class="va">fit</span>, X <span class="op">=</span> <span class="va">iris</span>, y <span class="op">=</span> <span class="va">iris</span><span class="op">$</span><span class="va">Sepal.Length</span>, BY <span class="op">=</span> <span class="st">"Sepal.Width"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    [2,2.8]    (2.8,3]    (3,3.3]  (3.3,4.4] </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 0.08934441 0.09847409 0.09612552 0.07914772 </span>
+<span class="r-in"><span><span class="fu">average_loss</span><span class="op">(</span><span class="va">fit</span>, X <span class="op">=</span> <span class="va">iris</span>, y <span class="op">=</span> <span class="st">"Sepal.Length"</span>, BY <span class="op">=</span> <span class="st">"Sepal.Width"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Average loss</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    [2,2.8]    (2.8,3]    (3,3.3]  (3.3,4.4] </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 0.08934441 0.09847409 0.09612552 0.07914772 </span>
@@ -242,7 +242,9 @@ vector or matrix of the same length as the input.</p></li>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Average loss</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Sepal.Length  Sepal.Width </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   0.11120993   0.08472089 </span>
-<span class="r-in"><span><span class="va">L</span> <span class="op">&lt;-</span> <span class="fu">average_loss</span><span class="op">(</span><span class="va">fit</span>, X <span class="op">=</span> <span class="va">iris</span>, y <span class="op">=</span> <span class="va">iris</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">]</span>, loss <span class="op">=</span> <span class="st">"gamma"</span>, BY <span class="op">=</span> <span class="st">"Species"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">L</span> <span class="op">&lt;-</span> <span class="fu">average_loss</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="va">fit</span>, X <span class="op">=</span> <span class="va">iris</span>, y <span class="op">=</span> <span class="va">iris</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">]</span>, loss <span class="op">=</span> <span class="st">"gamma"</span>, BY <span class="op">=</span> <span class="st">"Species"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">L</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Average loss</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>            Sepal.Length Sepal.Width</span>
