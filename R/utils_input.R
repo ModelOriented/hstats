@@ -72,6 +72,27 @@ prepare_w <- function(w, X) {
   list(w = w, w_name = w_name)
 }
 
+#' Prepares Response y
+#' 
+#' Internal function that prepares the response `y`.
+#' 
+#' @noRd
+#' @keywords internal
+#' @param y Vector/matrix-like of the same length as `X`, or column names in `X`.
+#' @param X Matrix-like.
+#' 
+#' @returns A list.
+prepare_y <- function(y, X) {
+  if (NROW(y) < nrow(X) && all(y %in% colnames(X))) {
+    y_names <- y
+    y <- X[, y]
+  } else {
+    stopifnot(NROW(y) == nrow(X))
+    y_names <- NULL
+  }
+  list(y = y, y_names = y_names)
+}
+
 #' mlr3 Helper
 #' 
 #' Returns the prediction function of a mlr3 Learner.

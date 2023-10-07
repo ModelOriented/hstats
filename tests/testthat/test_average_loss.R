@@ -4,7 +4,9 @@ y <- iris$Sepal.Length
 
 test_that("average_loss() works ungrouped for regression", {
   s <- average_loss(fit, X = iris, y = y)$M
+  s2 <- average_loss(fit, X = iris, y = "Sepal.Length")$M
   expect_equal(drop(s), mean((y - predict(fit, iris))^2))
+  expect_equal(s, s2)
   
   s <- average_loss(fit, X = iris, y = y, loss = "absolute_error")$M
   expect_equal(drop(s), mean(abs(y - predict(fit, iris))))
@@ -21,7 +23,7 @@ test_that("average_loss() works ungrouped for regression", {
 
 test_that("average_loss() works with groups for regression", {
   s <- average_loss(fit, X = iris, y = y, BY = iris$Species)$M
-  s2 <- average_loss(fit, X = iris, y = y, BY = "Species")$M
+  s2 <- average_loss(fit, X = iris, y = "Sepal.Length", BY = "Species")$M
   
   xpect <- by((y - predict(fit, iris))^2, FUN = mean, INDICES = iris$Species)
   expect_equal(drop(s), c(xpect))
@@ -29,16 +31,16 @@ test_that("average_loss() works with groups for regression", {
   
   expect_equal(dim(average_loss(fit, X = iris, y = y, BY = "Sepal.Width")$M), c(4L, 1L))
   expect_equal(
-    dim(average_loss(fit, X = iris, y = y, BY = "Sepal.Width", by_size = 2L)$M), 
+    dim(average_loss(fit, X = iris, y = "Sepal.Width", BY = "Sepal.Width", by_size = 2L)$M), 
     c(2L, 1L)
   )
 })
 
 test_that("average_loss() works with weights for regression", {
   s1 <- average_loss(fit, X = iris, y = y)
-  s2 <- average_loss(fit, X = iris, y = y, w = rep(2, times = 150))
+  s2 <- average_loss(fit, X = iris, y = "Sepal.Length", w = rep(2, times = 150))
   s3 <- average_loss(fit, X = iris, y = y, w = "Petal.Width")
-  s4 <- average_loss(fit, X = iris, y = y, w = iris$Petal.Width)
+  s4 <- average_loss(fit, X = iris, y = "Sepal.Length", w = iris$Petal.Width)
   
   expect_equal(s1, s2)
   expect_false(identical(s2, s3))
@@ -51,9 +53,9 @@ test_that("average_loss() works with weights and grouped for regression", {
   g <- iris$Species
   s1 <- average_loss(fit, X = iris, y = y, BY = g)
   s2 <- average_loss(
-    fit, X = iris, y = y, w = rep(2, times = 150), BY = "Species"
+    fit, X = iris, y = "Sepal.Length", w = rep(2, times = 150), BY = "Species"
   )
-  s3 <- average_loss(fit, X = iris, y = y, w = "Petal.Width", BY = g)
+  s3 <- average_loss(fit, X = iris, y = "Sepal.Length", w = "Petal.Width", BY = g)
   s4 <- average_loss(fit, X = iris, y = y, w = iris$Petal.Width, BY = g)
   
   expect_equal(s1, s2)
@@ -66,11 +68,14 @@ test_that("average_loss() works with weights and grouped for regression", {
 #================================================
 
 y <- as.matrix(iris[1:2])
+yy <- colnames(y)
 fit <- lm(y ~ Petal.Length + Species, data = iris)
 
 test_that("average_loss() works ungrouped (multi regression)", {
   s <- average_loss(fit, X = iris, y = y)$M
   expect_equal(drop(s), colMeans((y - predict(fit, iris))^2))
+  s2 <- average_loss(fit, X = iris, y = yy)$M
+  expect_equal(s, s2)
   
   s <- average_loss(fit, X = iris, y = y, loss = "absolute_error")$M
   expect_equal(drop(s), colMeans(abs(y - predict(fit, iris))))
@@ -81,7 +86,7 @@ test_that("average_loss() works ungrouped (multi regression)", {
   s <- average_loss(fit, X = iris, y = y, loss = "poisson")$M
   expect_equal(drop(s), colMeans(poisson()$dev.resid(y, predict(fit, iris), 1)))
   
-  s <- average_loss(fit, X = iris, y = y, loss = "gamma")$M
+  s <- average_loss(fit, X = iris, y = yy, loss = "gamma")$M
   expect_equal(drop(s), colMeans(Gamma()$dev.resid(y, predict(fit, iris), 1)))
 })
 
@@ -93,9 +98,9 @@ test_that("average_loss() works with groups (multi regression)", {
 
 test_that("average_loss() works with weights (multi regression)", {
   s1 <- average_loss(fit, X = iris, y = y)
-  s2 <- average_loss(fit, X = iris, y = y, w = rep(2, times = 150))
+  s2 <- average_loss(fit, X = iris, y = yy, w = rep(2, times = 150))
   s3 <- average_loss(fit, X = iris, y = y, w = iris$Petal.Width)
-  s4 <- average_loss(fit, X = iris, y = y, w = "Petal.Width")
+  s4 <- average_loss(fit, X = iris, y = yy, w = "Petal.Width")
   
   expect_equal(s1, s2)
   expect_false(identical(s2, s3))
@@ -105,9 +110,9 @@ test_that("average_loss() works with weights (multi regression)", {
 test_that("average_loss() works with weights and grouped (multi regression)", {
   g <- iris$Species
   s1 <- average_loss(fit, X = iris, y = y, BY = g)
-  s2 <- average_loss(fit, X = iris, y = y, w = rep(2, times = 150), BY = g)
+  s2 <- average_loss(fit, X = iris, y = yy, w = rep(2, times = 150), BY = g)
   s3 <- average_loss(fit, X = iris, y = y, w = iris$Petal.Width, BY = g)
-  s4 <- average_loss(fit, X = iris, y = y, w = "Petal.Width", BY = g)
+  s4 <- average_loss(fit, X = iris, y = yy, w = "Petal.Width", BY = g)
   
   expect_equal(s1, s2)
   expect_false(identical(s2, s3))

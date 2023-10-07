@@ -31,7 +31,7 @@
 #'   vector or matrix of the same length as the input.
 #'
 #' @inheritParams hstats
-#' @param y Vector/matrix of the response corresponding to `X`.
+#' @param y Vector/matrix of the response, or the corresponding column names in `X`.
 #' @param loss One of "squared_error", "logloss", "mlogloss", "poisson",
 #'   "gamma", "absolute_error", "classification_error". Alternatively, a loss function 
 #'   can be provided that turns observed and predicted values into a numeric vector or 
@@ -49,14 +49,16 @@
 #' @examples
 #' # MODEL 1: Linear regression
 #' fit <- lm(Sepal.Length ~ ., data = iris)
-#' average_loss(fit, X = iris, y = iris$Sepal.Length)
-#' average_loss(fit, X = iris, y = iris$Sepal.Length, BY = iris$Species)
-#' average_loss(fit, X = iris, y = iris$Sepal.Length, BY = "Sepal.Width")
+#' average_loss(fit, X = iris, y = "Sepal.Length")
+#' average_loss(fit, X = iris, y = iris$Sepal.Length, BY = iris$Sepal.Width)
+#' average_loss(fit, X = iris, y = "Sepal.Length", BY = "Sepal.Width")
 #'
 #' # MODEL 2: Multi-response linear regression
 #' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width + Species, data = iris)
 #' average_loss(fit, X = iris, y = iris[1:2])
-#' L <- average_loss(fit, X = iris, y = iris[1:2], loss = "gamma", BY = "Species")
+#' L <- average_loss(
+#'   fit, X = iris, y = iris[1:2], loss = "gamma", BY = "Species"
+#' )
 #' L
 #' plot(L)
 average_loss <- function(object, ...) {
@@ -72,9 +74,9 @@ average_loss.default <- function(object, X, y,
                                  w = NULL, ...) {
   stopifnot(
     is.matrix(X) || is.data.frame(X),
-    is.function(pred_fun),
-    NROW(y) == nrow(X)
+    is.function(pred_fun)
   )
+  y <- prepare_y(y = y, X = X)[["y"]]
   if (!is.null(w)) {
     w <- prepare_w(w = w, X = X)[["w"]]
   }

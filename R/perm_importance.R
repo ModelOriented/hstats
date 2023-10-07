@@ -12,8 +12,8 @@
 #' @inheritSection average_loss Losses
 #' 
 #' @param v Vector of feature names, or named list of feature groups.
-#'   The default (`NULL`) will use all column names of `X` except the column name 
-#'   of the optional case weight `w` (if specified as name).
+#'   The default (`NULL`) will use all column names of `X` with the following exception: 
+#'   If `y` or `w` are passed  as column names, they are dropped.
 #' @param m_rep Number of permutations (default 4).
 #' @param agg_cols Should multivariate losses be summed up? Default is `FALSE`.
 #' @param normalize Should importance statistics be divided by average loss?
@@ -30,7 +30,7 @@
 #' @examples
 #' # MODEL 1: Linear regression
 #' fit <- lm(Sepal.Length ~ ., data = iris)
-#' s <- perm_importance(fit, X = iris[-1], y = iris$Sepal.Length)
+#' s <- perm_importance(fit, X = iris, y = "Sepal.Length")
 #' s
 #' s$M
 #' s$SE  # Standard errors are available thanks to repeated shuffling
@@ -39,7 +39,7 @@
 #' 
 #' # Groups of features can be passed as named list
 #' v <- list(petal = c("Petal.Length", "Petal.Width"), species = "Species")
-#' s <- perm_importance(fit, X = iris, y = iris$Sepal.Length, v = v)
+#' s <- perm_importance(fit, X = iris, y = "Sepal.Length", v = v)
 #' s
 #' plot(s)
 #' 
@@ -64,9 +64,13 @@ perm_importance.default <- function(object, X, y, v = NULL,
   stopifnot(
     is.matrix(X) || is.data.frame(X),
     is.function(pred_fun),
-    NROW(y) == nrow(X),
     m_rep >= 1L
   )
+  
+  # Are y column names or a vector/matrix?
+  y2 <- prepare_y(y = y, X = X)
+  y <- y2[["y"]]
+  y_names <- y2[["y_names"]]
   
   # Is w a column name or a vector?
   if (!is.null(w)) {
@@ -80,6 +84,9 @@ perm_importance.default <- function(object, X, y, v = NULL,
     v <- colnames(X)
     if (!is.null(w) && !is.null(w_name)) {
       v <- setdiff(v, w_name)
+    }
+    if (!is.null(y_names)) {
+      v <- setdiff(v, y_names)
     }
   } else {
     v_c <- unlist(v, use.names = FALSE, recursive = FALSE)
