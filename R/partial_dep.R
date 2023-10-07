@@ -74,7 +74,7 @@
 #' 
 #' # MODEL 2: Multi-response linear regression
 #' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
-#' pd <- partial_dep(fit, v = "Petal.Width", X = iris, BY = iris$Species)
+#' pd <- partial_dep(fit, v = "Petal.Width", X = iris, BY = "Species")
 #' plot(pd, show_points = FALSE)
 #' plot(partial_dep(fit, v = c("Species", "Petal.Width"), X = iris), rotate_x = TRUE)
 #' 
@@ -325,12 +325,14 @@ plot.partial_dep <- function(x,
           ggplot2::aes(color = .data[[grp]], group = .data[[grp]]), ...
         ) +
         ggplot2::labs(color = grp) +
-        ggplot2::theme(legend.title = ggplot2::element_blank()) +
         do.call(get_color_scale(data[[grp]]), viridis_args)
       if (show_points) {
         p <- p + ggplot2::geom_point(
           ggplot2::aes(color = .data[[grp]], group = .data[[grp]])
         )
+      }
+      if (grp == "varying_") {
+        p <- p + ggplot2::theme(legend.title = ggplot2::element_blank())
       }
     }
   } else if (length(v) == 2L) {

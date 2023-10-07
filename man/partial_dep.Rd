@@ -194,7 +194,7 @@ plot(pd, rotate_x = TRUE)
 
 # MODEL 2: Multi-response linear regression
 fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
-pd <- partial_dep(fit, v = "Petal.Width", X = iris, BY = iris$Species)
+pd <- partial_dep(fit, v = "Petal.Width", X = iris, BY = "Species")
 plot(pd, show_points = FALSE)
 plot(partial_dep(fit, v = c("Species", "Petal.Width"), X = iris), rotate_x = TRUE)
 

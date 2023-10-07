@@ -27,7 +27,7 @@
 The default equals the global option \code{hstats.color = "#3b528b"}.
 To change the global option, use \verb{options(stats.color = new value)}.}
 
-\item{swap_dim}{Switches the role of grouping and facetting (default is \code{FALSE}).}
+\item{swap_dim}{Swaps between color groups and facets. Default is \code{FALSE}.}
 
 \item{viridis_args}{List of viridis color scale arguments, see
 \verb{[ggplot2::scale_color_viridis_d()]}.

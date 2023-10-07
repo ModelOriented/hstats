@@ -251,6 +251,7 @@ library(ranger)
 library(ggplot2)
 
 set.seed(1)
+
 fit <- ranger(Species ~ ., data = iris, probability = TRUE)
 average_loss(fit, X = iris, y = iris$Species, loss = "mlogloss")  # 0.0521
 
@@ -286,6 +287,8 @@ Here, we provide some working examples for "tidymodels", "caret", and "mlr3".
 library(hstats)
 library(tidymodels)
 
+set.seed(1)
+
 iris_recipe <- iris %>%
   recipe(Sepal.Length ~ .)
 
@@ -307,7 +310,7 @@ imp <- perm_importance(fit, X = iris[-1], y = iris$Sepal.Length)
 imp
 # Permutation importance
 # Petal.Length      Species  Petal.Width  Sepal.Width 
-#   4.44682039   0.34064367   0.10195946   0.09520902
+#   4.39197781   0.35038891   0.11966090   0.09604322 
 
 plot(imp)
 ```
@@ -317,6 +320,8 @@ plot(imp)
 ```r
 library(hstats)
 library(caret)
+
+set.seed(1)
 
 fit <- train(
   Sepal.Length ~ ., 
@@ -338,6 +343,8 @@ plot(perm_importance(fit, X = iris[-1], y = iris$Sepal.Length))
 library(hstats)
 library(mlr3)
 library(mlr3learners)
+
+set.seed(1)
 
 # Probabilistic classification
 task_iris <- TaskClassif$new(id = "class", backend = iris, target = "Species")
