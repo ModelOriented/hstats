@@ -59,7 +59,9 @@ heatmaps.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span></span>
 <span>  <span class="va">x</span>,</span>
 <span>  color <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"hstats.color"</span><span class="op">)</span>,</span>
-<span>  facet_scales <span class="op">=</span> <span class="st">"free_y"</span>,</span>
+<span>  swap_dim <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  viridis_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"hstats.viridis_args"</span><span class="op">)</span>,</span>
+<span>  facet_scales <span class="op">=</span> <span class="st">"fixed"</span>,</span>
 <span>  rotate_x <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  show_points <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  <span class="va">...</span></span>
@@ -78,6 +80,19 @@ The default equals the global option <code>hstats.color = "#3b528b"</code>.
 To change the global option, use <code>options(stats.color = new value)</code>.</p></dd>
 
 
+<dt>swap_dim</dt>
+<dd><p>Switches the role of grouping and facetting (default is <code>FALSE</code>).</p></dd>
+
+
+<dt>viridis_args</dt>
+<dd><p>List of viridis color scale arguments, see
+<code>[ggplot2::scale_color_viridis_d()]</code>.
+The default points to the global option <code>hstats.viridis_args</code>,
+which corresponds to <code>list(begin = 0.2, end = 0.8, option = "B")</code>.
+E.g., to switch to a standard viridis scale, you can change the default via
+<code>options(hstats.viridis_args = list())</code>, or set <code>viridis_args = list()</code>.</p></dd>
+
+
 <dt>facet_scales</dt>
 <dd><p>Value passed as <code>scales</code> argument to <code>[ggplot2::facet_wrap()]</code>.</p></dd>
 
@@ -87,7 +102,8 @@ To change the global option, use <code>options(stats.color = new value)</code>.<
 
 
 <dt>show_points</dt>
-<dd><p>Logical flag indicating whether to show points (default) or not.</p></dd>
+<dd><p>Logical flag indicating whether to show points (default) or not.
+No effect for 2D PDPs.</p></dd>
 
 
 <dt>...</dt>

@@ -132,7 +132,7 @@
 </h2>
 <ol style="list-style-type: decimal">
 <li>H-statistics are based on partial dependence estimates and are thus as good or bad as these. One of their problems is that the model is applied to unseen/impossible feature combinations. In extreme cases, H-statistics intended to be in the range between 0 and 1 can become larger than 1. Accumulated local effects (ALE) [8] mend above problem of partial dependence estimates. They, however, depend on the notion of “closeness”, which is highly non-trivial in higher dimension and for discrete features.</li>
-<li>Due to their computational complexity, H-statistics are usually evaluated on relatively small subsets of the training (or validation/test) data. Consequently, the estimates are typically not very robust. To get more robust results, increase the default <code>n_max = 300</code> of <code><a href="reference/hstats.html">hstats()</a></code>.</li>
+<li>Due to their computational complexity of <span class="math inline"><em>O</em>(<em>n</em><sup>2</sup>)</span>, where <span class="math inline"><em>n</em></span> is the number of rows considered, H-statistics are usually evaluated on relatively small subsets of the training (or validation/test) data. Consequently, the estimates are typically not very robust. To get more robust results, increase the default <code>n_max = 300</code> of <code><a href="reference/hstats.html">hstats()</a></code>.</li>
 </ol>
 </div>
 <div class="section level2">
@@ -334,6 +334,7 @@
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
+<span></span>
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">ranger</span><span class="op">(</span><span class="va">Species</span> <span class="op">~</span> <span class="va">.</span>, data <span class="op">=</span> <span class="va">iris</span>, probability <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="fu"><a href="reference/average_loss.html">average_loss</a></span><span class="op">(</span><span class="va">fit</span>, X <span class="op">=</span> <span class="va">iris</span>, y <span class="op">=</span> <span class="va">iris</span><span class="op">$</span><span class="va">Species</span>, loss <span class="op">=</span> <span class="st">"mlogloss"</span><span class="op">)</span>  <span class="co"># 0.0521</span></span>
 <span></span>
@@ -367,6 +368,8 @@
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/mayer79/hstats" class="external-link">hstats</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidymodels.tidymodels.org" class="external-link">tidymodels</a></span><span class="op">)</span></span>
 <span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
+<span></span>
 <span><span class="va">iris_recipe</span> <span class="op">&lt;-</span> <span class="va">iris</span> <span class="op">%&gt;%</span></span>
 <span>  <span class="fu">recipe</span><span class="op">(</span><span class="va">Sepal.Length</span> <span class="op">~</span> <span class="va">.</span><span class="op">)</span></span>
 <span></span>
@@ -388,7 +391,7 @@
 <span><span class="va">imp</span></span>
 <span><span class="co"># Permutation importance</span></span>
 <span><span class="co"># Petal.Length      Species  Petal.Width  Sepal.Width </span></span>
-<span><span class="co">#   4.44682039   0.34064367   0.10195946   0.09520902</span></span>
+<span><span class="co">#   4.39197781   0.35038891   0.11966090   0.09604322 </span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">imp</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -398,6 +401,8 @@
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/mayer79/hstats" class="external-link">hstats</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/topepo/caret/" class="external-link">caret</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">train</span><span class="op">(</span></span>
 <span>  <span class="va">Sepal.Length</span> <span class="op">~</span> <span class="va">.</span>, </span>
@@ -420,6 +425,8 @@
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://mlr3.mlr-org.com" class="external-link">mlr3</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://mlr3learners.mlr-org.com" class="external-link">mlr3learners</a></span><span class="op">)</span></span>
 <span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
+<span></span>
 <span><span class="co"># Probabilistic classification</span></span>
 <span><span class="va">task_iris</span> <span class="op">&lt;-</span> <span class="va">TaskClassif</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span>id <span class="op">=</span> <span class="st">"class"</span>, backend <span class="op">=</span> <span class="va">iris</span>, target <span class="op">=</span> <span class="st">"Species"</span><span class="op">)</span></span>
 <span><span class="va">fit_rf</span> <span class="op">&lt;-</span> <span class="fu">lrn</span><span class="op">(</span><span class="st">"classif.ranger"</span>, predict_type <span class="op">=</span> <span class="st">"prob"</span><span class="op">)</span></span>
@@ -428,7 +435,8 @@
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">s</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Permutation importance</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="reference/perm_importance.html">perm_importance</a></span><span class="op">(</span><span class="va">fit_rf</span>, X <span class="op">=</span> <span class="va">iris</span><span class="op">[</span><span class="op">-</span><span class="fl">5</span><span class="op">]</span>, y <span class="op">=</span> <span class="va">iris</span><span class="op">$</span><span class="va">Species</span>, loss <span class="op">=</span> <span class="st">"mlogloss"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="reference/perm_importance.html">perm_importance</a></span><span class="op">(</span><span class="va">fit_rf</span>, X <span class="op">=</span> <span class="va">iris</span><span class="op">[</span><span class="op">-</span><span class="fl">5</span><span class="op">]</span>, y <span class="op">=</span> <span class="va">iris</span><span class="op">$</span><span class="va">Species</span>, loss <span class="op">=</span> <span class="st">"mlogloss"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">

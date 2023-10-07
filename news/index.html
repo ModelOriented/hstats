@@ -52,15 +52,16 @@
 <p>This release mainly changes the <em>output</em>. The numeric results are unchanged.</p>
 <div class="section level3">
 <h3 id="major-changes-0-4-0">Major changes<a class="anchor" aria-label="anchor" href="#major-changes-0-4-0"></a></h3>
-<ul><li>Revised plots: The colors have changed and can (also) be controlled via global options. For instance, to change the fill color of all bars, set <code>options(stats.fill = new value)</code>. Value labels are more clear, and there are more options. Stacked barplots use viridis.</li>
-<li>“hstats_matrix” object: All statistics functions, e.g., <code><a href="../reference/H2_pairwise.html">h2_pairwise()</a></code> or <code><a href="../reference/perm_importance.html">perm_importance()</a></code>, return a “hstats_matrix” object. The values are stored in <code>$M</code> and can be plotted via <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code>.</li>
+<ul><li>Revised plots: The colors and color palettes have changed and can (also) be controlled via global options. For instance, to change the fill color of all bars, set <code>options(hstats.fill = new value)</code>. Value labels are more clear, and there are more options. Varying color/fill scales now use viridis (inferno). This can be modified on the fly or via <code>options(hstats.viridis_args = list(...))</code>.</li>
+<li>“hstats_matrix” object: All statistics functions, e.g., <code><a href="../reference/H2_pairwise.html">h2_pairwise()</a></code> or <code><a href="../reference/perm_importance.html">perm_importance()</a></code>, now return a “hstats_matrix”. The values are stored in <code>$M</code> and can be plotted via <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code>.</li>
 <li>
 <code><a href="../reference/perm_importance.html">perm_importance()</a></code>: The <code>perms</code> argument has been changed to <code>m_rep</code>.</li>
-<li>All <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> and <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> methods have been revised.</li>
+<li>
+<code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> and <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> methods have been revised.</li>
 </ul></div>
 <div class="section level3">
 <h3 id="minor-changes-0-4-0">Minor changes<a class="anchor" aria-label="anchor" href="#minor-changes-0-4-0"></a></h3>
-<ul><li>Statistics: Their argument <code>top_m</code> has been moved to the <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> method.</li>
+<ul><li>Statistics: The argument <code>top_m</code> has been moved to the <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> method.</li>
 <li>Statistics: The clipping threshold <code>eps</code> of squared numerator statistics has been reduced from <code>1e-8</code> to <code>1e-10</code>. It is now handled in <code><a href="../reference/hstats.html">hstats()</a></code> instead of the statistic functions.</li>
 <li>
 <code>H-squared</code>: The <span class="math inline"><em>H</em><sup>2</sup></span> statistic stored in a “hstats” object is now a matrix with one row (it was a vector).</li>
@@ -68,6 +69,10 @@
 <code><a href="../reference/pd_importance.html">pd_importance()</a></code>: The “hstats” object now contains pre-calculated PD-based importance values in <code>$pd_importance</code>.</li>
 <li>
 <code><a href="../reference/summary.hstats.html">summary.hstats()</a></code> now returns an object of class “hstats_summary” instead of “summary_hstats”.</li>
+<li>
+<code><a href="../reference/average_loss.html">average_loss()</a></code> is more flexible regarding the group <code>BY</code> argument. It can also be a variable <em>name</em>. Non-discrete <code>BY</code> variables are now automatically binned. Like <code><a href="../reference/partial_dep.html">partial_dep()</a></code>, binning is controlled by the <code>by_size = 4</code> argument.</li>
+<li>
+<code><a href="../reference/average_loss.html">average_loss()</a></code> also returns a “hstats_matrix” object with <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> and <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> method. The values can be extracted via <code>$M</code>.</li>
 </ul></div>
 </div>
     <div class="section level2">

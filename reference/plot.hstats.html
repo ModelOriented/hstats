@@ -63,7 +63,7 @@
 <span>  top_m <span class="op">=</span> <span class="fl">15L</span>,</span>
 <span>  zero <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  fill <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"hstats.fill"</span><span class="op">)</span>,</span>
-<span>  scale_fill_d <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"hstats.scale_fill_d"</span><span class="op">)</span>,</span>
+<span>  viridis_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"hstats.viridis_args"</span><span class="op">)</span>,</span>
 <span>  facet_scales <span class="op">=</span> <span class="st">"free"</span>,</span>
 <span>  ncol <span class="op">=</span> <span class="fl">2L</span>,</span>
 <span>  rotate_x <span class="op">=</span> <span class="cn">FALSE</span>,</span>
@@ -110,11 +110,13 @@ use <code>1:3</code>.</p></dd>
 <code>options(stats.fill = new value)</code>.</p></dd>
 
 
-<dt>scale_fill_d</dt>
-<dd><p>Discrete fill scale for grouped bars. The default equals the
-global option <code>hstats.scale_fill_d</code>, which equals
-<code>scale_fill_viridis_d(begin = 0.25, end = 0.85, option = "inferno")</code>.
-To change the global option, use <code>options(hstats.scale_fill_d = new value)</code>.</p></dd>
+<dt>viridis_args</dt>
+<dd><p>List of viridis color scale arguments, see
+<code>[ggplot2::scale_color_viridis_d()]</code>.
+The default points to the global option <code>hstats.viridis_args</code>,
+which corresponds to <code>list(begin = 0.2, end = 0.8, option = "B")</code>.
+E.g., to switch to a standard viridis scale, you can change the default via
+<code>options(hstats.viridis_args = list())</code>, or set <code>viridis_args = list()</code>.</p></dd>
 
 
 <dt>facet_scales</dt>

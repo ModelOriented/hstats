@@ -59,6 +59,8 @@
 <span>  center <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  alpha <span class="op">=</span> <span class="fl">0.2</span>,</span>
 <span>  color <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"hstats.color"</span><span class="op">)</span>,</span>
+<span>  swap_dim <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  viridis_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"hstats.viridis_args"</span><span class="op">)</span>,</span>
 <span>  facet_scales <span class="op">=</span> <span class="st">"fixed"</span>,</span>
 <span>  rotate_x <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  <span class="va">...</span></span>
@@ -83,6 +85,19 @@
 <dd><p>Color of lines and points (in case there is no color/fill aesthetic).
 The default equals the global option <code>hstats.color = "#3b528b"</code>.
 To change the global option, use <code>options(stats.color = new value)</code>.</p></dd>
+
+
+<dt>swap_dim</dt>
+<dd><p>Swaps between color groups and facets. Default is <code>FALSE</code>.</p></dd>
+
+
+<dt>viridis_args</dt>
+<dd><p>List of viridis color scale arguments, see
+<code>[ggplot2::scale_color_viridis_d()]</code>.
+The default points to the global option <code>hstats.viridis_args</code>,
+which corresponds to <code>list(begin = 0.2, end = 0.8, option = "B")</code>.
+E.g., to switch to a standard viridis scale, you can change the default via
+<code>options(hstats.viridis_args = list())</code>, or set <code>viridis_args = list()</code>.</p></dd>
 
 
 <dt>facet_scales</dt>
