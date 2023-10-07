@@ -161,11 +161,12 @@ be binned into quantile groups. Only relevant if <code>BY</code> is not <code>NU
 
 
 <dt>w</dt>
-<dd><p>Optional vector of case weights for each row of <code>X</code>.</p></dd>
+<dd><p>Optional vector of case weights. Can also be a column name of <code>X</code>.</p></dd>
 
 
 <dt>v</dt>
-<dd><p>Vector of feature names, by default <code>colnames(X)</code>.</p></dd>
+<dd><p>Vector of feature names. The default (<code>NULL</code>) will use all column names of
+<code>X</code> except the column name of the optional case weight <code>w</code> (if specified as name).</p></dd>
 
 </dl></div>
     <div id="value">

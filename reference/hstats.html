@@ -92,7 +92,7 @@ more flexible functions <code><a href="H2.html">h2()</a></code>, <code><a href="
 <span><span class="fu">hstats</span><span class="op">(</span></span>
 <span>  <span class="va">object</span>,</span>
 <span>  <span class="va">X</span>,</span>
-<span>  v <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span>,</span>
+<span>  v <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  pred_fun <span class="op">=</span> <span class="fu">stats</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span>,</span>
 <span>  n_max <span class="op">=</span> <span class="fl">300L</span>,</span>
 <span>  w <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -107,7 +107,7 @@ more flexible functions <code><a href="H2.html">h2()</a></code>, <code><a href="
 <span><span class="fu">hstats</span><span class="op">(</span></span>
 <span>  <span class="va">object</span>,</span>
 <span>  <span class="va">X</span>,</span>
-<span>  v <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span>,</span>
+<span>  v <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  pred_fun <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">m</span>, <span class="va">X</span>, <span class="va">...</span><span class="op">)</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">m</span>, <span class="va">X</span>, <span class="va">...</span><span class="op">)</span><span class="op">$</span><span class="va">predictions</span>,</span>
 <span>  n_max <span class="op">=</span> <span class="fl">300L</span>,</span>
 <span>  w <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -122,7 +122,7 @@ more flexible functions <code><a href="H2.html">h2()</a></code>, <code><a href="
 <span><span class="fu">hstats</span><span class="op">(</span></span>
 <span>  <span class="va">object</span>,</span>
 <span>  <span class="va">X</span>,</span>
-<span>  v <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span>,</span>
+<span>  v <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  pred_fun <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  n_max <span class="op">=</span> <span class="fl">300L</span>,</span>
 <span>  w <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -137,7 +137,7 @@ more flexible functions <code><a href="H2.html">h2()</a></code>, <code><a href="
 <span><span class="fu">hstats</span><span class="op">(</span></span>
 <span>  <span class="va">object</span>,</span>
 <span>  X <span class="op">=</span> <span class="va">object</span><span class="op">[[</span><span class="st">"data"</span><span class="op">]</span><span class="op">]</span>,</span>
-<span>  v <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span>,</span>
+<span>  v <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  pred_fun <span class="op">=</span> <span class="va">object</span><span class="op">[[</span><span class="st">"predict_function"</span><span class="op">]</span><span class="op">]</span>,</span>
 <span>  n_max <span class="op">=</span> <span class="fl">300L</span>,</span>
 <span>  w <span class="op">=</span> <span class="va">object</span><span class="op">[[</span><span class="st">"weights"</span><span class="op">]</span><span class="op">]</span>,</span>
@@ -165,7 +165,8 @@ for instance <code>type = "response"</code> in a <code><a href="https://rdrr.io/
 
 
 <dt>v</dt>
-<dd><p>Vector of feature names, by default <code>colnames(X)</code>.</p></dd>
+<dd><p>Vector of feature names. The default (<code>NULL</code>) will use all column names of
+<code>X</code> except the column name of the optional case weight <code>w</code> (if specified as name).</p></dd>
 
 
 <dt>pred_fun</dt>
@@ -183,7 +184,7 @@ selected from <code>X</code>. In this case, set a random seed for reproducibilit
 
 
 <dt>w</dt>
-<dd><p>Optional vector of case weights for each row of <code>X</code>.</p></dd>
+<dd><p>Optional vector of case weights. Can also be a column name of <code>X</code>.</p></dd>
 
 
 <dt>pairwise_m</dt>
@@ -213,8 +214,9 @@ The default is <code>min(pairwise_m, 5)</code>. Set to 0 to avoid three-way calc
     
 
 <p>An object of class "hstats" containing these elements:</p><ul><li><p><code>X</code>: Input <code>X</code> (sampled to <code>n_max</code> rows).</p></li>
-<li><p><code>w</code>: Input <code>w</code> (sampled to <code>n_max</code> values, or <code>NULL</code>).</p></li>
-<li><p><code>v</code>: Same as input <code>v</code>.</p></li>
+<li><p><code>w</code>: Case weight vector <code>w</code> (sampled to <code>n_max</code> values), or <code>NULL</code>.</p></li>
+<li><p><code>v</code>: Vector of column names in <code>X</code> for which overall
+H statistics have been calculated.</p></li>
 <li><p><code>f</code>: Matrix with (centered) predictions \(F\).</p></li>
 <li><p><code>mean_f2</code>: (Weighted) column means of <code>f</code>. Used to normalize \(H^2\) and
 \(H^2_j\).</p></li>
