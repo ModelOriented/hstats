@@ -136,12 +136,13 @@ print.hstats_matrix <- function(x, top_m = Inf, ...) {
 #' @param fill Fill color of ungrouped bars. The default equals the global option
 #'   `hstats.fill = "#fca50a"`. To change the global option, use
 #'   `options(stats.fill = new value)`.
-#' @param multi_output How should multi-output models be represented? 
-#'   Either as "grouped" barplot (the default) or via "facets".
-#' @param scale_fill_d Discrete fill scale for grouped bars. The default equals the 
-#'   global option `hstats.scale_fill_d`, which equals 
-#'   `scale_fill_viridis_d(begin = 0.25, end = 0.85, option = "inferno")`. 
-#'   To change the global option, use `options(hstats.scale_fill_d = new value)`.
+#' @param swap_dim Switches the role of grouping and facetting (default is `FALSE`).
+#' @param viridis_args List of viridis color scale arguments, see
+#'   `[ggplot2::scale_color_viridis_d()]`. 
+#'   The default points to the global option `hstats.viridis_args`, 
+#'   which corresponds to `list(begin = 0.2, end = 0.8, option = "B")`.
+#'   E.g., to switch to a standard viridis scale, you can change the default via 
+#'   `options(hstats.viridis_args = list())`, or set `viridis_args = list()`. 
 #' @param facet_scales Value passed as `scales` argument to `[ggplot2::facet_wrap()]`.
 #' @param ncol Passed to `[ggplot2::facet_wrap()]`.
 #' @param rotate_x Should x axis labels be rotated by 45 degrees?
@@ -153,14 +154,12 @@ print.hstats_matrix <- function(x, top_m = Inf, ...) {
 #' @returns An object of class "ggplot".
 plot.hstats_matrix <- function(x, top_m = 15L,
                                fill = getOption("hstats.fill"),
-                               multi_output = c("grouped", "facets"),
-                               scale_fill_d = getOption("hstats.scale_fill_d"),
-                               facet_scales = "free", 
+                               swap_dim = FALSE,
+                               viridis_args = getOption("hstats.viridis_args"),
+                               facet_scales = "fixed", 
                                ncol = 2L, rotate_x = FALSE,
                                err_type = c("SE", "SD", "No"), ...) {
   err_type <- match.arg(err_type)
-  multi_output <- match.arg(multi_output)
-  
   M <- x[["M"]]
   if (is.null(M)) {
     message("Nothing to plot!")
@@ -174,9 +173,15 @@ plot.hstats_matrix <- function(x, top_m = 15L,
   } else if (err_type == "SD") {
     err <- err * sqrt(x[["m_rep"]])
   }
+  
   df <- mat2df(M)
   if (err_type != "No") {
     df[["error_"]] <- mat2df(err)[["value_"]]
+  }
+  df <- barplot_reverter(df)
+
+  if (is.null(viridis_args)) {
+    viridis_args <- list()
   }
   
   p <- ggplot2::ggplot(df, ggplot2::aes(x = value_, y = variable_)) + 
@@ -184,7 +189,7 @@ plot.hstats_matrix <- function(x, top_m = 15L,
     ggplot2::xlab(x[["description"]])
   
   K <- ncol(M)
-  grouped <- multi_output == "grouped" && K > 1L
+  grouped <- K > 1L && !swap_dim 
   if (!grouped) {
     p <- p + ggplot2::geom_bar(fill = fill, stat = "identity", ...)
   } else {
@@ -192,7 +197,8 @@ plot.hstats_matrix <- function(x, top_m = 15L,
       ggplot2::aes(fill = varying_), stat = "identity", position = "dodge", ...
     ) + 
       ggplot2::theme(legend.title = ggplot2::element_blank()) +
-      scale_fill_d
+      do.call(ggplot2::scale_fill_viridis_d, viridis_args) +
+      ggplot2::guides(fill = ggplot2::guide_legend(reverse = TRUE))
   }
   if (err_type != "No") {
     if (!grouped) {
@@ -210,11 +216,14 @@ plot.hstats_matrix <- function(x, top_m = 15L,
       )
     }
   }
-  if (K > 1L && multi_output == "facets") {
+  if (K > 1L && swap_dim) {
     p <- p + ggplot2::facet_wrap("varying_", ncol = ncol, scales = facet_scales)
   }
+  if (nrow(M) == 1L) {
+      p <- p + ggplot2::theme(axis.text.y = ggplot2::element_blank())
+  }
   if (rotate_x) {
-    p + rotate_x_labs()
+    p <- p + rotate_x_labs()
   }
   p
 }

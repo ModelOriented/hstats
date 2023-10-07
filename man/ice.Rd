@@ -152,6 +152,7 @@ fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = ir
 ic <- ice(fit, v = "Petal.Width", X = iris, BY = iris$Species)
 plot(ic)
 plot(ic, center = TRUE)
+plot(ic, swap_dim = TRUE)
 
 # MODEL 3: Gamma GLM -> pass options to predict() via ...
 fit <- glm(Sepal.Length ~ ., data = iris, family = Gamma(link = log))

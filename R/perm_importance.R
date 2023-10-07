@@ -7,7 +7,7 @@
 #' loss when shuffling the corresponding feature values before calculating predictions.
 #' By default, the process is repeated `m_rep = 4` times, and the results are averaged.
 #' In most of the cases, importance values should be derived from an independent test
-#' data set.
+#' data set. Set `normalize = TRUE` to get *relative* increases in average loss.
 #' 
 #' @inheritSection average_loss Losses
 #' 
@@ -46,7 +46,7 @@
 #' s <- perm_importance(fit, X = iris[3:5], y = iris[1:2], normalize = TRUE)
 #' s
 #' plot(s)
-#' plot(s, multi_output = "facets", top_m = 2)
+#' plot(s, swap_dim = TRUE, top_m = 2)
 perm_importance <- function(object, ...) {
   UseMethod("perm_importance")
 }

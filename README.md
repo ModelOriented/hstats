@@ -32,7 +32,7 @@ The core functions `hstats()`, `partial_dep()`, `ice()`, `perm_importance()`, an
 ## Limitations
 
 1. H-statistics are based on partial dependence estimates and are thus as good or bad as these. One of their problems is that the model is applied to unseen/impossible feature combinations. In extreme cases, H-statistics intended to be in the range between 0 and 1 can become larger than 1. Accumulated local effects (ALE) [8] mend above problem of partial dependence estimates. They, however, depend on the notion of "closeness", which is highly non-trivial in higher dimension and for discrete features.
-2. Due to their computational complexity, H-statistics are usually evaluated on relatively small subsets of the training (or validation/test) data. Consequently, the estimates are typically not very robust. To get more robust results, increase the default `n_max = 300` of `hstats()`.
+2. Due to their computational complexity of $O(n^2)$, where $n$ is the number of rows considered, H-statistics are usually evaluated on relatively small subsets of the training (or validation/test) data. Consequently, the estimates are typically not very robust. To get more robust results, increase the default `n_max = 300` of `hstats()`.
 
 ## Landscape
 
@@ -251,6 +251,7 @@ library(ranger)
 library(ggplot2)
 
 set.seed(1)
+
 fit <- ranger(Species ~ ., data = iris, probability = TRUE)
 average_loss(fit, X = iris, y = iris$Species, loss = "mlogloss")  # 0.0521
 
@@ -286,6 +287,8 @@ Here, we provide some working examples for "tidymodels", "caret", and "mlr3".
 library(hstats)
 library(tidymodels)
 
+set.seed(1)
+
 iris_recipe <- iris %>%
   recipe(Sepal.Length ~ .)
 
@@ -307,7 +310,7 @@ imp <- perm_importance(fit, X = iris[-1], y = iris$Sepal.Length)
 imp
 # Permutation importance
 # Petal.Length      Species  Petal.Width  Sepal.Width 
-#   4.44682039   0.34064367   0.10195946   0.09520902
+#   4.39197781   0.35038891   0.11966090   0.09604322 
 
 plot(imp)
 ```
@@ -317,6 +320,8 @@ plot(imp)
 ```r
 library(hstats)
 library(caret)
+
+set.seed(1)
 
 fit <- train(
   Sepal.Length ~ ., 
@@ -339,6 +344,8 @@ library(hstats)
 library(mlr3)
 library(mlr3learners)
 
+set.seed(1)
+
 # Probabilistic classification
 task_iris <- TaskClassif$new(id = "class", backend = iris, target = "Species")
 fit_rf <- lrn("classif.ranger", predict_type = "prob")
@@ -347,7 +354,8 @@ s <- hstats(fit_rf, X = iris[-5], threeway_m = 0)
 plot(s)
 
 # Permutation importance
-plot(perm_importance(fit_rf, X = iris[-5], y = iris$Species, loss = "mlogloss"))
+perm_importance(fit_rf, X = iris[-5], y = iris$Species, loss = "mlogloss") |> 
+  plot()
 ```
 
 ## Background

@@ -388,8 +388,12 @@ print.hstats_summary <- function(x, ...) {
 plot.hstats <- function(x, which = 1:2, normalize = TRUE, squared = TRUE, 
                         sort = TRUE, top_m = 15L, zero = TRUE, 
                         fill = getOption("hstats.fill"), 
-                        scale_fill_d = getOption("hstats.scale_fill_d"),
+                        viridis_args = getOption("hstats.viridis_args"),
                         facet_scales = "free", ncol = 2L, rotate_x = FALSE, ...) {
+  if (is.null(viridis_args)) {
+    viridis_args <- list()
+  }
+  
   su <- summary(x, normalize = normalize, squared = squared, sort = sort, zero = zero)
   su <- su[sapply(su, FUN = function(z) !is.null(z[["M"]]))]
 
@@ -407,28 +411,30 @@ plot.hstats <- function(x, which = 1:2, normalize = TRUE, squared = TRUE,
       mat2df(utils::head(su[[nm]]$M, top_m), id = stat_labs[match(nm, stat_names)])
   )
   dat <- do.call(rbind, dat)
+  dat <- barplot_reverter(dat)
   
   p <- ggplot2::ggplot(dat, ggplot2::aes(x = value_, y = variable_)) +
     ggplot2::ylab(ggplot2::element_blank()) +
     ggplot2::xlab(su$h2$description)  # Generic enough?
   
-  if (length(ok) > 1L) {
-    p <- p + 
-      ggplot2::facet_wrap(~ id_, ncol = ncol, scales = facet_scales)
-  }
-  if (rotate_x) {
-    p <- p + rotate_x_labs()
-  }
   if (x[["K"]] == 1L) {
-    p + ggplot2::geom_bar(fill = fill, stat = "identity", ...)
+    p <- p + ggplot2::geom_bar(fill = fill, stat = "identity", ...)
   } else {
-    p + 
+    p <- p + 
       ggplot2::geom_bar(
         ggplot2::aes(fill = varying_), stat = "identity", position = "dodge", ...
       ) + 
       ggplot2::theme(legend.title = ggplot2::element_blank()) +
-      scale_fill_d
+      do.call(ggplot2::scale_fill_viridis_d, viridis_args) +
+      ggplot2::guides(fill = ggplot2::guide_legend(reverse = TRUE))
   }
+  if (length(ok) > 1L) {
+    p <- p + ggplot2::facet_wrap(~ id_, ncol = ncol, scales = facet_scales)
+  }
+  if (rotate_x) {
+    p <- p + rotate_x_labs()
+  }
+  p
 }
 
 # Helper functions used only in this script

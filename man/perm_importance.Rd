@@ -138,7 +138,7 @@ The permutation importance of a feature is defined as the increase in the averag
 loss when shuffling the corresponding feature values before calculating predictions.
 By default, the process is repeated \code{m_rep = 4} times, and the results are averaged.
 In most of the cases, importance values should be derived from an independent test
-data set.
+data set. Set \code{normalize = TRUE} to get \emph{relative} increases in average loss.
 }
 \section{Methods (by class)}{
 \itemize{
@@ -203,7 +203,7 @@ fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width + Species, data = ir
 s <- perm_importance(fit, X = iris[3:5], y = iris[1:2], normalize = TRUE)
 s
 plot(s)
-plot(s, multi_output = "facets", top_m = 2)
+plot(s, swap_dim = TRUE, top_m = 2)
 }
 \references{
 Fisher A., Rudin C., Dominici F. (2018). All Models are Wrong but many are Useful:

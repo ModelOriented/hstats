@@ -15,8 +15,9 @@ average_loss(object, ...)
   X,
   y,
   pred_fun = stats::predict,
-  BY = NULL,
   loss = "squared_error",
+  BY = NULL,
+  by_size = 4L,
   w = NULL,
   ...
 )
@@ -26,8 +27,9 @@ average_loss(object, ...)
   X,
   y,
   pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
-  BY = NULL,
   loss = "squared_error",
+  BY = NULL,
+  by_size = 4L,
   w = NULL,
   ...
 )
@@ -38,8 +40,9 @@ average_loss(object, ...)
   X,
   y,
   pred_fun = NULL,
-  BY = NULL,
   loss = "squared_error",
+  BY = NULL,
+  by_size = 4L,
   w = NULL,
   ...
 )
@@ -49,8 +52,9 @@ average_loss(object, ...)
   X = object[["data"]],
   y = object[["y"]],
   pred_fun = object[["predict_function"]],
-  BY = NULL,
   loss = "squared_error",
+  BY = NULL,
+  by_size = 4L,
   w = object[["weights"]],
   ...
 )
@@ -72,8 +76,6 @@ model \code{object}, its second argument a data structure like \code{X}. Additio
 model) can be passed via \code{...}. The default, \code{\link[stats:predict]{stats::predict()}}, will work in
 most cases.}
 
-\item{BY}{Optional grouping vector.}
-
 \item{loss}{One of "squared_error", "logloss", "mlogloss", "poisson",
 "gamma", "absolute_error", "classification_error". Alternatively, a loss function
 can be provided that turns observed and predicted values into a numeric vector or
@@ -81,6 +83,13 @@ matrix of unit losses of the same length as \code{X}.
 For "mlogloss", the response \code{y} can either be a dummy matrix or a discrete vector.
 The latter case is handled via \code{model.matrix(~ as.factor(y) + 0)}.
 For "classification_error", both predictions and responses can be non-numeric.}
+
+\item{BY}{Optional grouping vector or column name.
+Numeric \code{BY} variables with more than \code{by_size} disjoint values will be
+binned into \code{by_size} quantile groups of similar size.}
+
+\item{by_size}{Numeric \code{BY} variables with more than \code{by_size} unique values will
+be binned into quantile groups. Only relevant if \code{BY} is not \code{NULL}.}
 
 \item{w}{Optional vector of case weights for each row of \code{X}.}
 
@@ -101,7 +110,7 @@ Currently, supported only for \code{\link[=perm_importance]{perm_importance()}}.
 }
 \description{
 Calculates the average loss of a model on a given dataset,
-optionally grouped by a discrete vector. Use \code{plot()} to get a barplot.
+optionally grouped by a variable. Use \code{plot()} to visualize the results.
 }
 \section{Methods (by class)}{
 \itemize{
@@ -150,12 +159,12 @@ vector or matrix of the same length as the input.
 fit <- lm(Sepal.Length ~ ., data = iris)
 average_loss(fit, X = iris, y = iris$Sepal.Length)
 average_loss(fit, X = iris, y = iris$Sepal.Length, BY = iris$Species)
+average_loss(fit, X = iris, y = iris$Sepal.Length, BY = "Sepal.Width")
 
 # MODEL 2: Multi-response linear regression
 fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width + Species, data = iris)
 average_loss(fit, X = iris, y = iris[1:2])
-L <- average_loss(fit, X = iris, y = iris[1:2], loss = "gamma", BY = iris$Species)
+L <- average_loss(fit, X = iris, y = iris[1:2], loss = "gamma", BY = "Species")
 L
 plot(L)
-plot(L, multi_output = "facets")
 }

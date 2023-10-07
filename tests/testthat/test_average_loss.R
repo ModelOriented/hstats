@@ -21,8 +21,17 @@ test_that("average_loss() works ungrouped for regression", {
 
 test_that("average_loss() works with groups for regression", {
   s <- average_loss(fit, X = iris, y = y, BY = iris$Species)$M
+  s2 <- average_loss(fit, X = iris, y = y, BY = "Species")$M
+  
   xpect <- by((y - predict(fit, iris))^2, FUN = mean, INDICES = iris$Species)
   expect_equal(drop(s), c(xpect))
+  expect_equal(s, s2)
+  
+  expect_equal(dim(average_loss(fit, X = iris, y = y, BY = "Sepal.Width")$M), c(4L, 1L))
+  expect_equal(
+    dim(average_loss(fit, X = iris, y = y, BY = "Sepal.Width", by_size = 2L)$M), 
+    c(2L, 1L)
+  )
 })
 
 test_that("average_loss() works with weights for regression", {
@@ -37,7 +46,7 @@ test_that("average_loss() works with weights for regression", {
 test_that("average_loss() works with weights and grouped for regression", {
   g <- iris$Species
   s1 <- average_loss(fit, X = iris, y = y, BY = g)
-  s2 <- average_loss(fit, X = iris, y = y, w = rep(2, times = 150), BY = g)
+  s2 <- average_loss(fit, X = iris, y = y, w = rep(2, times = 150), BY = "Species")
   s3 <- average_loss(fit, X = iris, y = y, w = 1:150, BY = g)
   
   expect_equal(s1, s2)
@@ -158,7 +167,7 @@ test_that("average_loss() works with weights and grouped (multi)", {
   g <- iris$Species
   s1 <- average_loss(fit, X = iris, y = y, BY = g, 
                      pred_fun = pf, loss = "logloss")
-  s2 <- average_loss(fit, X = iris, y = y, w = rep(2, times = 150), BY = g,
+  s2 <- average_loss(fit, X = iris, y = y, w = rep(2, times = 150), BY = "Species",
                      pred_fun = pf, loss = "logloss")
   s3 <- average_loss(fit, X = iris, y = y, w = 1:150, BY = g,
                      pred_fun = pf, loss = "logloss")

@@ -168,7 +168,11 @@ test_that("Plots give 'ggplot' objects", {
   
   # One v, no by, multivariate
   expect_s3_class(
-    plot(ice(fit, v = "Species", X = iris2), color = "red"), 
+    plot(ice(fit, v = "Species", X = iris2)), 
+    "ggplot"
+  )
+  expect_s3_class(
+    plot(ice(fit, v = "Species", X = iris2), swap_dim = TRUE), 
     "ggplot"
   )
   
@@ -177,13 +181,14 @@ test_that("Plots give 'ggplot' objects", {
     plot(ice(fit, v = "Species", X = iris2), center = TRUE), 
     "ggplot"
   )
+  expect_s3_class(
+    plot(ice(fit, v = "Species", X = iris2), center = TRUE, swap_dim = TRUE), 
+    "ggplot"
+  )
   
   # One v, one by, multivariate
   expect_s3_class(
-    plot(
-      ice(fit, v = "Species", X = iris2, BY = "Petal.Width"), 
-      facet_scales = "fixed"
-    ), 
+    plot(ice(fit, v = "Species", X = iris2, BY = "Petal.Width")), 
     "ggplot"
   )
   

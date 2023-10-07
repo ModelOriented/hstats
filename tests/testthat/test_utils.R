@@ -243,7 +243,7 @@ test_that("poor_man_stack() works (test could be improved", {
   out <- poor_man_stack(X, to_stack = c("y", "z"))
   xpected <- data.frame(
     x = rep(1:3, times = 2L), 
-    varying_ = rep(c("y", "z"), each = 3L),
+    varying_ = factor(rep(c("y", "z"), each = 3L)),
     value_ = c(y, z)
   )
   expect_equal(out, xpected)
@@ -258,8 +258,8 @@ test_that("mat2df() works (test could be improved)", {
   rownames(out) <- NULL
   xpected <- data.frame(
     id_ = "Overall", 
-    variable_ = factor(c("a", "b", "a", "b"), levels = c("b", "a")),
-    varying_ = c("y", "y", "z", "z"),
+    variable_ = factor(c("a", "b", "a", "b")),
+    varying_ = factor(c("y", "y", "z", "z")),
     value_ = c(1, 2, 0.5, 0.5),
     stringsAsFactors = FALSE
   )
@@ -267,7 +267,7 @@ test_that("mat2df() works (test could be improved)", {
   
   mat_no_names <- mat
   colnames(mat_no_names) <- NULL
-  expect_equal(unique(mat2df(mat_no_names)$varying_), c("y1", "y2"))
+  expect_equal(unique(mat2df(mat_no_names)$varying_), factor(c("y1", "y2")))
   
   expect_error(mat2df(head(iris)))
   expect_error(mat2df(1:4))

@@ -12,7 +12,7 @@ test_that("pd_importance() detects absent and present features (multivariate)", 
   s <- hstats(fit, X = iris[3:5], verbose = FALSE)
   imp <- pd_importance(s, sort = FALSE)
   expect_s3_class(plot(imp), "ggplot")
-  expect_s3_class(plot(imp, multi_output = "facets"), "ggplot")
+  expect_s3_class(plot(imp, swap_dim = TRUE), "ggplot")
   expect_true(all(imp$M[c("Species", "Petal.Length"), ] > 0))
   expect_true(all(imp$M["Petal.Width", ] == 0))
 })

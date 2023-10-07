@@ -247,7 +247,8 @@ poor_man_stack <- function(data, to_stack) {
     to_stack, 
     FUN = function(z) cbind.data.frame(data[keep], varying_ = z, value_ = data[, z])
   )
-  do.call(rbind, out)
+  out <- do.call(rbind, out)
+  transform(out, varying_ = factor(varying_, levels = to_stack))
 }
 
 #' Matrix to DF
@@ -278,7 +279,7 @@ mat2df <- function(mat, id = "Overall") {
   if (is.null(nm)) {
     nm <- seq_along(nrow(mat))
   }
-  out <- cbind.data.frame(id_ = id, variable_ = factor(nm, levels = rev(nm)), mat)
+  out <- cbind.data.frame(id_ = id, variable_ = factor(nm, levels = nm), mat)
   poor_man_stack(out, to_stack = pred_names)
 }
 
@@ -343,7 +344,40 @@ qcut <- function(x, m) {
   cut(x, breaks = unique(g), include.lowest = TRUE)
 }
 
-#' Utility "ggplot" Function
+#' Prepares Group BY Variable
+#' 
+#' Internal function that prepares a BY variable or BY column name.
+#' 
+#' @noRd
+#' @keywords internal
+#' @param BY Vector/factor or column name in `X`.
+#' @param X Matrix-like.
+#' @param by_size Determines if numeric `X` is discrete or needs to be binned.
+#' 
+#' @returns A list.
+prepare_by <- function(BY, X, by_size) {
+  if (length(BY) == 1L && BY %in% colnames(X)) {
+    by_name <- BY
+    BY <- X[, by_name]
+  } else {
+    stopifnot(
+      NCOL(BY) == 1L,
+      is.vector(BY) || is.factor(BY),
+      length(BY) == nrow(X)
+    )
+    by_name <- "Group"
+  }
+  
+  # Binning
+  by_values <- unique(BY)
+  if (is.numeric(BY) && length(by_values) > by_size) {
+    BY <- qcut(BY, m = by_size)
+    by_values <- unique(BY)
+  }
+  list(BY = BY, by_values = by_values, by_name = by_name)
+}
+
+#' Rotate x labels in plots
 #' 
 #' @noRd
 #' @keywords internal
@@ -352,6 +386,36 @@ qcut <- function(x, m) {
 rotate_x_labs <- function() {
   ggplot2::theme(
     axis.text.x = ggplot2::element_text(angle = 45, hjust = 1, vjust = 1)
+  )
+}
+
+#' Color Scale based on column
+#' 
+#' @noRd
+#' @keywords internal
+#' @param x A vector/factor.
+#' 
+#' @returns Discrete or continuous viridis color scale
+get_color_scale <- function(x) {
+  disc <- is.factor(x) || is.character(x) || is.logical(x)
+  if (disc) ggplot2::scale_color_viridis_d else ggplot2::scale_color_viridis_c
+}
+
+#' Revert Levels
+#' 
+#' Horizontal barplots use unintuitive sortings. This function reverts
+#' the factor levels of a data.frame returned by `mat2df()`.
+#' 
+#' @noRd
+#' @keywords internal
+#' @param df A data.frame.
+#' 
+#' @returns A data.frame with reverted factor levels.
+barplot_reverter <- function(df) {
+  transform(
+    df, 
+    variable_ = factor(variable_, levels = rev(levels(variable_))),
+    varying_ = factor(varying_, levels = rev(levels(varying_)))
   )
 }
 

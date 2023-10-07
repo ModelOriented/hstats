@@ -1,7 +1,7 @@
 #' Average Loss
 #'
 #' Calculates the average loss of a model on a given dataset, 
-#' optionally grouped by a discrete vector. Use `plot()` to get a barplot.
+#' optionally grouped by a variable. Use `plot()` to visualize the results.
 #' 
 #' @section Losses: 
 #' 
@@ -39,7 +39,11 @@
 #'   For "mlogloss", the response `y` can either be a dummy matrix or a discrete vector. 
 #'   The latter case is handled via `model.matrix(~ as.factor(y) + 0)`.
 #'   For "classification_error", both predictions and responses can be non-numeric.
-#' @param BY Optional grouping vector.
+#' @param BY Optional grouping vector or column name.
+#'   Numeric `BY` variables with more than `by_size` disjoint values will be 
+#'   binned into `by_size` quantile groups of similar size. 
+#' @param by_size Numeric `BY` variables with more than `by_size` unique values will
+#'   be binned into quantile groups. Only relevant if `BY` is not `NULL`.
 #' @inherit h2_overall return
 #' @export
 #' @examples
@@ -47,14 +51,14 @@
 #' fit <- lm(Sepal.Length ~ ., data = iris)
 #' average_loss(fit, X = iris, y = iris$Sepal.Length)
 #' average_loss(fit, X = iris, y = iris$Sepal.Length, BY = iris$Species)
+#' average_loss(fit, X = iris, y = iris$Sepal.Length, BY = "Sepal.Width")
 #'
 #' # MODEL 2: Multi-response linear regression
 #' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width + Species, data = iris)
 #' average_loss(fit, X = iris, y = iris[1:2])
-#' L <- average_loss(fit, X = iris, y = iris[1:2], loss = "gamma", BY = iris$Species)
+#' L <- average_loss(fit, X = iris, y = iris[1:2], loss = "gamma", BY = "Species")
 #' L
 #' plot(L)
-#' plot(L, multi_output = "facets")
 average_loss <- function(object, ...) {
   UseMethod("average_loss")
 }
@@ -63,7 +67,8 @@ average_loss <- function(object, ...) {
 #' @export
 average_loss.default <- function(object, X, y, 
                                  pred_fun = stats::predict,
-                                 BY = NULL, loss = "squared_error", w = NULL, ...) {
+                                 loss = "squared_error", 
+                                 BY = NULL, by_size = 4L, w = NULL, ...) {
   stopifnot(
     is.matrix(X) || is.data.frame(X),
     nrow(X) >= 1L,
@@ -72,11 +77,7 @@ average_loss.default <- function(object, X, y,
     NROW(y) == nrow(X)
   )
   if (!is.null(BY)) {
-    stopifnot(
-      NCOL(BY) == 1L,
-      is.vector(BY) || is.factor(BY),
-      length(BY) == nrow(X)
-    )
+    BY <- prepare_by(BY = BY, X = X, by_size = by_size)[["BY"]]
   }
   if (!is.function(loss)) {
     loss <- get_loss_fun(loss)
@@ -102,7 +103,8 @@ average_loss.default <- function(object, X, y,
 #' @export
 average_loss.ranger <- function(object, X, y, 
                                 pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
-                                BY = NULL, loss = "squared_error", w = NULL, ...) {
+                                loss = "squared_error", 
+                                BY = NULL, by_size = 4L, w = NULL, ...) {
   average_loss.default(
     object = object, 
     X = X, 
@@ -119,7 +121,8 @@ average_loss.ranger <- function(object, X, y,
 #' @export
 average_loss.Learner <- function(object, v, X, y, 
                                  pred_fun = NULL,
-                                 BY = NULL, loss = "squared_error", w = NULL, ...) {
+                                 loss = "squared_error", 
+                                 BY = NULL, by_size = 4L, w = NULL, ...) {
   if (is.null(pred_fun)) {
     pred_fun <- mlr3_pred_fun(object, X = X)
   }
@@ -141,8 +144,9 @@ average_loss.explainer <- function(object,
                                    X = object[["data"]], 
                                    y = object[["y"]], 
                                    pred_fun = object[["predict_function"]],
-                                   BY = NULL, 
                                    loss = "squared_error", 
+                                   BY = NULL, 
+                                   by_size = 4L,
                                    w = object[["weights"]], 
                                    ...) {
   average_loss.default(

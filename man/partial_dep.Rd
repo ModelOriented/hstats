@@ -91,12 +91,13 @@ model \code{object}, its second argument a data structure like \code{X}. Additio
 model) can be passed via \code{...}. The default, \code{\link[stats:predict]{stats::predict()}}, will work in
 most cases.}
 
-\item{BY}{Optional grouping vector or a column name. The partial dependence
+\item{BY}{Optional grouping vector or column name. The partial dependence
 function is calculated per \code{BY} group. Each \code{BY} group
 uses the same evaluation grid to improve assessment of (non-)additivity.
 Numeric \code{BY} variables with more than \code{by_size} disjoint values will be
-binned into \code{by_size} quantile groups of similar size. Subsampling of \code{X} is done
-within group to improve robustness.}
+binned into \code{by_size} quantile groups of similar size. To improve robustness,
+subsampling of \code{X} is done within group. This only applies to \code{BY} groups with
+more than \code{n_max} rows.}
 
 \item{by_size}{Numeric \code{BY} variables with more than \code{by_size} unique values will
 be binned into quantile groups. Only relevant if \code{BY} is not \code{NULL}.}
@@ -193,17 +194,19 @@ plot(pd, rotate_x = TRUE)
 
 # MODEL 2: Multi-response linear regression
 fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
-pd <- partial_dep(fit, v = "Petal.Width", X = iris, BY = iris$Species)
+pd <- partial_dep(fit, v = "Petal.Width", X = iris, BY = "Species")
 plot(pd, show_points = FALSE)
 plot(partial_dep(fit, v = c("Species", "Petal.Width"), X = iris), rotate_x = TRUE)
 
 # Multivariate, multivariable, and BY (no plot available)
-pd <- partial_dep(fit, v = c("Petal.Width", "Petal.Length"), X = iris, BY = "Species")
+pd <- partial_dep(
+  fit, v = c("Petal.Width", "Petal.Length"), X = iris, BY = "Species"
+)
 pd
 
 # MODEL 3: Gamma GLM -> pass options to predict() via ...
 fit <- glm(Sepal.Length ~ ., data = iris, family = Gamma(link = log))
-plot(partial_dep(fit, v = "Petal.Length", X = iris))
+plot(partial_dep(fit, v = "Petal.Length", X = iris), show_points = FALSE)
 plot(partial_dep(fit, v = "Petal.Length", X = iris, type = "response"))
 }
 \references{

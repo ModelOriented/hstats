@@ -43,6 +43,7 @@
 #' ic <- ice(fit, v = "Petal.Width", X = iris, BY = iris$Species)
 #' plot(ic)
 #' plot(ic, center = TRUE)
+#' plot(ic, swap_dim = TRUE)
 #'
 #' # MODEL 3: Gamma GLM -> pass options to predict() via ...
 #' fit <- glm(Sepal.Length ~ ., data = iris, family = Gamma(link = log))
@@ -69,7 +70,7 @@ ice.default <- function(object, v, X, pred_fun = stats::predict,
     check_grid(g = grid, v = v, X_is_matrix = is.matrix(X))
   }
   
-  # Prepare BY
+  # Prepare BY (could be integrated into prepare_by())
   if (!is.null(BY)) {
     if (length(BY) <= 2L && all(BY %in% colnames(X))) {
       by_names <- BY
@@ -224,11 +225,14 @@ print.ice <- function(x, n = 3L, ...) {
 #' @param x An object of class "ice".
 #' @param center Should curves be centered? Default is `FALSE`.
 #' @param alpha Transparency passed to `ggplot2::geom_line()`.
+#' @param swap_dim Swaps between color groups and facets. Default is `FALSE`.
 #' @export
 #' @returns An object of class "ggplot".
 #' @seealso See [ice()] for examples.
 plot.ice <- function(x, center = FALSE, alpha = 0.2, 
                      color = getOption("hstats.color"),
+                     swap_dim = FALSE,
+                     viridis_args = getOption("hstats.viridis_args"),
                      facet_scales = "fixed", 
                      rotate_x = FALSE, ...) {
   v <- x[["v"]]
@@ -236,12 +240,15 @@ plot.ice <- function(x, center = FALSE, alpha = 0.2,
   data <- x[["data"]]
   pred_names <- x[["pred_names"]]
   by_names <- x[["by_names"]]
+  if (is.null(viridis_args)) {
+    viridis_args <- list()
+  }
   
   if (length(v) > 1L) {
     stop("Maximal one feature v can be plotted.")
   }
   if ((K > 1L) + length(by_names) > 2L) {
-    stop("Two BY variables and multivariate output has no plot method yet.")
+    stop("Two BY variables of multivariate output is not supported yet.")
   }
   if (center) {
     pos <- trunc((NROW(x[["grid"]]) + 1) / 2)
@@ -252,22 +259,42 @@ plot.ice <- function(x, center = FALSE, alpha = 0.2,
   }
   data <- poor_man_stack(data, to_stack = pred_names)
 
+  # Distinguish all possible cases
+  grp <- if (is.null(by_names) && K > 1L) "varying_" else by_names[1L]   # can be NULL
+  wrp <- if (!is.null(by_names) && K > 1L) "varying_" 
+  if (length(by_names) == 2L) {
+    wrp <- by_names[2L]
+  }
+  if (swap_dim) {
+    tmp <- grp
+    grp <- wrp
+    wrp <- tmp
+  }
+  
+  if (!is.null(grp) && grp == "varying_") {
+    data <- transform(data, obs_ = interaction(obs_, varying_))
+  }
+  
   p <- ggplot2::ggplot(data, ggplot2::aes(x = .data[[v]], y = value_, group = obs_)) +
     ggplot2::labs(x = v, y = if (center) "Centered ICE" else "ICE")
-
-  if (is.null(by_names)) {
+  
+  if (is.null(grp)) {
     p <- p + ggplot2::geom_line(color = color, alpha = alpha, ...)
   } else {
     p <- p +
-      ggplot2::geom_line(
-        ggplot2::aes(color = .data[[by_names[1L]]]), alpha = alpha, ...
-      ) +
-      ggplot2::labs(color = by_names[1L]) + 
+      ggplot2::geom_line(ggplot2::aes(color = .data[[grp]]), alpha = alpha, ...) +
+      ggplot2::labs(color = grp) + 
+      do.call(get_color_scale(data[[grp]]), viridis_args) +
       ggplot2::guides(color = ggplot2::guide_legend(override.aes = list(alpha = 1)))
+    if (grp == "varying_") {
+      p <- p + ggplot2::theme(legend.title = ggplot2::element_blank())
+    }
   }
-  if (K > 1L || length(by_names) == 2L) {  # Only one is possible
-    wrp <- if (K > 1L) "varying_" else by_names[2L]
+  if (!is.null(wrp)) {
     p <- p + ggplot2::facet_wrap(wrp, scales = facet_scales)
   }
-  if (rotate_x) p + rotate_x_labs() else p
+  if (rotate_x) {
+    p <- p + rotate_x_labs()
+  }
+  p
 }
