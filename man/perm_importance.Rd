@@ -82,11 +82,11 @@ for instance \code{type = "response"} in a \code{\link[=glm]{glm()}} model.}
 
 \item{X}{A data.frame or matrix serving as background dataset.}
 
-\item{y}{Vector/matrix of the response corresponding to \code{X}.}
+\item{y}{Vector/matrix of the response, or the corresponding column names in \code{X}.}
 
 \item{v}{Vector of feature names, or named list of feature groups.
-The default (\code{NULL}) will use all column names of \code{X} except the column name
-of the optional case weight \code{w} (if specified as name).}
+The default (\code{NULL}) will use all column names of \code{X} with the following exception:
+If \code{y} or \code{w} are passed  as column names, they are dropped.}
 
 \item{pred_fun}{Prediction function of the form \verb{function(object, X, ...)},
 providing \eqn{K \ge 1} predictions per row. Its first argument represents the
@@ -187,7 +187,7 @@ vector or matrix of the same length as the input.
 \examples{
 # MODEL 1: Linear regression
 fit <- lm(Sepal.Length ~ ., data = iris)
-s <- perm_importance(fit, X = iris[-1], y = iris$Sepal.Length)
+s <- perm_importance(fit, X = iris, y = "Sepal.Length")
 s
 s$M
 s$SE  # Standard errors are available thanks to repeated shuffling
@@ -196,7 +196,7 @@ plot(s, err_type = "SD")  # Standard deviations instead of standard errors
 
 # Groups of features can be passed as named list
 v <- list(petal = c("Petal.Length", "Petal.Width"), species = "Species")
-s <- perm_importance(fit, X = iris, y = iris$Sepal.Length, v = v)
+s <- perm_importance(fit, X = iris, y = "Sepal.Length", v = v)
 s
 plot(s)
 

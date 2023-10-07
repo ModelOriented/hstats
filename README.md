@@ -253,7 +253,7 @@ library(ggplot2)
 set.seed(1)
 
 fit <- ranger(Species ~ ., data = iris, probability = TRUE)
-average_loss(fit, X = iris, y = iris$Species, loss = "mlogloss")  # 0.0521
+average_loss(fit, X = iris, y = "Species", loss = "mlogloss")  # 0.0521
 
 s <- hstats(fit, X = iris[-5])
 s
@@ -267,7 +267,7 @@ ice(fit, v = "Petal.Length", X = iris, BY = "Petal.Width", n_max = 150) |>
   plot(center = TRUE) +
   ggtitle("Centered ICE plots")
   
-perm_importance(fit, X = iris[-5], y = iris$Species, loss = "mlogloss")
+perm_importance(fit, X = iris, y = "Species", loss = "mlogloss")
 # Permutation importance
 # Petal.Length  Petal.Width Sepal.Length  Sepal.Width 
 #   0.50941613   0.49187688   0.05669978   0.00950009 
@@ -306,7 +306,7 @@ s <- hstats(fit, X = iris[-1])
 s # 0 -> no interactions
 plot(partial_dep(fit, v = "Petal.Width", X = iris))
 
-imp <- perm_importance(fit, X = iris[-1], y = iris$Sepal.Length)
+imp <- perm_importance(fit, X = iris, y = "Sepal.Length")
 imp
 # Permutation importance
 # Petal.Length      Species  Petal.Width  Sepal.Width 
@@ -334,7 +334,7 @@ fit <- train(
 h2(hstats(fit, X = iris[-1]))  # 0
 
 plot(ice(fit, v = "Petal.Width", X = iris), center = TRUE)
-plot(perm_importance(fit, X = iris[-1], y = iris$Sepal.Length))
+plot(perm_importance(fit, X = iris, y = "Sepal.Length"))
 ```
 
 ### mlr3
@@ -354,7 +354,7 @@ s <- hstats(fit_rf, X = iris[-5], threeway_m = 0)
 plot(s)
 
 # Permutation importance
-perm_importance(fit_rf, X = iris[-5], y = iris$Species, loss = "mlogloss") |> 
+perm_importance(fit_rf, X = iris, y = "Species", loss = "mlogloss") |> 
   plot()
 ```
 

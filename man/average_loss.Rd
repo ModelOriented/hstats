@@ -67,7 +67,7 @@ for instance \code{type = "response"} in a \code{\link[=glm]{glm()}} model.}
 
 \item{X}{A data.frame or matrix serving as background dataset.}
 
-\item{y}{Vector/matrix of the response corresponding to \code{X}.}
+\item{y}{Vector/matrix of the response, or the corresponding column names in \code{X}.}
 
 \item{pred_fun}{Prediction function of the form \verb{function(object, X, ...)},
 providing \eqn{K \ge 1} predictions per row. Its first argument represents the
@@ -158,14 +158,16 @@ vector or matrix of the same length as the input.
 \examples{
 # MODEL 1: Linear regression
 fit <- lm(Sepal.Length ~ ., data = iris)
-average_loss(fit, X = iris, y = iris$Sepal.Length)
-average_loss(fit, X = iris, y = iris$Sepal.Length, BY = iris$Species)
-average_loss(fit, X = iris, y = iris$Sepal.Length, BY = "Sepal.Width")
+average_loss(fit, X = iris, y = "Sepal.Length")
+average_loss(fit, X = iris, y = iris$Sepal.Length, BY = iris$Sepal.Width)
+average_loss(fit, X = iris, y = "Sepal.Length", BY = "Sepal.Width")
 
 # MODEL 2: Multi-response linear regression
 fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width + Species, data = iris)
 average_loss(fit, X = iris, y = iris[1:2])
-L <- average_loss(fit, X = iris, y = iris[1:2], loss = "gamma", BY = "Species")
+L <- average_loss(
+  fit, X = iris, y = iris[1:2], loss = "gamma", BY = "Species"
+)
 L
 plot(L)
 }

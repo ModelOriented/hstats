@@ -18,8 +18,9 @@ This release mainly changes the *output*. The numeric results are unchanged.
 - `summary.hstats()` now returns an object of class "hstats_summary" instead of "summary_hstats".
 - `average_loss()` is more flexible regarding the group `BY` argument. It can also be a variable *name*. Non-discrete `BY` variables are now automatically binned. Like `partial_dep()`, binning is controlled by the `by_size = 4` argument.
 - `average_loss()` also returns a "hstats_matrix" object with `print()` and `plot()` method. The values can be extracted via `$M`.
-- Case weights `w` can now also be passed as column name of `X`.
-- The default `v` of `hstats()` and `perm_importance()` is now `NULL`. Internally, it is set to `colnames(X)` (minus the column name of `w` if passed as name).
+- Case weights `w` can now also be passed as column name of `X` (to any function).
+- `perm_importance()` and `average_loss()`: The response(s) `y` can now also be passed as column name(s) of `X`.
+- The default `v` of `hstats()` and `perm_importance()` is now `NULL`. Internally, it is set to `colnames(X)` (minus the column names of `w` and `y` if passed as name).
 
 # hstats 0.3.0
 

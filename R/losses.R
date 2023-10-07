@@ -149,6 +149,13 @@ expand_actual <- function(actual, predicted) {
   pp <- NCOL(predicted)
   pa <- NCOL(actual)
   if (pa == pp) {
+    if (pa > 1L) {
+      nmp <- colnames(predicted)
+      nma <- colnames(actual)
+      if (!is.null(nmp) && !is.null(nma) && !identical(nmp, nma)) {
+        stop("Column names of multi-output response must correspond to predictions.")
+      }
+    }
     return(actual)
   }
   if (pp > 1L && pa == 1L) {

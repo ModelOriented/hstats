@@ -2,6 +2,7 @@
 fit <- lm(Sepal.Length ~ Sepal.Width + Species, data = iris)
 v <- setdiff(names(iris), "Sepal.Length")
 y <- iris$Sepal.Length
+yy <- "Sepal.Length"
 set.seed(1L)
 s1 <- perm_importance(fit, X = iris[-1L], y = y)
 
@@ -23,6 +24,12 @@ test_that("v can be selected (univariate)", {
   expect_equal(s1, s2)
 })
 
+test_that("y can also be passed as name (univariate)", {
+  set.seed(1L)
+  s2 <- perm_importance(fit, X = iris, y = yy)
+  expect_equal(s1, s2)
+})
+
 test_that("results are positive for modeled features and zero otherwise (univariate)", {
   expect_true(all(s1$M[c("Sepal.Width", "Species"), ] > 1e-8))
   expect_true(all(s1$M[c("Petal.Length", "Petal.Width"), ] < 1e-8))
@@ -30,6 +37,7 @@ test_that("results are positive for modeled features and zero otherwise (univari
 
 test_that("perm_importance() raises some errors (univariate)", {
   expect_error(perm_importance(fit, X = iris[-1L], y = 1:10))
+  expect_error(perm_importance(fit, X = iris[-1], y = "Hello"))
 })
 
 test_that("constant weights is same as unweighted (univariate)", {
@@ -40,7 +48,8 @@ test_that("constant weights is same as unweighted (univariate)", {
 
 test_that("non-constant weights is different from unweighted (univariate)", {
   set.seed(1L)
-  s2 <- perm_importance(fit, X = iris[-1L], y = y, w = "Petal.Width")
+  s2 <- perm_importance(fit, X = iris, y = yy, w = "Petal.Width")
+  
   set.seed(1L)
   s3 <- perm_importance(
     fit, 
@@ -49,6 +58,7 @@ test_that("non-constant weights is different from unweighted (univariate)", {
     y = y, 
     w = iris$Petal.Width
   )
+  
   set.seed(1L)
   s4 <- perm_importance(
     fit, X = iris, v = colnames(iris[-1L]), y = y, w = "Petal.Width"
@@ -142,6 +152,7 @@ test_that("non-numeric predictions can work as well (classification error)", {
 #================================================
 
 y <- as.matrix(iris[1:2])
+yy <- colnames(y)
 fit <- lm(y ~ Petal.Length + Species, data = iris)
 v <- c("Petal.Length", "Petal.Width", "Species")
 set.seed(1L)
@@ -150,6 +161,16 @@ perf <- average_loss(fit, X = iris, y = y)$M
 
 test_that("print() does not give error (multivariate)", {
   capture_output(expect_no_error(print(s1)))
+})
+
+test_that("response can be passed as vector (multivariate)", {
+  set.seed(1L)
+  s2 <- perm_importance(fit, X = iris, y = yy)
+  expect_equal(s1, s2)
+  
+  set.seed(1L)
+  s3 <- perm_importance(fit, X = iris, y = yy, v = colnames(iris))
+  expect_true(nrow(s2$M) < nrow(s3$M))
 })
 
 test_that("agg_cols works (multivariate)", {
@@ -193,6 +214,8 @@ test_that("results are positive for modeled features and zero otherwise (multiva
 
 test_that("perm_importance() raises some errors (multivariate)", {
   expect_error(perm_importance(fit, X = iris[3:5], y = 1:10))
+  expect_error(perm_importance(fit, X = iris[3:5], y = "hi"))
+  expect_error(perm_importance(fit, X = iris, y = rev(yy)))
 })
 
 test_that("constant weights is same as unweighted (multivariate)", {
