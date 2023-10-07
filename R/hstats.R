@@ -23,7 +23,8 @@
 #'  
 #' @param object Fitted model object.
 #' @param X A data.frame or matrix serving as background dataset.
-#' @param v Vector of feature names, by default `colnames(X)`.
+#' @param v Vector of feature names. The default (`NULL`) will use all column names of
+#'   `X` except the column name of the optional case weight `w` (if specified as name).
 #' @param pred_fun Prediction function of the form `function(object, X, ...)`,
 #'   providing \eqn{K \ge 1} predictions per row. Its first argument represents the 
 #'   model `object`, its second argument a data structure like `X`. Additional arguments 
@@ -32,7 +33,7 @@
 #'   most cases.
 #' @param n_max If `X` has more than `n_max` rows, a random sample of `n_max` rows is
 #'   selected from `X`. In this case, set a random seed for reproducibility.
-#' @param w Optional vector of case weights for each row of `X`.
+#' @param w Optional vector of case weights. Can also be a column name of `X`.
 #' @param pairwise_m Number of features for which pairwise statistics are to be 
 #'   calculated. The features are selected based on Friedman and Popescu's overall 
 #'   interaction strength \eqn{H^2_j}. Set to to 0 to avoid pairwise calculations.
@@ -48,8 +49,9 @@
 #' @returns 
 #'   An object of class "hstats" containing these elements:
 #'   - `X`: Input `X` (sampled to `n_max` rows).
-#'   - `w`: Input `w` (sampled to `n_max` values, or `NULL`).
-#'   - `v`: Same as input `v`.
+#'   - `w`: Case weight vector `w` (sampled to `n_max` values), or `NULL`.
+#'   - `v`: Vector of column names in `X` for which overall 
+#'     H statistics have been calculated.
 #'   - `f`: Matrix with (centered) predictions \eqn{F}.
 #'   - `mean_f2`: (Weighted) column means of `f`. Used to normalize \eqn{H^2} and
 #'     \eqn{H^2_j}.
@@ -124,12 +126,33 @@ hstats <- function(object, ...) {
 
 #' @describeIn hstats Default hstats method.
 #' @export
-hstats.default <- function(object, X, v = colnames(X),
+hstats.default <- function(object, X, v = NULL,
                            pred_fun = stats::predict, n_max = 300L, 
                            w = NULL, pairwise_m = 5L, 
                            threeway_m = min(pairwise_m, 5L),
                            eps = 1e-10, verbose = TRUE, ...) {
-  basic_check(X = X, v = v, pred_fun = pred_fun, w = w)
+  stopifnot(
+    is.matrix(X) || is.data.frame(X),
+    is.function(pred_fun)
+  )
+  
+  # Is w a column name or a vector?
+  if (!is.null(w)) {
+    w2 <- prepare_w(w = w, X = X)
+    w <- w2[["w"]]
+    w_name <- w2[["w_name"]]
+  }
+  
+  # Determine missing v or check consistency with X
+  if (is.null(v)) {
+    v <- colnames(X)
+    if (!is.null(w) && !is.null(w_name)) {
+      v <- setdiff(v, w_name)
+    }
+  } else {
+    stopifnot(all(v %in% colnames(X)))
+  }
+  
   p <- length(v)
   stopifnot(p >= 2L)
   pairwise_m <- min(pairwise_m, p)
@@ -234,7 +257,7 @@ hstats.default <- function(object, X, v = colnames(X),
 
 #' @describeIn hstats Method for "ranger" models.
 #' @export
-hstats.ranger <- function(object, X, v = colnames(X),
+hstats.ranger <- function(object, X, v = NULL,
                           pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
                           n_max = 300L, w = NULL, pairwise_m = 5L, 
                           threeway_m = min(pairwise_m, 5L),
@@ -256,7 +279,7 @@ hstats.ranger <- function(object, X, v = colnames(X),
 
 #' @describeIn hstats Method for "mlr3" models.
 #' @export
-hstats.Learner <- function(object, X, v = colnames(X),
+hstats.Learner <- function(object, X, v = NULL,
                            pred_fun = NULL,
                            n_max = 300L, w = NULL, pairwise_m = 5L,
                            threeway_m = min(pairwise_m, 5L), 
@@ -282,7 +305,7 @@ hstats.Learner <- function(object, X, v = colnames(X),
 #' @describeIn hstats Method for DALEX "explainer".
 #' @export
 hstats.explainer <- function(object, X = object[["data"]],
-                             v = colnames(X),
+                             v = NULL,
                              pred_fun = object[["predict_function"]],
                              n_max = 300L, w = object[["weights"]], 
                              pairwise_m = 5L, 
@@ -435,74 +458,4 @@ plot.hstats <- function(x, which = 1:2, normalize = TRUE, squared = TRUE,
     p <- p + rotate_x_labs()
   }
   p
-}
-
-# Helper functions used only in this script
-
-#' Pairwise or 3-Way Partial Dependencies
-#' 
-#' Calculates centered partial dependence functions for selected pairwise or three-way
-#' situations.
-#' 
-#' @noRd
-#' @keywords internal
-#' 
-#' @param v Vector of column names to calculate `way` order interactions.
-#' @inheritParams hstats
-#' @param way Pairwise (`way = 2`) or three-way (`way = 3`) interactions.
-#' @param verb Verbose (`TRUE`/`FALSE`).
-#' 
-#' @returns 
-#'   A list with a named list of feature combinations (pairs or triples), and
-#'   corresponding centered partial dependencies.
-mway <- function(object, v, X, pred_fun = stats::predict, w = NULL, 
-                 way = 2L, verb = TRUE, ...) {
-  combs <- utils::combn(v, way, simplify = FALSE)
-  n_combs <- length(combs)
-  F_way <- vector("list", length = n_combs)
-  names(F_way) <- names(combs) <- sapply(combs, paste, collapse = ":")
-  
-  if (verb) {
-    cat(way, "way calculations...\n", sep = "-")
-    pb <- utils::txtProgressBar(max = n_combs, style = 3)
-  }
-  
-  for (i in seq_len(n_combs)) {
-    z <- combs[[i]]
-    F_way[[i]] <- wcenter(
-      pd_raw(object, v = z, X = X, grid = X[, z], pred_fun = pred_fun, w = w, ...),
-      w = w
-    )
-    if (verb) {
-      utils::setTxtProgressBar(pb, i)
-    }
-  }
-  if (verb) {
-    cat("\n")
-  }
-  list(combs, F_way)
-}
-
-#' Get Feature Names
-#' 
-#' This function takes the unsorted and unnormalized H2_j matrix and extracts the top
-#' m feature names (unsorted). If H2_j has multiple columns, this is done per column and
-#' then the union is returned.
-#' 
-#' @noRd
-#' @keywords internal
-#' 
-#' @param H Unnormalized, unsorted H2_j values.
-#' @param m Number of features to pick per column.
-#' 
-#' @returns A vector of the union of the m column-wise most important features.
-get_v <- function(H, m) {
-  v <- rownames(H)
-  selector <- function(vv) names(utils::head(sort(-vv[vv > 0]), m))
-  if (NCOL(H) == 1L) {
-    v_cand <- selector(drop(H))
-  } else {
-    v_cand <- Reduce(union, lapply(asplit(H, MARGIN = 2L), FUN = selector))
-  }
-  v[v %in% v_cand]
 }

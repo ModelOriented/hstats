@@ -59,7 +59,11 @@ ice.default <- function(object, v, X, pred_fun = stats::predict,
                         BY = NULL, grid = NULL, grid_size = 49L,
                         trim = c(0.01, 0.99),
                         strategy = c("uniform", "quantile"), n_max = 100L, ...) {
-  basic_check(X = X, v = v, pred_fun = pred_fun)
+  stopifnot(
+    is.matrix(X) || is.data.frame(X),
+    is.function(pred_fun),
+    all(v %in% colnames(X))
+  )
   
   # Prepare grid
   if (is.null(grid)) {

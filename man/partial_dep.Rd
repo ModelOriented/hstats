@@ -80,7 +80,8 @@ partial_dep(object, ...)
 \item{...}{Additional arguments passed to \code{pred_fun(object, X, ...)},
 for instance \code{type = "response"} in a \code{\link[=glm]{glm()}} model.}
 
-\item{v}{Vector of feature names, by default \code{colnames(X)}.}
+\item{v}{Vector of feature names. The default (\code{NULL}) will use all column names of
+\code{X} except the column name of the optional case weight \code{w} (if specified as name).}
 
 \item{X}{A data.frame or matrix serving as background dataset.}
 
@@ -118,7 +119,7 @@ Either "uniform" or "quantile", see description of \code{\link[=univariate_grid]
 \item{n_max}{If \code{X} has more than \code{n_max} rows, a random sample of \code{n_max} rows is
 selected from \code{X}. In this case, set a random seed for reproducibility.}
 
-\item{w}{Optional vector of case weights for each row of \code{X}.}
+\item{w}{Optional vector of case weights. Can also be a column name of \code{X}.}
 }
 \value{
 An object of class "partial_dep" containing these elements:

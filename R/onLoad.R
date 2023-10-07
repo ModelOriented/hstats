@@ -11,3 +11,6 @@
   }
   invisible()
 }
+
+# Fix undefined global variable note
+utils::globalVariables(c("varying_", "value_", "id_", "variable_", "obs_", "error_"))

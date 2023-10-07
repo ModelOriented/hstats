@@ -1,3 +1,135 @@
+#' Initializer of Numerator Statistics
+#' 
+#' Internal helper function that returns a matrix of all zeros with the right
+#' column and row names for statistics of any "way". If some features have been dropped
+#' from the statistics calculations, they are added as 0.
+#' 
+#' @noRd
+#' @keywords internal
+#' @param x A list containing the elements "v", "K", "pred_names", "v_pairwise", 
+#'   "v_threeway", "pairwise_m", "threeway_m".
+#' @param way Integer between 1 and 3 of the order of the interaction.
+#' @returns A matrix of all zeros.
+init_numerator <- function(x, way = 1L) {
+  stopifnot(way %in% 1:3)
+  
+  v <- x[["v"]]
+  K <- x[["K"]]
+  pred_names <- x[["pred_names"]]
+  
+  # Simple case
+  if (way == 1L) {
+    return(matrix(nrow = length(v), ncol = K, dimnames = list(v, pred_names)))
+  }
+  
+  # Determine v_cand_0, which is v_cand with additional features to end up with length m
+  if (way == 2L) {
+    v_cand <- x[["v_pairwise"]]
+    m <- x[["pairwise_m"]]
+  } else {
+    v_cand <- x[["v_threeway"]]
+    m <- x[["threeway_m"]]
+  }
+  m_miss <- m - length(v_cand)
+  if (m_miss > 0L) {
+    v_cand_0 <- c(v_cand, utils::head(setdiff(v, v_cand), m_miss))
+    v_cand_0 <- v[v %in% v_cand_0]  # Bring into order of v
+  } else {
+    v_cand_0 <- v_cand
+  }
+  
+  # Get all interactions of order "way". c() turns the array into a vector
+  cn0 <- c(utils::combn(v_cand_0, m = way, FUN = paste, collapse = ":"))
+  matrix(0, nrow = length(cn0), ncol = K, dimnames = list(cn0, pred_names))
+}
+
+#' Pairwise or 3-Way Partial Dependencies
+#' 
+#' Calculates centered partial dependence functions for selected pairwise or three-way
+#' situations.
+#' 
+#' @noRd
+#' @keywords internal
+#' 
+#' @param v Vector of column names to calculate `way` order interactions.
+#' @inheritParams hstats
+#' @param way Pairwise (`way = 2`) or three-way (`way = 3`) interactions.
+#' @param verb Verbose (`TRUE`/`FALSE`).
+#' 
+#' @returns 
+#'   A list with a named list of feature combinations (pairs or triples), and
+#'   corresponding centered partial dependencies.
+mway <- function(object, v, X, pred_fun = stats::predict, w = NULL, 
+                 way = 2L, verb = TRUE, ...) {
+  combs <- utils::combn(v, way, simplify = FALSE)
+  n_combs <- length(combs)
+  F_way <- vector("list", length = n_combs)
+  names(F_way) <- names(combs) <- sapply(combs, paste, collapse = ":")
+  
+  if (verb) {
+    cat(way, "way calculations...\n", sep = "-")
+    pb <- utils::txtProgressBar(max = n_combs, style = 3)
+  }
+  
+  for (i in seq_len(n_combs)) {
+    z <- combs[[i]]
+    F_way[[i]] <- wcenter(
+      pd_raw(object, v = z, X = X, grid = X[, z], pred_fun = pred_fun, w = w, ...),
+      w = w
+    )
+    if (verb) {
+      utils::setTxtProgressBar(pb, i)
+    }
+  }
+  if (verb) {
+    cat("\n")
+  }
+  list(combs, F_way)
+}
+
+#' Get Feature Names
+#' 
+#' This function takes the unsorted and unnormalized H2_j matrix and extracts the top
+#' m feature names (unsorted). If H2_j has multiple columns, this is done per column and
+#' then the union is returned.
+#' 
+#' @noRd
+#' @keywords internal
+#' 
+#' @param H Unnormalized, unsorted H2_j values.
+#' @param m Number of features to pick per column.
+#' 
+#' @returns A vector of the union of the m column-wise most important features.
+get_v <- function(H, m) {
+  v <- rownames(H)
+  selector <- function(vv) names(utils::head(sort(-vv[vv > 0]), m))
+  if (NCOL(H) == 1L) {
+    v_cand <- selector(drop(H))
+  } else {
+    v_cand <- Reduce(union, lapply(asplit(H, MARGIN = 2L), FUN = selector))
+  }
+  v[v %in% v_cand]
+}
+
+#' Zap Small Values
+#' 
+#' Internal function. Sets very small or non-finite (NA, ...) values in vector, 
+#' matrix or data.frame to 0.
+#' 
+#' @noRd
+#' @keywords internal
+#' 
+#' @param x Vector, matrix, or data.frame.
+#' @param eps Threshold, below which absolute values are set to 0.
+#' @returns Same as `x` but with values below `eps` replaced by 0.
+.zap_small <- function(x, eps = 1e-8) {
+  zero <- abs(x) < eps | !is.finite(x)
+  if (any(zero)) {
+    x[zero] <- 0
+  }
+  x
+}
+
 #' Postprocessing of Statistics
 #' 
 #' Function to apply typical postprocessing steps to a Friedman-Popescu type statistic.
@@ -179,7 +311,7 @@ plot.hstats_matrix <- function(x, top_m = 15L,
     df[["error_"]] <- mat2df(err)[["value_"]]
   }
   df <- barplot_reverter(df)
-
+  
   if (is.null(viridis_args)) {
     viridis_args <- list()
   }
@@ -220,10 +352,11 @@ plot.hstats_matrix <- function(x, top_m = 15L,
     p <- p + ggplot2::facet_wrap("varying_", ncol = ncol, scales = facet_scales)
   }
   if (nrow(M) == 1L) {
-      p <- p + ggplot2::theme(axis.text.y = ggplot2::element_blank())
+    p <- p + ggplot2::theme(axis.text.y = ggplot2::element_blank())
   }
   if (rotate_x) {
     p <- p + rotate_x_labs()
   }
   p
 }
+

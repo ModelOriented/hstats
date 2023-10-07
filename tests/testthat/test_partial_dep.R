@@ -146,10 +146,12 @@ test_that("partial_dep() with BY is same as stratified application", {
 
 test_that("partial_dep() does subsampling", {
   set.seed(1L)
-  pd1 <- partial_dep(fit1, v = "Sepal.Width", X = iris, n_max = 10L, w = 1:150)
+  pd1 <- partial_dep(
+    fit1, v = "Sepal.Width", X = iris, n_max = 10L, w = iris$Petal.Width
+  )
 
   set.seed(2L)
-  pd2 <- partial_dep(fit1, v = "Sepal.Width", X = iris, n_max = 10L, w = 1:150)
+  pd2 <- partial_dep(fit1, v = "Sepal.Width", X = iris, n_max = 10L, w = "Petal.Width")
   
   expect_false(identical(pd1, pd2))
 })
@@ -227,8 +229,10 @@ test_that("partial_dep() does not react on constant weights", {
 
 test_that("partial_dep() reacts on non-constant weights", {
   pd1 <- partial_dep(fit1, v = "Sepal.Width", X = iris)
-  pd2 <- partial_dep(fit1, v = "Sepal.Width", X = iris, w = 1:150)
+  pd2 <- partial_dep(fit1, v = "Sepal.Width", X = iris, w = iris$Petal.Width)
+  pd3 <- partial_dep(fit1, v = "Sepal.Width", X = iris, w = "Petal.Width")
   expect_false(identical(pd1, pd2))
+  expect_equal(pd2, pd3)
 })
 
 test_that("partial_dep() works with vector BY or variable name BY", {

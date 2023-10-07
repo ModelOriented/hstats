@@ -40,8 +40,23 @@ test_that("constant weights is same as unweighted (univariate)", {
 
 test_that("non-constant weights is different from unweighted (univariate)", {
   set.seed(1L)
-  s2 <- perm_importance(fit, X = iris[-1L], y = y, w = 1:nrow(iris))
+  s2 <- perm_importance(fit, X = iris[-1L], y = y, w = "Petal.Width")
+  set.seed(1L)
+  s3 <- perm_importance(
+    fit, 
+    X = iris[-1L], 
+    v = setdiff(colnames(iris[-1L]), "Petal.Width"), 
+    y = y, 
+    w = iris$Petal.Width
+  )
+  set.seed(1L)
+  s4 <- perm_importance(
+    fit, X = iris, v = colnames(iris[-1L]), y = y, w = "Petal.Width"
+  )
+  
   expect_false(identical(s1, s2))
+  expect_identical(s2, s3)
+  expect_false(identical(nrow(s2$M), nrow(s4$M)))
 })
 
 test_that("results reacts to `m_rep` (univariate)", {
@@ -72,9 +87,13 @@ test_that("plot() gives ggplot object (univariate)", {
 
 test_that("Subsetting has an impact (univariate)", {
   set.seed(1L)
-  s2 <- perm_importance(fit, X = iris[-1L], y = y, m_rep = 1L, n_max = 50)
+  s2 <- perm_importance(
+    fit, X = iris[-1L], y = y, m_rep = 1L, n_max = 50, w = "Petal.Width"
+  )
   set.seed(1L)
-  s3 <- perm_importance(fit, X = iris[-1L], y = y, m_rep = 2L, n_max = 100)
+  s3 <- perm_importance(
+    fit, X = iris[-1L], y = y, m_rep = 2L, n_max = 100, w = "Petal.Width"
+  )
   expect_false(identical(s2, s3))
 })
 
@@ -184,8 +203,24 @@ test_that("constant weights is same as unweighted (multivariate)", {
 
 test_that("non-constant weights is different from unweighted (multivariate)", {
   set.seed(1L)
-  s2 <- perm_importance(fit, X = iris[3:5], y = y, w = 1:nrow(iris))
+  s2 <- perm_importance(fit, X = iris[3:5], y = y, w = "Petal.Width")
+  
+  set.seed(1L)
+  s3 <- perm_importance(
+    fit, 
+    X = iris[3:5], 
+    v = setdiff(colnames(iris[3:5]), "Petal.Width"), 
+    y = y, 
+    w = iris$Petal.Width
+  )
+  set.seed(1L)
+  s4 <- perm_importance(
+    fit, X = iris, v = colnames(iris[3:5]), y = y, w = "Petal.Width"
+  )
+  
   expect_false(identical(s1, s2))
+  expect_identical(s2, s3)
+  expect_false(identical(nrow(s2$M), nrow(s4$M)))
 })
 
 test_that("perm_importance() reacts to `m_rep` (multivariate)", {
@@ -224,9 +259,13 @@ test_that("plot() gives ggplot object (multivariate)", {
 
 test_that("Subsetting has an impact (multivariate)", {
   set.seed(1L)
-  s2 <- perm_importance(fit, X = iris[3:5], y = y, m_rep = 1L, n_max = 50)
+  s2 <- perm_importance(
+    fit, X = iris[3:5], y = y, m_rep = 1L, n_max = 50, w = "Petal.Width"
+  )
   set.seed(1L)
-  s3 <- perm_importance(fit, v = v, X = iris, y = y, m_rep = 2L, n_max = 100)
+  s3 <- perm_importance(
+    fit, v = v, X = iris, y = y, m_rep = 2L, n_max = 100, w = "Petal.Width"
+  )
   expect_false(identical(s2, s3))
 })
 

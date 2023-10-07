@@ -68,14 +68,16 @@ average_loss <- function(object, ...) {
 average_loss.default <- function(object, X, y, 
                                  pred_fun = stats::predict,
                                  loss = "squared_error", 
-                                 BY = NULL, by_size = 4L, w = NULL, ...) {
+                                 BY = NULL, by_size = 4L, 
+                                 w = NULL, ...) {
   stopifnot(
     is.matrix(X) || is.data.frame(X),
-    nrow(X) >= 1L,
     is.function(pred_fun),
-    is.null(w) || length(w) == nrow(X),
     NROW(y) == nrow(X)
   )
+  if (!is.null(w)) {
+    w <- prepare_w(w = w, X = X)[["w"]]
+  }
   if (!is.null(BY)) {
     BY <- prepare_by(BY = BY, X = X, by_size = by_size)[["BY"]]
   }
@@ -104,7 +106,8 @@ average_loss.default <- function(object, X, y,
 average_loss.ranger <- function(object, X, y, 
                                 pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
                                 loss = "squared_error", 
-                                BY = NULL, by_size = 4L, w = NULL, ...) {
+                                BY = NULL, by_size = 4L, 
+                                w = NULL, ...) {
   average_loss.default(
     object = object, 
     X = X, 
@@ -122,7 +125,8 @@ average_loss.ranger <- function(object, X, y,
 average_loss.Learner <- function(object, v, X, y, 
                                  pred_fun = NULL,
                                  loss = "squared_error", 
-                                 BY = NULL, by_size = 4L, w = NULL, ...) {
+                                 BY = NULL, by_size = 4L, 
+                                 w = NULL, ...) {
   if (is.null(pred_fun)) {
     pred_fun <- mlr3_pred_fun(object, X = X)
   }
