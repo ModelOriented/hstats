@@ -37,20 +37,28 @@ test_that("average_loss() works with groups for regression", {
 test_that("average_loss() works with weights for regression", {
   s1 <- average_loss(fit, X = iris, y = y)
   s2 <- average_loss(fit, X = iris, y = y, w = rep(2, times = 150))
-  s3 <- average_loss(fit, X = iris, y = y, w = 1:150)
+  s3 <- average_loss(fit, X = iris, y = y, w = "Petal.Width")
+  s4 <- average_loss(fit, X = iris, y = y, w = iris$Petal.Width)
   
   expect_equal(s1, s2)
   expect_false(identical(s2, s3))
+  expect_equal(s3, s4)
+  expect_error(average_loss(fit, X = iris, y = y, w = 1:4))
+  expect_error(average_loss(fit, X = iris, y = y, w = "bad_column"))
 })
 
 test_that("average_loss() works with weights and grouped for regression", {
   g <- iris$Species
   s1 <- average_loss(fit, X = iris, y = y, BY = g)
-  s2 <- average_loss(fit, X = iris, y = y, w = rep(2, times = 150), BY = "Species")
-  s3 <- average_loss(fit, X = iris, y = y, w = 1:150, BY = g)
+  s2 <- average_loss(
+    fit, X = iris, y = y, w = rep(2, times = 150), BY = "Species"
+  )
+  s3 <- average_loss(fit, X = iris, y = y, w = "Petal.Width", BY = g)
+  s4 <- average_loss(fit, X = iris, y = y, w = iris$Petal.Width, BY = g)
   
   expect_equal(s1, s2)
   expect_false(identical(s2, s3))
+  expect_equal(s3, s4)
 })
 
 #================================================
@@ -86,20 +94,24 @@ test_that("average_loss() works with groups (multi regression)", {
 test_that("average_loss() works with weights (multi regression)", {
   s1 <- average_loss(fit, X = iris, y = y)
   s2 <- average_loss(fit, X = iris, y = y, w = rep(2, times = 150))
-  s3 <- average_loss(fit, X = iris, y = y, w = 1:150)
+  s3 <- average_loss(fit, X = iris, y = y, w = iris$Petal.Width)
+  s4 <- average_loss(fit, X = iris, y = y, w = "Petal.Width")
   
   expect_equal(s1, s2)
   expect_false(identical(s2, s3))
+  expect_equal(s3, s4)
 })
 
 test_that("average_loss() works with weights and grouped (multi regression)", {
   g <- iris$Species
   s1 <- average_loss(fit, X = iris, y = y, BY = g)
   s2 <- average_loss(fit, X = iris, y = y, w = rep(2, times = 150), BY = g)
-  s3 <- average_loss(fit, X = iris, y = y, w = 1:150, BY = g)
+  s3 <- average_loss(fit, X = iris, y = y, w = iris$Petal.Width, BY = g)
+  s4 <- average_loss(fit, X = iris, y = y, w = "Petal.Width", BY = g)
   
   expect_equal(s1, s2)
   expect_false(identical(s2, s3))
+  expect_equal(s3, s4)
 })
 
 test_that("Single output multiple models works without recycling y", {
@@ -156,11 +168,14 @@ test_that("average_loss() works with weights (multivariate binary)", {
                      pred_fun = pf, loss = "logloss")
   s2 <- average_loss(fit, X = iris, y = y, w = rep(2, times = 150), 
                      pred_fun = pf, loss = "logloss")
-  s3 <- average_loss(fit, X = iris, y = y, w = 1:150, 
+  s3 <- average_loss(fit, X = iris, y = y, w = iris$Petal.Width, 
+                     pred_fun = pf, loss = "logloss")
+  s4 <- average_loss(fit, X = iris, y = y, w = "Petal.Width", 
                      pred_fun = pf, loss = "logloss")
   
   expect_equal(s1, s2)
   expect_false(identical(s2, s3))
+  expect_equal(s3, s4)
 })
 
 test_that("average_loss() works with weights and grouped (multi)", {
@@ -169,11 +184,14 @@ test_that("average_loss() works with weights and grouped (multi)", {
                      pred_fun = pf, loss = "logloss")
   s2 <- average_loss(fit, X = iris, y = y, w = rep(2, times = 150), BY = "Species",
                      pred_fun = pf, loss = "logloss")
-  s3 <- average_loss(fit, X = iris, y = y, w = 1:150, BY = g,
+  s3 <- average_loss(fit, X = iris, y = y, w = iris$Petal.Width, BY = g,
+                     pred_fun = pf, loss = "logloss")
+  s4 <- average_loss(fit, X = iris, y = y, w = "Petal.Width", BY = g,
                      pred_fun = pf, loss = "logloss")
   
   expect_equal(s1, s2)
   expect_false(identical(s2, s3))
+  expect_equal(s3, s4)
 })
 
 test_that("mlogloss works with either matrix y or vector y", {

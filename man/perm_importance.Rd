@@ -14,7 +14,7 @@ perm_importance(object, ...)
   object,
   X,
   y,
-  v = colnames(X),
+  v = NULL,
   pred_fun = stats::predict,
   loss = "squared_error",
   m_rep = 4L,
@@ -30,7 +30,7 @@ perm_importance(object, ...)
   object,
   X,
   y,
-  v = colnames(X),
+  v = NULL,
   pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
   loss = "squared_error",
   m_rep = 4L,
@@ -46,7 +46,7 @@ perm_importance(object, ...)
   object,
   X,
   y,
-  v = colnames(X),
+  v = NULL,
   pred_fun = NULL,
   loss = "squared_error",
   m_rep = 4L,
@@ -62,7 +62,7 @@ perm_importance(object, ...)
   object,
   X = object[["data"]],
   y = object[["y"]],
-  v = colnames(X),
+  v = NULL,
   pred_fun = object[["predict_function"]],
   loss = "squared_error",
   m_rep = 4L,
@@ -84,7 +84,9 @@ for instance \code{type = "response"} in a \code{\link[=glm]{glm()}} model.}
 
 \item{y}{Vector/matrix of the response corresponding to \code{X}.}
 
-\item{v}{Vector of feature names, or named list of feature groups.}
+\item{v}{Vector of feature names, or named list of feature groups.
+The default (\code{NULL}) will use all column names of \code{X} except the column name
+of the optional case weight \code{w} (if specified as name).}
 
 \item{pred_fun}{Prediction function of the form \verb{function(object, X, ...)},
 providing \eqn{K \ge 1} predictions per row. Its first argument represents the
@@ -112,7 +114,7 @@ has doubled by shuffling that feature's column.}
 \item{n_max}{If \code{X} has more than \code{n_max} rows, a random sample of \code{n_max} rows is
 selected from \code{X}. In this case, set a random seed for reproducibility.}
 
-\item{w}{Optional vector of case weights for each row of \code{X}.}
+\item{w}{Optional vector of case weights. Can also be a column name of \code{X}.}
 
 \item{verbose}{Should a progress bar be shown? The default is \code{TRUE}.}
 }

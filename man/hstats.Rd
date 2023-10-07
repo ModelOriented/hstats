@@ -13,7 +13,7 @@ hstats(object, ...)
 \method{hstats}{default}(
   object,
   X,
-  v = colnames(X),
+  v = NULL,
   pred_fun = stats::predict,
   n_max = 300L,
   w = NULL,
@@ -27,7 +27,7 @@ hstats(object, ...)
 \method{hstats}{ranger}(
   object,
   X,
-  v = colnames(X),
+  v = NULL,
   pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
   n_max = 300L,
   w = NULL,
@@ -41,7 +41,7 @@ hstats(object, ...)
 \method{hstats}{Learner}(
   object,
   X,
-  v = colnames(X),
+  v = NULL,
   pred_fun = NULL,
   n_max = 300L,
   w = NULL,
@@ -55,7 +55,7 @@ hstats(object, ...)
 \method{hstats}{explainer}(
   object,
   X = object[["data"]],
-  v = colnames(X),
+  v = NULL,
   pred_fun = object[["predict_function"]],
   n_max = 300L,
   w = object[["weights"]],
@@ -74,7 +74,8 @@ for instance \code{type = "response"} in a \code{\link[=glm]{glm()}} model.}
 
 \item{X}{A data.frame or matrix serving as background dataset.}
 
-\item{v}{Vector of feature names, by default \code{colnames(X)}.}
+\item{v}{Vector of feature names. The default (\code{NULL}) will use all column names of
+\code{X} except the column name of the optional case weight \code{w} (if specified as name).}
 
 \item{pred_fun}{Prediction function of the form \verb{function(object, X, ...)},
 providing \eqn{K \ge 1} predictions per row. Its first argument represents the
@@ -86,7 +87,7 @@ most cases.}
 \item{n_max}{If \code{X} has more than \code{n_max} rows, a random sample of \code{n_max} rows is
 selected from \code{X}. In this case, set a random seed for reproducibility.}
 
-\item{w}{Optional vector of case weights for each row of \code{X}.}
+\item{w}{Optional vector of case weights. Can also be a column name of \code{X}.}
 
 \item{pairwise_m}{Number of features for which pairwise statistics are to be
 calculated. The features are selected based on Friedman and Popescu's overall
@@ -106,8 +107,9 @@ The default is \code{min(pairwise_m, 5)}. Set to 0 to avoid three-way calculatio
 An object of class "hstats" containing these elements:
 \itemize{
 \item \code{X}: Input \code{X} (sampled to \code{n_max} rows).
-\item \code{w}: Input \code{w} (sampled to \code{n_max} values, or \code{NULL}).
-\item \code{v}: Same as input \code{v}.
+\item \code{w}: Case weight vector \code{w} (sampled to \code{n_max} values), or \code{NULL}.
+\item \code{v}: Vector of column names in \code{X} for which overall
+H statistics have been calculated.
 \item \code{f}: Matrix with (centered) predictions \eqn{F}.
 \item \code{mean_f2}: (Weighted) column means of \code{f}. Used to normalize \eqn{H^2} and
 \eqn{H^2_j}.

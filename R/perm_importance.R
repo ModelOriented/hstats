@@ -12,6 +12,8 @@
 #' @inheritSection average_loss Losses
 #' 
 #' @param v Vector of feature names, or named list of feature groups.
+#'   The default (`NULL`) will use all column names of `X` except the column name 
+#'   of the optional case weight `w` (if specified as name).
 #' @param m_rep Number of permutations (default 4).
 #' @param agg_cols Should multivariate losses be summed up? Default is `FALSE`.
 #' @param normalize Should importance statistics be divided by average loss?
@@ -53,23 +55,42 @@ perm_importance <- function(object, ...) {
 
 #' @describeIn perm_importance Default method.
 #' @export
-perm_importance.default <- function(object, X, y, v = colnames(X),
+perm_importance.default <- function(object, X, y, v = NULL,
                                     pred_fun = stats::predict,
                                     loss = "squared_error", 
                                     m_rep = 4L, agg_cols = FALSE,
                                     normalize = FALSE, n_max = 10000L,
                                     w = NULL, verbose = FALSE, ...) {
-  basic_check(
-    X = X, 
-    v = unlist(v, use.names = FALSE, recursive = FALSE), 
-    pred_fun = pred_fun, 
-    w = w
-  )
   stopifnot(
+    is.matrix(X) || is.data.frame(X),
+    is.function(pred_fun),
     NROW(y) == nrow(X),
     m_rep >= 1L
   )
   
+  # Is w a column name or a vector?
+  if (!is.null(w)) {
+    w2 <- prepare_w(w = w, X = X)
+    w <- w2[["w"]]
+    w_name <- w2[["w_name"]]
+  }
+  
+  # Prepare v
+  if (is.null(v)) {
+    v <- colnames(X)
+    if (!is.null(w) && !is.null(w_name)) {
+      v <- setdiff(v, w_name)
+    }
+  } else {
+    v_c <- unlist(v, use.names = FALSE, recursive = FALSE)
+    stopifnot(all(v_c %in% colnames(X)))
+  }
+  if (!is.list(v)) {
+    v <- as.list(v)
+    names(v) <- v
+  }
+  p <- length(v)
+ 
   # Reduce size of X, y (and w)
   if (nrow(X) > n_max) {
     ix <- sample(nrow(X), n_max)
@@ -84,11 +105,6 @@ perm_importance.default <- function(object, X, y, v = colnames(X),
     }
   }
   n <- nrow(X)
-  p <- length(v)
-  if (!is.list(v)) {
-    v <- as.list(v)
-    names(v) <- v
-  }
   
   if (!is.function(loss)) {
     loss <- get_loss_fun(loss)
@@ -175,7 +191,7 @@ perm_importance.default <- function(object, X, y, v = colnames(X),
 
 #' @describeIn perm_importance Method for "ranger" models.
 #' @export
-perm_importance.ranger <- function(object, X, y, v = colnames(X),
+perm_importance.ranger <- function(object, X, y, v = NULL,
                                    pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
                                    loss = "squared_error", m_rep = 4L, 
                                    agg_cols = FALSE, 
@@ -200,7 +216,7 @@ perm_importance.ranger <- function(object, X, y, v = colnames(X),
 
 #' @describeIn perm_importance Method for "mlr3" models.
 #' @export
-perm_importance.Learner <- function(object, X, y, v = colnames(X),
+perm_importance.Learner <- function(object, X, y, v = NULL,
                                     pred_fun = NULL,
                                     loss = "squared_error", m_rep = 4L, 
                                     agg_cols = FALSE, 
@@ -231,7 +247,7 @@ perm_importance.Learner <- function(object, X, y, v = colnames(X),
 perm_importance.explainer <- function(object, 
                                       X = object[["data"]], 
                                       y = object[["y"]],
-                                      v = colnames(X),
+                                      v = NULL,
                                       pred_fun = object[["predict_function"]],
                                       loss = "squared_error", 
                                       m_rep = 4L,

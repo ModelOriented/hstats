@@ -91,9 +91,10 @@ binned into \code{by_size} quantile groups of similar size.}
 \item{by_size}{Numeric \code{BY} variables with more than \code{by_size} unique values will
 be binned into quantile groups. Only relevant if \code{BY} is not \code{NULL}.}
 
-\item{w}{Optional vector of case weights for each row of \code{X}.}
+\item{w}{Optional vector of case weights. Can also be a column name of \code{X}.}
 
-\item{v}{Vector of feature names, by default \code{colnames(X)}.}
+\item{v}{Vector of feature names. The default (\code{NULL}) will use all column names of
+\code{X} except the column name of the optional case weight \code{w} (if specified as name).}
 }
 \value{
 An object of class "hstats_matrix" containing these elements:

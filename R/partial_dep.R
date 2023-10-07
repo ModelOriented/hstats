@@ -99,7 +99,11 @@ partial_dep.default <- function(object, v, X, pred_fun = stats::predict,
                                 trim = c(0.01, 0.99), 
                                 strategy = c("uniform", "quantile"), n_max = 1000L, 
                                 w = NULL, ...) {
-  basic_check(X = X, v = v, pred_fun = pred_fun, w = w)
+  stopifnot(
+    is.matrix(X) || is.data.frame(X),
+    is.function(pred_fun),
+    all(v %in% colnames(X))
+  )
   
   # Care about grid
   if (is.null(grid)) {
@@ -108,6 +112,10 @@ partial_dep.default <- function(object, v, X, pred_fun = stats::predict,
     )
   } else {
     check_grid(g = grid, v = v, X_is_matrix = is.matrix(X))
+  }
+  
+  if (!is.null(w)) {
+    w <- prepare_w(w = w, X = X)[["w"]]
   }
   
   # The function itself is called per BY group

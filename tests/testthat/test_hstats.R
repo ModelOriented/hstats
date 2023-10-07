@@ -124,6 +124,22 @@ test_that("Case weights have an impact", {
   expect_false(identical(s1, s2))
 })
 
+test_that("Case weights can be passed as colum name", {
+  s2 <- hstats(fit, X = iris[-1L], verbose = FALSE, w = "Petal.Width")
+  s3 <- hstats(
+    fit, 
+    X = iris[-1L], 
+    v = setdiff(colnames(iris[-1L]), "Petal.Width"),
+    verbose = FALSE, 
+    w = iris$Petal.Width
+  )
+  s4 <- hstats(
+    fit, X = iris, v = colnames(iris[-1L]), verbose = FALSE, w = "Petal.Width"
+  )
+  expect_identical(s2, s3)
+  expect_false(identical(s2$v, s4$v))
+})
+
 test_that("print() method does not give error", {
   capture_output(expect_no_error(print(s)))
 })

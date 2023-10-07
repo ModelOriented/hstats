@@ -72,7 +72,8 @@ ice(object, ...)
 \item{...}{Additional arguments passed to \code{pred_fun(object, X, ...)},
 for instance \code{type = "response"} in a \code{\link[=glm]{glm()}} model.}
 
-\item{v}{Vector of feature names, by default \code{colnames(X)}.}
+\item{v}{Vector of feature names. The default (\code{NULL}) will use all column names of
+\code{X} except the column name of the optional case weight \code{w} (if specified as name).}
 
 \item{X}{A data.frame or matrix serving as background dataset.}
 
