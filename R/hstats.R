@@ -45,7 +45,8 @@
 #' @param eps Threshold below which numerator values are set to 0. Default is 1e-10.
 #' @param verbose Should a progress bar be shown? The default is `TRUE`.
 #' @param ... Additional arguments passed to `pred_fun(object, X, ...)`, 
-#'   for instance `type = "response"` in a [glm()] model.
+#'   for instance `type = "response"` in a [glm()] model, or `reshape = TRUE` in a 
+#'   multiclass XGBoost model.
 #' @returns 
 #'   An object of class "hstats" containing these elements:
 #'   - `X`: Input `X` (sampled to `n_max` rows).

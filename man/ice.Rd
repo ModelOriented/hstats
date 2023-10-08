@@ -70,10 +70,10 @@ ice(object, ...)
 \item{object}{Fitted model object.}
 
 \item{...}{Additional arguments passed to \code{pred_fun(object, X, ...)},
-for instance \code{type = "response"} in a \code{\link[=glm]{glm()}} model.}
+for instance \code{type = "response"} in a \code{\link[=glm]{glm()}} model, or \code{reshape = TRUE} in a
+multiclass XGBoost model.}
 
-\item{v}{Vector of feature names. The default (\code{NULL}) will use all column names of
-\code{X} except the column name of the optional case weight \code{w} (if specified as name).}
+\item{v}{One or more column names over which you want to calculate the ICE.}
 
 \item{X}{A data.frame or matrix serving as background dataset.}
 

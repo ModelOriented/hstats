@@ -31,6 +31,8 @@
 #' 
 #' @inheritParams hstats
 #' @inheritParams multivariate_grid
+#' @param v One or more column names over which you want to calculate the partial
+#'   dependence.
 #' @param grid Evaluation grid. A vector (if `length(v) == 1L`), or a matrix/data.frame 
 #'   otherwise. If `NULL`, calculated via [multivariate_grid()].
 #' @param BY Optional grouping vector or column name. The partial dependence
@@ -260,7 +262,7 @@ partial_dep.explainer <- function(object, v, X = object[["data"]],
 #' Print method for object of class "partial_dep".
 #'
 #' @param x An object of class "partial_dep".
-#' @param n Number of rows of partial dependencies to show.
+#' @param n Number of rows to print.
 #' @param ... Further arguments passed from other methods.
 #' @returns Invisibly, the input is returned.
 #' @export

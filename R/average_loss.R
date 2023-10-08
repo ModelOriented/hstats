@@ -124,7 +124,7 @@ average_loss.ranger <- function(object, X, y,
 
 #' @describeIn average_loss Method for "mlr3" models.
 #' @export
-average_loss.Learner <- function(object, v, X, y, 
+average_loss.Learner <- function(object, X, y, 
                                  pred_fun = NULL,
                                  loss = "squared_error", 
                                  BY = NULL, by_size = 4L, 
