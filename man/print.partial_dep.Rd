@@ -9,7 +9,7 @@
 \arguments{
 \item{x}{An object of class "partial_dep".}
 
-\item{n}{Number of rows of partial dependencies to show.}
+\item{n}{Number of rows to print.}
 
 \item{...}{Further arguments passed from other methods.}
 }

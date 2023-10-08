@@ -78,7 +78,8 @@ perm_importance(object, ...)
 \item{object}{Fitted model object.}
 
 \item{...}{Additional arguments passed to \code{pred_fun(object, X, ...)},
-for instance \code{type = "response"} in a \code{\link[=glm]{glm()}} model.}
+for instance \code{type = "response"} in a \code{\link[=glm]{glm()}} model, or \code{reshape = TRUE} in a
+multiclass XGBoost model.}
 
 \item{X}{A data.frame or matrix serving as background dataset.}
 
@@ -109,7 +110,7 @@ For "classification_error", both predictions and responses can be non-numeric.}
 
 \item{normalize}{Should importance statistics be divided by average loss?
 Default is \code{FALSE}. If \code{TRUE}, an importance of 1 means that the average loss
-has doubled by shuffling that feature's column.}
+has been doubled by shuffling that feature's column.}
 
 \item{n_max}{If \code{X} has more than \code{n_max} rows, a random sample of \code{n_max} rows is
 selected from \code{X}. In this case, set a random seed for reproducibility.}
@@ -133,7 +134,8 @@ Currently, supported only for \code{\link[=perm_importance]{perm_importance()}}.
 }
 \description{
 Calculates permutation importance for a set of features or a set of feature groups.
-By default, importance is calculated for all columns in \code{X}.
+By default, importance is calculated for all columns in \code{X} (except column names
+used as response \code{y} or case weight \code{w}).
 }
 \details{
 The permutation importance of a feature is defined as the increase in the average

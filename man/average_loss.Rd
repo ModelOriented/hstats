@@ -36,7 +36,6 @@ average_loss(object, ...)
 
 \method{average_loss}{Learner}(
   object,
-  v,
   X,
   y,
   pred_fun = NULL,
@@ -63,7 +62,8 @@ average_loss(object, ...)
 \item{object}{Fitted model object.}
 
 \item{...}{Additional arguments passed to \code{pred_fun(object, X, ...)},
-for instance \code{type = "response"} in a \code{\link[=glm]{glm()}} model.}
+for instance \code{type = "response"} in a \code{\link[=glm]{glm()}} model, or \code{reshape = TRUE} in a
+multiclass XGBoost model.}
 
 \item{X}{A data.frame or matrix serving as background dataset.}
 
@@ -92,9 +92,6 @@ binned into \code{by_size} quantile groups of similar size.}
 be binned into quantile groups. Only relevant if \code{BY} is not \code{NULL}.}
 
 \item{w}{Optional vector of case weights. Can also be a column name of \code{X}.}
-
-\item{v}{Vector of feature names. The default (\code{NULL}) will use all column names of
-\code{X} except the column name of the optional case weight \code{w} (if specified as name).}
 }
 \value{
 An object of class "hstats_matrix" containing these elements:

@@ -1,7 +1,8 @@
 #' Permutation Importance
 #' 
 #' Calculates permutation importance for a set of features or a set of feature groups. 
-#' By default, importance is calculated for all columns in `X`.
+#' By default, importance is calculated for all columns in `X` (except column names
+#' used as response `y` or case weight `w`).
 #' 
 #' The permutation importance of a feature is defined as the increase in the average
 #' loss when shuffling the corresponding feature values before calculating predictions.
@@ -18,7 +19,7 @@
 #' @param agg_cols Should multivariate losses be summed up? Default is `FALSE`.
 #' @param normalize Should importance statistics be divided by average loss?
 #'   Default is `FALSE`. If `TRUE`, an importance of 1 means that the average loss
-#'   has doubled by shuffling that feature's column.
+#'   has been doubled by shuffling that feature's column.
 #' @inheritParams hstats
 #' @inheritParams average_loss
 #' @inherit h2_overall return

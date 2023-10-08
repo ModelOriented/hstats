@@ -4,6 +4,7 @@
 #' up to two grouping variables via `BY`.
 #'
 #' @inheritParams partial_dep
+#' @param v One or more column names over which you want to calculate the ICE.
 #' @param BY Optional grouping vector/matrix/data.frame (up to two columns), 
 #'   or up to two column names. Unlike with [partial_dep()], these variables are not
 #'   binned. The first variable is visualized on the color scale, while the second
@@ -208,7 +209,7 @@ ice.explainer <- function(object, v = v, X = object[["data"]],
 #' Print method for object of class "ice".
 #'
 #' @param x An object of class "ice".
-#' @param n Number of rows of partial dependencies to show.
+#' @param n Number of rows to print.
 #' @param ... Further arguments passed from other methods.
 #' @returns Invisibly, the input is returned.
 #' @export
