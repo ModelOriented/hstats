@@ -136,12 +136,13 @@ The resulting object can be plotted via <code><a href="https://rdrr.io/r/graphic
 
 <dt>...</dt>
 <dd><p>Additional arguments passed to <code>pred_fun(object, X, ...)</code>,
-for instance <code>type = "response"</code> in a <code><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm()</a></code> model.</p></dd>
+for instance <code>type = "response"</code> in a <code><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm()</a></code> model, or <code>reshape = TRUE</code> in a
+multiclass XGBoost model.</p></dd>
 
 
 <dt>v</dt>
-<dd><p>Vector of feature names. The default (<code>NULL</code>) will use all column names of
-<code>X</code> except the column name of the optional case weight <code>w</code> (if specified as name).</p></dd>
+<dd><p>One or more column names over which you want to calculate the partial
+dependence.</p></dd>
 
 
 <dt>X</dt>

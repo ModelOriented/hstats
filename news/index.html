@@ -58,6 +58,7 @@
 <code><a href="../reference/perm_importance.html">perm_importance()</a></code>: The <code>perms</code> argument has been changed to <code>m_rep</code>.</li>
 <li>
 <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> and <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> methods have been revised.</li>
+<li>The arguments <code>w</code> (case weights) and <code>y</code> (response) can now also be passed as column <em>names</em>.</li>
 </ul></div>
 <div class="section level3">
 <h3 id="minor-changes-0-4-0">Minor changes<a class="anchor" aria-label="anchor" href="#minor-changes-0-4-0"></a></h3>
@@ -73,9 +74,6 @@
 <code><a href="../reference/average_loss.html">average_loss()</a></code> is more flexible regarding the group <code>BY</code> argument. It can also be a variable <em>name</em>. Non-discrete <code>BY</code> variables are now automatically binned. Like <code><a href="../reference/partial_dep.html">partial_dep()</a></code>, binning is controlled by the <code>by_size = 4</code> argument.</li>
 <li>
 <code><a href="../reference/average_loss.html">average_loss()</a></code> also returns a “hstats_matrix” object with <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> and <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> method. The values can be extracted via <code>$M</code>.</li>
-<li>Case weights <code>w</code> can now also be passed as column name of <code>X</code> (to any function).</li>
-<li>
-<code><a href="../reference/perm_importance.html">perm_importance()</a></code> and <code><a href="../reference/average_loss.html">average_loss()</a></code>: The response(s) <code>y</code> can now also be passed as column name(s) of <code>X</code>.</li>
 <li>The default <code>v</code> of <code><a href="../reference/hstats.html">hstats()</a></code> and <code><a href="../reference/perm_importance.html">perm_importance()</a></code> is now <code>NULL</code>. Internally, it is set to <code>colnames(X)</code> (minus the column names of <code>w</code> and <code>y</code> if passed as name).</li>
 </ul></div>
 </div>

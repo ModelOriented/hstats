@@ -86,7 +86,6 @@ optionally grouped by a variable. Use <code><a href="https://rdrr.io/r/graphics/
 <span><span class="co"># S3 method for Learner</span></span>
 <span><span class="fu">average_loss</span><span class="op">(</span></span>
 <span>  <span class="va">object</span>,</span>
-<span>  <span class="va">v</span>,</span>
 <span>  <span class="va">X</span>,</span>
 <span>  <span class="va">y</span>,</span>
 <span>  pred_fun <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -119,7 +118,8 @@ optionally grouped by a variable. Use <code><a href="https://rdrr.io/r/graphics/
 
 <dt>...</dt>
 <dd><p>Additional arguments passed to <code>pred_fun(object, X, ...)</code>,
-for instance <code>type = "response"</code> in a <code><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm()</a></code> model.</p></dd>
+for instance <code>type = "response"</code> in a <code><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm()</a></code> model, or <code>reshape = TRUE</code> in a
+multiclass XGBoost model.</p></dd>
 
 
 <dt>X</dt>
@@ -162,11 +162,6 @@ be binned into quantile groups. Only relevant if <code>BY</code> is not <code>NU
 
 <dt>w</dt>
 <dd><p>Optional vector of case weights. Can also be a column name of <code>X</code>.</p></dd>
-
-
-<dt>v</dt>
-<dd><p>Vector of feature names. The default (<code>NULL</code>) will use all column names of
-<code>X</code> except the column name of the optional case weight <code>w</code> (if specified as name).</p></dd>
 
 </dl></div>
     <div id="value">
