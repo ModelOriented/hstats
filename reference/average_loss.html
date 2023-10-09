@@ -64,6 +64,7 @@ optionally grouped by a variable. Use <code><a href="https://rdrr.io/r/graphics/
 <span>  <span class="va">y</span>,</span>
 <span>  pred_fun <span class="op">=</span> <span class="fu">stats</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span>,</span>
 <span>  loss <span class="op">=</span> <span class="st">"squared_error"</span>,</span>
+<span>  agg_cols <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  BY <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  by_size <span class="op">=</span> <span class="fl">4L</span>,</span>
 <span>  w <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -147,6 +148,12 @@ matrix of unit losses of the same length as <code>X</code>.
 For "mlogloss", the response <code>y</code> can either be a dummy matrix or a discrete vector.
 The latter case is handled via <code>model.matrix(~ as.factor(y) + 0)</code>.
 For "classification_error", both predictions and responses can be non-numeric.</p></dd>
+
+
+<dt>agg_cols</dt>
+<dd><p>Should multivariate losses be summed up? Default is <code>FALSE</code>.
+In combination with the squared error loss, <code>agg_cols = TRUE</code> gives
+the Brier score for (probabilistic) classification.</p></dd>
 
 
 <dt>BY</dt>
