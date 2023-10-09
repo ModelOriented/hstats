@@ -106,7 +106,9 @@ For "classification_error", both predictions and responses can be non-numeric.}
 
 \item{m_rep}{Number of permutations (default 4).}
 
-\item{agg_cols}{Should multivariate losses be summed up? Default is \code{FALSE}.}
+\item{agg_cols}{Should multivariate losses be summed up? Default is \code{FALSE}.
+In combination with the squared error loss, \code{agg_cols = TRUE} gives
+the Brier score for (probabilistic) classification.}
 
 \item{normalize}{Should importance statistics be divided by average loss?
 Default is \code{FALSE}. If \code{TRUE}, an importance of 1 means that the average loss

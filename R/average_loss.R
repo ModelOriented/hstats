@@ -39,6 +39,9 @@
 #'   For "mlogloss", the response `y` can either be a dummy matrix or a discrete vector. 
 #'   The latter case is handled via `model.matrix(~ as.factor(y) + 0)`.
 #'   For "classification_error", both predictions and responses can be non-numeric.
+#' @param agg_cols Should multivariate losses be summed up? Default is `FALSE`.
+#'   In combination with the squared error loss, `agg_cols = TRUE` gives
+#'   the Brier score for (probabilistic) classification.
 #' @param BY Optional grouping vector or column name.
 #'   Numeric `BY` variables with more than `by_size` disjoint values will be 
 #'   binned into `by_size` quantile groups of similar size. 
@@ -69,7 +72,8 @@ average_loss <- function(object, ...) {
 #' @export
 average_loss.default <- function(object, X, y, 
                                  pred_fun = stats::predict,
-                                 loss = "squared_error", 
+                                 loss = "squared_error",
+                                 agg_cols = FALSE,
                                  BY = NULL, by_size = 4L, 
                                  w = NULL, ...) {
   stopifnot(
@@ -90,6 +94,10 @@ average_loss.default <- function(object, X, y,
   # Real work
   L <- as.matrix(loss(y, pred_fun(object, X, ...)))
   M <- gwColMeans(L, g = BY, w = w)
+  
+  if (agg_cols && ncol(M) > 1L) {
+    M <- cbind(rowSums(M))
+  }
   
   structure(
     list(
