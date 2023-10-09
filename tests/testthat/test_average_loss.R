@@ -63,6 +63,16 @@ test_that("average_loss() works with weights and grouped for regression", {
   expect_equal(s3, s4)
 })
 
+test_that("agg_cols = TRUE has no effect", {
+  s <- average_loss(fit, X = iris, y = y)
+  s2 <- average_loss(fit, X = iris, y = y, agg_cols = TRUE)
+  expect_equal(s, s2)
+  
+  s <- average_loss(fit, X = iris, y = y, BY = "Species")
+  s2 <- average_loss(fit, X = iris, y = y, BY = "Species", agg_cols = TRUE)
+  expect_equal(s, s2)
+})
+
 #================================================
 # Multivariate regression
 #================================================
@@ -117,6 +127,16 @@ test_that("average_loss() works with weights and grouped (multi regression)", {
   expect_equal(s1, s2)
   expect_false(identical(s2, s3))
   expect_equal(s3, s4)
+})
+
+test_that("agg_cols = TRUE has an effect", {
+  s <- average_loss(fit, X = iris, y = y)
+  s2 <- average_loss(fit, X = iris, y = y, agg_cols = TRUE)
+  expect_equal(rowSums(s$M), drop(s2$M))
+ 
+  s <- average_loss(fit, X = iris, y = y, BY = "Species")
+  s2 <- average_loss(fit, X = iris, y = y, agg_cols = TRUE, BY = "Species")
+  expect_equal(rowSums(s$M), drop(s2$M))
 })
 
 test_that("Single output multiple models works without recycling y", {

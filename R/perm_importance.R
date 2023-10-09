@@ -16,7 +16,6 @@
 #'   The default (`NULL`) will use all column names of `X` with the following exception: 
 #'   If `y` or `w` are passed  as column names, they are dropped.
 #' @param m_rep Number of permutations (default 4).
-#' @param agg_cols Should multivariate losses be summed up? Default is `FALSE`.
 #' @param normalize Should importance statistics be divided by average loss?
 #'   Default is `FALSE`. If `TRUE`, an importance of 1 means that the average loss
 #'   has been doubled by shuffling that feature's column.

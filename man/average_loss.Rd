@@ -16,6 +16,7 @@ average_loss(object, ...)
   y,
   pred_fun = stats::predict,
   loss = "squared_error",
+  agg_cols = FALSE,
   BY = NULL,
   by_size = 4L,
   w = NULL,
@@ -83,6 +84,10 @@ matrix of unit losses of the same length as \code{X}.
 For "mlogloss", the response \code{y} can either be a dummy matrix or a discrete vector.
 The latter case is handled via \code{model.matrix(~ as.factor(y) + 0)}.
 For "classification_error", both predictions and responses can be non-numeric.}
+
+\item{agg_cols}{Should multivariate losses be summed up? Default is \code{FALSE}.
+In combination with the squared error loss, \code{agg_cols = TRUE} gives
+the Brier score for (probabilistic) classification.}
 
 \item{BY}{Optional grouping vector or column name.
 Numeric \code{BY} variables with more than \code{by_size} disjoint values will be

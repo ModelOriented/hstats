@@ -243,7 +243,9 @@ Strongest relative interaction shown as ICE plot.
 
 ## Multivariate responses
 
-{hstats} works also with multivariate output such as probabilistic classification.
+{hstats} works also with multivariate output such as probabilistic classification, see examples with {ranger}, LightGBM, and XGBoost.
+
+### {ranger}
 
 ```r
 library(hstats)
@@ -277,13 +279,9 @@ perm_importance(fit, X = iris, y = "Species", loss = "mlogloss")
 
 ![](man/figures/multivariate_ice.svg)
 
-## XGBoost and LightGBM
-
-Here, we provide simple examples for working with XGBoost and LightGBM classification. 
-
-Their predict function requires to pass `reshape = TRUE`.
-
 ### LightGBM
+
+Note: Versions below 4.0.0 require to pass `reshape = TRUE` to the prediction function.
 
 ```r
 library(hstats)
@@ -341,6 +339,8 @@ plot(H, normalize = FALSE, squared = FALSE)
 ![](man/figures/lightgbm.svg)
 
 ### XGBoost
+
+Also here, mind the `reshape = TRUE` sent to the prediction function.
 
 ```r
 library(hstats)
@@ -409,17 +409,17 @@ library(tidymodels)
 
 set.seed(1)
 
-iris_recipe <- iris %>%
+iris_recipe <- iris |> 
   recipe(Sepal.Length ~ .)
 
-reg <- linear_reg() %>%
+reg <- linear_reg() |>
   set_engine("lm")
   
-iris_wf <- workflow() %>%
-  add_recipe(iris_recipe) %>%
+iris_wf <- workflow() |>
+  add_recipe(iris_recipe) |>
   add_model(reg)
 
-fit <- iris_wf %>%
+fit <- iris_wf |>
   fit(iris)
   
 s <- hstats(fit, X = iris[-1])
