@@ -10,7 +10,9 @@
 #' - Friedman and Popescu's statistic \eqn{H^2_{jk}} of pairwise interaction strength,
 #'   see [h2_pairwise()] for details.
 #' - Friedman and Popescu's statistic \eqn{H^2_{jkl}} of three-way interaction strength,
-#'   see [h2_threeway()] for details.
+#'   see [h2_threeway()] for details. To save time, this statistic is not calculated
+#'   by default. Set `threeway_m` to a value above 2 to get three-way statistics of the
+#'   `threeway_m` variables with strongest overall interaction.
 #' 
 #' Furthermore, it allows to calculate an experimental partial dependence based
 #' measure of feature importance, \eqn{\textrm{PDI}_j^2}. It equals the proportion of
@@ -41,7 +43,7 @@
 #'   strongest variable names is taken. This can lead to very long run-times.
 #' @param threeway_m Like `pairwise_m`, but controls the feature count for 
 #'   three-way interactions. Cannot be larger than `pairwise_m`. 
-#'   The default is `min(pairwise_m, 5)`. Set to 0 to avoid three-way calculations.
+#'   To save computation time, the default is 0.
 #' @param eps Threshold below which numerator values are set to 0. Default is 1e-10.
 #' @param verbose Should a progress bar be shown? The default is `TRUE`.
 #' @param ... Additional arguments passed to `pred_fun(object, X, ...)`, 
@@ -115,12 +117,13 @@
 #' s <- hstats(fit, X = iris[-1], verbose = FALSE)
 #' summary(s)
 #' 
-#' # On original scale, we have interactions everywhere...
-#' s <- hstats(fit, X = iris[-1], type = "response", verbose = FALSE)
-#' plot(s, which = 1:3, ncol = 1)  # All three types use different denominators
+#' # On original scale, we have interactions everywhere. 
+#' # To see three-way interactions, we set threeway_m to a value above 2.
+#' s <- hstats(fit, X = iris[-1], type = "response", threeway_m = 5)
+#' plot(s, ncol = 1)  # All three types use different denominators
 #' 
 #' # All statistics on same scale (of predictions)
-#' plot(s, which = 1:3, squared = FALSE, normalize = FALSE, facet_scale = "free_y")
+#' plot(s, squared = FALSE, normalize = FALSE, facet_scale = "free_y")
 hstats <- function(object, ...) {
   UseMethod("hstats")
 }
@@ -128,9 +131,8 @@ hstats <- function(object, ...) {
 #' @describeIn hstats Default hstats method.
 #' @export
 hstats.default <- function(object, X, v = NULL,
-                           pred_fun = stats::predict, n_max = 300L, 
-                           w = NULL, pairwise_m = 5L, 
-                           threeway_m = min(pairwise_m, 5L),
+                           pred_fun = stats::predict, n_max = 500L, 
+                           w = NULL, pairwise_m = 5L, threeway_m = 0L,
                            eps = 1e-10, verbose = TRUE, ...) {
   stopifnot(
     is.matrix(X) || is.data.frame(X),
@@ -260,8 +262,7 @@ hstats.default <- function(object, X, v = NULL,
 #' @export
 hstats.ranger <- function(object, X, v = NULL,
                           pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
-                          n_max = 300L, w = NULL, pairwise_m = 5L, 
-                          threeway_m = min(pairwise_m, 5L),
+                          n_max = 500L, w = NULL, pairwise_m = 5L, threeway_m = 0L,
                           eps = 1e-10, verbose = TRUE, ...) {
   hstats.default(
     object = object,
@@ -282,8 +283,7 @@ hstats.ranger <- function(object, X, v = NULL,
 #' @export
 hstats.Learner <- function(object, X, v = NULL,
                            pred_fun = NULL,
-                           n_max = 300L, w = NULL, pairwise_m = 5L,
-                           threeway_m = min(pairwise_m, 5L), 
+                           n_max = 500L, w = NULL, pairwise_m = 5L, threeway_m = 0L, 
                            eps = 1e-10, verbose = TRUE, ...) {
   if (is.null(pred_fun)) {
     pred_fun <- mlr3_pred_fun(object, X = X)
@@ -308,9 +308,8 @@ hstats.Learner <- function(object, X, v = NULL,
 hstats.explainer <- function(object, X = object[["data"]],
                              v = NULL,
                              pred_fun = object[["predict_function"]],
-                             n_max = 300L, w = object[["weights"]], 
-                             pairwise_m = 5L, 
-                             threeway_m = min(pairwise_m, 5L),
+                             n_max = 500L, w = object[["weights"]], 
+                             pairwise_m = 5L, threeway_m = 0L,
                              eps = 1e-10, verbose = TRUE, ...) {
   hstats.default(
     object = object[["model"]],
@@ -401,15 +400,14 @@ print.hstats_summary <- function(x, ...) {
 #' Plot method for object of class "hstats".
 #'
 #' @param x Object of class "hstats".
-#' @param which Which statistic(s) to be shown? Default is `1:2`, i.e., show both
-#'   \eqn{H^2_j} (1) and \eqn{H^2_{jk}} (2). To also show three-way interactions,
-#'   use `1:3`.
+#' @param which Which statistic(s) to be shown? Default is `1:3`, i.e., 
+#'   show \eqn{H^2_j} (1), \eqn{H^2_{jk}} (2), and \eqn{H^2_{jkl}} (3).
 #' @inheritParams plot.hstats_matrix
 #' @inheritParams h2_overall
 #' @returns An object of class "ggplot".
 #' @export
 #' @seealso See [hstats()] for examples.
-plot.hstats <- function(x, which = 1:2, normalize = TRUE, squared = TRUE, 
+plot.hstats <- function(x, which = 1:3, normalize = TRUE, squared = TRUE, 
                         sort = TRUE, top_m = 15L, zero = TRUE, 
                         fill = getOption("hstats.fill"), 
                         viridis_args = getOption("hstats.viridis_args"),

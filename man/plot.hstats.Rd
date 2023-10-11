@@ -6,7 +6,7 @@
 \usage{
 \method{plot}{hstats}(
   x,
-  which = 1:2,
+  which = 1:3,
   normalize = TRUE,
   squared = TRUE,
   sort = TRUE,
@@ -23,9 +23,8 @@
 \arguments{
 \item{x}{Object of class "hstats".}
 
-\item{which}{Which statistic(s) to be shown? Default is \code{1:2}, i.e., show both
-\eqn{H^2_j} (1) and \eqn{H^2_{jk}} (2). To also show three-way interactions,
-use \code{1:3}.}
+\item{which}{Which statistic(s) to be shown? Default is \code{1:3}, i.e.,
+show \eqn{H^2_j} (1), \eqn{H^2_{jk}} (2), and \eqn{H^2_{jkl}} (3).}
 
 \item{normalize}{Should statistics be normalized? Default is \code{TRUE}.}
 

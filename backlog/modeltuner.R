@@ -10,10 +10,11 @@ predict(mm, head(iris))
 
 average_loss(mm, X = iris, y = "Sepal.Length", BY = "Species", w = "Petal.Width") |> 
   plot()
-partial_dep(mm, v = "Sepal.Width", X = iris, BY = "Species", w = "Petal.Width") |> 
-  plot(show_points = FALSE)
+pd <- partial_dep(mm, v = "Sepal.Width", X = iris, BY = "Species", w = "Petal.Width") 
+plot(pd, show_points = FALSE)
+plot(pd, show_points = FALSE, swap_dim = TRUE)
 ice(mm, v = "Sepal.Width", X = iris, BY = "Species") |> 
-  plot(facet_scales = "fixed")
+  plot(center = TRUE)
 
 perm_importance(mm, X = iris, y = "Sepal.Length", w = "Petal.Width") |> 
   plot()
@@ -23,4 +24,4 @@ H <- hstats(mm, X = iris[-1], w = "Petal.Width")
 H
 plot(H)
 h2_pairwise(H, normalize = FALSE, squared = FALSE) |> 
-  plot()
+  plot(swap_dim = TRUE)
