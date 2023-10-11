@@ -132,7 +132,7 @@
 </h2>
 <ol style="list-style-type: decimal">
 <li>H-statistics are based on partial dependence estimates and are thus as good or bad as these. One of their problems is that the model is applied to unseen/impossible feature combinations. In extreme cases, H-statistics intended to be in the range between 0 and 1 can become larger than 1. Accumulated local effects (ALE) [8] mend above problem of partial dependence estimates. They, however, depend on the notion of “closeness”, which is highly non-trivial in higher dimension and for discrete features.</li>
-<li>Due to their computational complexity of <span class="math inline"><em>O</em>(<em>n</em><sup>2</sup>)</span>, where <span class="math inline"><em>n</em></span> is the number of rows considered, H-statistics are usually evaluated on relatively small subsets of the training (or validation/test) data. Consequently, the estimates are typically not very robust. To get more robust results, increase the default <code>n_max = 300</code> of <code><a href="reference/hstats.html">hstats()</a></code>.</li>
+<li>Due to their computational complexity of <span class="math inline"><em>O</em>(<em>n</em><sup>2</sup>)</span>, where <span class="math inline"><em>n</em></span> is the number of rows considered, H-statistics are usually evaluated on relatively small subsets of the training (or validation/test) data. Consequently, the estimates are typically not very robust. To get more robust results, increase the default <code>n_max = 500</code> of <code><a href="reference/hstats.html">hstats()</a></code>.</li>
 </ol>
 </div>
 <div class="section level2">
@@ -211,7 +211,7 @@
 </h3>
 <p>Let’s calculate different H-statistics via <code><a href="reference/hstats.html">hstats()</a></code>:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># 3 seconds on simple laptop - a random forest will take 1-2 minutes</span></span>
+<code class="sourceCode R"><span><span class="co"># 4 seconds on simple laptop - a random forest will take 2-3 minutes</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">782</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/system.time.html" class="external-link">system.time</a></span><span class="op">(</span></span>
 <span>  <span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/hstats.html">hstats</a></span><span class="op">(</span><span class="va">fit</span>, X <span class="op">=</span> <span class="va">X_train</span><span class="op">)</span></span>
@@ -237,17 +237,14 @@
 <p><strong>Remarks</strong></p>
 <ol style="list-style-type: decimal">
 <li>Pairwise statistics <span class="math inline"><em>H</em><sub><em>j</em><em>k</em></sub><sup>2</sup></span> are calculated only for the features with strong overall interactions <span class="math inline"><em>H</em><sub><em>j</em></sub><sup>2</sup></span>.</li>
-<li>H-statistics need to repeatedly calculate predictions on up to <span class="math inline"><em>n</em><sup>2</sup></span> rows. That is why {hstats} samples 300 rows by default. To get more robust results, increase this value at the price of slower run time.</li>
+<li>H-statistics need to repeatedly calculate predictions on up to <span class="math inline"><em>n</em><sup>2</sup></span> rows. That is why {hstats} samples 500 rows by default. To get more robust results, increase this value at the price of slower run time.</li>
 <li>Pairwise statistics <span class="math inline"><em>H</em><sub><em>j</em><em>k</em></sub><sup>2</sup></span> measures interaction strength relative to the combined effect of the two features. This does not necessarily show which interactions are strongest in absolute numbers. To do so, we can study unnormalized statistics:</li>
 </ol>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="reference/H2_pairwise.html">h2_pairwise</a></span><span class="op">(</span><span class="va">s</span>, normalize <span class="op">=</span> <span class="cn">FALSE</span>, squared <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>, top_m <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="reference/H2_pairwise.html">h2_pairwise</a></span><span class="op">(</span><span class="va">s</span>, normalize <span class="op">=</span> <span class="cn">FALSE</span>, squared <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="reference/figures/hstats_pairwise.svg"></p>
 <p>Since distance to the ocean and age have high values in overall interaction strength, it is not surprising that a strong relative pairwise interaction is translated into a strong absolute one.</p>
-<p>{hstats} crunches three-way interaction statistics <span class="math inline"><em>H</em><sub><em>j</em><em>k</em><em>l</em></sub><sup>2</sup></span> as well. The following plot shows them together with the other statistics on prediction scale (<code>normalize = FALSE</code> and <code>squared = FALSE</code>). The three-way interactions are weaker than the pairwise interactions, yet not negligible:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">s</span>, which <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, normalize <span class="op">=</span> <span class="cn">F</span>, squared <span class="op">=</span> <span class="cn">F</span>, facet_scales <span class="op">=</span> <span class="st">"free_y"</span>, ncol <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
-<p><img src="reference/figures/hstats3.svg"></p>
+<p>Note: {hstats} can crunch <strong>three-way</strong> interaction statistics <span class="math inline"><em>H</em><sub><em>j</em><em>k</em><em>l</em></sub><sup>2</sup></span> as well. To calculate them for <span class="math inline"><em>m</em></span> features with strongest overall interactions, set <code>threeway_m = m</code>.</p>
 </div>
 <div class="section level3">
 <h3 id="describe-interaction">Describe interaction<a class="anchor" aria-label="anchor" href="#describe-interaction"></a>
@@ -259,29 +256,23 @@
 <li>Centered ICE plot with colors</li>
 </ol>
 <p>They all reveal a substantial interaction between the two variables in the sense that the age effect gets weaker the closer to the ocean. Note that numeric <code>BY</code> features are automatically binned into quartile groups.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="reference/partial_dep.html">partial_dep</a></span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="st">"age"</span>, X <span class="op">=</span> <span class="va">X_train</span>, BY <span class="op">=</span> <span class="st">"log_ocean"</span><span class="op">)</span>, show_points <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="reference/figures/pdp_ocean_age.svg"></p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pd</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/partial_dep.html">partial_dep</a></span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age"</span>, <span class="st">"log_ocean"</span><span class="op">)</span>, X <span class="op">=</span> <span class="va">X_train</span>, grid_size <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pd</span><span class="op">)</span></span></code></pre></div>
 <p><img src="reference/figures/pdp_2d.png"></p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ic</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/ice.html">ice</a></span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="st">"age"</span>, X <span class="op">=</span> <span class="va">X_train</span>, BY <span class="op">=</span> <span class="st">"log_ocean"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">ic</span>, center <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="reference/figures/ice.svg"></p>
-<p>The last figure tries to visualize the strongest three-way interaction, without much success though:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">BY</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="va">X_train</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age"</span>, <span class="st">"log_ocean"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span>
-<span><span class="va">BY</span><span class="op">$</span><span class="va">log_ocean</span> <span class="op">&lt;-</span> <span class="va">BY</span><span class="op">$</span><span class="va">log_ocean</span> <span class="op">&lt;</span> <span class="fl">10</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="reference/ice.html">ice</a></span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="st">"tot_lvg_area"</span>, X <span class="op">=</span> <span class="va">X_train</span>, BY <span class="op">=</span> <span class="va">BY</span><span class="op">)</span>, center <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
-<p><img src="reference/figures/pdp3.svg"></p>
 </div>
 <div class="section level3">
 <h3 id="variable-importance">Variable importance<a class="anchor" aria-label="anchor" href="#variable-importance"></a>
 </h3>
 <p>In the spirit of [1], and related to [4], we can extract from the “hstats” objects a partial dependence based variable importance measure. It measures not only the main effect strength (see [4]), but also all its interaction effects. It is rather experimental, so use it with care (details in the section “Background”):</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="reference/pd_importance.html">pd_importance</a></span><span class="op">(</span><span class="va">s</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Compared with repeated permutation importance regarding MSE</span></span>
@@ -296,7 +287,7 @@
 <h2 id="dalex">DALEX<a class="anchor" aria-label="anchor" href="#dalex"></a>
 </h2>
 <p>The main functions work smoothly on DALEX explainers:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/mayer79/hstats" class="external-link">hstats</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://modeloriented.github.io/DALEX/" class="external-link">DALEX</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/imbs-hl/ranger" class="external-link">ranger</a></span><span class="op">)</span></span>
@@ -331,7 +322,7 @@
 <div class="section level3">
 <h3 id="ranger">{ranger}<a class="anchor" aria-label="anchor" href="#ranger"></a>
 </h3>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/mayer79/hstats" class="external-link">hstats</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/imbs-hl/ranger" class="external-link">ranger</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
@@ -363,8 +354,8 @@
 <div class="section level3">
 <h3 id="lightgbm">LightGBM<a class="anchor" aria-label="anchor" href="#lightgbm"></a>
 </h3>
-<p>Note: Versions below 4.0.0 require to pass <code>reshape = TRUE</code> to the prediction function.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<p>Note: Versions from 4.0.0 upwards to not anymore require passing <code>reshape = TRUE</code> to the prediction function.</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/mayer79/hstats" class="external-link">hstats</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/Microsoft/LightGBM" class="external-link">lightgbm</a></span><span class="op">)</span></span>
 <span></span>
@@ -391,7 +382,7 @@
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Check that predictions require reshape = TRUE to be a matrix</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">X_pred</span>, <span class="fl">2</span><span class="op">)</span>, reshape <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">X_train</span>, <span class="fl">2</span><span class="op">)</span>, reshape <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#           [,1]         [,2]         [,3]</span></span>
 <span><span class="co"># [1,] 0.9999997 2.918695e-07 2.858720e-14</span></span>
 <span><span class="co"># [2,] 0.9999999 1.038470e-07 7.337221e-10</span></span>
@@ -412,16 +403,16 @@
 <span><span class="co"># Petal.Length  Petal.Width  Sepal.Width Sepal.Length </span></span>
 <span><span class="co">#   2.61783760   1.00647382   0.08414687   0.01011645 </span></span>
 <span></span>
-<span><span class="co"># Interaction statistics (H-statistics)</span></span>
-<span><span class="op">(</span><span class="va">H</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/hstats.html">hstats</a></span><span class="op">(</span><span class="va">fit</span>, X <span class="op">=</span> <span class="va">X_train</span>, reshape <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span>  <span class="co"># 0.3010446 0.4167927 0.1623982</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">H</span>, normalize <span class="op">=</span> <span class="cn">FALSE</span>, squared <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<span><span class="co"># Interaction statistics, including three-way stats</span></span>
+<span><span class="op">(</span><span class="va">H</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/hstats.html">hstats</a></span><span class="op">(</span><span class="va">fit</span>, X <span class="op">=</span> <span class="va">X_train</span>, reshape <span class="op">=</span> <span class="cn">TRUE</span>, threeway_m <span class="op">=</span> <span class="fl">4</span><span class="op">)</span><span class="op">)</span>  <span class="co"># 0.3010446 0.4167927 0.1623982</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">H</span>, normalize <span class="op">=</span> <span class="cn">FALSE</span>, squared <span class="op">=</span> <span class="cn">FALSE</span>, facet_scales <span class="op">=</span> <span class="st">"free_y"</span>, ncol <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
 <p><img src="reference/figures/lightgbm.svg"></p>
 </div>
 <div class="section level3">
 <h3 id="xgboost">XGBoost<a class="anchor" aria-label="anchor" href="#xgboost"></a>
 </h3>
 <p>Also here, mind the <code>reshape = TRUE</code> sent to the prediction function.</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/mayer79/hstats" class="external-link">hstats</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/dmlc/xgboost" class="external-link">xgboost</a></span><span class="op">)</span></span>
 <span></span>
@@ -448,7 +439,7 @@
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># We need to pass reshape = TRUE to get a beautiful matrix</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">X_pred</span>, <span class="fl">2</span><span class="op">)</span>, reshape <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">X_train</span>, <span class="fl">2</span><span class="op">)</span>, reshape <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#           [,1]        [,2]         [,3]</span></span>
 <span><span class="co"># [1,] 0.9974016 0.002130089 0.0004682819</span></span>
 <span><span class="co"># [2,] 0.9971375 0.002129525 0.0007328897</span></span>
@@ -469,9 +460,9 @@
 <span><span class="co"># Petal.Length  Petal.Width Sepal.Length  Sepal.Width </span></span>
 <span><span class="co">#  1.731532873  0.276671377  0.009158659  0.005717263 </span></span>
 <span></span>
-<span><span class="co"># Interaction statistics (H-statistics)</span></span>
-<span><span class="op">(</span><span class="va">H</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/hstats.html">hstats</a></span><span class="op">(</span><span class="va">fit</span>, X <span class="op">=</span> <span class="va">X_train</span>, reshape <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span>  <span class="co"># 0.02714399 0.16067364 0.11606973</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">H</span>, normalize <span class="op">=</span> <span class="cn">FALSE</span>, squared <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<span><span class="co"># Interaction statistics including three-way stats</span></span>
+<span><span class="op">(</span><span class="va">H</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/hstats.html">hstats</a></span><span class="op">(</span><span class="va">fit</span>, X <span class="op">=</span> <span class="va">X_train</span>, reshape <span class="op">=</span> <span class="cn">TRUE</span>, threeway_m <span class="op">=</span> <span class="fl">4</span><span class="op">)</span><span class="op">)</span>  <span class="co"># 0.02714399 0.16067364 0.11606973</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">H</span>, normalize <span class="op">=</span> <span class="cn">FALSE</span>, squared <span class="op">=</span> <span class="cn">FALSE</span>, facet_scales <span class="op">=</span> <span class="st">"free_y"</span>, ncol <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
 <p><img src="reference/figures/xgboost.svg"></p>
 </div>
 </div>
@@ -482,7 +473,7 @@
 <div class="section level3">
 <h3 id="tidymodels">tidymodels<a class="anchor" aria-label="anchor" href="#tidymodels"></a>
 </h3>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/mayer79/hstats" class="external-link">hstats</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidymodels.tidymodels.org" class="external-link">tidymodels</a></span><span class="op">)</span></span>
 <span></span>
@@ -516,7 +507,7 @@
 <div class="section level3">
 <h3 id="caret">caret<a class="anchor" aria-label="anchor" href="#caret"></a>
 </h3>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/mayer79/hstats" class="external-link">hstats</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/topepo/caret/" class="external-link">caret</a></span><span class="op">)</span></span>
 <span></span>
@@ -538,7 +529,7 @@
 <div class="section level3">
 <h3 id="mlr3">mlr3<a class="anchor" aria-label="anchor" href="#mlr3"></a>
 </h3>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/mayer79/hstats" class="external-link">hstats</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://mlr3.mlr-org.com" class="external-link">mlr3</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://mlr3learners.mlr-org.com" class="external-link">mlr3learners</a></span><span class="op">)</span></span>
@@ -659,7 +650,7 @@ $$</span></p>
 </h4>
 <p>Calculation of all <span class="math inline"><em>H</em><sub><em>j</em></sub><sup>2</sup></span> requires <span class="math inline"><em>O</em>(<em>n</em><sup>2</sup><em>p</em>)</span> predictions, while calculating of all pairwise <span class="math inline"><em>H</em><sub><em>j</em><em>k</em></sub></span> requires <span class="math inline"><em>O</em>(<em>n</em><sup>2</sup><em>p</em><sup>2</sup></span> predictions. Therefore, we suggest to reduce the workflow in two important ways:</p>
 <ol style="list-style-type: decimal">
-<li>Evaluate the statistics only on a subset of the data, e.g., on <span class="math inline"><em>n</em>′ = 300</span> observations.</li>
+<li>Evaluate the statistics only on a subset of the data, e.g., on <span class="math inline"><em>n</em>′ = 500</span> observations.</li>
 <li>Calculate <span class="math inline"><em>H</em><sub><em>j</em></sub><sup>2</sup></span> for all features. Then, select a small number <span class="math inline">$m = O(\sqrt{p})$</span> of features with highest <span class="math inline"><em>H</em><sub><em>j</em></sub><sup>2</sup></span> and do pairwise calculations only on this subset.</li>
 </ol>
 <p>This leads to a total number of <span class="math inline"><em>O</em>(<em>n</em>′<sup>2</sup><em>p</em>)</span> predictions. If also three-way interactions are to be studied, <span class="math inline"><em>m</em></span> should be of the order <span class="math inline"><em>p</em><sup>1/3</sup></span>.</p>

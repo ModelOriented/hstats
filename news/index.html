@@ -49,10 +49,13 @@
 
     <div class="section level2">
 <h2 class="page-header" data-toc-text="0.4.0" id="hstats-040">hstats 0.4.0<a class="anchor" aria-label="anchor" href="#hstats-040"></a></h2>
-<p>This release mainly changes the <em>output</em>. The numeric results are unchanged.</p>
 <div class="section level3">
 <h3 id="major-changes-0-4-0">Major changes<a class="anchor" aria-label="anchor" href="#major-changes-0-4-0"></a></h3>
-<ul><li>Revised plots: The colors and color palettes have changed and can (also) be controlled via global options. For instance, to change the fill color of all bars, set <code>options(hstats.fill = new value)</code>. Value labels are more clear, and there are more options. Varying color/fill scales now use viridis (inferno). This can be modified on the fly or via <code>options(hstats.viridis_args = list(...))</code>.</li>
+<ul><li>
+<code><a href="../reference/hstats.html">hstats()</a></code>: <code>n_max</code> has been increased from 300 to 500 rows. This will make estimates of H statistics more stable at the price of longer run time. Reduce to 300 for the old behaviour.</li>
+<li>
+<code><a href="../reference/hstats.html">hstats()</a></code>: By default, three-way interactions are not calculated anymore. Set <code>threeway_m</code> to 5 for the old behaviour.</li>
+<li>Revised plots: The colors and color palettes have changed and can (also) be controlled via global options. For instance, to change the fill color of all bars, set <code>options(hstats.fill = new value)</code>. Value labels are more clear, and there are more options. Varying color/fill scales now use viridis (inferno). This can be modified on the fly or via <code>options(hstats.viridis_args = list(...))</code>.</li>
 <li>“hstats_matrix” object: All statistics functions, e.g., <code><a href="../reference/H2_pairwise.html">h2_pairwise()</a></code> or <code><a href="../reference/perm_importance.html">perm_importance()</a></code>, now return a “hstats_matrix”. The values are stored in <code>$M</code> and can be plotted via <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code>.</li>
 <li>
 <code><a href="../reference/perm_importance.html">perm_importance()</a></code>: The <code>perms</code> argument has been changed to <code>m_rep</code>.</li>
@@ -85,8 +88,6 @@
 <ul><li>Grid of <code><a href="../reference/ice.html">ice()</a></code> and <code><a href="../reference/partial_dep.html">partial_dep()</a></code>: So far, the default grid strategy “uniform” used <code><a href="https://rdrr.io/r/base/pretty.html" class="external-link">pretty()</a></code> to generate the evaluation points. To provide more predictable grid sizes, and to be more in line with other implementations of partial dependence and ICE, we now use <code><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq()</a></code> to create the uniform grid.</li>
 <li>
 <code><a href="../reference/H2_pairwise.html">h2_pairwise()</a></code> and <code><a href="../reference/H2_threeway.html">h2_threeway()</a></code> will now also include 0 values. Use <code>zero = FALSE</code> to drop them, see below. The padding with 0 is done at no computational cost, and will affect only up to <code>pairwise_m</code> and <code>threeway_m</code> features.</li>
-<li>
-<code><a href="../reference/hstats.html">hstats()</a></code>: The default number of features considered for <em>three-way interactions</em> has been changed from <code>threeway_m = pairwise_m</code> to the more cautious <code>threeway_m = min(pairwise_m, 5L)</code>. Furthermore, <code>threeway_m</code> is capped at <code>pairwise_m</code>.</li>
 <li>The <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> method of <code><a href="../reference/summary.hstats.html">summary.hstats()</a></code> is less verbose.</li>
 </ul></div>
 <div class="section level3">
