@@ -15,10 +15,10 @@ hstats(object, ...)
   X,
   v = NULL,
   pred_fun = stats::predict,
-  n_max = 300L,
+  n_max = 500L,
   w = NULL,
   pairwise_m = 5L,
-  threeway_m = min(pairwise_m, 5L),
+  threeway_m = 0L,
   eps = 1e-10,
   verbose = TRUE,
   ...
@@ -29,10 +29,10 @@ hstats(object, ...)
   X,
   v = NULL,
   pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
-  n_max = 300L,
+  n_max = 500L,
   w = NULL,
   pairwise_m = 5L,
-  threeway_m = min(pairwise_m, 5L),
+  threeway_m = 0L,
   eps = 1e-10,
   verbose = TRUE,
   ...
@@ -43,10 +43,10 @@ hstats(object, ...)
   X,
   v = NULL,
   pred_fun = NULL,
-  n_max = 300L,
+  n_max = 500L,
   w = NULL,
   pairwise_m = 5L,
-  threeway_m = min(pairwise_m, 5L),
+  threeway_m = 0L,
   eps = 1e-10,
   verbose = TRUE,
   ...
@@ -57,10 +57,10 @@ hstats(object, ...)
   X = object[["data"]],
   v = NULL,
   pred_fun = object[["predict_function"]],
-  n_max = 300L,
+  n_max = 500L,
   w = object[["weights"]],
   pairwise_m = 5L,
-  threeway_m = min(pairwise_m, 5L),
+  threeway_m = 0L,
   eps = 1e-10,
   verbose = TRUE,
   ...
@@ -98,7 +98,7 @@ strongest variable names is taken. This can lead to very long run-times.}
 
 \item{threeway_m}{Like \code{pairwise_m}, but controls the feature count for
 three-way interactions. Cannot be larger than \code{pairwise_m}.
-The default is \code{min(pairwise_m, 5)}. Set to 0 to avoid three-way calculations.}
+To save computation time, the default is 0.}
 
 \item{eps}{Threshold below which numerator values are set to 0. Default is 1e-10.}
 
@@ -155,7 +155,9 @@ feature, see \code{\link[=h2_overall]{h2_overall()}} for details.
 \item Friedman and Popescu's statistic \eqn{H^2_{jk}} of pairwise interaction strength,
 see \code{\link[=h2_pairwise]{h2_pairwise()}} for details.
 \item Friedman and Popescu's statistic \eqn{H^2_{jkl}} of three-way interaction strength,
-see \code{\link[=h2_threeway]{h2_threeway()}} for details.
+see \code{\link[=h2_threeway]{h2_threeway()}} for details. To save time, this statistic is not calculated
+by default. Set \code{threeway_m} to a value above 2 to get three-way statistics of the
+\code{threeway_m} variables with strongest overall interaction.
 }
 
 Furthermore, it allows to calculate an experimental partial dependence based
@@ -203,12 +205,13 @@ fit <- glm(Sepal.Length ~ ., data = iris, family = Gamma(link = log))
 s <- hstats(fit, X = iris[-1], verbose = FALSE)
 summary(s)
 
-# On original scale, we have interactions everywhere...
-s <- hstats(fit, X = iris[-1], type = "response", verbose = FALSE)
-plot(s, which = 1:3, ncol = 1)  # All three types use different denominators
+# On original scale, we have interactions everywhere. 
+# To see three-way interactions, we set threeway_m to a value above 2.
+s <- hstats(fit, X = iris[-1], type = "response", threeway_m = 5)
+plot(s, ncol = 1)  # All three types use different denominators
 
 # All statistics on same scale (of predictions)
-plot(s, which = 1:3, squared = FALSE, normalize = FALSE, facet_scale = "free_y")
+plot(s, squared = FALSE, normalize = FALSE, facet_scale = "free_y")
 }
 \references{
 Friedman, Jerome H., and Bogdan E. Popescu. \emph{"Predictive Learning via Rule Ensembles."}

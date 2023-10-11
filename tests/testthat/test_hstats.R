@@ -1,6 +1,6 @@
 test_that("Additive models show 0 interactions (univariate)", {
   fit <- lm(Sepal.Length ~ ., data = iris)
-  s <- hstats(fit, X = iris[-1L], verbose = FALSE)
+  s <- hstats(fit, X = iris[-1L], verbose = FALSE, threeway_m = 5L)
   expect_null(h2_pairwise(s, zero = FALSE)$M)
   expect_equal(c(h2_pairwise(s, sort = FALSE, top_m = Inf)$M), rep(0, choose(4, 2)))
   
@@ -22,7 +22,7 @@ test_that("Additive models show 0 interactions (univariate)", {
 
 test_that("Additive models show 0 interactions (multivariate)", {
   fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width + Species, data = iris)
-  s <- hstats(fit, X = iris[3:5], verbose = FALSE)
+  s <- hstats(fit, X = iris[3:5], verbose = FALSE, threeway_m = 5)
   
   expect_null(h2_pairwise(s, zero = FALSE)$M)
   expect_true(all(h2_pairwise(s)$M == 0))
@@ -66,13 +66,12 @@ test_that("Non-additive models show interactions > 0 (one interaction)", {
   expect_s3_class(plot(h2_pairwise(s)), "ggplot")
   expect_s3_class(plot(s), "ggplot")
   expect_null(h2_threeway(s, zero = FALSE)$M)
-  expect_equal(c(h2_threeway(s)$M), rep(0, times = choose(4, 3)))
 })
 
 fit <- lm(
   Sepal.Length ~ . + Petal.Length:Petal.Width + Petal.Length:Species, data = iris
 )
-s <- hstats(fit, X = iris[-1L], verbose = FALSE)
+s <- hstats(fit, X = iris[-1L], verbose = FALSE, threeway_m = 5L)
 
 test_that("Non-additive models show interactions > 0 (two interactions)", {
   expect_true(h2(s)$M > 0)
@@ -115,7 +114,9 @@ test_that("passing v works", {
 test_that("Case weights have an impact", {
   s1 <- s
   s1$w <- NULL
-  s2 <- hstats(fit, X = iris[-1L], verbose = FALSE, w = rep(2, times = 150L))
+  s2 <- hstats(
+    fit, X = iris[-1L], verbose = FALSE, w = rep(2, times = 150L), threeway_m = 5L
+  )
   s2[["w"]] <- NULL
   expect_equal(s1, s2)
   
@@ -192,12 +193,18 @@ test_that("multivariate results are consistent", {
 test_that("Three-way interaction is positive in model with such terms", {
   fit <- lm(uptake ~ Type * Treatment * conc, data = CO2)
   s <- hstats(fit, X = CO2[2:4], verbose = FALSE)
+  expect_null(h2_threeway(s)$M)
+  
+  s <- hstats(fit, X = CO2[2:4], verbose = FALSE, threeway_m = 5L)
   expect_true(h2_threeway(s)$M > 0)
 })
 
 test_that("Three-way interaction behaves correctly across dimensions", {
-  fit <- lm(cbind(up = uptake, up2 = 2 * uptake) ~ Type * Treatment * conc, data = CO2)
-  s <- hstats(fit, X = CO2[2:4], verbose = FALSE)
+  fit <- lm(
+    cbind(up = uptake, up2 = 2 * uptake) ~ Type * Treatment * conc, 
+    data = CO2
+  )
+  s <- hstats(fit, X = CO2[2:4], verbose = FALSE, threeway_m = 5L)
   out <- h2_threeway(s)$M
   expect_equal(out[, "up"], out[, "up2"])
   out <- h2_threeway(s, squared = FALSE, normalize = FALSE)$M
@@ -206,7 +213,7 @@ test_that("Three-way interaction behaves correctly across dimensions", {
 
 test_that("Pairwise and three-way interactions can be suppressed", {
   fit <- lm(uptake ~ Type * Treatment * conc, data = CO2)
-  s <- hstats(fit, X = CO2[2:4], verbose = FALSE, threeway_m = 0L)
+  s <- hstats(fit, X = CO2[2:4], verbose = FALSE)
   expect_null(h2_threeway(s)$M)
   
   s <- hstats(fit, X = CO2[2:4], verbose = FALSE, pairwise_m = 2L)
@@ -220,7 +227,7 @@ test_that("Pairwise and three-way interactions can be suppressed", {
 })
 
 fit <- lm(uptake ~ Type * Treatment * conc, data = CO2)
-s <- hstats(fit, X = CO2[2:4], verbose = FALSE)
+s <- hstats(fit, X = CO2[2:4], verbose = FALSE, threeway_m = 5L)
 
 test_that("Statistics react on normalize, (sorting), squaring, and top m", {
   expect_identical(h2(s)$M, s$h2$num / s$h2$denom)

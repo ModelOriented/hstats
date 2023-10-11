@@ -1,9 +1,9 @@
 # hstats 0.4.0
 
-This release mainly changes the *output*. The numeric results are unchanged.
-
 ## Major changes
 
+- `hstats()`: `n_max` has been increased from 300 to 500 rows. This will make estimates of H statistics more stable at the price of longer run time. Reduce to 300 for the old behaviour.
+- `hstats()`: By default, three-way interactions are not calculated anymore. Set `threeway_m` to 5 for the old behaviour.
 - Revised plots: The colors and color palettes have changed and can (also) be controlled via global options. For instance, to change the fill color of all bars, set `options(hstats.fill = new value)`. Value labels are more clear, and there are more options. Varying color/fill scales now use viridis (inferno). This can be modified on the fly or via `options(hstats.viridis_args = list(...))`.
 - "hstats_matrix" object: All statistics functions, e.g., `h2_pairwise()` or `perm_importance()`, now return a "hstats_matrix". The values are stored in `$M` and can be plotted via `plot()`.
 - `perm_importance()`: The `perms` argument has been changed to `m_rep`.
@@ -29,7 +29,6 @@ This is intended to be the last version before 1.0.0.
 
 - Grid of `ice()` and `partial_dep()`: So far, the default grid strategy "uniform" used `pretty()` to generate the evaluation points. To provide more predictable grid sizes, and to be more in line with other implementations of partial dependence and ICE, we now use `seq()` to create the uniform grid.
 - `h2_pairwise()` and `h2_threeway()` will now also include 0 values. Use `zero = FALSE` to drop them, see below. The padding with 0 is done at no computational cost, and will affect only up to `pairwise_m` and `threeway_m` features.
-- `hstats()`: The default number of features considered for *three-way interactions* has been changed from `threeway_m = pairwise_m` to the more cautious `threeway_m = min(pairwise_m, 5L)`. Furthermore, `threeway_m` is capped at `pairwise_m`.
 - The `print()` method of `summary.hstats()` is less verbose.
 
 ## Improvements

@@ -32,7 +32,7 @@ The core functions `hstats()`, `partial_dep()`, `ice()`, `perm_importance()`, an
 ## Limitations
 
 1. H-statistics are based on partial dependence estimates and are thus as good or bad as these. One of their problems is that the model is applied to unseen/impossible feature combinations. In extreme cases, H-statistics intended to be in the range between 0 and 1 can become larger than 1. Accumulated local effects (ALE) [8] mend above problem of partial dependence estimates. They, however, depend on the notion of "closeness", which is highly non-trivial in higher dimension and for discrete features.
-2. Due to their computational complexity of $O(n^2)$, where $n$ is the number of rows considered, H-statistics are usually evaluated on relatively small subsets of the training (or validation/test) data. Consequently, the estimates are typically not very robust. To get more robust results, increase the default `n_max = 300` of `hstats()`.
+2. Due to their computational complexity of $O(n^2)$, where $n$ is the number of rows considered, H-statistics are usually evaluated on relatively small subsets of the training (or validation/test) data. Consequently, the estimates are typically not very robust. To get more robust results, increase the default `n_max = 500` of `hstats()`.
 
 ## Landscape
 
@@ -102,7 +102,7 @@ average_loss(fit, X = X_valid, y = y_valid)
 Let's calculate different H-statistics via `hstats()`:
 
 ```r
-# 3 seconds on simple laptop - a random forest will take 1-2 minutes
+# 4 seconds on simple laptop - a random forest will take 2-3 minutes
 set.seed(782)
 system.time(
   s <- hstats(fit, X = X_train)
@@ -128,24 +128,18 @@ plot(s)  # Or summary(s) for numeric output
 **Remarks**
 
 1. Pairwise statistics $H^2_{jk}$ are calculated only for the features with strong overall interactions $H^2_j$.
-2. H-statistics need to repeatedly calculate predictions on up to $n^2$ rows. That is why {hstats} samples 300 rows by default. To get more robust results, increase this value at the price of slower run time.
+2. H-statistics need to repeatedly calculate predictions on up to $n^2$ rows. That is why {hstats} samples 500 rows by default. To get more robust results, increase this value at the price of slower run time.
 3. Pairwise statistics $H^2_{jk}$ measures interaction strength relative to the combined effect of the two features. This does not necessarily show which interactions are strongest in absolute numbers. To do so, we can study unnormalized statistics:
 
 ```r
-plot(h2_pairwise(s, normalize = FALSE, squared = FALSE), top_m = 5)
+plot(h2_pairwise(s, normalize = FALSE, squared = FALSE))
 ```
 
 ![](man/figures/hstats_pairwise.svg)
 
 Since distance to the ocean and age have high values in overall interaction strength, it is not surprising that a strong relative pairwise interaction is translated into a strong absolute one.
 
-{hstats} crunches three-way interaction statistics $H^2_{jkl}$ as well. The following plot shows them together with the other statistics on prediction scale (`normalize = FALSE` and `squared = FALSE`). The three-way interactions are weaker than the pairwise interactions, yet not negligible:
-
-```r
-plot(s, which = 1:3, normalize = F, squared = F, facet_scales = "free_y", ncol = 1)
-```
-
-![](man/figures/hstats3.svg)
+Note: {hstats} can crunch **three-way** interaction statistics $H^2_{jkl}$ as well. To calculate them for $m$ features with strongest overall interactions, set `threeway_m = m`.
 
 ### Describe interaction
 
@@ -176,16 +170,6 @@ plot(ic, center = TRUE)
 ```
 
 ![](man/figures/ice.svg)
-
-The last figure tries to visualize the strongest three-way interaction, without much success though:
-
-```r
-BY <- data.frame(X_train[, c("age", "log_ocean")])
-BY$log_ocean <- BY$log_ocean < 10
-plot(ice(fit, v = "tot_lvg_area", X = X_train, BY = BY), center = TRUE)
-```
-
-![](man/figures/pdp3.svg)
 
 ### Variable importance
 
@@ -281,7 +265,7 @@ perm_importance(fit, X = iris, y = "Species", loss = "mlogloss")
 
 ### LightGBM
 
-Note: Versions below 4.0.0 require to pass `reshape = TRUE` to the prediction function.
+Note: Versions from 4.0.0 upwards to not anymore require passing `reshape = TRUE` to the prediction function.
 
 ```r
 library(hstats)
@@ -310,7 +294,7 @@ fit <- lgb.train(
 )
 
 # Check that predictions require reshape = TRUE to be a matrix
-predict(fit, head(X_pred, 2), reshape = TRUE)
+predict(fit, head(X_train, 2), reshape = TRUE)
 #           [,1]         [,2]         [,3]
 # [1,] 0.9999997 2.918695e-07 2.858720e-14
 # [2,] 0.9999999 1.038470e-07 7.337221e-10
@@ -331,9 +315,9 @@ perm_importance(
 # Petal.Length  Petal.Width  Sepal.Width Sepal.Length 
 #   2.61783760   1.00647382   0.08414687   0.01011645 
 
-# Interaction statistics (H-statistics)
-(H <- hstats(fit, X = X_train, reshape = TRUE))  # 0.3010446 0.4167927 0.1623982
-plot(H, normalize = FALSE, squared = FALSE)
+# Interaction statistics, including three-way stats
+(H <- hstats(fit, X = X_train, reshape = TRUE, threeway_m = 4))  # 0.3010446 0.4167927 0.1623982
+plot(H, normalize = FALSE, squared = FALSE, facet_scales = "free_y", ncol = 1)
 ```
 
 ![](man/figures/lightgbm.svg)
@@ -369,7 +353,7 @@ fit <- xgb.train(
 )
 
 # We need to pass reshape = TRUE to get a beautiful matrix
-predict(fit, head(X_pred, 2), reshape = TRUE)
+predict(fit, head(X_train, 2), reshape = TRUE)
 #           [,1]        [,2]         [,3]
 # [1,] 0.9974016 0.002130089 0.0004682819
 # [2,] 0.9971375 0.002129525 0.0007328897
@@ -390,9 +374,9 @@ perm_importance(
 # Petal.Length  Petal.Width Sepal.Length  Sepal.Width 
 #  1.731532873  0.276671377  0.009158659  0.005717263 
 
-# Interaction statistics (H-statistics)
-(H <- hstats(fit, X = X_train, reshape = TRUE))  # 0.02714399 0.16067364 0.11606973
-plot(H, normalize = FALSE, squared = FALSE)
+# Interaction statistics including three-way stats
+(H <- hstats(fit, X = X_train, reshape = TRUE, threeway_m = 4))  # 0.02714399 0.16067364 0.11606973
+plot(H, normalize = FALSE, squared = FALSE, facet_scales = "free_y", ncol = 1)
 ```
 
 ![](man/figures/xgboost.svg)
@@ -621,7 +605,7 @@ In [5], $1 - H^2$ is called *additivity index*. A similar measure using accumula
 
 Calculation of all $H_j^2$ requires $O(n^2 p)$ predictions, while calculating of all pairwise $H_{jk}$ requires $O(n^2 p^2$ predictions. Therefore, we suggest to reduce the workflow in two important ways:
 
-1. Evaluate the statistics only on a subset of the data, e.g., on $n' = 300$ observations.
+1. Evaluate the statistics only on a subset of the data, e.g., on $n' = 500$ observations.
 2. Calculate $H_j^2$ for all features. Then, select a small number $m = O(\sqrt{p})$ of features with highest $H^2_j$ and do pairwise calculations only on this subset.
 
 This leads to a total number of $O(n'^2 p)$ predictions. If also three-way interactions are to be studied, $m$ should be of the order $p^{1/3}$.
