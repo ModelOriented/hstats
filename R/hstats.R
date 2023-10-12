@@ -72,20 +72,23 @@
 #'   - `h2`: List with numerator and denominator of \eqn{H^2}.
 #'   - `h2_overall`: List with numerator and denominator of \eqn{H^2_j}. 
 #'   - `v_pairwise`: Subset of `v` with largest \eqn{H^2_j} used for pairwise 
-#'     calculations.
+#'     calculations. Only if pairwise calculations have been done.
 #'   - `combs2`: Named list of variable pairs for which pairwise partial 
-#'     dependence functions are available.
+#'     dependence functions are available. Only if pairwise calculations have been done.
 #'   - `F_jk`: List of matrices, each representing (centered) bivariate 
 #'     partial dependence functions \eqn{F_{jk}}.
+#'     Only if pairwise calculations have been done.
 #'   - `h2_pairwise`: List with numerator and denominator of \eqn{H^2_{jk}}.
 #'     Only if pairwise calculations have been done.
 #'   - `v_threeway`: Subset of `v` with largest `h2_overall()` used for three-way 
-#'     calculations.
+#'     calculations. Only if three-way calculations have been done.
 #'   - `combs3`: Named list of variable triples for which three-way partial 
-#'     dependence functions are available.
+#'     dependence functions are available. Only if three-way calculations have been done.
 #'   - `F_jkl`: List of matrices, each representing (centered) three-way 
 #'     partial dependence functions \eqn{F_{jkl}}.
-#'   - `h2_threeway`: List with numerator and denominator of \eqn{H^2_{jkl}}.
+#'     Only if three-way calculations have been done.
+#'   - `h2_threeway`: List with numerator and denominator of \eqn{H^2_{jkl}}. 
+#'     Only if three-way calculations have been done.
 #' @references
 #'   Friedman, Jerome H., and Bogdan E. Popescu. *"Predictive Learning via Rule Ensembles."*
 #'     The Annals of Applied Statistics 2, no. 3 (2008): 916-54.
