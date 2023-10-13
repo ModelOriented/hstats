@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">hstats</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.4.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0.0</span>
       </span>
     </div>
 
@@ -48,9 +48,9 @@
     </div>
 
     <div class="section level2">
-<h2 class="page-header" data-toc-text="0.4.0" id="hstats-040">hstats 0.4.0<a class="anchor" aria-label="anchor" href="#hstats-040"></a></h2>
+<h2 class="page-header" data-toc-text="1.0.0" id="hstats-100">hstats 1.0.0<a class="anchor" aria-label="anchor" href="#hstats-100"></a></h2>
 <div class="section level3">
-<h3 id="major-changes-0-4-0">Major changes<a class="anchor" aria-label="anchor" href="#major-changes-0-4-0"></a></h3>
+<h3 id="major-changes-1-0-0">Major changes<a class="anchor" aria-label="anchor" href="#major-changes-1-0-0"></a></h3>
 <ul><li>
 <code><a href="../reference/hstats.html">hstats()</a></code>: <code>n_max</code> has been increased from 300 to 500 rows. This will make estimates of H statistics more stable at the price of longer run time. Reduce to 300 for the old behaviour.</li>
 <li>
@@ -64,7 +64,7 @@
 <li>The arguments <code>w</code> (case weights) and <code>y</code> (response) can now also be passed as column <em>names</em>.</li>
 </ul></div>
 <div class="section level3">
-<h3 id="minor-changes-0-4-0">Minor changes<a class="anchor" aria-label="anchor" href="#minor-changes-0-4-0"></a></h3>
+<h3 id="minor-changes-1-0-0">Minor changes<a class="anchor" aria-label="anchor" href="#minor-changes-1-0-0"></a></h3>
 <ul><li>Statistics: The argument <code>top_m</code> has been moved to the <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> method.</li>
 <li>Statistics: The clipping threshold <code>eps</code> of squared numerator statistics has been reduced from <code>1e-8</code> to <code>1e-10</code>. It is now handled in <code><a href="../reference/hstats.html">hstats()</a></code> instead of the statistic functions.</li>
 <li>
