@@ -15,7 +15,7 @@ library(usethis)
 use_description(
   fields = list(
     Title = "Interaction Statistics",
-    Version = "0.4.0",
+    Version = "1.0.0",
     Description = "Fast, model-agnostic implementation of different H-statistics
     introduced by Jerome H. Friedman and Bogdan E. Popescu (2008) <doi:10.1214/07-AOAS148>. 
     These statistics quantify interaction strength per feature, feature pair, 

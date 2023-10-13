@@ -310,7 +310,7 @@ plot.hstats_matrix <- function(x, top_m = 15L,
   if (err_type != "No") {
     df[["error_"]] <- mat2df(err)[["value_"]]
   }
-  df <- barplot_reverter(df)
+  df <- barplot_reverter(df, group = !swap_dim)
   
   if (is.null(viridis_args)) {
     viridis_args <- list()

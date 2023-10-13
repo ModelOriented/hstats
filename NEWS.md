@@ -1,4 +1,4 @@
-# hstats 0.4.0
+# hstats 1.0.0
 
 ## Major changes
 
