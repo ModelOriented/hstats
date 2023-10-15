@@ -285,6 +285,8 @@ print.partial_dep <- function(x, n = 3L, ...) {
 #'   To change the global option, use `options(stats.color = new value)`.
 #' @param show_points Logical flag indicating whether to show points (default) or not.
 #'   No effect for 2D PDPs.
+#' @param d2_geom The geometry used for 2D PDPs, by default "tile". The other option is
+#'   "point", which is useful, e.g., when the grid represents spatial points.
 #' @param ... Arguments passed to geometries.
 #' @inheritParams plot.hstats_matrix
 #' @export
@@ -295,7 +297,8 @@ plot.partial_dep <- function(x,
                              swap_dim = FALSE,
                              viridis_args = getOption("hstats.viridis_args"),
                              facet_scales = "fixed",
-                             rotate_x = FALSE, show_points = TRUE, ...) {
+                             rotate_x = FALSE, show_points = TRUE, 
+                             d2_geom = c("tile", "point"), ...) {
   v <- x[["v"]]
   by_name <- x[["by_name"]]
   K <- x[["K"]]
@@ -347,15 +350,20 @@ plot.partial_dep <- function(x,
     }
   } else if (length(v) == 2L) {
     # Heat maps
+    d2_geom <- match.arg(d2_geom)
     if (K > 1L || !is.null(by_name)) {  # Only one is possible
       wrp <- if (K > 1L) "varying_" else by_name
     }
-    p <- ggplot2::ggplot(
-      data, ggplot2::aes(x = .data[[v[1L]]], y = .data[[v[2L]]], fill = value_)
-    ) + 
-      ggplot2::geom_tile(...) +
-      do.call(ggplot2::scale_fill_viridis_c, viridis_args) +
-      ggplot2::labs(fill = "PD")
+    p <- ggplot2::ggplot(data, ggplot2::aes(x = .data[[v[1L]]], y = .data[[v[2L]]]))
+    if (d2_geom == "tile") {
+      p <- p + ggplot2::geom_tile(ggplot2::aes(fill = value_), ...) +
+        do.call(ggplot2::scale_fill_viridis_c, viridis_args) + 
+        ggplot2::labs(fill = "PD")
+    } else if (d2_geom == "point") {
+      p <- p + ggplot2::geom_point(ggplot2::aes(color = value_), ...) +
+        do.call(ggplot2::scale_color_viridis_c, viridis_args) + 
+        ggplot2::labs(color = "PD")
+    }
   }
   if (!is.null(wrp)) {
     p <- p + ggplot2::facet_wrap(wrp, scales = facet_scales)

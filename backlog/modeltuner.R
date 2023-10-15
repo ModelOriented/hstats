@@ -1,3 +1,4 @@
+devtools::install_github("mayer79/hstats")  # -> will become release 1.0.0
 library(hstats)
 library(modeltuner)
 
@@ -20,8 +21,7 @@ perm_importance(mm, X = iris, y = "Sepal.Length", w = "Petal.Width") |>
   plot()
 
 # Interaction statistics (H-statistics)
-H <- hstats(mm, X = iris[-1], w = "Petal.Width")
-H
+(H <- hstats(mm, X = iris[-1], w = "Petal.Width"))
 plot(H)
 h2_pairwise(H, normalize = FALSE, squared = FALSE) |> 
   plot(swap_dim = TRUE)

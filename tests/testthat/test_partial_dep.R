@@ -274,7 +274,7 @@ test_that("partial_dep() works on matrices and dfs", {
 
 # Some plots
 test_that("Plots give 'ggplot' objects", {
-  fit <- lm(Sepal.Length ~ . + Species * Petal.Length, data = iris)
+  fit <- lm(Sepal.Length ~ ., data = iris)
   
   # One v, no by, univariate
   expect_s3_class(plot(partial_dep(fit, v = "Species", X = iris)), "ggplot")
@@ -285,20 +285,29 @@ test_that("Plots give 'ggplot' objects", {
   expect_s3_class(plot(pd, swap_dim = TRUE), "ggplot")
   
   # Two v, no by, univariate
-  v <- c("Species", "Petal.Width")
+  v <- c("Petal.Length", "Petal.Width")
   pd <- partial_dep(fit, v = v, X = iris)
   expect_s3_class(plot(pd), "ggplot")
   
+  # Two v, no by, univariate, prespecified grid
+  g <- unique(iris[v])
+  pd <- partial_dep(fit, v = v, X = iris, grid = g)
+  expect_s3_class(plot(pd, d2_geom = "point"), "ggplot")
+  
   # Two v, with by, univariate
-  pd <- partial_dep(fit, v = v, X = iris, BY = "Sepal.Width")
+  pd <- partial_dep(fit, v = v, X = iris, BY = "Species")
   expect_s3_class(plot(pd), "ggplot")
   
+  # Two v, with by, univariate, prespecified grid
+  pd <- partial_dep(fit, v = v, X = iris, BY = "Species", grid = g)
+  expect_s3_class(plot(pd, d2_geom = "point"), "ggplot")
+  
   # Three v gives error
-  pd <- partial_dep(fit, v = c(v, "Petal.Length"), X = iris)
+  pd <- partial_dep(fit, v = c(v, "Species"), X = iris)
   expect_error(plot(pd))
   
   # Now multioutput
-  fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
+  fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width + Species, data = iris)
   
   # One v, no by, multivariate
   pd <- partial_dep(fit, v = "Species", X = iris)
@@ -313,6 +322,10 @@ test_that("Plots give 'ggplot' objects", {
   # Two v, no by, multivariate
   pd <- partial_dep(fit, v = v, X = iris)
   expect_s3_class(plot(pd, rotate_x = TRUE), "ggplot")
+  
+  # Two v, no by, multivariate, prespecified grid
+  pd <- partial_dep(fit, v = v, X = iris, grid = g)
+  expect_s3_class(plot(pd, d2_geom = "point", alpha = 0.5), "ggplot")
   
   # Two v, with by, multivariate gives error
   pd <- partial_dep(fit, v = v, X = iris, BY = "Petal.Width")
