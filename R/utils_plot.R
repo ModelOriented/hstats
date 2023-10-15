@@ -34,7 +34,7 @@ get_color_scale <- function(x) {
 #' 
 #' @returns A data.frame with reverted factor levels.
 barplot_reverter <- function(df, group = TRUE) {
-  x <-  c("variable_", if (group) "varying_")
+  x <- c("variable_", if (group) "varying_")
   for (z in x) {
     f <- df[[z]]
     df[[z]] <- factor(f, levels = rev(levels(f)))

@@ -12,6 +12,7 @@
   facet_scales = "fixed",
   rotate_x = FALSE,
   show_points = TRUE,
+  d2_geom = c("tile", "point"),
   ...
 )
 }
@@ -37,6 +38,9 @@ E.g., to switch to a standard viridis scale, you can change the default via
 
 \item{show_points}{Logical flag indicating whether to show points (default) or not.
 No effect for 2D PDPs.}
+
+\item{d2_geom}{The geometry used for 2D PDPs, by default "tile". The other option is
+"point", which is useful, e.g., when the grid represents spatial points.}
 
 \item{...}{Arguments passed to geometries.}
 }
