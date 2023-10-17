@@ -258,6 +258,73 @@ print.hstats_matrix <- function(x, top_m = Inf, ...) {
   invisible(x)
 }
 
+#' Dimensions of "hstats_matrix" Object
+#' 
+#' Implies `nrow()` and `ncol()`.
+#'
+#' @param x An object of class "hstats_matrix".
+#' @returns
+#'   A numeric vector of length two providing the number of rows and columns
+#'   of "M" object stored in `x`.
+#' @examples
+#' fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
+#' s <- hstats(fit, X = iris[-1])
+#' x <- h2_pairwise(s)
+#' dim(x)
+#' nrow(x)
+#' ncol(x)
+#' @export
+dim.hstats_matrix <- function(x) {
+  dim(x[["M"]])
+}
+
+#' Dimnames of "hstats_matrix" Object
+#'
+#' Extracts dimnames of the "M" matrix in `x`. Implies `rownames()` and `colnames()`.
+#'
+#' @param x An object of class "hstats_matrix".
+#' @returns Dimnames of the statistics matrix.
+#' @examples
+#' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
+#' s <- hstats(fit, X = iris[3:5], verbose = FALSE)
+#' x <- h2_pairwise(s)
+#' dimnames(x)
+#' rownames(x)
+#' colnames(x)
+#' @export
+dimnames.hstats_matrix <- function(x) {
+  dimnames(x[["M"]])
+}
+
+#' Subsets "hstats_matrix" Object
+#'
+#' Use standard square bracket subsetting to select rows and/or columns of
+#' statistics "M" (and "SE" in case of permutation importance statistics).
+#' Implies `head()` and `tail()`.
+#'
+#' @param x An object of class "hstats_matrix".
+#' @param i Row subsetting.
+#' @param j Column subsetting.
+#' @param ... Currently unused.
+#' @returns A new object of class "hstats_matrix".
+#' @examples
+#' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
+#' imp <- perm_importance(fit, X = iris, y = c("Sepal.Length", "Sepal.Width"))
+#' head(imp, 1)
+#' tail(imp, 2)
+#' imp[1, "Sepal.Length"]
+#' imp[1]
+#' imp[, "Sepal.Width"]$SE
+#' plot(imp[, "Sepal.Width"])
+#' @export
+`[.hstats_matrix` <- function(x, i, j, ...) {
+  x$M <- x$M[i, j, drop = FALSE]
+  if (!is.null(x$SE)) {
+    x$SE <- x$SE[i, j, drop = FALSE]
+  }
+  x
+}
+
 #' Plots "hstats_matrix" Object
 #'
 #' Plot method for objects of class "hstats_matrix".

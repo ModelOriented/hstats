@@ -49,6 +49,7 @@
 #' s
 #' plot(s)
 #' plot(s, swap_dim = TRUE, top_m = 2)
+#' plot(s[, "Sepal.Length"])
 perm_importance <- function(object, ...) {
   UseMethod("perm_importance")
 }

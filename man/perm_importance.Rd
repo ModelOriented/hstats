@@ -210,6 +210,7 @@ s <- perm_importance(fit, X = iris[3:5], y = iris[1:2], normalize = TRUE)
 s
 plot(s)
 plot(s, swap_dim = TRUE, top_m = 2)
+plot(s[, "Sepal.Length"])
 }
 \references{
 Fisher A., Rudin C., Dominici F. (2018). All Models are Wrong but many are Useful:
