@@ -31,6 +31,12 @@
     <loc>/reference/average_loss.html</loc>
   </url>
   <url>
+    <loc>/reference/dim.hstats_matrix.html</loc>
+  </url>
+  <url>
+    <loc>/reference/dimnames.hstats_matrix.html</loc>
+  </url>
+  <url>
     <loc>/reference/hstats.html</loc>
   </url>
   <url>
@@ -77,6 +83,9 @@
   </url>
   <url>
     <loc>/reference/print.partial_dep.html</loc>
+  </url>
+  <url>
+    <loc>/reference/sub-.hstats_matrix.html</loc>
   </url>
   <url>
     <loc>/reference/summary.hstats.html</loc>
