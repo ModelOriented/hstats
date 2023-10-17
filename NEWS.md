@@ -5,7 +5,7 @@
 - `hstats()`: `n_max` has been increased from 300 to 500 rows. This will make estimates of H statistics more stable at the price of longer run time. Reduce to 300 for the old behaviour.
 - `hstats()`: By default, three-way interactions are not calculated anymore. Set `threeway_m` to 5 for the old behaviour.
 - Revised plots: The colors and color palettes have changed and can (also) be controlled via global options. For instance, to change the fill color of all bars, set `options(hstats.fill = new value)`. Value labels are more clear, and there are more options. Varying color/fill scales now use viridis (inferno). This can be modified on the fly or via `options(hstats.viridis_args = list(...))`.
-- "hstats_matrix" object: All statistics functions, e.g., `h2_pairwise()` or `perm_importance()`, now return a "hstats_matrix". The values are stored in `$M` and can be plotted via `plot()`.
+- "hstats_matrix" object: All statistics functions, e.g., `h2_pairwise()` or `perm_importance()`, now return a "hstats_matrix". The values are stored in `$M` and can be plotted via `plot()`. Other methods are: `dimnames()`, `rownames()`, `colnames()`, `dim()`, `nrow()`, `ncol()`, `head()`, `tail()`, and subsetting like a normal matrix. This allows, e.g, to select and plot only one column of the results.
 - `perm_importance()`: The `perms` argument has been changed to `m_rep`.
 - `print()` and `summary()` methods have been revised.
 - The arguments `w` (case weights) and `y` (response) can now also be passed as column *names*.

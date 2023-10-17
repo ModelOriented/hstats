@@ -118,8 +118,9 @@ abs_h$M
 # MODEL 2: Multi-response linear regression
 fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
 s <- hstats(fit, X = iris[3:5], verbose = FALSE)
-h2_pairwise(s)
-plot(h2_pairwise(s))
+x <- h2_pairwise(s)
+plot(x)
+plot(x[, "Sepal.Length"])
 }
 \references{
 Friedman, Jerome H., and Bogdan E. Popescu. \emph{"Predictive Learning via Rule Ensembles."}

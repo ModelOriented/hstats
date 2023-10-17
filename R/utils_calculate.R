@@ -25,7 +25,7 @@ align_pred <- function(x) {
 #' @keywords internal
 #' 
 #' @param x Vector or matrix.
-#' @param ngroups Number of groups of fixed length `NROW(x) / ngroups`.
+#' @param ngroups Number of groups (`x` was stacked that many times).
 #' @param w Optional vector with case weights of length `NROW(x) / ngroups`.
 #' @returns A (g x K) matrix, where g is the number of groups, and K = NCOL(x).
 wrowmean <- function(x, ngroups = 1L, w = NULL) {

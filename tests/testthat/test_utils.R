@@ -223,19 +223,6 @@ test_that("basic_checks fire some errors", {
   expect_error(basic_check(X = iris, v = "Species", pred_fun = predict, w = 1:3))
 })
 
-test_that(".zap_small() works for vector input", {
-  expect_equal(.zap_small(1:3), 1:3)
-  expect_equal(.zap_small(c(1:3, NA)), c(1:3, 0))
-  expect_equal(.zap_small(c(0.001, 1), eps = 0.01), c(0, 1))
-})
-
-test_that(".zap_small() works for matrix input", {
-  expect_equal(
-    .zap_small(cbind(c(0.001, 1), c(0, 0)), eps = 0.01), 
-    cbind(c(0, 1), c(0, 0))
-  )
-})
-
 test_that("poor_man_stack() works (test could be improved", {
   y <- c("a", "b", "c")
   z <- c("aa", "bb", "cc")

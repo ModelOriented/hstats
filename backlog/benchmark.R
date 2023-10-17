@@ -1,23 +1,16 @@
 library(hstats)
-library(iml)
-library(DALEX)
-library(ingredients)
-library(flashlight)
-
 library(shapviz)
 library(xgboost)
 library(ggplot2)
-library(microbenchmark)
 
-# future::plan(multisession, workers = 1)
-
+# Data preparation
 colnames(miami) <- tolower(colnames(miami))
 miami <- transform(miami, log_price = log(sale_prc))
 x <- c("tot_lvg_area", "lnd_sqfoot", "latitude", "longitude",
        "structure_quality", "age", "month_sold")
 coord <- c("longitude", "latitude")
 
-# Train/valid split
+# Modeling
 set.seed(1)
 ix <- sample(nrow(miami), 0.8 * nrow(miami))
 train <- data.frame(miami[ix, ])
@@ -50,9 +43,12 @@ fit <- xgb.train(
   callbacks = list(cb.print.evaluation(period = 100))
 )
 
+# Interpret via {hstats}
 average_loss(fit, X = X_valid, y = y_valid)  # 0.0247 MSE -> 0.157 RMSE
+
 perm_importance(fit, X = X_valid, y = y_valid) |> 
   plot()
+
 # Or combining some features
 v_groups <- list(
   coord = c("longitude", "latitude"),
@@ -61,6 +57,7 @@ v_groups <- list(
 )
 perm_importance(fit, v = v_groups, X = X_valid, y = y_valid) |> 
   plot()
+
 H <- hstats(fit, v = x, X = X_valid)
 H
 plot(H)
@@ -78,6 +75,8 @@ g <- unique(X_valid[, coord])
 pp <- partial_dep(fit, v = coord, X = X_valid, grid = g)
 plot(pp, d2_geom = "point", alpha = 0.5, size = 1) + 
   coord_equal()
+
+# Takes some seconds because it generates the last plot per structure quality
 partial_dep(fit, v = coord, X = X_valid, grid = g, BY = "structure_quality") |>
   plot(pp, d2_geom = "point", alpha = 0.5) +
   coord_equal()
@@ -85,6 +84,14 @@ partial_dep(fit, v = coord, X = X_valid, grid = g, BY = "structure_quality") |>
 #=====================================
 # Naive benchmark
 #=====================================
+
+library(iml)  # Might benefit of multiprocessing, but on Windows with XGB models, this is not easy
+library(DALEX)
+library(ingredients)
+library(flashlight)
+library(microbenchmark)
+
+set.seed(1)
 
 # iml
 predf <- function(object, newdata) predict(object, data.matrix(newdata[x]))
@@ -150,17 +157,16 @@ microbenchmark(
 
 # H-Stats -> we use a subset of 500 rows
 X_v500 <- X_valid[1:500, ]
-mod500 <- Predictor$new(fit, data = as.data.frame(X_v500), y = y_valid[1:500], 
-                     predict.function = predf)
+mod500 <- Predictor$new(fit, data = as.data.frame(X_v500), predict.function = predf)
 fl500 <- flashlight(fl, data = as.data.frame(valid[1:500, ]))
 
-# iml  # 77 s (no pairwise possible)
+# iml  # 90 s (no pairwise possible)
 system.time(
   iml_overall <- Interaction$new(mod500, grid.size = 500)
 )
 
-# flashlight: 12s total, doing only one pairwise calculation, otherwise would take 63s
-system.time(  # 10s
+# flashlight: 14s total, doing only one pairwise calculation, otherwise would take 63s
+system.time(  # 12s
   fl_overall <- light_interaction(fl500, v = x, grid_size = Inf, n_max = Inf)
 )
 system.time(  # 2s
