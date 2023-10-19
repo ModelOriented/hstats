@@ -81,6 +81,7 @@
 <code><a href="../reference/average_loss.html">average_loss()</a></code> also returns a “hstats_matrix” object with <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> and <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> method. The values can be extracted via <code>$M</code>.</li>
 <li>The default <code>v</code> of <code><a href="../reference/hstats.html">hstats()</a></code> and <code><a href="../reference/perm_importance.html">perm_importance()</a></code> is now <code>NULL</code>. Internally, it is set to <code>colnames(X)</code> (minus the column names of <code>w</code> and <code>y</code> if passed as name).</li>
 <li>Missing grid values: <code><a href="../reference/partial_dep.html">partial_dep()</a></code> and <code><a href="../reference/ice.html">ice()</a></code> have received a <code>na.rm</code> argument that controls if missing values are dropped during grid creation. The default <code>TRUE</code> is compatible with earlier releases.</li>
+<li>The position of some function arguments have changed.</li>
 </ul></div>
 </div>
     <div class="section level2">
