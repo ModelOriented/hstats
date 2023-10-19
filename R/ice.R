@@ -59,7 +59,8 @@ ice <- function(object, ...) {
 ice.default <- function(object, v, X, pred_fun = stats::predict,
                         BY = NULL, grid = NULL, grid_size = 49L,
                         trim = c(0.01, 0.99),
-                        strategy = c("uniform", "quantile"), n_max = 100L, ...) {
+                        strategy = c("uniform", "quantile"), na.rm = TRUE,
+                        n_max = 100L, ...) {
   stopifnot(
     is.matrix(X) || is.data.frame(X),
     is.function(pred_fun),
@@ -69,7 +70,7 @@ ice.default <- function(object, v, X, pred_fun = stats::predict,
   # Prepare grid
   if (is.null(grid)) {
     grid <- multivariate_grid(
-      x = X[, v], grid_size = grid_size, trim = trim, strategy = strategy
+      x = X[, v], grid_size = grid_size, trim = trim, strategy = strategy, na.rm = na.rm
     )
   } else {
     check_grid(g = grid, v = v, X_is_matrix = is.matrix(X))
@@ -142,7 +143,8 @@ ice.ranger <- function(object, v, X,
                        pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
                        BY = NULL, grid = NULL, grid_size = 49L,
                        trim = c(0.01, 0.99),
-                       strategy = c("uniform", "quantile"), n_max = 100, ...) {
+                       strategy = c("uniform", "quantile"), na.rm = TRUE,
+                       n_max = 100, ...) {
   ice.default(
     object = object,
     v = v,
@@ -153,6 +155,7 @@ ice.ranger <- function(object, v, X,
     grid_size = grid_size,
     trim = trim,
     strategy = strategy,
+    na.rm = na.rm,
     n_max = n_max,
     ...
   )
@@ -163,7 +166,8 @@ ice.ranger <- function(object, v, X,
 ice.Learner <- function(object, v, X,
                         pred_fun = NULL,
                         BY = NULL, grid = NULL, grid_size = 49L, trim = c(0.01, 0.99),
-                        strategy = c("uniform", "quantile"), n_max = 100L, ...) {
+                        strategy = c("uniform", "quantile"), na.rm = TRUE,
+                        n_max = 100L, ...) {
   if (is.null(pred_fun)) {
     pred_fun <- mlr3_pred_fun(object, X = X)
   }
@@ -177,6 +181,7 @@ ice.Learner <- function(object, v, X,
     grid_size = grid_size,
     trim = trim,
     strategy = strategy,
+    na.rm = na.rm,
     n_max = n_max,
     ...
   )
@@ -188,7 +193,8 @@ ice.explainer <- function(object, v = v, X = object[["data"]],
                           pred_fun = object[["predict_function"]],
                           BY = NULL, grid = NULL, grid_size = 49L,
                           trim = c(0.01, 0.99),
-                          strategy = c("uniform", "quantile"), n_max = 100, ...) {
+                          strategy = c("uniform", "quantile"), na.rm = TRUE,
+                          n_max = 100, ...) {
   ice.default(
     object = object[["model"]],
     v = v,
@@ -199,6 +205,7 @@ ice.explainer <- function(object, v = v, X = object[["data"]],
     grid_size = grid_size,
     trim = trim,
     strategy = strategy,
+    na.rm = na.rm,
     n_max = n_max,
     ...
   )

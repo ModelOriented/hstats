@@ -8,7 +8,8 @@ univariate_grid(
   z,
   grid_size = 49L,
   trim = c(0.01, 0.99),
-  strategy = c("uniform", "quantile")
+  strategy = c("uniform", "quantile"),
+  na.rm = TRUE
 )
 }
 \arguments{
@@ -22,6 +23,8 @@ of grid values. Set to \code{0:1} for no trimming.}
 
 \item{strategy}{How to find grid values of non-discrete numeric columns?
 Either "uniform" or "quantile", see description of \code{\link[=univariate_grid]{univariate_grid()}}.}
+
+\item{na.rm}{Should missing values be dropped from grid? Default is \code{TRUE}.}
 }
 \value{
 A vector or factor of evaluation points.

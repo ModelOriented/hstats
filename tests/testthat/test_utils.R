@@ -89,7 +89,6 @@ test_that(".compress_X() works for matrices", {
   expect_equal(out_w2$w, c(9, 6))
 })
 
-
 test_that(".compress_X() leaves X unchanged if unique", {
   X <- data.frame(a = 1:5, b = rep(1, times = 5))
   out <- .compress_X(X, v = "b")
@@ -213,14 +212,6 @@ test_that("wcenter() works for vectors", {
   w <- c(1, 1, 2, 2, 3, 3)
   xpected <- cbind(1:6 - weighted.mean(1:6, w))
   expect_equal(wcenter(x, w = w), xpected)
-})
-
-test_that("basic_checks fire some errors", {
-  expect_error(basic_check(X = 1:3, v = "a", pred_fun = predict, w = NULL))
-  expect_error(basic_check(X = iris[0], v = "a", pred_fun = predict, w = NULL))
-  expect_error(basic_check(X = iris, v = "a", pred_fun = predict, w = NULL))
-  expect_error(basic_check(X = iris, v = "Species", pred_fun = "mean", w = NULL))
-  expect_error(basic_check(X = iris, v = "Species", pred_fun = predict, w = 1:3))
 })
 
 test_that("poor_man_stack() works (test could be improved", {

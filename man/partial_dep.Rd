@@ -21,6 +21,7 @@ partial_dep(object, ...)
   grid_size = 49L,
   trim = c(0.01, 0.99),
   strategy = c("uniform", "quantile"),
+  na.rm = TRUE,
   n_max = 1000L,
   w = NULL,
   ...
@@ -37,6 +38,7 @@ partial_dep(object, ...)
   grid_size = 49L,
   trim = c(0.01, 0.99),
   strategy = c("uniform", "quantile"),
+  na.rm = TRUE,
   n_max = 1000L,
   w = NULL,
   ...
@@ -53,6 +55,7 @@ partial_dep(object, ...)
   grid_size = 49L,
   trim = c(0.01, 0.99),
   strategy = c("uniform", "quantile"),
+  na.rm = TRUE,
   n_max = 1000L,
   w = NULL,
   ...
@@ -69,6 +72,7 @@ partial_dep(object, ...)
   grid_size = 49L,
   trim = c(0.01, 0.99),
   strategy = c("uniform", "quantile"),
+  na.rm = TRUE,
   n_max = 1000L,
   w = object[["weights"]],
   ...
@@ -116,6 +120,8 @@ of grid values. Set to \code{0:1} for no trimming.}
 
 \item{strategy}{How to find grid values of non-discrete numeric columns?
 Either "uniform" or "quantile", see description of \code{\link[=univariate_grid]{univariate_grid()}}.}
+
+\item{na.rm}{Should missing values be dropped from grid? Default is \code{TRUE}.}
 
 \item{n_max}{If \code{X} has more than \code{n_max} rows, a random sample of \code{n_max} rows is
 selected from \code{X}. In this case, set a random seed for reproducibility.}
