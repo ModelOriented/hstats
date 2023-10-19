@@ -77,7 +77,8 @@ of probabilities from <code>trim[1]</code> to <code>trim[2]</code>.</p>
 <span>  <span class="va">z</span>,</span>
 <span>  grid_size <span class="op">=</span> <span class="fl">49L</span>,</span>
 <span>  trim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.01</span>, <span class="fl">0.99</span><span class="op">)</span>,</span>
-<span>  strategy <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"uniform"</span>, <span class="st">"quantile"</span><span class="op">)</span></span>
+<span>  strategy <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"uniform"</span>, <span class="st">"quantile"</span><span class="op">)</span>,</span>
+<span>  na.rm <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -100,6 +101,10 @@ of grid values. Set to <code>0:1</code> for no trimming.</p></dd>
 <dt>strategy</dt>
 <dd><p>How to find grid values of non-discrete numeric columns?
 Either "uniform" or "quantile", see description of <code>univariate_grid()</code>.</p></dd>
+
+
+<dt>na.rm</dt>
+<dd><p>Should missing values be dropped from grid? Default is <code>TRUE</code>.</p></dd>
 
 </dl></div>
     <div id="value">

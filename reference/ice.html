@@ -68,6 +68,7 @@ up to two grouping variables via <code>BY</code>.</p>
 <span>  grid_size <span class="op">=</span> <span class="fl">49L</span>,</span>
 <span>  trim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.01</span>, <span class="fl">0.99</span><span class="op">)</span>,</span>
 <span>  strategy <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"uniform"</span>, <span class="st">"quantile"</span><span class="op">)</span>,</span>
+<span>  na.rm <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  n_max <span class="op">=</span> <span class="fl">100L</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span>
@@ -83,6 +84,7 @@ up to two grouping variables via <code>BY</code>.</p>
 <span>  grid_size <span class="op">=</span> <span class="fl">49L</span>,</span>
 <span>  trim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.01</span>, <span class="fl">0.99</span><span class="op">)</span>,</span>
 <span>  strategy <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"uniform"</span>, <span class="st">"quantile"</span><span class="op">)</span>,</span>
+<span>  na.rm <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  n_max <span class="op">=</span> <span class="fl">100</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span>
@@ -98,6 +100,7 @@ up to two grouping variables via <code>BY</code>.</p>
 <span>  grid_size <span class="op">=</span> <span class="fl">49L</span>,</span>
 <span>  trim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.01</span>, <span class="fl">0.99</span><span class="op">)</span>,</span>
 <span>  strategy <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"uniform"</span>, <span class="st">"quantile"</span><span class="op">)</span>,</span>
+<span>  na.rm <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  n_max <span class="op">=</span> <span class="fl">100L</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span>
@@ -113,6 +116,7 @@ up to two grouping variables via <code>BY</code>.</p>
 <span>  grid_size <span class="op">=</span> <span class="fl">49L</span>,</span>
 <span>  trim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.01</span>, <span class="fl">0.99</span><span class="op">)</span>,</span>
 <span>  strategy <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"uniform"</span>, <span class="st">"quantile"</span><span class="op">)</span>,</span>
+<span>  na.rm <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  n_max <span class="op">=</span> <span class="fl">100</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -176,6 +180,10 @@ of grid values. Set to <code>0:1</code> for no trimming.</p></dd>
 Either "uniform" or "quantile", see description of <code><a href="univariate_grid.html">univariate_grid()</a></code>.</p></dd>
 
 
+<dt>na.rm</dt>
+<dd><p>Should missing values be dropped from grid? Default is <code>TRUE</code>.</p></dd>
+
+
 <dt>n_max</dt>
 <dd><p>If <code>X</code> has more than <code>n_max</code> rows, a random sample of <code>n_max</code> rows is
 selected from <code>X</code>. In this case, set a random seed for reproducibility.</p></dd>
@@ -219,10 +227,10 @@ Journal of Computational and Graphical Statistics, 24, no. 1 (2015): 44-65.</p>
 <span class="r-in"><span><span class="va">ic</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 'ice' object (4300 rows). Extract via $data. Top rows:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   obs_ Petal.Length        y   Species</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1    1            1 2.570782 virginica</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2    2            1 2.531968 virginica</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3    3            1 4.644850    setosa</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   obs_ Petal.Length        y    Species</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1    1            1 4.818528     setosa</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2    2            1 3.715794 versicolor</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3    3            1 2.122518  virginica</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">ic</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="ice-2.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">ic</span>, center <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
