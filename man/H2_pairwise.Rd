@@ -120,7 +120,6 @@ fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = ir
 s <- hstats(fit, X = iris[3:5], verbose = FALSE)
 x <- h2_pairwise(s)
 plot(x)
-plot(x[, "Sepal.Length"])
 }
 \references{
 Friedman, Jerome H., and Bogdan E. Popescu. \emph{"Predictive Learning via Rule Ensembles."}
