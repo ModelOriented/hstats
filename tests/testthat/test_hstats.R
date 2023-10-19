@@ -18,6 +18,10 @@ test_that("Additive models show 0 interactions (univariate)", {
   expect_s3_class(plot(h2_overall(s)), "ggplot")
   expect_s3_class(plot(s, rotate_x = TRUE), "ggplot")
   expect_message(plot(h2_overall(s, zero = FALSE)))
+  
+  # With quantile approximation
+  s <- hstats(fit, X = iris[-1L], verbose = FALSE, threeway_m = 5L, quant_approx = 5L)
+  expect_null(h2_pairwise(s, zero = FALSE)$M)
 })
 
 test_that("Additive models show 0 interactions (multivariate)", {
@@ -66,6 +70,10 @@ test_that("Non-additive models show interactions > 0 (one interaction)", {
   expect_s3_class(plot(h2_pairwise(s)), "ggplot")
   expect_s3_class(plot(s), "ggplot")
   expect_null(h2_threeway(s, zero = FALSE)$M)
+  
+  # With quantile approximation
+  s <- hstats(fit, X = iris[-1L], verbose = FALSE, quant_approx = 5L)
+  expect_true(h2(s)$M > 0)
 })
 
 fit <- lm(
@@ -296,7 +304,32 @@ test_that("matrix case works as well", {
   pred_fun <- function(m, X) X %*% m$coefficients
   s <- hstats(fit, X = X, v = colnames(iris[2:4]), pred_fun = pred_fun, verbose = FALSE)
   expect_equal(c(h2_overall(s)$M), c(0, 0, 0))
+  
+  # With quantile approximation
+  s <- hstats(
+    fit, 
+    X = X, 
+    v = colnames(iris[2:4]), 
+    pred_fun = pred_fun, 
+    verbose = FALSE, 
+    quant_approx = 5L
+  )
+  expect_equal(c(h2_overall(s)$M), c(0, 0, 0))
 })
+
+# Missing values (can give warnings from rowmean())
+X <- data.frame(x1 = 1:6, x2 = c(NA, 1, 2, 1, 1, 3), x3 = factor(c("A", NA, NA, "B", "A", "A")))
+fit <- "a model"
+pfi <- function(fit, x) ifelse(is.na(x$x1 * x$x2), 1, x$x1 * x$x2)
+
+test_that("hstats() does not give an error with missing", {
+  expect_no_error(
+    suppressWarnings(r <- hstats(fit, X = X, pred_fun = pfi, verbose = FALSE))
+  )
+  expect_true(drop(r$h2$num) > 0)
+  expect_equal(rownames(h2_pairwise(r, zero = FALSE)), "x1:x2")
+})
+
 
 # library(gbm)
 #

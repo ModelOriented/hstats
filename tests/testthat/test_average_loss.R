@@ -266,3 +266,17 @@ test_that("classification_error works on factors", {
     c(0, 1, 1)
   )
 })
+
+test_that("average_loss() works with missing values", {
+  X <- data.frame(x1 = 1:6, x2 = c(NA, 1, 2, 1, 1, 3), x3 = factor(c("A", NA, NA, "B", "A", "A")))
+  y <- 1:6
+  pf <- function(fit, x) x$x1
+  fit <- "a model"
+  
+  expect_equal(drop(average_loss(fit, X = X, y = y, pred_fun = pf)$M), 0)
+  expect_warning(
+    expect_warning(r <- average_loss(fit, X = X, y = y, pred_fun = pf, BY = "x3"))
+  )
+  expect_equal(unname(drop(r$M)), c(0, 0, 0))
+  expect_s3_class(plot(r), "ggplot")
+})

@@ -2,9 +2,10 @@
 
 ## Major changes
 
+- `hstats()` has received an argument `quant_approx` to speed-up calculations by quantile binning. Dense numeric variables are replaced by midpoints of `quant_approx + 1` uniform quantiles. By default, the value is `NULL` (no approximation). Even relatively high values like 50 will bring a massive speed-up for dense features, mainly for the one-way calculations. Use this option when calculations are slow, or when you want to increase `n_max`.
 - `hstats()`: `n_max` has been increased from 300 to 500 rows. This will make estimates of H statistics more stable at the price of longer run time. Reduce to 300 for the old behaviour.
-- `hstats()`: By default, three-way interactions are not calculated anymore. Set `threeway_m` to 5 for the old behaviour.
-- Revised plots: The colors and color palettes have changed and can (also) be controlled via global options. For instance, to change the fill color of all bars, set `options(hstats.fill = new value)`. Value labels are more clear, and there are more options. Varying color/fill scales now use viridis (inferno). This can be modified on the fly or via `options(hstats.viridis_args = list(...))`.
+- `hstats()`: Three-way interactions are not anymore calculated by default. Set `threeway_m` to 5 for the old behaviour.
+- Revised plots: The colors and color palettes have changed and can now also be controlled via global options. For instance, to change the fill color of all bars, set `options(hstats.fill = new value)`. Value labels are more clear, and there are more options. Varying color/fill scales now use viridis (inferno). This can be modified on the fly or via `options(hstats.viridis_args = list(...))`.
 - "hstats_matrix" object: All statistics functions, e.g., `h2_pairwise()` or `perm_importance()`, now return a "hstats_matrix". The values are stored in `$M` and can be plotted via `plot()`. Other methods include: `dimnames()`, `rownames()`, `colnames()`, `dim()`, `nrow()`, `ncol()`, `head()`, `tail()`, and subsetting like a normal matrix. This allows, e.g, to select and plot only one column of the results.
 - `perm_importance()`: The `perms` argument has been changed to `m_rep`.
 - `print()` and `summary()` methods have been revised.
@@ -20,7 +21,7 @@
 - `average_loss()` is more flexible regarding the group `BY` argument. It can also be a variable *name*. Non-discrete `BY` variables are now automatically binned. Like `partial_dep()`, binning is controlled by the `by_size = 4` argument.
 - `average_loss()` also returns a "hstats_matrix" object with `print()` and `plot()` method. The values can be extracted via `$M`.
 - The default `v` of `hstats()` and `perm_importance()` is now `NULL`. Internally, it is set to `colnames(X)` (minus the column names of `w` and `y` if passed as name).
-- Missing grid values: `partial_dep()` and `ice()` have received a `na.rm = TRUE` argument that controls if missing values are dropped during grid creation. The default is compatible with earlier releases.
+- Missing grid values: `partial_dep()` and `ice()` have received a `na.rm` argument that controls if missing values are dropped during grid creation. The default `TRUE` is compatible with earlier releases.
 
 # hstats 0.3.0
 

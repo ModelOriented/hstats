@@ -19,6 +19,7 @@ hstats(object, ...)
   w = NULL,
   pairwise_m = 5L,
   threeway_m = 0L,
+  quant_approx = NULL,
   eps = 1e-10,
   verbose = TRUE,
   ...
@@ -33,6 +34,7 @@ hstats(object, ...)
   w = NULL,
   pairwise_m = 5L,
   threeway_m = 0L,
+  quant_approx = NULL,
   eps = 1e-10,
   verbose = TRUE,
   ...
@@ -47,6 +49,7 @@ hstats(object, ...)
   w = NULL,
   pairwise_m = 5L,
   threeway_m = 0L,
+  quant_approx = NULL,
   eps = 1e-10,
   verbose = TRUE,
   ...
@@ -61,6 +64,7 @@ hstats(object, ...)
   w = object[["weights"]],
   pairwise_m = 5L,
   threeway_m = 0L,
+  quant_approx = NULL,
   eps = 1e-10,
   verbose = TRUE,
   ...
@@ -100,6 +104,12 @@ strongest variable names is taken. This can lead to very long run-times.}
 three-way interactions. Cannot be larger than \code{pairwise_m}.
 To save computation time, the default is 0.}
 
+\item{quant_approx}{Integer. Dense numeric variables in \code{X} are replaced by midpoints
+of \code{quant_approx + 1} uniform quantiles. By default, the value is \code{NULL}
+(no approximation). Even relatively high values like 50 will bring a massive
+speed-up for dense features, mainly for one-way statistics.
+Note that the quantiles are calculated after subsampling to \code{n_max} rows.}
+
 \item{eps}{Threshold below which numerator values are set to 0. Default is 1e-10.}
 
 \item{verbose}{Should a progress bar be shown? The default is \code{TRUE}.}
@@ -107,7 +117,7 @@ To save computation time, the default is 0.}
 \value{
 An object of class "hstats" containing these elements:
 \itemize{
-\item \code{X}: Input \code{X} (sampled to \code{n_max} rows).
+\item \code{X}: Input \code{X} (sampled to \code{n_max} rows, after optional quantile approximation).
 \item \code{w}: Case weight vector \code{w} (sampled to \code{n_max} values), or \code{NULL}.
 \item \code{v}: Vector of column names in \code{X} for which overall
 H statistics have been calculated.
