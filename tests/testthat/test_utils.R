@@ -89,7 +89,6 @@ test_that(".compress_X() works for matrices", {
   expect_equal(out_w2$w, c(9, 6))
 })
 
-
 test_that(".compress_X() leaves X unchanged if unique", {
   X <- data.frame(a = 1:5, b = rep(1, times = 5))
   out <- .compress_X(X, v = "b")

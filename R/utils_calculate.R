@@ -82,7 +82,7 @@ wrowmean <- function(x, ngroups = 1L, w = NULL) {
   }
   list(
     X = X[!X_dup, , drop = FALSE], 
-    w = c(rowsum(w, group = x_not_v, reorder = FALSE))
+    w = c(rowsum(w, group = x_not_v, reorder = FALSE))  # warning if missing in x_not_v
   )
 }
 
