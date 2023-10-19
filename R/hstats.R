@@ -33,9 +33,6 @@
 #'   (such as `type = "response"` in a GLM, or `reshape = TRUE` in a multiclass XGBoost
 #'   model) can be passed via `...`. The default, [stats::predict()], will work in 
 #'   most cases.
-#' @param n_max If `X` has more than `n_max` rows, a random sample of `n_max` rows is
-#'   selected from `X`. In this case, set a random seed for reproducibility.
-#' @param w Optional vector of case weights. Can also be a column name of `X`.
 #' @param pairwise_m Number of features for which pairwise statistics are to be 
 #'   calculated. The features are selected based on Friedman and Popescu's overall 
 #'   interaction strength \eqn{H^2_j}. Set to to 0 to avoid pairwise calculations.
@@ -50,6 +47,9 @@
 #'   speed-up for dense features, mainly for one-way statistics. 
 #'   Note that the quantiles are calculated after subsampling to `n_max` rows.
 #' @param eps Threshold below which numerator values are set to 0. Default is 1e-10.
+#' @param n_max If `X` has more than `n_max` rows, a random sample of `n_max` rows is
+#'   selected from `X`. In this case, set a random seed for reproducibility.
+#' @param w Optional vector of case weights. Can also be a column name of `X`.
 #' @param verbose Should a progress bar be shown? The default is `TRUE`.
 #' @param ... Additional arguments passed to `pred_fun(object, X, ...)`, 
 #'   for instance `type = "response"` in a [glm()] model, or `reshape = TRUE` in a 
@@ -139,9 +139,10 @@ hstats <- function(object, ...) {
 #' @describeIn hstats Default hstats method.
 #' @export
 hstats.default <- function(object, X, v = NULL,
-                           pred_fun = stats::predict, n_max = 500L, 
-                           w = NULL, pairwise_m = 5L, threeway_m = 0L,
-                           quant_approx = NULL, eps = 1e-10, verbose = TRUE, ...) {
+                           pred_fun = stats::predict, 
+                           pairwise_m = 5L, threeway_m = 0L,
+                           quant_approx = NULL, eps = 1e-10, 
+                           n_max = 500L, w = NULL, verbose = TRUE, ...) {
   stopifnot(
     is.matrix(X) || is.data.frame(X),
     is.function(pred_fun)
@@ -275,19 +276,20 @@ hstats.default <- function(object, X, v = NULL,
 #' @export
 hstats.ranger <- function(object, X, v = NULL,
                           pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
-                          n_max = 500L, w = NULL, pairwise_m = 5L, threeway_m = 0L,
-                          quant_approx = NULL, eps = 1e-10, verbose = TRUE, ...) {
+                          pairwise_m = 5L, threeway_m = 0L,
+                          quant_approx = NULL, eps = 1e-10, 
+                          n_max = 500L, w = NULL, verbose = TRUE, ...) {
   hstats.default(
     object = object,
     X = X,
     v = v,
     pred_fun = pred_fun,
-    n_max = n_max,
-    w = w,
     pairwise_m = pairwise_m,
     threeway_m = threeway_m,
     quant_approx = quant_approx, 
     eps = eps,
+    n_max = n_max,
+    w = w,
     verbose = verbose,
     ...
   )
@@ -297,8 +299,9 @@ hstats.ranger <- function(object, X, v = NULL,
 #' @export
 hstats.Learner <- function(object, X, v = NULL,
                            pred_fun = NULL,
-                           n_max = 500L, w = NULL, pairwise_m = 5L, threeway_m = 0L, 
-                           quant_approx = NULL, eps = 1e-10, verbose = TRUE, ...) {
+                           pairwise_m = 5L, threeway_m = 0L, 
+                           quant_approx = NULL, eps = 1e-10, 
+                           n_max = 500L, w = NULL, verbose = TRUE, ...) {
   if (is.null(pred_fun)) {
     pred_fun <- mlr3_pred_fun(object, X = X)
   }
@@ -307,12 +310,12 @@ hstats.Learner <- function(object, X, v = NULL,
     X = X,
     v = v,
     pred_fun = pred_fun,
-    n_max = n_max,
-    w = w,
     pairwise_m = pairwise_m,
     threeway_m = threeway_m,
     quant_approx = quant_approx,
     eps = eps,
+    n_max = n_max,
+    w = w,
     verbose = verbose,
     ...
   )
@@ -323,20 +326,21 @@ hstats.Learner <- function(object, X, v = NULL,
 hstats.explainer <- function(object, X = object[["data"]],
                              v = NULL,
                              pred_fun = object[["predict_function"]],
-                             n_max = 500L, w = object[["weights"]], 
                              pairwise_m = 5L, threeway_m = 0L,
-                             quant_approx = NULL, eps = 1e-10, verbose = TRUE, ...) {
+                             quant_approx = NULL, eps = 1e-10, 
+                             n_max = 500L, w = object[["weights"]], 
+                             verbose = TRUE, ...) {
   hstats.default(
     object = object[["model"]],
     X = X,
     v = v,
     pred_fun = pred_fun,
-    n_max = n_max,
-    w = w,
     pairwise_m = pairwise_m,
     threeway_m = threeway_m,
     quant_approx = quant_approx,
     eps = eps,
+    n_max = n_max,
+    w = w,
     verbose = verbose,
     ...
   )

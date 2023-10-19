@@ -36,7 +36,7 @@ ice(object, ...)
   trim = c(0.01, 0.99),
   strategy = c("uniform", "quantile"),
   na.rm = TRUE,
-  n_max = 100,
+  n_max = 100L,
   ...
 )
 
@@ -66,7 +66,7 @@ ice(object, ...)
   trim = c(0.01, 0.99),
   strategy = c("uniform", "quantile"),
   na.rm = TRUE,
-  n_max = 100,
+  n_max = 100L,
   ...
 )
 }

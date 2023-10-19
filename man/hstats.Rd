@@ -15,12 +15,12 @@ hstats(object, ...)
   X,
   v = NULL,
   pred_fun = stats::predict,
-  n_max = 500L,
-  w = NULL,
   pairwise_m = 5L,
   threeway_m = 0L,
   quant_approx = NULL,
   eps = 1e-10,
+  n_max = 500L,
+  w = NULL,
   verbose = TRUE,
   ...
 )
@@ -30,12 +30,12 @@ hstats(object, ...)
   X,
   v = NULL,
   pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
-  n_max = 500L,
-  w = NULL,
   pairwise_m = 5L,
   threeway_m = 0L,
   quant_approx = NULL,
   eps = 1e-10,
+  n_max = 500L,
+  w = NULL,
   verbose = TRUE,
   ...
 )
@@ -45,12 +45,12 @@ hstats(object, ...)
   X,
   v = NULL,
   pred_fun = NULL,
-  n_max = 500L,
-  w = NULL,
   pairwise_m = 5L,
   threeway_m = 0L,
   quant_approx = NULL,
   eps = 1e-10,
+  n_max = 500L,
+  w = NULL,
   verbose = TRUE,
   ...
 )
@@ -60,12 +60,12 @@ hstats(object, ...)
   X = object[["data"]],
   v = NULL,
   pred_fun = object[["predict_function"]],
-  n_max = 500L,
-  w = object[["weights"]],
   pairwise_m = 5L,
   threeway_m = 0L,
   quant_approx = NULL,
   eps = 1e-10,
+  n_max = 500L,
+  w = object[["weights"]],
   verbose = TRUE,
   ...
 )
@@ -89,11 +89,6 @@ model \code{object}, its second argument a data structure like \code{X}. Additio
 model) can be passed via \code{...}. The default, \code{\link[stats:predict]{stats::predict()}}, will work in
 most cases.}
 
-\item{n_max}{If \code{X} has more than \code{n_max} rows, a random sample of \code{n_max} rows is
-selected from \code{X}. In this case, set a random seed for reproducibility.}
-
-\item{w}{Optional vector of case weights. Can also be a column name of \code{X}.}
-
 \item{pairwise_m}{Number of features for which pairwise statistics are to be
 calculated. The features are selected based on Friedman and Popescu's overall
 interaction strength \eqn{H^2_j}. Set to to 0 to avoid pairwise calculations.
@@ -111,6 +106,11 @@ speed-up for dense features, mainly for one-way statistics.
 Note that the quantiles are calculated after subsampling to \code{n_max} rows.}
 
 \item{eps}{Threshold below which numerator values are set to 0. Default is 1e-10.}
+
+\item{n_max}{If \code{X} has more than \code{n_max} rows, a random sample of \code{n_max} rows is
+selected from \code{X}. In this case, set a random seed for reproducibility.}
+
+\item{w}{Optional vector of case weights. Can also be a column name of \code{X}.}
 
 \item{verbose}{Should a progress bar be shown? The default is \code{TRUE}.}
 }
