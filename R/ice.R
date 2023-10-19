@@ -144,7 +144,7 @@ ice.ranger <- function(object, v, X,
                        BY = NULL, grid = NULL, grid_size = 49L,
                        trim = c(0.01, 0.99),
                        strategy = c("uniform", "quantile"), na.rm = TRUE,
-                       n_max = 100, ...) {
+                       n_max = 100L, ...) {
   ice.default(
     object = object,
     v = v,
@@ -194,7 +194,7 @@ ice.explainer <- function(object, v = v, X = object[["data"]],
                           BY = NULL, grid = NULL, grid_size = 49L,
                           trim = c(0.01, 0.99),
                           strategy = c("uniform", "quantile"), na.rm = TRUE,
-                          n_max = 100, ...) {
+                          n_max = 100L, ...) {
   ice.default(
     object = object[["model"]],
     v = v,
