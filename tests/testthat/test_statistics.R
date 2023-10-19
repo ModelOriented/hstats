@@ -47,17 +47,34 @@ test_that(".zap_small() works for matrix input", {
 fit <- lm(cbind(up = uptake, up2 = 2 * uptake) ~ Type * Treatment * conc, data = CO2)
 H <- hstats(fit, X = CO2[2:4], verbose = FALSE)
 s <- h2_pairwise(H)
+imp <- perm_importance(fit, CO2, v = c("Type", "Treatment", "conc"), y = "uptake")
 
 test_that("print() method does not give error", {
+  capture_output(expect_no_error(print(s)))
   capture_output(expect_no_error(print(s)))
 })
 
 test_that("dim() is correct", {
   expect_equal(dim(s), c(3L, 2L))
+  expect_equal(dim(imp), c(3L, 2L))
 })
 
 test_that("dimnames() is correct", {
   expect_equal(dimnames(s), list(rownames(s$M), colnames(s$M)))
+  expect_equal(dimnames(imp), list(rownames(imp$SE), colnames(imp$SE)))
+})
+
+test_that("dimnames() (replacement) works", {
+  s2 <- s
+  colnames(s2) <- c("y", "x")
+  rownames(s2) <- c("A", "B", "C")
+  expect_equal(colnames(s2), c("y", "x"))
+  expect_equal(rownames(s2), c("A", "B", "C"))
+  
+  imp2 <- imp
+  dimnames(imp2) <- list(c("A", "B", "C"), c("y", "x"))
+  expect_equal(colnames(imp2), c("y", "x"))
+  expect_equal(rownames(imp2), c("A", "B", "C"))
 })
 
 test_that("subsetting works", {

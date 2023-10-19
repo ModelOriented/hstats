@@ -69,7 +69,6 @@
 #' s <- hstats(fit, X = iris[3:5], verbose = FALSE)
 #' x <- h2_pairwise(s)
 #' plot(x)
-#' plot(x[, "Sepal.Length"])
 h2_pairwise <- function(object, ...) {
   UseMethod("h2_pairwise")
 }

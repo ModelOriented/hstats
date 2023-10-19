@@ -296,6 +296,31 @@ dimnames.hstats_matrix <- function(x) {
   dimnames(x[["M"]])
 }
 
+#' Dimnames (Replacement Method) of "hstats_matrix"
+#'
+#' This implies `colnames(x) <- ...`.
+#'
+#' @param x An object of class "hstats_matrix".
+#' @param value A list with rownames and column names compliant with `$M` (and `$SE`).
+#' @returns Like `x`, but with replaced dimnames.
+#' @examples
+#' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
+#' s <- hstats(fit, X = iris[3:5], verbose = FALSE)
+#' x <- h2_overall(s)
+#' colnames(x) <- c("Sepal Length", "Sepal Width")
+#' plot(x)
+#' 
+#' rownames(x)[2:3] <- c("Petal Width", "Petal Length")
+#' plot(x)
+#' @export
+`dimnames<-.hstats_matrix` <- function(x, value) {
+  dimnames(x[["M"]]) <- value
+  if (!is.null(x[["SE"]])) {
+    dimnames(x[["SE"]]) <- value
+  }
+  x
+}
+
 #' Subsets "hstats_matrix" Object
 #'
 #' Use standard square bracket subsetting to select rows and/or columns of
