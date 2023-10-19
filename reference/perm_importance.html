@@ -275,19 +275,19 @@ Models, using Model Class Reliance. Arxiv.</p>
 <span class="r-in"><span><span class="va">s</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Permutation importance</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Length      Species  Petal.Width  Sepal.Width </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   4.27633524   0.37224127   0.12043868   0.09153823 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   4.33305314   0.38336362   0.12543788   0.09846378 </span>
 <span class="r-in"><span><span class="va">s</span><span class="op">$</span><span class="va">M</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                    [,1]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Length 4.27633524</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Species      0.37224127</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Width  0.12043868</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Sepal.Width  0.09153823</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Length 4.33305314</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Species      0.38336362</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Width  0.12543788</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Sepal.Width  0.09846378</span>
 <span class="r-in"><span><span class="va">s</span><span class="op">$</span><span class="va">SE</span>  <span class="co"># Standard errors are available thanks to repeated shuffling</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                     [,1]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Length 0.164110236</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Species      0.027880219</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Width  0.003351610</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Sepal.Width  0.003476442</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Length 0.262356154</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Species      0.015385416</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Width  0.002086843</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Sepal.Width  0.002275635</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">s</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="perm_importance-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">s</span>, err_type <span class="op">=</span> <span class="st">"SD"</span><span class="op">)</span>  <span class="co"># Standard deviations instead of standard errors</span></span></span>
@@ -298,8 +298,8 @@ Models, using Model Class Reliance. Arxiv.</p>
 <span class="r-in"><span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu">perm_importance</span><span class="op">(</span><span class="va">fit</span>, X <span class="op">=</span> <span class="va">iris</span>, y <span class="op">=</span> <span class="st">"Sepal.Length"</span>, v <span class="op">=</span> <span class="va">v</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">s</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Permutation importance</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    petal  species </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3.074742 0.358854 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     petal   species </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3.0454129 0.3738017 </span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">s</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="perm_importance-3.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
@@ -308,10 +308,10 @@ Models, using Model Class Reliance. Arxiv.</p>
 <span class="r-in"><span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu">perm_importance</span><span class="op">(</span><span class="va">fit</span>, X <span class="op">=</span> <span class="va">iris</span><span class="op">[</span><span class="fl">3</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span>, y <span class="op">=</span> <span class="va">iris</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">]</span>, normalize <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">s</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Permutation importance (relative)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>               Sepal.Length Sepal.Width</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Length 45.7729844785    1.781717</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Species      15.1979376591   22.552647</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Width  -0.0003504831    4.483091</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>              Sepal.Length Sepal.Width</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Length 44.731732538    1.777169</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Species      13.491780395   19.894547</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Width   0.001732629    5.064116</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">s</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="perm_importance-4.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">s</span>, swap_dim <span class="op">=</span> <span class="cn">TRUE</span>, top_m <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
