@@ -82,6 +82,17 @@ test_that("pd_raw() also works for multioutput situations", {
   expect_equal(dim(pd), c(2L, 2L))
 })
 
+test_that("pd_raw() works with missings (all compressions on)", {
+  X <- cbind(a = c(NA, NA, NA, 1, 1), b = 1:5)
+  out <- pd_raw(1, v = "a", X = X, pred_fun = function(m, x) x[, "b"], grid = c(NA, 1))
+  expect_equal(drop(out), rep(mean(X[, "b"]), times = 2L))
+  
+  expect_warning(
+    out <- pd_raw(1, v = "b", X = X, pred_fun = function(m, x) x[, "b"], grid = 1:5)
+  )
+  expect_equal(drop(out), 1:5)
+})
+
 # Now, partial_dep()
 fit1 <- lm(Sepal.Length ~ . + Petal.Width * Species, data = iris)
 fit2 <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
@@ -332,3 +343,172 @@ test_that("Plots give 'ggplot' objects", {
   expect_error(plot(pd))
 })
 
+# Some checks with missing values
+X <- data.frame(x1 = 1:6, x2 = c(NA, 1, 2, 1, 1, 3), x3 = factor(c("A", NA, NA, "B", "A", "A")))
+y <- 1:6
+pf <- function(fit, x) x$x1
+fit <- "a model"
+
+test_that("partial_dep() works when non-v variable contains missing", {
+  expect_no_error(r <- partial_dep(fit, v = "x1", X = X, pred_fun = pf))
+  expect_equal(r$data$x1, r$data$y)
+})
+
+test_that("partial_dep() works when v contains missing", {
+  expect_no_error(r1 <- partial_dep(fit, v = "x2", X = X, pred_fun = pf, grid_size = 2))
+  expect_true(!anyNA(r1$data$x2))
+  
+  expect_no_error(
+    r2 <- partial_dep(fit, v = "x2", X = X, pred_fun = pf, na.rm = FALSE, grid_size = 2)
+  )
+  expect_true(anyNA(r2$data$x2))
+  expect_equal(r1$data, r2$data[1:2, ])
+  expect_s3_class(plot(r2), "ggplot")
+})
+
+test_that("partial_dep() works when v contains missing (multi)", {
+  v <- c("x2", "x3")
+  expect_no_error(r1 <- partial_dep(fit, v = v, X = X, pred_fun = pf))
+  expect_true(!anyNA(r1$data$x2))
+  
+  expect_no_error(
+    r2 <- partial_dep(fit, v = v, X = X, pred_fun = pf, na.rm = FALSE)
+  )
+  expect_true(anyNA(r2$data$x2))
+  expect_s3_class(plot(r2), "ggplot")
+})
+
+test_that("partial_dep() works when BY variable contains missing", {
+  expect_no_error(
+    r <- partial_dep(fit, v = "x2", X = X, pred_fun = pf, BY = "x3", na.rm = FALSE)
+  )
+  expect_true(anyNA(r$data$x3))
+  expect_s3_class(plot(r), "ggplot")
+})
+
+
+test_that(".compress_X() works for data.frames", {
+  # Note that b is not used after compression
+  X <- data.frame(a = c(1, 1, 2, 2, 2), b = 1:5)
+  out_df <- data.frame(a = c(1, 2), b = c(1, 3), row.names = c(1L, 3L))
+  out <- .compress_X(X, v = "b")
+  expect_equal(out$X, out_df)
+  expect_equal(out$w, c(2, 3))
+  
+  # Weighted with constants
+  w <- rep(2, times = 5)
+  out_w <- .compress_X(X, v = "b", w = w)
+  expect_equal(out_w$X, out_df)
+  expect_equal(out_w$w, 2 * c(2, 3))
+  
+  # Varying weights
+  w <- 5:1
+  out_w2 <- .compress_X(X, v = "b", w = w)
+  expect_equal(out_w2$X, out_df)
+  expect_equal(out_w2$w, c(9, 6))
+})
+
+test_that(".compress_X() works for matrices", {
+  X <- cbind(a = c(1, 1, 2, 2, 2), b = 1:5)
+  out <- .compress_X(X, v = "b")
+  out_mat <- cbind(c(1, 2), b = c(1, 3))
+  dimnames(out_mat) <- list(NULL, c("a", "b"))
+  expect_equal(out$X, out_mat)
+  expect_equal(out$w, c(2, 3))
+  
+  # Weighted with constants
+  w <- rep(2, times = 5)
+  out_w <- .compress_X(X, v = "b", w = w)
+  expect_equal(out_w$X, out_mat)
+  expect_equal(out_w$w, 2 * c(2, 3))
+  
+  # Varying weights
+  w <- 5:1
+  out_w2 <- .compress_X(X, v = "b", w = w)
+  expect_equal(out_w2$X, out_mat)
+  expect_equal(out_w2$w, c(9, 6))
+})
+
+test_that(".compress_X() leaves X unchanged if unique", {
+  X <- data.frame(a = 1:5, b = rep(1, times = 5))
+  out <- .compress_X(X, v = "b")
+  expect_equal(length(out), 2L)
+  expect_equal(out$X, X)
+  expect_equal(out$w, NULL)
+})
+
+test_that(".compress_X() leaves X unchanged if not exactly 1 non-grid variable", {
+  X <- data.frame(a = 1:5, b = rep(1, times = 5), c = rep(2, times = 5))
+  out <- .compress_X(X, v = "a")
+  expect_equal(length(out), 2L)
+  expect_equal(out$X, X)
+  expect_equal(out$w, NULL)
+})
+
+test_that(".compress_grid() works with missing values in grid", {
+  g <- c(2, 2, NA, 1, NA)
+  gg <- .compress_grid(g)
+  expect_equal(gg$grid[gg$reindex], g)
+  
+  g <- cbind(c(2, 2, NA, 1, NA), c(NA, NA, 3, 4, 4))
+  gg <- .compress_grid(g)
+  expect_equal(gg$grid[gg$reindex, , drop = FALSE], g)
+  
+  g <- data.frame(g)
+  gg <- .compress_grid(g)
+  res <- gg$grid[gg$reindex, , drop = FALSE]
+  rownames(res) <- 1:5
+  expect_equal(res, g)
+})
+
+test_that(".compress_grid() works for vectors", {
+  g <- c(5, 5, 1, 1, 1)
+  out <- .compress_grid(g)
+  expect_equal(out$grid, c(5, 1))
+  expect_equal(out$grid[out$reindex], g)
+})
+
+test_that(".compress_grid() works for matrices", {
+  g <- cbind(a = c(1, 1, 2, 2, 3), b = c(1, 2, 1, 1, 1))
+  out <- .compress_grid(g)
+  expect_equal(out$grid, cbind(a = c(1, 1, 2, 3), b = c(1, 2, 1, 1)))
+  expect_equal(out$grid[out$reindex, ], g)
+})
+
+test_that(".compress_grid() works for data.frames", {
+  g <- data.frame(a = c(1, 1, 2, 2, 3), b = c(2, 2, 1, 1, 1))
+  out <- .compress_grid(g)
+  expect_equal(
+    out$grid, 
+    data.frame(a = c(1, 2, 3), b = c(2, 1, 1), row.names = c(1L, 3L, 5L))
+  )
+  g_out <- out$grid[out$reindex, ]
+  rownames(g_out) <- 1:5
+  expect_equal(g_out, g)
+})
+
+test_that(".compress_grid() leaves grid unchanged if unique", {
+  g <- data.frame(a = 1:5, b = rep(1, times = 5))
+  out <- .compress_grid(g)
+  expect_equal(length(out), 2L)
+  expect_equal(out$grid, g)
+  expect_equal(out$reindex, NULL)
+})
+
+test_that(".compress_X() works with missing values", {
+  # Note that b is not used after compression
+  
+  # data.frame
+  X <- data.frame(a = c(NA, NA, NA, 1, 1), b = 1:5)
+  out_df <- data.frame(a = c(NA, 1), b = c(1, 4), row.names = c(1L, 4L))
+  expect_warning(out <- .compress_X(X, v = "b"))
+  expect_equal(out$X, out_df)
+  expect_equal(out$w, c(3, 2))
+  
+  # Matrix
+  X <- cbind(a = c(NA, NA, NA, 1, 1), b = 1:5)
+  out_m <- cbind(a = c(NA, 1), b = c(1, 4))
+  expect_warning(out <- .compress_X(X, v = "b"))
+  expect_equal(out$X, out_m)
+  expect_equal(out$w, c(3, 2))
+})

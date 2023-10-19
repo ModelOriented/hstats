@@ -353,3 +353,14 @@ test_that("loss_mlogloss() is in line with loss_logloss() in binary case", {
   expect_equal(imp1, imp2)
 })
 
+test_that("perm_importance() works with missing values", {
+  # Univariate model
+  X <- data.frame(x1 = 1:6, x2 = c(NA, 1, 2, 1, 1, 3), x3 = factor(c("A", NA, NA, "B", "A", "A")))
+  y <- 1:6
+  pf <- function(fit, x) x$x1
+  fit <- "a model"
+  
+  set.seed(1L)
+  expect_no_error(r <- perm_importance(fit, X = X, y = y, pred_fun = pf))
+  expect_true(r$M[1L] > 0 && all(r$M[2:3] == 0))
+})

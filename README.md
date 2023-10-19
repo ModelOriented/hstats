@@ -103,6 +103,7 @@ Let's calculate different H-statistics via `hstats()`:
 
 ```r
 # 4 seconds on simple laptop - a random forest will take 2-3 minutes
+# With quant_approx = 25 (dense features are binned into 25 bins): 1.5 s
 set.seed(782)
 system.time(
   s <- hstats(fit, X = X_train)

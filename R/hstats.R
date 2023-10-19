@@ -44,6 +44,11 @@
 #' @param threeway_m Like `pairwise_m`, but controls the feature count for 
 #'   three-way interactions. Cannot be larger than `pairwise_m`. 
 #'   To save computation time, the default is 0.
+#' @param quant_approx Integer. Dense numeric variables in `X` are replaced by midpoints 
+#'   of `quant_approx + 1` uniform quantiles. By default, the value is `NULL` 
+#'   (no approximation). Even relatively high values like 50 will bring a massive 
+#'   speed-up for dense features, mainly for one-way statistics. 
+#'   Note that the quantiles are calculated after subsampling to `n_max` rows.
 #' @param eps Threshold below which numerator values are set to 0. Default is 1e-10.
 #' @param verbose Should a progress bar be shown? The default is `TRUE`.
 #' @param ... Additional arguments passed to `pred_fun(object, X, ...)`, 
@@ -51,7 +56,7 @@
 #'   multiclass XGBoost model.
 #' @returns 
 #'   An object of class "hstats" containing these elements:
-#'   - `X`: Input `X` (sampled to `n_max` rows).
+#'   - `X`: Input `X` (sampled to `n_max` rows, after optional quantile approximation).
 #'   - `w`: Case weight vector `w` (sampled to `n_max` values), or `NULL`.
 #'   - `v`: Vector of column names in `X` for which overall 
 #'     H statistics have been calculated.
@@ -136,7 +141,7 @@ hstats <- function(object, ...) {
 hstats.default <- function(object, X, v = NULL,
                            pred_fun = stats::predict, n_max = 500L, 
                            w = NULL, pairwise_m = 5L, threeway_m = 0L,
-                           eps = 1e-10, verbose = TRUE, ...) {
+                           quant_approx = NULL, eps = 1e-10, verbose = TRUE, ...) {
   stopifnot(
     is.matrix(X) || is.data.frame(X),
     is.function(pred_fun)
@@ -171,6 +176,11 @@ hstats.default <- function(object, X, v = NULL,
     if (!is.null(w)) {
       w <- w[ix]
     }
+  }
+  
+  # Quantile approximation to speedup things for dense features
+  if (!is.null(quant_approx)) {
+    X <- approx_matrix_or_df(X = X, v = v, m = quant_approx)
   }
   
   # Predictions ("F" in Friedman and Popescu) always calculated (cheap)
@@ -266,7 +276,7 @@ hstats.default <- function(object, X, v = NULL,
 hstats.ranger <- function(object, X, v = NULL,
                           pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
                           n_max = 500L, w = NULL, pairwise_m = 5L, threeway_m = 0L,
-                          eps = 1e-10, verbose = TRUE, ...) {
+                          quant_approx = NULL, eps = 1e-10, verbose = TRUE, ...) {
   hstats.default(
     object = object,
     X = X,
@@ -276,6 +286,7 @@ hstats.ranger <- function(object, X, v = NULL,
     w = w,
     pairwise_m = pairwise_m,
     threeway_m = threeway_m,
+    quant_approx = quant_approx, 
     eps = eps,
     verbose = verbose,
     ...
@@ -287,7 +298,7 @@ hstats.ranger <- function(object, X, v = NULL,
 hstats.Learner <- function(object, X, v = NULL,
                            pred_fun = NULL,
                            n_max = 500L, w = NULL, pairwise_m = 5L, threeway_m = 0L, 
-                           eps = 1e-10, verbose = TRUE, ...) {
+                           quant_approx = NULL, eps = 1e-10, verbose = TRUE, ...) {
   if (is.null(pred_fun)) {
     pred_fun <- mlr3_pred_fun(object, X = X)
   }
@@ -300,6 +311,7 @@ hstats.Learner <- function(object, X, v = NULL,
     w = w,
     pairwise_m = pairwise_m,
     threeway_m = threeway_m,
+    quant_approx = quant_approx,
     eps = eps,
     verbose = verbose,
     ...
@@ -313,7 +325,7 @@ hstats.explainer <- function(object, X = object[["data"]],
                              pred_fun = object[["predict_function"]],
                              n_max = 500L, w = object[["weights"]], 
                              pairwise_m = 5L, threeway_m = 0L,
-                             eps = 1e-10, verbose = TRUE, ...) {
+                             quant_approx = NULL, eps = 1e-10, verbose = TRUE, ...) {
   hstats.default(
     object = object[["model"]],
     X = X,
@@ -323,6 +335,7 @@ hstats.explainer <- function(object, X = object[["data"]],
     w = w,
     pairwise_m = pairwise_m,
     threeway_m = threeway_m,
+    quant_approx = quant_approx,
     eps = eps,
     verbose = verbose,
     ...
@@ -460,4 +473,117 @@ plot.hstats <- function(x, which = 1:3, normalize = TRUE, squared = TRUE,
     p <- p + rotate_x_labs()
   }
   p
+}
+
+# Helper functions used only by hstats()
+
+#' Pairwise or 3-Way Partial Dependencies
+#' 
+#' Calculates centered partial dependence functions for selected pairwise or three-way
+#' situations.
+#' 
+#' @noRd
+#' @keywords internal
+#' 
+#' @param v Vector of column names to calculate `way` order interactions.
+#' @inheritParams hstats
+#' @param way Pairwise (`way = 2`) or three-way (`way = 3`) interactions.
+#' @param verb Verbose (`TRUE`/`FALSE`).
+#' 
+#' @returns 
+#'   A list with a named list of feature combinations (pairs or triples), and
+#'   corresponding centered partial dependencies.
+mway <- function(object, v, X, pred_fun = stats::predict, w = NULL, 
+                 way = 2L, verb = TRUE, ...) {
+  combs <- utils::combn(v, way, simplify = FALSE)
+  n_combs <- length(combs)
+  F_way <- vector("list", length = n_combs)
+  names(F_way) <- names(combs) <- sapply(combs, paste, collapse = ":")
+  
+  if (verb) {
+    cat(way, "way calculations...\n", sep = "-")
+    pb <- utils::txtProgressBar(max = n_combs, style = 3)
+  }
+  
+  for (i in seq_len(n_combs)) {
+    z <- combs[[i]]
+    F_way[[i]] <- wcenter(
+      pd_raw(object, v = z, X = X, grid = X[, z], pred_fun = pred_fun, w = w, ...),
+      w = w
+    )
+    if (verb) {
+      utils::setTxtProgressBar(pb, i)
+    }
+  }
+  if (verb) {
+    cat("\n")
+  }
+  list(combs, F_way)
+}
+
+#' Get Feature Names
+#' 
+#' This function takes the unsorted and unnormalized H2_j matrix and extracts the top
+#' m feature names (unsorted). If H2_j has multiple columns, this is done per column and
+#' then the union is returned.
+#' 
+#' @noRd
+#' @keywords internal
+#' 
+#' @param H Unnormalized, unsorted H2_j values.
+#' @param m Number of features to pick per column.
+#' 
+#' @returns A vector of the union of the m column-wise most important features.
+get_v <- function(H, m) {
+  v <- rownames(H)
+  selector <- function(vv) names(utils::head(sort(-vv[vv > 0]), m))
+  if (NCOL(H) == 1L) {
+    v_cand <- selector(drop(H))
+  } else {
+    v_cand <- Reduce(union, lapply(asplit(H, MARGIN = 2L), FUN = selector))
+  }
+  v[v %in% v_cand]
+}
+
+#' Approximate Vector
+#' 
+#' Internal function. Approximates values by the average of the two closest quantiles.
+#' 
+#' @noRd
+#' @keywords internal
+#' 
+#' @param x A vector or factor.
+#' @param m Number of unique values.
+#' @returns An approximation of `x` (or `x` if non-numeric or discrete).
+approx_vector <- function(x, m = 25L) {
+  if (!is.numeric(x) || length(unique(x)) <= m) {
+    return(x)
+  }
+  p <- seq(0, 1, length.out = m + 1L)
+  q <- unique(stats::quantile(x, probs = p, names = FALSE, na.rm = TRUE))
+  mids <- (q[-length(q)] + q[-1L]) / 2
+  return(mids[findInterval(x, q, rightmost.closed = TRUE)])
+}
+
+#' Approximate df or Matrix
+#' 
+#' Internal function. Calls `approx_vector()` to each column in matrix or data.frame.
+#' 
+#' @noRd
+#' @keywords internal
+#' 
+#' @param X A matrix or data.frame.
+#' @param m Number of unique values.
+#' @returns An approximation of `X` (or `X` if non-numeric or discrete).
+approx_matrix_or_df <- function(X, v = colnames(X), m = 25L) {
+  stopifnot(
+    m >= 2L,
+    is.data.frame(X) || is.matrix(X)
+  )
+  if (is.data.frame(X)) {
+    X[v] <- lapply(X[v], FUN = approx_vector, m = m)  
+  } else {  # Matrix
+    X[, v] <- apply(X[, v, drop = FALSE], MARGIN = 2L, FUN = approx_vector, m = m)  
+  }
+  return(X)
 }

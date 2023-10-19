@@ -84,3 +84,44 @@ test_that("check_grid() fires on some bad input", {
   expect_error(check_grid(r0, v = v, X_is_matrix = TRUE))
   expect_no_error(check_grid(r0, v = v, X_is_matrix = FALSE))
 })
+
+x <- c(NA, 1:98, NA)
+y <- c(rep(c("A", "B"), each = 48), c(NA, NA, NA, NA))
+xy <- data.frame(x = x, y = y)
+
+test_that("univariate_grid() can deal with missings", {
+  expect_true(
+    !anyNA(univariate_grid(x, grid_size = 3, strategy = "uniform", na.rm = TRUE))
+  )
+  expect_true(
+    !anyNA(univariate_grid(x, grid_size = 3, strategy = "quantile", na.rm = TRUE))
+  )
+  expect_true(
+    anyNA(univariate_grid(x, grid_size = 3, strategy = "uniform", na.rm = FALSE))
+  )
+  expect_true(
+    anyNA(univariate_grid(x, grid_size = 3, strategy = "quantile", na.rm = FALSE))
+  )
+  expect_false(
+    anyNA(univariate_grid(na.omit(x), grid_size = 3, strategy = "uniform", na.rm = FALSE))
+  )
+  expect_false(
+    anyNA(univariate_grid(na.omit(x), grid_size = 3, strategy = "quantile", na.rm = FALSE))
+  )
+  
+  expect_true(!anyNA(univariate_grid(y, na.rm = TRUE)))
+  expect_true(anyNA(univariate_grid(y, na.rm = FALSE)))
+  expect_false(anyNA(univariate_grid(na.omit(y), na.rm = FALSE)))
+})
+
+test_that("multivariate_grid() can deal with missings", {
+  expect_true(
+    !anyNA(multivariate_grid(xy, grid_size = 6, strategy = "uniform", na.rm = TRUE))
+  )
+  expect_false(
+    !anyNA(multivariate_grid(xy, grid_size = 6, strategy = "uniform", na.rm = FALSE))
+  )
+  expect_false(
+    anyNA(multivariate_grid(na.omit(xy), grid_size = 6, strategy = "uniform", na.rm = FALSE))
+  )
+})
