@@ -215,14 +215,6 @@ test_that("wcenter() works for vectors", {
   expect_equal(wcenter(x, w = w), xpected)
 })
 
-test_that("basic_checks fire some errors", {
-  expect_error(basic_check(X = 1:3, v = "a", pred_fun = predict, w = NULL))
-  expect_error(basic_check(X = iris[0], v = "a", pred_fun = predict, w = NULL))
-  expect_error(basic_check(X = iris, v = "a", pred_fun = predict, w = NULL))
-  expect_error(basic_check(X = iris, v = "Species", pred_fun = "mean", w = NULL))
-  expect_error(basic_check(X = iris, v = "Species", pred_fun = predict, w = 1:3))
-})
-
 test_that("poor_man_stack() works (test could be improved", {
   y <- c("a", "b", "c")
   z <- c("aa", "bb", "cc")

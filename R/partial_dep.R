@@ -99,8 +99,8 @@ partial_dep <- function(object, ...) {
 partial_dep.default <- function(object, v, X, pred_fun = stats::predict, 
                                 BY = NULL, by_size = 4L, grid = NULL, grid_size = 49L, 
                                 trim = c(0.01, 0.99), 
-                                strategy = c("uniform", "quantile"), n_max = 1000L, 
-                                w = NULL, ...) {
+                                strategy = c("uniform", "quantile"), na.rm = TRUE,
+                                n_max = 1000L, w = NULL, ...) {
   stopifnot(
     is.matrix(X) || is.data.frame(X),
     is.function(pred_fun),
@@ -110,7 +110,7 @@ partial_dep.default <- function(object, v, X, pred_fun = stats::predict,
   # Care about grid
   if (is.null(grid)) {
     grid <- multivariate_grid(
-      x = X[, v], grid_size = grid_size, trim = trim, strategy = strategy
+      x = X[, v], grid_size = grid_size, trim = trim, strategy = strategy, na.rm = na.rm
     )
   } else {
     check_grid(g = grid, v = v, X_is_matrix = is.matrix(X))
@@ -130,7 +130,7 @@ partial_dep.default <- function(object, v, X, pred_fun = stats::predict,
       out <- partial_dep.default(
         object = object, 
         v = v, 
-        X = X[BY2$BY %in% b, , drop = FALSE], 
+        X = X[BY2$BY %in% b, , drop = FALSE],  # works also when by is NA
         pred_fun = pred_fun,
         grid = grid,
         n_max = n_max, 
@@ -185,8 +185,8 @@ partial_dep.ranger <- function(object, v, X,
                                pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
                                BY = NULL, by_size = 4L, grid = NULL, grid_size = 49L, 
                                trim = c(0.01, 0.99), 
-                               strategy = c("uniform", "quantile"), n_max = 1000L, 
-                               w = NULL, ...) {
+                               strategy = c("uniform", "quantile"), na.rm = TRUE,
+                               n_max = 1000L, w = NULL, ...) {
   partial_dep.default(
     object = object,
     v = v,
@@ -198,6 +198,7 @@ partial_dep.ranger <- function(object, v, X,
     grid_size = grid_size,
     trim = trim,
     strategy = strategy,
+    na.rm = na.rm,
     n_max = n_max,
     w = w,
     ...
@@ -210,8 +211,8 @@ partial_dep.Learner <- function(object, v, X,
                                 pred_fun = NULL,
                                 BY = NULL, by_size = 4L, grid = NULL, grid_size = 49L, 
                                 trim = c(0.01, 0.99), 
-                                strategy = c("uniform", "quantile"), n_max = 1000L, 
-                                w = NULL, ...) {
+                                strategy = c("uniform", "quantile"), na.rm = TRUE,
+                                n_max = 1000L, w = NULL, ...) {
   if (is.null(pred_fun)) {
     pred_fun <- mlr3_pred_fun(object, X = X)
   }
@@ -226,6 +227,7 @@ partial_dep.Learner <- function(object, v, X,
     grid_size = grid_size,
     trim = trim,
     strategy = strategy,
+    na.rm = na.rm,
     n_max = n_max,
     w = w,
     ...
@@ -238,8 +240,8 @@ partial_dep.explainer <- function(object, v, X = object[["data"]],
                                   pred_fun = object[["predict_function"]],
                                   BY = NULL, by_size = 4L, grid = NULL, grid_size = 49L, 
                                   trim = c(0.01, 0.99), 
-                                  strategy = c("uniform", "quantile"), n_max = 1000L, 
-                                  w = object[["weights"]], ...) {
+                                  strategy = c("uniform", "quantile"), na.rm = TRUE,
+                                  n_max = 1000L, w = object[["weights"]], ...) {
   partial_dep.default(
     object = object[["model"]],
     v = v,
@@ -251,6 +253,7 @@ partial_dep.explainer <- function(object, v, X = object[["data"]],
     grid_size = grid_size,
     trim = trim,
     strategy = strategy,
+    na.rm = na.rm,
     n_max = n_max,
     w = w,
     ...

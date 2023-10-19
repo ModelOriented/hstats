@@ -24,6 +24,7 @@
 #'   of grid values. Set to `0:1` for no trimming.
 #' @param strategy How to find grid values of non-discrete numeric columns? 
 #'   Either "uniform" or "quantile", see description of [univariate_grid()].
+#' @param na.rm Should missing values be dropped from grid? Default is `TRUE`.
 #' @returns A vector or factor of evaluation points.
 #' @seealso [multivariate_grid()]
 #' @export
@@ -35,24 +36,29 @@
 #' univariate_grid(x, grid_size = 5)                        # Quantile binning
 #' univariate_grid(x, grid_size = 5, strategy = "uniform")  # Uniform
 univariate_grid <- function(z, grid_size = 49L, trim = c(0.01, 0.99), 
-                            strategy = c("uniform", "quantile")) {
+                            strategy = c("uniform", "quantile"), na.rm = TRUE) {
   strategy <- match.arg(strategy)
   uni <- unique(z)
   if (!is.numeric(z) || length(uni) <= grid_size) {
-    return(sort(uni))
+    out <- if (na.rm) sort(uni) else sort(uni, na.last = TRUE)
+    return(out)
   }
   
   # Non-discrete numeric
   if (strategy == "quantile") {
     p <- seq(trim[1L], trim[2L], length.out = grid_size)
     g <- stats::quantile(z, probs = p, names = FALSE, type = 1L, na.rm = TRUE)
-    return(unique(g))
+    out <- unique(g)
+  } else {
+    # strategy = "uniform" (could use range() if trim = 0:1)
+    r <- stats::quantile(z, probs = trim, names = FALSE, type = 1L, na.rm = TRUE)
+    # pretty(r, n = grid_size)  # Until version 0.2.0
+    out <- seq(r[1L], r[2L], length.out = grid_size)  
   }
-  
-  # strategy = "uniform" (could use range() if trim = 0:1)
-  r <- stats::quantile(z, probs = trim, names = FALSE, type = 1L, na.rm = TRUE)
-  # pretty(r, n = grid_size)  # Until version 0.2.0
-  seq(r[1L], r[2L], length.out = grid_size)
+  if (!na.rm && anyNA(z)) {
+    out <- c(out, NA)
+  }
+  return(out)
 }
 
 #' Multivariate Grid
@@ -72,14 +78,17 @@ univariate_grid <- function(z, grid_size = 49L, trim = c(0.01, 0.99),
 #' multivariate_grid(iris$Species)  # Works also in the univariate case
 #' @export
 multivariate_grid <- function(x, grid_size = 49L, trim = c(0.01, 0.99),
-                              strategy = c("uniform", "quantile")) {
+                              strategy = c("uniform", "quantile"), na.rm = TRUE) {
   strategy <- match.arg(strategy)
   p <- NCOL(x)
   if (p == 1L) {
     if (is.data.frame(x)) {
       x <- x[[1L]]
     }
-    return(univariate_grid(x, grid_size = grid_size, trim = trim, strategy = strategy))
+    out <- univariate_grid(
+      x, grid_size = grid_size, trim = trim, strategy = strategy, na.rm = na.rm
+    )
+    return(out)
   }
   grid_size <- ceiling(grid_size^(1/p))  # take p's root of grid_size
   is_mat <- is.matrix(x)
@@ -89,7 +98,11 @@ multivariate_grid <- function(x, grid_size = 49L, trim = c(0.01, 0.99),
   out <- expand.grid(
     lapply(
       x, 
-      FUN = univariate_grid, grid_size = grid_size, trim = trim, strategy = strategy
+      FUN = univariate_grid, 
+      grid_size = grid_size, 
+      trim = trim, 
+      strategy = strategy,
+      na.rm = na.rm
     )
   )
   if (is_mat) as.matrix(out) else out

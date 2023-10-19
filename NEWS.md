@@ -20,6 +20,7 @@
 - `average_loss()` is more flexible regarding the group `BY` argument. It can also be a variable *name*. Non-discrete `BY` variables are now automatically binned. Like `partial_dep()`, binning is controlled by the `by_size = 4` argument.
 - `average_loss()` also returns a "hstats_matrix" object with `print()` and `plot()` method. The values can be extracted via `$M`.
 - The default `v` of `hstats()` and `perm_importance()` is now `NULL`. Internally, it is set to `colnames(X)` (minus the column names of `w` and `y` if passed as name).
+- Missing grid values: `partial_dep()` and `ice()` have received a `na.rm = TRUE` argument that controls if missing values are dropped during grid creation. The default is compatible with earlier releases.
 
 # hstats 0.3.0
 
