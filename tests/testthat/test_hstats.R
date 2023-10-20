@@ -20,7 +20,9 @@ test_that("Additive models show 0 interactions (univariate)", {
   expect_message(plot(h2_overall(s, zero = FALSE)))
   
   # With quantile approximation
-  s <- hstats(fit, X = iris[-1L], verbose = FALSE, threeway_m = 5L, quant_approx = 5L)
+  s <- hstats(
+    fit, X = iris[-1L], verbose = FALSE, threeway_m = 5L, approx = TRUE, grid_size = 5L,
+  )
   expect_null(h2_pairwise(s, zero = FALSE)$M)
 })
 
@@ -72,7 +74,7 @@ test_that("Non-additive models show interactions > 0 (one interaction)", {
   expect_null(h2_threeway(s, zero = FALSE)$M)
   
   # With quantile approximation
-  s <- hstats(fit, X = iris[-1L], verbose = FALSE, quant_approx = 5L)
+  s <- hstats(fit, X = iris[-1L], verbose = FALSE, approx = TRUE, grid_size = 5L)
   expect_true(h2(s)$M > 0)
 })
 
@@ -312,7 +314,8 @@ test_that("matrix case works as well", {
     v = colnames(iris[2:4]), 
     pred_fun = pred_fun, 
     verbose = FALSE, 
-    quant_approx = 5L
+    approx = TRUE,
+    grid_size = 20L
   )
   expect_equal(c(h2_overall(s)$M), c(0, 0, 0))
 })

@@ -17,9 +17,10 @@ hstats(object, ...)
   pred_fun = stats::predict,
   pairwise_m = 5L,
   threeway_m = 0L,
-  quant_approx = NULL,
-  eps = 1e-10,
+  approx = FALSE,
+  grid_size = 50L,
   n_max = 500L,
+  eps = 1e-10,
   w = NULL,
   verbose = TRUE,
   ...
@@ -32,9 +33,10 @@ hstats(object, ...)
   pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
   pairwise_m = 5L,
   threeway_m = 0L,
-  quant_approx = NULL,
-  eps = 1e-10,
+  approx = FALSE,
+  grid_size = 50L,
   n_max = 500L,
+  eps = 1e-10,
   w = NULL,
   verbose = TRUE,
   ...
@@ -47,9 +49,10 @@ hstats(object, ...)
   pred_fun = NULL,
   pairwise_m = 5L,
   threeway_m = 0L,
-  quant_approx = NULL,
-  eps = 1e-10,
+  approx = FALSE,
+  grid_size = 50L,
   n_max = 500L,
+  eps = 1e-10,
   w = NULL,
   verbose = TRUE,
   ...
@@ -62,9 +65,10 @@ hstats(object, ...)
   pred_fun = object[["predict_function"]],
   pairwise_m = 5L,
   threeway_m = 0L,
-  quant_approx = NULL,
-  eps = 1e-10,
+  approx = FALSE,
+  grid_size = 50L,
   n_max = 500L,
+  eps = 1e-10,
   w = object[["weights"]],
   verbose = TRUE,
   ...
@@ -99,16 +103,19 @@ strongest variable names is taken. This can lead to very long run-times.}
 three-way interactions. Cannot be larger than \code{pairwise_m}.
 To save computation time, the default is 0.}
 
-\item{quant_approx}{Integer. Dense numeric variables in \code{X} are replaced by midpoints
-of \code{quant_approx + 1} uniform quantiles. By default, the value is \code{NULL}
-(no approximation). Even relatively high values like 50 will bring a massive
-speed-up for dense features, mainly for one-way statistics.
-Note that the quantiles are calculated after subsampling to \code{n_max} rows.}
+\item{approx}{Should quantile approximation be applied to dense numeric features?
+The default is \code{FALSE}. Setting this option to \code{TRUE} brings a massive speed-up
+for one-way calculations. It can, e.g., be used when the number of features is
+very large.}
 
-\item{eps}{Threshold below which numerator values are set to 0. Default is 1e-10.}
+\item{grid_size}{Integer controlling the number of quantile midpoints used to
+approximate dense numerics. The quantile midpoints are calculated after
+subampling via \code{n_max}. Only relevant if \code{approx = TRUE}.}
 
 \item{n_max}{If \code{X} has more than \code{n_max} rows, a random sample of \code{n_max} rows is
 selected from \code{X}. In this case, set a random seed for reproducibility.}
+
+\item{eps}{Threshold below which numerator values are set to 0. Default is 1e-10.}
 
 \item{w}{Optional vector of case weights. Can also be a column name of \code{X}.}
 

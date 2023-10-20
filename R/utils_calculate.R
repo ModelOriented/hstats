@@ -112,3 +112,62 @@ wcenter <- function(x, w = NULL) {
   # sweep(x, MARGIN = 2L, STATS = wcolMeans(x, w = w))  # Slower
   x - matrix(wcolMeans(x, w = w), nrow = nrow(x), ncol = ncol(x), byrow = TRUE)
 }
+
+#' Bin into Quantiles
+#' 
+#' Internal function. Applies [cut()] to quantile breaks.
+#' 
+#' @noRd
+#' @keywords internal
+#' 
+#' @param x A numeric vector.
+#' @param m Number of intervals.
+#' @returns A factor, representing binned `x`.
+qcut <- function(x, m) {
+  p <- seq(0, 1, length.out = m + 1L)
+  g <- stats::quantile(x, probs = p, names = FALSE, type = 1L, na.rm = TRUE)
+  cut(x, breaks = unique(g), include.lowest = TRUE)
+}
+
+#' Approximate Vector
+#' 
+#' Internal function. Approximates values by the average of the two closest quantiles.
+#' 
+#' @noRd
+#' @keywords internal
+#' 
+#' @param x A vector or factor.
+#' @param m Number of unique values.
+#' @returns An approximation of `x` (or `x` if non-numeric or discrete).
+approx_vector <- function(x, m = 50L) {
+  if (!is.numeric(x) || length(unique(x)) <= m) {
+    return(x)
+  }
+  p <- seq(0, 1, length.out = m + 1L)
+  q <- unique(stats::quantile(x, probs = p, names = FALSE, na.rm = TRUE))
+  mids <- (q[-length(q)] + q[-1L]) / 2
+  return(mids[findInterval(x, q, rightmost.closed = TRUE)])
+}
+
+#' Approximate df or Matrix
+#' 
+#' Internal function. Calls `approx_vector()` to each column in matrix or data.frame.
+#' 
+#' @noRd
+#' @keywords internal
+#' 
+#' @param X A matrix or data.frame.
+#' @param m Number of unique values.
+#' @returns An approximation of `X` (or `X` if non-numeric or discrete).
+approx_matrix_or_df <- function(X, v = colnames(X), m = 50L) {
+  stopifnot(
+    m >= 2L,
+    is.data.frame(X) || is.matrix(X)
+  )
+  if (is.data.frame(X)) {
+    X[v] <- lapply(X[v], FUN = approx_vector, m = m)  
+  } else {  # Matrix
+    X[, v] <- apply(X[, v, drop = FALSE], MARGIN = 2L, FUN = approx_vector, m = m)  
+  }
+  return(X)
+}

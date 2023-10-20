@@ -1,19 +1,3 @@
-#' Bin into Quantiles
-#' 
-#' Internal function. Applies [cut()] to quantile breaks.
-#' 
-#' @noRd
-#' @keywords internal
-#' 
-#' @param x A numeric vector.
-#' @param m Number of intervals.
-#' @returns A factor, representing binned `x`.
-qcut <- function(x, m) {
-  p <- seq(0, 1, length.out = m + 1L)
-  g <- stats::quantile(x, probs = p, names = FALSE, type = 1L, na.rm = TRUE)
-  cut(x, breaks = unique(g), include.lowest = TRUE)
-}
-
 #' Prepares Group BY Variable
 #' 
 #' Internal function that prepares a BY variable or BY column name.

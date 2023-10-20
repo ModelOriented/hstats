@@ -41,14 +41,16 @@
 #' @param threeway_m Like `pairwise_m`, but controls the feature count for 
 #'   three-way interactions. Cannot be larger than `pairwise_m`. 
 #'   To save computation time, the default is 0.
-#' @param quant_approx Integer. Dense numeric variables in `X` are replaced by midpoints 
-#'   of `quant_approx + 1` uniform quantiles. By default, the value is `NULL` 
-#'   (no approximation). Even relatively high values like 50 will bring a massive 
-#'   speed-up for dense features, mainly for one-way statistics. 
-#'   Note that the quantiles are calculated after subsampling to `n_max` rows.
-#' @param eps Threshold below which numerator values are set to 0. Default is 1e-10.
+#' @param approx Should quantile approximation be applied to dense numeric features?
+#'   The default is `FALSE`. Setting this option to `TRUE` brings a massive speed-up
+#'   for one-way calculations. It can, e.g., be used when the number of features is
+#'   very large.
+#' @param grid_size Integer controlling the number of quantile midpoints used to
+#'   approximate dense numerics. The quantile midpoints are calculated after
+#'   subampling via `n_max`. Only relevant if `approx = TRUE`.
 #' @param n_max If `X` has more than `n_max` rows, a random sample of `n_max` rows is
 #'   selected from `X`. In this case, set a random seed for reproducibility.
+#' @param eps Threshold below which numerator values are set to 0. Default is 1e-10.
 #' @param w Optional vector of case weights. Can also be a column name of `X`.
 #' @param verbose Should a progress bar be shown? The default is `TRUE`.
 #' @param ... Additional arguments passed to `pred_fun(object, X, ...)`, 
@@ -141,8 +143,9 @@ hstats <- function(object, ...) {
 hstats.default <- function(object, X, v = NULL,
                            pred_fun = stats::predict, 
                            pairwise_m = 5L, threeway_m = 0L,
-                           quant_approx = NULL, eps = 1e-10, 
-                           n_max = 500L, w = NULL, verbose = TRUE, ...) {
+                           approx = FALSE, grid_size = 50L, 
+                           n_max = 500L, eps = 1e-10, 
+                           w = NULL, verbose = TRUE, ...) {
   stopifnot(
     is.matrix(X) || is.data.frame(X),
     is.function(pred_fun)
@@ -180,8 +183,8 @@ hstats.default <- function(object, X, v = NULL,
   }
   
   # Quantile approximation to speedup things for dense features
-  if (!is.null(quant_approx)) {
-    X <- approx_matrix_or_df(X = X, v = v, m = quant_approx)
+  if (isTRUE(approx)) {
+    X <- approx_matrix_or_df(X = X, v = v, m = grid_size)
   }
   
   # Predictions ("F" in Friedman and Popescu) always calculated (cheap)
@@ -277,8 +280,9 @@ hstats.default <- function(object, X, v = NULL,
 hstats.ranger <- function(object, X, v = NULL,
                           pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
                           pairwise_m = 5L, threeway_m = 0L,
-                          quant_approx = NULL, eps = 1e-10, 
-                          n_max = 500L, w = NULL, verbose = TRUE, ...) {
+                          approx = FALSE, grid_size = 50L, 
+                          n_max = 500L, eps = 1e-10,
+                          w = NULL, verbose = TRUE, ...) {
   hstats.default(
     object = object,
     X = X,
@@ -286,9 +290,10 @@ hstats.ranger <- function(object, X, v = NULL,
     pred_fun = pred_fun,
     pairwise_m = pairwise_m,
     threeway_m = threeway_m,
-    quant_approx = quant_approx, 
-    eps = eps,
+    approx = approx,
+    grid_size = grid_size,
     n_max = n_max,
+    eps = eps,
     w = w,
     verbose = verbose,
     ...
@@ -300,8 +305,9 @@ hstats.ranger <- function(object, X, v = NULL,
 hstats.Learner <- function(object, X, v = NULL,
                            pred_fun = NULL,
                            pairwise_m = 5L, threeway_m = 0L, 
-                           quant_approx = NULL, eps = 1e-10, 
-                           n_max = 500L, w = NULL, verbose = TRUE, ...) {
+                           approx = FALSE, grid_size = 50L, 
+                           n_max = 500L, eps = 1e-10, 
+                           w = NULL, verbose = TRUE, ...) {
   if (is.null(pred_fun)) {
     pred_fun <- mlr3_pred_fun(object, X = X)
   }
@@ -312,9 +318,10 @@ hstats.Learner <- function(object, X, v = NULL,
     pred_fun = pred_fun,
     pairwise_m = pairwise_m,
     threeway_m = threeway_m,
-    quant_approx = quant_approx,
-    eps = eps,
+    approx = approx,
+    grid_size = grid_size,
     n_max = n_max,
+    eps = eps,
     w = w,
     verbose = verbose,
     ...
@@ -327,9 +334,9 @@ hstats.explainer <- function(object, X = object[["data"]],
                              v = NULL,
                              pred_fun = object[["predict_function"]],
                              pairwise_m = 5L, threeway_m = 0L,
-                             quant_approx = NULL, eps = 1e-10, 
-                             n_max = 500L, w = object[["weights"]], 
-                             verbose = TRUE, ...) {
+                             approx = FALSE, grid_size = 50L, 
+                             n_max = 500L, eps = 1e-10, 
+                             w = object[["weights"]], verbose = TRUE, ...) {
   hstats.default(
     object = object[["model"]],
     X = X,
@@ -337,9 +344,10 @@ hstats.explainer <- function(object, X = object[["data"]],
     pred_fun = pred_fun,
     pairwise_m = pairwise_m,
     threeway_m = threeway_m,
-    quant_approx = quant_approx,
-    eps = eps,
+    approx = approx,
+    grid_size = grid_size,
     n_max = n_max,
+    eps = eps,
     w = w,
     verbose = verbose,
     ...
@@ -547,47 +555,4 @@ get_v <- function(H, m) {
     v_cand <- Reduce(union, lapply(asplit(H, MARGIN = 2L), FUN = selector))
   }
   v[v %in% v_cand]
-}
-
-#' Approximate Vector
-#' 
-#' Internal function. Approximates values by the average of the two closest quantiles.
-#' 
-#' @noRd
-#' @keywords internal
-#' 
-#' @param x A vector or factor.
-#' @param m Number of unique values.
-#' @returns An approximation of `x` (or `x` if non-numeric or discrete).
-approx_vector <- function(x, m = 25L) {
-  if (!is.numeric(x) || length(unique(x)) <= m) {
-    return(x)
-  }
-  p <- seq(0, 1, length.out = m + 1L)
-  q <- unique(stats::quantile(x, probs = p, names = FALSE, na.rm = TRUE))
-  mids <- (q[-length(q)] + q[-1L]) / 2
-  return(mids[findInterval(x, q, rightmost.closed = TRUE)])
-}
-
-#' Approximate df or Matrix
-#' 
-#' Internal function. Calls `approx_vector()` to each column in matrix or data.frame.
-#' 
-#' @noRd
-#' @keywords internal
-#' 
-#' @param X A matrix or data.frame.
-#' @param m Number of unique values.
-#' @returns An approximation of `X` (or `X` if non-numeric or discrete).
-approx_matrix_or_df <- function(X, v = colnames(X), m = 25L) {
-  stopifnot(
-    m >= 2L,
-    is.data.frame(X) || is.matrix(X)
-  )
-  if (is.data.frame(X)) {
-    X[v] <- lapply(X[v], FUN = approx_vector, m = m)  
-  } else {  # Matrix
-    X[, v] <- apply(X[, v, drop = FALSE], MARGIN = 2L, FUN = approx_vector, m = m)  
-  }
-  return(X)
 }

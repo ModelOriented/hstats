@@ -2,7 +2,7 @@
 
 ## Major changes
 
-- `hstats()` has received an argument `quant_approx` to speed-up calculations by quantile binning. Dense numeric variables are replaced by midpoints of `quant_approx + 1` uniform quantiles. By default, the value is `NULL` (no approximation). Even relatively high values like 50 will bring a massive speed-up for dense features, mainly for the one-way calculations. Use this option when calculations are slow, or when you want to increase `n_max`.
+- Quantile approximation: `hstats()` now has the option `approx = FALSE`. Set to `TRUE` to replace values of dense numeric columns by `grid_size = 50` quantile midpoints. This will bring a massive speed-up for one-way calculations. Use this option when one-way calculations are slow, or when you want to increase `n_max`.
 - `hstats()`: `n_max` has been increased from 300 to 500 rows. This will make estimates of H statistics more stable at the price of longer run time. Reduce to 300 for the old behaviour.
 - `hstats()`: Three-way interactions are not anymore calculated by default. Set `threeway_m` to 5 for the old behaviour.
 - Revised plots: The colors and color palettes have changed and can now also be controlled via global options. For instance, to change the fill color of all bars, set `options(hstats.fill = new value)`. Value labels are more clear, and there are more options. Varying color/fill scales now use viridis (inferno). This can be modified on the fly or via `options(hstats.viridis_args = list(...))`.

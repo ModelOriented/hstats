@@ -122,43 +122,6 @@ test_that("wcenter() works for vectors", {
   expect_equal(wcenter(x, w = w), xpected)
 })
 
-test_that("poor_man_stack() works (test could be improved", {
-  y <- c("a", "b", "c")
-  z <- c("aa", "bb", "cc")
-  X <- data.frame(x = 1:3, y = y, z = z)
-  out <- poor_man_stack(X, to_stack = c("y", "z"))
-  xpected <- data.frame(
-    x = rep(1:3, times = 2L), 
-    varying_ = factor(rep(c("y", "z"), each = 3L)),
-    value_ = c(y, z)
-  )
-  expect_equal(out, xpected)
-  
-  expect_error(poor_man_stack(cbind(a = 1:3, b = 2:4), to_stack = "b"))
-})
-
-test_that("mat2df() works (test could be improved)", {
-  mat <- cbind(y = 1:2, z = c(0.5, 0.5))
-  rownames(mat) <- letters[seq_len(nrow(mat))]
-  out <- mat2df(mat)
-  rownames(out) <- NULL
-  xpected <- data.frame(
-    id_ = "Overall", 
-    variable_ = factor(c("a", "b", "a", "b")),
-    varying_ = factor(c("y", "y", "z", "z")),
-    value_ = c(1, 2, 0.5, 0.5),
-    stringsAsFactors = FALSE
-  )
-  expect_equal(out, xpected)
-  
-  mat_no_names <- mat
-  colnames(mat_no_names) <- NULL
-  expect_equal(unique(mat2df(mat_no_names)$varying_), factor(c("y1", "y2")))
-  
-  expect_error(mat2df(head(iris)))
-  expect_error(mat2df(1:4))
-})
-
 test_that("qcut() works (test should be improved)", {
   x <- 1:100
   expect_equal(levels(qcut(x, m = 2)), c("[1,50]", "(50,100]"))
@@ -167,11 +130,6 @@ test_that("qcut() works (test should be improved)", {
 
 test_that("qcut() works with missings", {
   expect_true(is.na(qcut(c(NA, 1:9), m = 2)[1L]))
-})
-
-test_that("approx_vector() works with missings", {
-  expect_equal(approx_vector(c(NA, "A", "B"), m = 2), c(NA, "A", "B"))
-  expect_true(is.na(approx_vector(c(NA, 1:9), m = 2)[1L]))
 })
 
 test_that("approx_matrix_or_df works as expected", {
@@ -184,4 +142,15 @@ test_that("approx_matrix_or_df works as expected", {
   expect_equal(approx_matrix_or_df(ir, m = 200L), ir)
   expect_false(identical(approx_matrix_or_df(ir, m = 5L), ir))
   expect_equal(length(unique(r[, "Sepal.Width"])), 5L)
+  
+  X <- cbind(dense = 1:20, discrete = rep(1:2, each = 10))
+  expect_equal(
+    apply(approx_matrix_or_df(X, m = 5L), 2L, function(x) length(unique(x))), 
+    c(dense = 5L, discrete = 2L)
+  )
+})
+
+test_that("approx_vector() works with missings", {
+  expect_equal(approx_vector(c(NA, "A", "B"), m = 2), c(NA, "A", "B"))
+  expect_true(is.na(approx_vector(c(NA, 1:9), m = 2)[1L]))
 })
