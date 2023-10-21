@@ -3,7 +3,7 @@
 ## Major changes
 
 - Quantile approximation: `hstats()` now has the option `approx = FALSE`. Set to `TRUE` to replace values of dense numeric columns by `grid_size = 50` quantile midpoints. This will bring a massive speed-up for one-way calculations. Use this option when one-way calculations are slow, or when you want to increase `n_max`.
-- `hstats()`: `n_max` has been increased from 300 to 500 rows. This will make estimates of H statistics more stable at the price of longer run time. Reduce to 300 for the old behaviour.
+- `hstats()`: `n_max` has been increased from 300 to 500 rows. This will make estimates of H-statistics more stable at the price of longer run time. Reduce to 300 for the old behaviour.
 - `hstats()`: Three-way interactions are not anymore calculated by default. Set `threeway_m` to 5 for the old behaviour.
 - Revised plots: The colors and color palettes have changed and can now also be controlled via global options. For instance, to change the fill color of all bars, set `options(hstats.fill = new value)`. Value labels are more clear, and there are more options. Varying color/fill scales now use viridis (inferno). This can be modified on the fly or via `options(hstats.viridis_args = list(...))`.
 - "hstats_matrix" object: All statistics functions, e.g., `h2_pairwise()` or `perm_importance()`, now return a "hstats_matrix". The values are stored in `$M` and can be plotted via `plot()`. Other methods include: `dimnames()`, `rownames()`, `colnames()`, `dim()`, `nrow()`, `ncol()`, `head()`, `tail()`, and subsetting like a normal matrix. This allows, e.g, to select and plot only one column of the results.
