@@ -84,13 +84,12 @@ test_that("pd_raw() also works for multioutput situations", {
 
 test_that("pd_raw() works with missings (all compressions on)", {
   X <- cbind(a = c(NA, NA, NA, 1, 1), b = 1:5)
+  
   out <- pd_raw(1, v = "a", X = X, pred_fun = function(m, x) x[, "b"], grid = c(NA, 1))
   expect_equal(drop(out), rep(mean(X[, "b"]), times = 2L))
   
-  expect_warning(
-    out <- pd_raw(1, v = "b", X = X, pred_fun = function(m, x) x[, "b"], grid = 1:5)
-  )
-  expect_equal(drop(out), 1:5)
+  out <- pd_raw(1, v = "b", X = X, pred_fun = function(m, x) x[, "b"], grid = 5:1)
+  expect_equal(drop(out), 5:1)
 })
 
 # Now, partial_dep()
@@ -445,6 +444,36 @@ test_that(".compress_X() leaves X unchanged if not exactly 1 non-grid variable",
   expect_equal(out$w, NULL)
 })
 
+test_that(".compress_X() works with missing values", {
+  # Note that b is not used after compression
+  
+  # data.frame
+  X <- data.frame(a = c(NA, NA, NA, 1, 1), b = 1:5)
+  out_df <- data.frame(a = c(NA, 1), b = c(1, 4), row.names = c(1L, 4L))
+  out <- .compress_X(X, v = "b")
+  expect_equal(out$X, out_df)
+  expect_equal(out$w, c(3, 2))
+  
+  # Matrix
+  X <- cbind(a = c(NA, NA, NA, 1, 1), b = 1:5)
+  out_m <- cbind(a = c(NA, 1), b = c(1, 4))
+  out <- .compress_X(X, v = "b")
+  expect_equal(out$X, out_m)
+  expect_equal(out$w, c(3, 2))
+  
+  # Factor case
+  a <- factor(c(NA, NA, "B", "B", NA, "A"))
+  X <- data.frame(a = a, b = 1:6)
+  out_df <- data.frame(
+    a = factor(c(NA, "B", "A"), levels = levels(a)), 
+    b = c(1, 3, 6), 
+    row.names = c(1L, 3L, 6L)
+  )
+  out <- .compress_X(X, v = "b")
+  expect_equal(out$X, out_df)
+  expect_equal(out$w, 3:1)
+})
+
 test_that(".compress_grid() works with missing values in grid", {
   g <- c(2, 2, NA, 1, NA)
   gg <- .compress_grid(g)
@@ -493,22 +522,4 @@ test_that(".compress_grid() leaves grid unchanged if unique", {
   expect_equal(length(out), 2L)
   expect_equal(out$grid, g)
   expect_equal(out$reindex, NULL)
-})
-
-test_that(".compress_X() works with missing values", {
-  # Note that b is not used after compression
-  
-  # data.frame
-  X <- data.frame(a = c(NA, NA, NA, 1, 1), b = 1:5)
-  out_df <- data.frame(a = c(NA, 1), b = c(1, 4), row.names = c(1L, 4L))
-  expect_warning(out <- .compress_X(X, v = "b"))
-  expect_equal(out$X, out_df)
-  expect_equal(out$w, c(3, 2))
-  
-  # Matrix
-  X <- cbind(a = c(NA, NA, NA, 1, 1), b = 1:5)
-  out_m <- cbind(a = c(NA, 1), b = c(1, 4))
-  expect_warning(out <- .compress_X(X, v = "b"))
-  expect_equal(out$X, out_m)
-  expect_equal(out$w, c(3, 2))
 })
