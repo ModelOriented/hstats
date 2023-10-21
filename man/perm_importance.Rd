@@ -22,7 +22,7 @@ perm_importance(object, ...)
   normalize = FALSE,
   n_max = 10000L,
   w = NULL,
-  verbose = FALSE,
+  verbose = TRUE,
   ...
 )
 
@@ -38,7 +38,7 @@ perm_importance(object, ...)
   normalize = FALSE,
   n_max = 10000L,
   w = NULL,
-  verbose = FALSE,
+  verbose = TRUE,
   ...
 )
 
@@ -54,7 +54,7 @@ perm_importance(object, ...)
   normalize = FALSE,
   n_max = 10000L,
   w = NULL,
-  verbose = FALSE,
+  verbose = TRUE,
   ...
 )
 
@@ -70,7 +70,7 @@ perm_importance(object, ...)
   normalize = FALSE,
   n_max = 10000L,
   w = object[["weights"]],
-  verbose = FALSE,
+  verbose = TRUE,
   ...
 )
 }
@@ -200,7 +200,7 @@ plot(s, err_type = "SD")  # Standard deviations instead of standard errors
 
 # Groups of features can be passed as named list
 v <- list(petal = c("Petal.Length", "Petal.Width"), species = "Species")
-s <- perm_importance(fit, X = iris, y = "Sepal.Length", v = v)
+s <- perm_importance(fit, X = iris, y = "Sepal.Length", v = v, verbose = FALSE)
 s
 plot(s)
 
