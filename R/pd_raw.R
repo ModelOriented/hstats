@@ -120,8 +120,9 @@ ice_raw <- function(object, v, X, grid, pred_fun = stats::predict,
   if (is.null(w)) {
     w <- rep(1.0, times = nrow(X))
   }
-  if (anyNA(x_not_v)) {  # rowsum() warns about NA in group -> integer encode
-    x_not_v <- match(x_not_v, unique(x_not_v))
+  if (anyNA(x_not_v)) {
+    # rowsum() warns about NA in group = x_not_v -> integer encode
+    x_not_v <- match(x_not_v, x_not_v[!X_dup])
   }
   list(
     X = X[!X_dup, , drop = FALSE], 
