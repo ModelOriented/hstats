@@ -53,7 +53,7 @@
 <h3 id="major-changes-1-0-0">Major changes<a class="anchor" aria-label="anchor" href="#major-changes-1-0-0"></a></h3>
 <ul><li>Quantile approximation: <code><a href="../reference/hstats.html">hstats()</a></code> now has the option <code>approx = FALSE</code>. Set to <code>TRUE</code> to replace values of dense numeric columns by <code>grid_size = 50</code> quantile midpoints. This will bring a massive speed-up for one-way calculations. Use this option when one-way calculations are slow, or when you want to increase <code>n_max</code>.</li>
 <li>
-<code><a href="../reference/hstats.html">hstats()</a></code>: <code>n_max</code> has been increased from 300 to 500 rows. This will make estimates of H statistics more stable at the price of longer run time. Reduce to 300 for the old behaviour.</li>
+<code><a href="../reference/hstats.html">hstats()</a></code>: <code>n_max</code> has been increased from 300 to 500 rows. This will make estimates of H-statistics more stable at the price of longer run time. Reduce to 300 for the old behaviour.</li>
 <li>
 <code><a href="../reference/hstats.html">hstats()</a></code>: Three-way interactions are not anymore calculated by default. Set <code>threeway_m</code> to 5 for the old behaviour.</li>
 <li>Revised plots: The colors and color palettes have changed and can now also be controlled via global options. For instance, to change the fill color of all bars, set <code>options(hstats.fill = new value)</code>. Value labels are more clear, and there are more options. Varying color/fill scales now use viridis (inferno). This can be modified on the fly or via <code>options(hstats.viridis_args = list(...))</code>.</li>
