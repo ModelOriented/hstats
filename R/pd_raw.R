@@ -115,14 +115,17 @@ ice_raw <- function(object, v, X, grid, pred_fun = stats::predict,
   if (!any(X_dup)) {
     return(list(X = X, w = w))  # No optimization done
   }
-  
-  # Compress
+
+  # Compensate via w
   if (is.null(w)) {
     w <- rep(1.0, times = nrow(X))
   }
+  if (anyNA(x_not_v)) {  # rowsum() warns about NA in group -> integer encode
+    x_not_v <- match(x_not_v, unique(x_not_v))
+  }
   list(
     X = X[!X_dup, , drop = FALSE], 
-    w = c(rowsum(w, group = x_not_v, reorder = FALSE))  # warning if missing in x_not_v
+    w = c(rowsum(w, group = x_not_v, reorder = FALSE))
   )
 }
 
