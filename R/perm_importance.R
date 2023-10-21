@@ -39,7 +39,7 @@
 #' 
 #' # Groups of features can be passed as named list
 #' v <- list(petal = c("Petal.Length", "Petal.Width"), species = "Species")
-#' s <- perm_importance(fit, X = iris, y = "Sepal.Length", v = v)
+#' s <- perm_importance(fit, X = iris, y = "Sepal.Length", v = v, verbose = FALSE)
 #' s
 #' plot(s)
 #' 
@@ -60,7 +60,7 @@ perm_importance.default <- function(object, X, y, v = NULL,
                                     loss = "squared_error", 
                                     m_rep = 4L, agg_cols = FALSE,
                                     normalize = FALSE, n_max = 10000L,
-                                    w = NULL, verbose = FALSE, ...) {
+                                    w = NULL, verbose = TRUE, ...) {
   stopifnot(
     is.matrix(X) || is.data.frame(X),
     is.function(pred_fun),
@@ -203,7 +203,7 @@ perm_importance.ranger <- function(object, X, y, v = NULL,
                                    loss = "squared_error", m_rep = 4L, 
                                    agg_cols = FALSE, 
                                    normalize = FALSE, n_max = 10000L, 
-                                   w = NULL, verbose = FALSE, ...) {
+                                   w = NULL, verbose = TRUE, ...) {
   perm_importance.default(
     object = object,
     X = X,
@@ -228,7 +228,7 @@ perm_importance.Learner <- function(object, X, y, v = NULL,
                                     loss = "squared_error", m_rep = 4L, 
                                     agg_cols = FALSE, 
                                     normalize = FALSE, n_max = 10000L, 
-                                    w = NULL, verbose = FALSE, ...) {
+                                    w = NULL, verbose = TRUE, ...) {
   if (is.null(pred_fun)) {
     pred_fun <- mlr3_pred_fun(object, X = X)
   }
@@ -262,7 +262,7 @@ perm_importance.explainer <- function(object,
                                       normalize = FALSE,
                                       n_max = 10000L, 
                                       w = object[["weights"]], 
-                                      verbose = FALSE, 
+                                      verbose = TRUE, 
                                       ...) {
   perm_importance.default(
     object = object[["model"]],

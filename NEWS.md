@@ -24,6 +24,7 @@
 - Missing grid values: `partial_dep()` and `ice()` have received a `na.rm` argument that controls if missing values are dropped during grid creation. The default `TRUE` is compatible with earlier releases.
 - Missing values in `hstats()`: Discrete variables with missings would cause `rowsum()` to launch repeated warnings. This case is now catched.
 - The position of some function arguments have changed.
+- `perm_importance()`: The default of `verbose` is `TRUE` again.
 
 # hstats 0.3.0
 
