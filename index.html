@@ -211,11 +211,10 @@
 </h3>
 <p>Let’s calculate different H-statistics via <code><a href="reference/hstats.html">hstats()</a></code>:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># 4 seconds on simple laptop - a random forest will take 2-3 minutes</span></span>
-<span><span class="co"># With quant_approx = 25 (dense features are binned into 25 bins): 1.5 s</span></span>
+<code class="sourceCode R"><span><span class="co"># 4 seconds on simple laptop - a random forest will take 2 minutes</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">782</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/system.time.html" class="external-link">system.time</a></span><span class="op">(</span></span>
-<span>  <span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/hstats.html">hstats</a></span><span class="op">(</span><span class="va">fit</span>, X <span class="op">=</span> <span class="va">X_train</span><span class="op">)</span></span>
+<span>  <span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/hstats.html">hstats</a></span><span class="op">(</span><span class="va">fit</span>, X <span class="op">=</span> <span class="va">X_train</span><span class="op">)</span>  <span class="co">#, approx = TRUE: twice as fast</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">s</span></span>
 <span><span class="co"># H^2 (normalized)</span></span>
