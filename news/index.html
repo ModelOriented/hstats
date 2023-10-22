@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">hstats</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0.1</span>
       </span>
     </div>
 
@@ -48,7 +48,14 @@
     </div>
 
     <div class="section level2">
-<h2 class="page-header" data-toc-text="1.0.0" id="hstats-100">hstats 1.0.0<a class="anchor" aria-label="anchor" href="#hstats-100"></a></h2>
+<h2 class="page-header" data-toc-text="1.0.1" id="hstats-101">hstats 1.0.1<a class="anchor" aria-label="anchor" href="#hstats-101"></a></h2>
+<div class="section level3">
+<h3 id="other-changes-1-0-1">Other changes<a class="anchor" aria-label="anchor" href="#other-changes-1-0-1"></a></h3>
+<ul><li>Add unit tests to compare against {iml}.</li>
+</ul></div>
+</div>
+    <div class="section level2">
+<h2 class="page-header" data-toc-text="1.0.0" id="hstats-100">hstats 1.0.0<small>2023-10-21</small><a class="anchor" aria-label="anchor" href="#hstats-100"></a></h2>
 <div class="section level3">
 <h3 id="major-changes-1-0-0">Major changes<a class="anchor" aria-label="anchor" href="#major-changes-1-0-0"></a></h3>
 <ul><li>Quantile approximation: <code><a href="../reference/hstats.html">hstats()</a></code> now has the option <code>approx = FALSE</code>. Set to <code>TRUE</code> to replace values of dense numeric columns by <code>grid_size = 50</code> quantile midpoints. This will bring a massive speed-up for one-way calculations. Use this option when one-way calculations are slow, or when you want to increase <code>n_max</code>.</li>
