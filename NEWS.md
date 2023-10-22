@@ -1,3 +1,9 @@
+# hstats 1.0.1
+
+## Other changes
+
+- Add unit tests to compare against {iml}.
+
 # hstats 1.0.0
 
 ## Major changes

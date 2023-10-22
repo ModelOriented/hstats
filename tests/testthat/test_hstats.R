@@ -333,33 +333,25 @@ test_that("hstats() does not give an error with missing", {
   expect_equal(rownames(h2_pairwise(r, zero = FALSE)), "x1:x2")
 })
 
-
-# library(gbm)
-#
-# fit <- gbm(Sepal.Length ~ ., data = iris, interaction.depth = 3, bag.fraction = 1)
-# v <- names(iris)[-1]
-# combs <- combn(v, 2, simplify = FALSE)
-# p <- length(combs)
-#
-# res <- setNames(numeric(p), sapply(combs, paste, collapse = ":"))
-# for (i in 1:p) {
-#   res[i] <- interact.gbm(fit, iris, i.var = combs[[i]], n.trees = fit$n.trees)
-# }
-# cbind(res[res > 0.0001])
-# # Sepal.Width:Petal.Length 0.10982072
-# # Sepal.Width:Petal.Width  0.17932506
-# # Sepal.Width:Species      0.21480383
-# # Petal.Length:Petal.Width 0.03702921
-# # Petal.Length:Species     0.06382609
-#
-# # Crunching
-# system.time( # 0.3 s
-#   s <- hstats(fit, v = v, X = iris, n.trees = fit$n.trees)
-# )
-# h2_pairwise(s, squared = FALSE, sort = FALSE)
-# # Sepal.Width:Petal.Length 0.10532810
-# # Sepal.Width:Petal.Width  0.16697609
-# # Sepal.Width:Species      0.17335494
-# # Petal.Length:Petal.Width 0.03245863
-# # Petal.Length:Species     0.06678683
-#
+test_that("hstats() matches {iml} 0.11.1 in a specific case", {
+  fit <- lm(Sepal.Width ~ . + Sepal.Length:Species, data = iris)
+  
+  # library(iml)
+  # mod <- Predictor$new(fit, data = iris[-2L])
+  # iml_overall <- Interaction$new(mod, grid.size = 150)
+  # Sepal.Length: 0.4634029
+  # iml_pairwise <- Interaction$new(mod, grid.size = 150, feature = "Species")
+  # Sepal.Length:Species 0.2624154
+  
+  H <- hstats(fit, X = iris[-2L], verbose = FALSE)
+  expect_equal(
+    c(h2_overall(H, squared = FALSE)["Sepal.Length", ]$M), 
+    0.4634029, 
+    tolerance = 1e-5
+  )
+  expect_equal(
+    c(h2_pairwise(H, squared = FALSE)["Sepal.Length:Species", ]$M), 
+    0.2624154,
+    tolerance = 1e-5
+  )
+})

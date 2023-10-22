@@ -160,9 +160,12 @@ X_v500 <- X_valid[1:500, ]
 mod500 <- Predictor$new(fit, data = as.data.frame(X_v500), predict.function = predf)
 fl500 <- flashlight(fl, data = as.data.frame(valid[1:500, ]))
 
-# iml  # 90 s (no pairwise possible)
-system.time(
+# iml  # 225s total, using slow exact calculations
+system.time(  # 90s
   iml_overall <- Interaction$new(mod500, grid.size = 500)
+)
+system.time(  # 135s for all combinations of latitude
+  iml_pairwise <- Interaction$new(mod500, grid.size = 500, feature = "latitude")
 )
 
 # flashlight: 14s total, doing only one pairwise calculation, otherwise would take 63s
@@ -199,6 +202,10 @@ hstats_overall
 # 0.2458269 0.2458269 
 
 # Pairwise results match as well
+iml_pairwise$results |> filter(.interaction > 1e-6)
+#              .feature .interaction
+# 1: longitude:latitude    0.3942526
+
 fl_pairwise$data |> subset(value > 0, select = c(variable, value))
 # latitude:longitude 0.394
 

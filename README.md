@@ -39,7 +39,7 @@ The core functions `hstats()`, `partial_dep()`, `ice()`, `perm_importance()`, an
 {hstats} is not the first R package to explore interactions. Here is an incomplete selection:
 
 - [{gbm}](https://CRAN.R-project.org/package=gbm): Implementation of m-wise interaction statistics of [1] for {gbm} models using the weighted tree-traversal method of [2] to estimate partial dependence functions.
-- [{iml}](https://CRAN.R-project.org/package=iml): Variant of pairwise interaction statistics of [1].
+- [{iml}](https://CRAN.R-project.org/package=iml): Implementation of overall and pairwise H-statistics.
 - [{EIX}](https://CRAN.R-project.org/package=EIX): Interaction statistics extracted from the tree structure of XGBoost and LightGBM.
 - [{randomForestExplainer}](https://CRAN.R-project.org/package=randomForestExplainer): Interaction statistics extracted from the tree structure of random forests.
 - [{vivid}](https://CRAN.R-project.org/package=vivid): Cool visualization of interaction patterns. Partly based on {flashlight}.
