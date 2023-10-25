@@ -121,7 +121,7 @@ $$
   F_{jk}(x_j, x_k) = F_j(x_j)+ F_k(x_k).
 $$
 Correspondingly, Friedman and Popescu's statistic of pairwise
-interaction strength is defined as
+interaction strength between \(x_j\) and \(x_k\) is defined as
 $$
   H_{jk}^2 = \frac{A_{jk}}{\frac{1}{n} \sum_{i = 1}^n\big[\hat F_{jk}(x_{ij}, x_{ik})\big]^2},
 $$
@@ -146,8 +146,8 @@ and to overcome the problem mentioned in the last remark, we suggest as alternat
 the unnormalized test statistic on the scale of the predictions,
 i.e., \(\sqrt{A_{jk}}\). Set <code>normalize = FALSE</code> and <code>squared = FALSE</code> to obtain
 this statistic.
-Furthermore, we do pairwise calculations not for the most <em>important</em> features but
-rather for those features with <em>strongest overall interactions</em>.</p>
+Furthermore, instead of focusing on pairwise calculations for the most <em>important</em>
+features, we can select features with <em>strongest overall interactions</em>.</p>
     </div>
     <div id="methods-by-class-">
     <h2>Methods (by class)</h2>
