@@ -47,6 +47,13 @@ wrowmean <- function(x, ngroups = 1L, w = NULL) {
   rownames(out) <- NULL
   out
 }
+# wrowmean <- function(x, ngroups, w = NULL) {
+#   n_bg <- NROW(x) %/% ngroups
+#   if (!is.null(w)) {
+#     w <- rep(w, times = ngroups)
+#   }
+#   collapse::fmean(x, g = rep(seq_len(ngroups), each = n_bg), w = w)
+# }
 
 #' Weighted Version of colMeans()
 #' 
