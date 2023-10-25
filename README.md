@@ -446,7 +446,7 @@ set.seed(1)
 task_iris <- TaskClassif$new(id = "class", backend = iris, target = "Species")
 fit_rf <- lrn("classif.ranger", predict_type = "prob")
 fit_rf$train(task_iris)
-s <- hstats(fit_rf, X = iris[-5], threeway_m = 0)
+s <- hstats(fit_rf, X = iris[-5])
 plot(s)
 
 # Permutation importance
