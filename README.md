@@ -456,6 +456,8 @@ perm_importance(fit_rf, X = iris, y = "Species", loss = "mlogloss") |>
 
 ## Background
 
+In [1], Friedman and Popescu introduced different statistics to measure interaction strength based on partial dependence functions. Closely following their notation, we will summarize the main ideas.
+
 ### Partial dependence
 
 Let $F: R^p \to R$ denote the prediction function that maps the $p$-dimensional feature vector $\boldsymbol x = (x_1, \dots, x_p)$ to its prediction.
@@ -473,11 +475,7 @@ A partial dependence plot (PDP) plots the values of $\hat F_s(\boldsymbol x_s)$
 over a grid of evaluation points $\boldsymbol x_s$. Its disaggregated version is called
 *individual conditional expectation* (ICE), see [7].
 
-### Interactions
-
-#### Overall interaction strength
-
-In [1], Friedman and Popescu introduced different statistics to measure interaction strength. Closely following their notation, we will summarize the main ideas. 
+### Overall interaction strength
 
 If there are no interactions involving $x_j$, we can decompose the prediction function $F$ into the sum of the partial dependence $F_j$ on $x_j$ and the partial dependence $F_{\setminus j}$ on all other features $\boldsymbol x_{\setminus j}$, i.e.,
 
@@ -485,7 +483,7 @@ $$
 	F(\boldsymbol x) = F_j(x_j) + F_{\setminus j}(\boldsymbol x_{\setminus j}).
 $$
 
-Correspondingly, Friedman and Popescu's statistic of overall interaction strength is given by
+Correspondingly, Friedman and Popescu's statistic of overall interaction strength of $x_j$ is given by
 
 $$
 	H_{j}^2 = \frac{\frac{1}{n} \sum_{i = 1}^n\big[F(\boldsymbol x_i) - \hat F_j(x_{ij}) - \hat F_{\setminus j}(\boldsymbol x_{i\setminus j})\big]^2}{\frac{1}{n} \sum_{i = 1}^n\big[F(\boldsymbol x_i)\big]^2}.
@@ -501,7 +499,7 @@ $$
 6. $H^2_j = 0$ means there are no interactions associated with $x_j$. The higher the value, the more prediction variability comes from interactions with $x_j$.
 7. Since the denominator is the same for all features, the values of the test statistics can be compared across features.
 
-#### Pairwise interaction strength
+### Pairwise interaction strength
 
 Again following [1], if there are no interaction effects between features $x_j$ and $x_k$, their two-dimensional partial dependence function $F_{jk}$ can be written as the sum of the univariate partial dependencies, i.e.,
 
@@ -509,7 +507,7 @@ $$
   F_{jk}(x_j, x_k) = F_j(x_j) + F_k(x_k).
 $$
 
-Correspondingly, Friedman and Popescu's statistic of pairwise interaction strength is defined as
+Correspondingly, Friedman and Popescu's statistic of pairwise interaction strength between $x_j$ and $x_k$ is defined as
 
 $$
   H_{jk}^2 = \frac{A_{jk}}{\frac{1}{n} \sum_{i = 1}^n\big[\hat F_{jk}(x_{ij}, x_{ik})\big]^2}
@@ -531,9 +529,9 @@ $$
 
 To be better able to compare pairwise interaction strength across variable pairs, and to overcome the problem mentioned in the last remark, we suggest as alternative the unnormalized test statistic on the scale of the predictions, i.e., $\sqrt{A_{jk}}$. 
 
-Furthermore, we do pairwise calculations not for the most *important* features but rather for those features with *strongest overall interactions*.
+Furthermore, instead of focusing on pairwise calculations for the most *important* features, we can select features with *strongest overall interactions.
 
-#### Three-way interactions
+### Three-way interactions
 
 [1] also describes a test statistic to measure three-way interactions: in case there are no three-way interactions between features $x_j$, $x_k$ and $x_l$, their three-dimensional partial dependence function $F_{jkl}$ can be decomposed into lower order terms:
 
@@ -573,7 +571,7 @@ $$
 
 Similar remarks as for $H^2_{jk}$ apply.
 
-#### Total interaction strength of all variables together
+### Total interaction strength of all variables together
 
 If the model is additive in all features (no interactions), then
 
@@ -593,7 +591,7 @@ A value of 0 means there are no interaction effects at all. Due to (typically un
 
 In [5], $1 - H^2$ is called *additivity index*. A similar measure using accumulated local effects is discussed in [6].
 
-#### Workflow
+### Workflow
 
 Calculation of all $H_j^2$ requires $O(n^2 p)$ predictions, while calculating of all pairwise $H_{jk}$ requires $O(n^2 p^2$ predictions. Therefore, we suggest to reduce the workflow in two important ways:
 
@@ -619,7 +617,6 @@ $$
 $$
 
 It differs from $H^2_j$ only by not subtracting the main effect of the $j$-th feature in the numerator. It can be read as the proportion of prediction variability unexplained by all other features. As such, it measures variable importance of the $j$-th feature, including its interaction effects.
-
 
 ## References
 
