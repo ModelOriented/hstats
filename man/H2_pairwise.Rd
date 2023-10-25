@@ -59,7 +59,7 @@ dependencies \eqn{F_j} and \eqn{F_k}, i.e.,
   F_{jk}(x_j, x_k) = F_j(x_j)+ F_k(x_k).
 }
 Correspondingly, Friedman and Popescu's statistic of pairwise
-interaction strength is defined as
+interaction strength between \eqn{x_j} and \eqn{x_k} is defined as
 \deqn{
   H_{jk}^2 = \frac{A_{jk}}{\frac{1}{n} \sum_{i = 1}^n\big[\hat F_{jk}(x_{ij}, x_{ik})\big]^2},
 }
@@ -90,8 +90,8 @@ and to overcome the problem mentioned in the last remark, we suggest as alternat
 the unnormalized test statistic on the scale of the predictions,
 i.e., \eqn{\sqrt{A_{jk}}}. Set \code{normalize = FALSE} and \code{squared = FALSE} to obtain
 this statistic.
-Furthermore, we do pairwise calculations not for the most \emph{important} features but
-rather for those features with \emph{strongest overall interactions}.
+Furthermore, instead of focusing on pairwise calculations for the most \emph{important}
+features, we can select features with \emph{strongest overall interactions}.
 }
 \section{Methods (by class)}{
 \itemize{
