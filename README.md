@@ -529,7 +529,7 @@ $$
 
 To be better able to compare pairwise interaction strength across variable pairs, and to overcome the problem mentioned in the last remark, we suggest as alternative the unnormalized test statistic on the scale of the predictions, i.e., $\sqrt{A_{jk}}$. 
 
-Furthermore, instead of focusing on pairwise calculations for the most *important* features, we can select features with *strongest overall interactions.
+Furthermore, instead of focusing on pairwise calculations for the most *important* features, we can select features with *strongest overall interactions*.
 
 ### Three-way interactions
 
