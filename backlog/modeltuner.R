@@ -1,4 +1,3 @@
-devtools::install_github("mayer79/hstats")  # -> will become release 1.0.0
 library(hstats)
 library(modeltuner)
 
