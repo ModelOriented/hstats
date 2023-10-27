@@ -111,16 +111,16 @@ microbenchmark(
   iml = FeatureImp$new(mod, n.repetitions = 10, loss = "mse", compare = "difference"),
   dalex = feature_importance(ex, B = 10, type = "difference", n_sample = Inf),
   flashlight = light_importance(fl, v = x, n_max = Inf, m_repetitions = 10),
-  hstats = perm_importance(fit, X = X_valid, y = y_valid, perms = 10),
+  hstats = perm_importance(fit, X = X_valid, y = y_valid, m_rep = 10, verbose = FALSE),
   times = 4
 )
-# 
+ 
 # Unit: milliseconds
 # expr             min        lq      mean    median        uq       max neval  cld
-# iml        1558.3352 1585.3964 1651.9098 1625.5042 1718.4233 1798.2958     4 a   
-# dalex       556.1398  573.8428  594.5660  592.1752  615.2893  637.7739     4  b  
-# flashlight 1207.8085 1238.2424 1347.5105 1340.0633 1456.7787 1502.1071     4   c 
-# hstats      146.0656  146.9564  151.3652  149.4352  155.7741  160.5249     4    d
+# iml        1532.8545 1535.5962 1578.6838 1538.3425 1621.7713 1705.1956     4 a  
+# dalex       599.6996  623.6306  673.3109  660.4653  722.9913  772.6134     4  b 
+# flashlight  602.7707  619.6451  670.2922  639.5598  720.9393  799.2784     4  b 
+# hstats      379.4195  381.1585  414.5308  410.3719  447.9031  457.9601     4   c
 
 # Partial dependence (cont)
 v <- "tot_lvg_area"
@@ -184,6 +184,11 @@ system.time({
   hstats_overall <- h2_overall(H, squared = FALSE, zero = FALSE)
   hstats_pairwise <- h2_pairwise(H, squared = FALSE, zero = FALSE)
 }
+)
+
+# Using 50 quantiles to approximate dense numerics: 0.8s
+system.time(
+  H_approx <- hstats(fit, v = x, X = X_v500, n_max = Inf, approx = TRUE)
 )
 
 # Overall statistics correspond exactly
