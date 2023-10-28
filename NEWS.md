@@ -1,8 +1,12 @@
 # hstats 1.0.1
 
+## Enhancements
+
+- The plot method of a two-dimensional PDP has recieved the option `d2_geom = "line"`. Instead of a heatmap of the two features, one of the features is moved to color grouping. This might give a better impression where the interaction happens. Combined with `swap_dim = TRUE`, you can swap the role of the two `v` variables without recalculating anything. The idea was proposed by [Roel Verbelen](https://github.com/RoelVerbelen) in [issue #91](https://github.com/mayer79/hstats/issues/91), see also [issue #94](https://github.com/mayer79/hstats/issues/94).
+
 ## Bug fixes
 
-- Using `BY` and `w` via column names would fail for tibbles. This problem was described in [#92](https://github.com/mayer79/hstats/issues/92) by @RoelVerbelen. Thx!
+- Using `BY` and `w` via column names would fail for tibbles. This problem was described in [#92](https://github.com/mayer79/hstats/issues/92) by [Roel Verbelen](https://github.com/RoelVerbelen). Thx!
 
 ## Other changes
 

@@ -192,19 +192,25 @@ pd <- partial_dep(fit, v = "Species", X = iris, BY = "Petal.Length")
 plot(pd)
 
 # Multivariable input
-v <- c("Species", "Petal.Width")
+v <- c("Species", "Petal.Length")
 pd <- partial_dep(fit, v = v, X = iris, grid_size = 100L)
 plot(pd, rotate_x = TRUE)
+plot(pd, d2_geom = "line")  # often better to read
 
 # With grouping
-pd <- partial_dep(fit, v = v, X = iris, grid_size = 100L, BY = "Petal.Length")
+pd <- partial_dep(fit, v = v, X = iris, grid_size = 100L, BY = "Petal.Width")
 plot(pd, rotate_x = TRUE)
+plot(pd, rotate_x = TRUE, d2_geom = "line")
+plot(pd, rotate_x = TRUE, d2_geom = "line", swap_dim = TRUE)
 
 # MODEL 2: Multi-response linear regression
 fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
 pd <- partial_dep(fit, v = "Petal.Width", X = iris, BY = "Species")
 plot(pd, show_points = FALSE)
-plot(partial_dep(fit, v = c("Species", "Petal.Width"), X = iris), rotate_x = TRUE)
+pd <- partial_dep(fit, v = c("Species", "Petal.Width"), X = iris)
+plot(pd, rotate_x = TRUE)
+plot(pd, d2_geom = "line", rotate_x = TRUE)
+plot(pd, d2_geom = "line", rotate_x = TRUE, swap_dim = TRUE)
 
 # Multivariate, multivariable, and BY (no plot available)
 pd <- partial_dep(

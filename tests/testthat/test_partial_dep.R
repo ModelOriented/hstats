@@ -206,7 +206,6 @@ test_that("partial_dep() reacts on trim", {
     fit1, 
     v = "Sepal.Width", 
     X = iris, 
-    plot = FALSE, 
     strategy = "q", 
     trim = c(0.2, 0.8),
     grid_size = 5L
@@ -215,7 +214,6 @@ test_that("partial_dep() reacts on trim", {
     fit1, 
     v = "Sepal.Width", 
     X = iris, 
-    plot = FALSE, 
     strategy = "q",
     trim = 0:1, 
     grid_size = 5L,
@@ -298,19 +296,25 @@ test_that("Plots give 'ggplot' objects", {
   v <- c("Petal.Length", "Petal.Width")
   pd <- partial_dep(fit, v = v, X = iris)
   expect_s3_class(plot(pd), "ggplot")
+  expect_s3_class(plot(pd, d2_geom = "point"), "ggplot")
+  expect_s3_class(plot(pd, d2_geom = "line"), "ggplot")
+  expect_s3_class(plot(pd, d2_geom = "line", swap_dim = TRUE), "ggplot")
   
   # Two v, no by, univariate, prespecified grid
   g <- unique(iris[v])
   pd <- partial_dep(fit, v = v, X = iris, grid = g)
   expect_s3_class(plot(pd, d2_geom = "point"), "ggplot")
+  expect_s3_class(plot(pd, d2_geom = "line", show_points = FALSE), "ggplot")
   
   # Two v, with by, univariate
   pd <- partial_dep(fit, v = v, X = iris, BY = "Species")
   expect_s3_class(plot(pd), "ggplot")
+  expect_s3_class(plot(pd, d2_geom = "line"), "ggplot")
   
   # Two v, with by, univariate, prespecified grid
   pd <- partial_dep(fit, v = v, X = iris, BY = "Species", grid = g)
   expect_s3_class(plot(pd, d2_geom = "point"), "ggplot")
+  expect_s3_class(plot(pd, d2_geom = "line", show_points = FALSE), "ggplot")
   
   # Three v gives error
   pd <- partial_dep(fit, v = c(v, "Species"), X = iris)
@@ -332,10 +336,15 @@ test_that("Plots give 'ggplot' objects", {
   # Two v, no by, multivariate
   pd <- partial_dep(fit, v = v, X = iris)
   expect_s3_class(plot(pd, rotate_x = TRUE), "ggplot")
+  expect_s3_class(plot(pd, d2_geom = "line"), "ggplot")
+  expect_s3_class(plot(pd, d2_geom = "line", swap_dim = TRUE), "ggplot")
   
   # Two v, no by, multivariate, prespecified grid
   pd <- partial_dep(fit, v = v, X = iris, grid = g)
   expect_s3_class(plot(pd, d2_geom = "point", alpha = 0.5), "ggplot")
+  expect_s3_class(
+    plot(pd, d2_geom = "line", alpha = 0.5, show_points = FALSE), "ggplot"
+  )
   
   # Two v, with by, multivariate gives error
   pd <- partial_dep(fit, v = v, X = iris, BY = "Petal.Width")
