@@ -401,3 +401,4 @@ test_that("perm_importance() works with missing values", {
   )
   expect_true(r$M[1L] > 0 && all(r$M[2:3] == 0))
 })
+

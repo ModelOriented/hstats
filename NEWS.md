@@ -1,5 +1,9 @@
 # hstats 1.0.1
 
+## Bug fixes
+
+- Using `BY` and `w` via column names would fail for tibbles. This problem was described in [#92](https://github.com/mayer79/hstats/issues/92) by @RoelVerbelen. Thx!
+
 ## Other changes
 
 - Add unit tests to compare against {iml}.
