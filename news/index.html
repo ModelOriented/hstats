@@ -50,8 +50,12 @@
     <div class="section level2">
 <h2 class="page-header" data-toc-text="1.0.1" id="hstats-101">hstats 1.0.1<a class="anchor" aria-label="anchor" href="#hstats-101"></a></h2>
 <div class="section level3">
+<h3 id="enhancements-1-0-1">Enhancements<a class="anchor" aria-label="anchor" href="#enhancements-1-0-1"></a></h3>
+<ul><li>The plot method of a two-dimensional PDP has recieved the option <code>d2_geom = "line"</code>. Instead of a heatmap of the two features, one of the features is moved to color grouping. This might give a better impression where the interaction happens. Combined with <code>swap_dim = TRUE</code>, you can swap the role of the two <code>v</code> variables without recalculating anything. The idea was proposed by <a href="https://github.com/RoelVerbelen" class="external-link">Roel Verbelen</a> in <a href="https://github.com/mayer79/hstats/issues/91" class="external-link">issue </a><a href="https://github.com/mayer79/hstats/issues/91" class="external-link">#91</a>, see also <a href="https://github.com/mayer79/hstats/issues/94" class="external-link">issue </a><a href="https://github.com/mayer79/hstats/issues/94" class="external-link">#94</a>.</li>
+</ul></div>
+<div class="section level3">
 <h3 id="bug-fixes-1-0-1">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-1-0-1"></a></h3>
-<ul><li>Using <code>BY</code> and <code>w</code> via column names would fail for tibbles. This problem was described in <a href="https://github.com/mayer79/hstats/issues/92" class="external-link">#92</a> by <a href="https://github.com/RoelVerbelen" class="external-link">@RoelVerbelen</a>. Thx!</li>
+<ul><li>Using <code>BY</code> and <code>w</code> via column names would fail for tibbles. This problem was described in <a href="https://github.com/mayer79/hstats/issues/92" class="external-link">#92</a> by <a href="https://github.com/RoelVerbelen" class="external-link">Roel Verbelen</a>. Thx!</li>
 </ul></div>
 <div class="section level3">
 <h3 id="other-changes-1-0-1">Other changes<a class="anchor" aria-label="anchor" href="#other-changes-1-0-1"></a></h3>

@@ -252,7 +252,7 @@
 <p>Let’s study different plots to understand <em>how</em> the strong interaction between distance to the ocean and age looks like. We will check the following three visualizations.</p>
 <ol style="list-style-type: decimal">
 <li>Stratified PDP</li>
-<li>Two-dimensional PDP</li>
+<li>Two-dimensional PDP (once as heatmap, once by representing the second variable on the color scale)</li>
 <li>Centered ICE plot with colors</li>
 </ol>
 <p>They all reveal a substantial interaction between the two variables in the sense that the age effect gets weaker the closer to the ocean. Note that numeric <code>BY</code> features are automatically binned into quartile groups.</p>
@@ -261,8 +261,9 @@
 <p><img src="reference/figures/pdp_ocean_age.svg"></p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pd</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/partial_dep.html">partial_dep</a></span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age"</span>, <span class="st">"log_ocean"</span><span class="op">)</span>, X <span class="op">=</span> <span class="va">X_train</span>, grid_size <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pd</span><span class="op">)</span></span></code></pre></div>
-<p><img src="reference/figures/pdp_2d.png"></p>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pd</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pd</span>, d2_geom <span class="op">=</span> <span class="st">"line"</span>, show_points <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<p><img src="reference/figures/pdp_2d.svg"><img src="reference/figures/pdp_2d_line.svg"></p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ic</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/ice.html">ice</a></span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="st">"age"</span>, X <span class="op">=</span> <span class="va">X_train</span>, BY <span class="op">=</span> <span class="st">"log_ocean"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">ic</span>, center <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>

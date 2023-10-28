@@ -64,7 +64,7 @@ heatmaps.</p>
 <span>  facet_scales <span class="op">=</span> <span class="st">"fixed"</span>,</span>
 <span>  rotate_x <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  show_points <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  d2_geom <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"tile"</span>, <span class="st">"point"</span><span class="op">)</span>,</span>
+<span>  d2_geom <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"tile"</span>, <span class="st">"point"</span>, <span class="st">"line"</span><span class="op">)</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -82,7 +82,9 @@ To change the global option, use <code>options(stats.color = new value)</code>.<
 
 
 <dt>swap_dim</dt>
-<dd><p>Switches the role of grouping and facetting (default is <code>FALSE</code>).</p></dd>
+<dd><p>Switches the role of grouping and facetting (default is <code>FALSE</code>).
+Exception: For the 2D PDP with <code>d2_geom = "line"</code>, it swaps the role of the two
+variables in <code>v</code>.</p></dd>
 
 
 <dt>viridis_args</dt>
@@ -108,8 +110,9 @@ No effect for 2D PDPs.</p></dd>
 
 
 <dt>d2_geom</dt>
-<dd><p>The geometry used for 2D PDPs, by default "tile". The other option is
-"point", which is useful, e.g., when the grid represents spatial points.</p></dd>
+<dd><p>The geometry used for 2D PDPs, by default "tile". Option "point"
+is useful, e.g., when the grid represents spatial points. Option "line" produces
+lines grouped by the second variable.</p></dd>
 
 
 <dt>...</dt>
