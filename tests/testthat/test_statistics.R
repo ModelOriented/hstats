@@ -85,7 +85,9 @@ test_that(".zap_small() works for matrix input", {
 fit <- lm(cbind(up = uptake, up2 = 2 * uptake) ~ Type * Treatment * conc, data = CO2)
 H <- hstats(fit, X = CO2[2:4], verbose = FALSE)
 s <- h2_pairwise(H)
-imp <- perm_importance(fit, CO2, v = c("Type", "Treatment", "conc"), y = "uptake")
+imp <- perm_importance(
+  fit, CO2, v = c("Type", "Treatment", "conc"), y = "uptake", verbose = FALSE
+)
 
 test_that("print() method does not give error", {
   capture_output(expect_no_error(print(s)))
@@ -123,7 +125,7 @@ test_that("subsetting works", {
 
 fit <- lm(uptake ~ Type * Treatment * conc, data = CO2)
 set.seed(1L)
-s <- perm_importance(fit, X = CO2[2:4], y = CO2$uptake)
+s <- perm_importance(fit, X = CO2[2:4], y = CO2$uptake, verbose = FALSE)
 
 test_that("print() method does not give error", {
   capture_output(expect_no_error(print(s)))

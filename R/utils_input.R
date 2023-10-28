@@ -12,7 +12,11 @@
 prepare_by <- function(BY, X, by_size) {
   if (length(BY) == 1L && BY %in% colnames(X)) {
     by_name <- BY
-    BY <- X[, by_name]
+    if (is.data.frame(X)) {
+      BY <- X[[by_name]]
+    } else {
+      BY <- X[, by_name]
+    }
   } else {
     stopifnot(
       NCOL(BY) == 1L,
@@ -44,7 +48,11 @@ prepare_by <- function(BY, X, by_size) {
 prepare_w <- function(w, X) {
   if (length(w) == 1L && w %in% colnames(X)) {
     w_name <- w
-    w <- X[, w]
+    if (is.data.frame(X)) {
+      w <- X[[w]]
+    } else {
+      w <- X[, w]
+    }
   } else {
     stopifnot(
       NCOL(w) == 1L,
@@ -69,7 +77,11 @@ prepare_w <- function(w, X) {
 prepare_y <- function(y, X) {
   if (NROW(y) < nrow(X) && all(y %in% colnames(X))) {
     y_names <- y
-    y <- X[, y]
+    if (is.data.frame(X) && length(y) == 1L) {
+      y <- X[[y]]
+    } else {
+      y <- X[, y]
+    }
   } else {
     stopifnot(NROW(y) == nrow(X))
     y_names <- NULL
