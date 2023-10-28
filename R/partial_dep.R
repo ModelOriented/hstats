@@ -66,19 +66,25 @@
 #' plot(pd)
 #' 
 #' # Multivariable input
-#' v <- c("Species", "Petal.Width")
+#' v <- c("Species", "Petal.Length")
 #' pd <- partial_dep(fit, v = v, X = iris, grid_size = 100L)
 #' plot(pd, rotate_x = TRUE)
+#' plot(pd, d2_geom = "line")  # often better to read
 #' 
 #' # With grouping
-#' pd <- partial_dep(fit, v = v, X = iris, grid_size = 100L, BY = "Petal.Length")
+#' pd <- partial_dep(fit, v = v, X = iris, grid_size = 100L, BY = "Petal.Width")
 #' plot(pd, rotate_x = TRUE)
+#' plot(pd, rotate_x = TRUE, d2_geom = "line")
+#' plot(pd, rotate_x = TRUE, d2_geom = "line", swap_dim = TRUE)
 #' 
 #' # MODEL 2: Multi-response linear regression
 #' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
 #' pd <- partial_dep(fit, v = "Petal.Width", X = iris, BY = "Species")
 #' plot(pd, show_points = FALSE)
-#' plot(partial_dep(fit, v = c("Species", "Petal.Width"), X = iris), rotate_x = TRUE)
+#' pd <- partial_dep(fit, v = c("Species", "Petal.Width"), X = iris)
+#' plot(pd, rotate_x = TRUE)
+#' plot(pd, d2_geom = "line", rotate_x = TRUE)
+#' plot(pd, d2_geom = "line", rotate_x = TRUE, swap_dim = TRUE)
 #' 
 #' # Multivariate, multivariable, and BY (no plot available)
 #' pd <- partial_dep(
@@ -286,10 +292,14 @@ print.partial_dep <- function(x, n = 3L, ...) {
 #' @param color Color of lines and points (in case there is no color/fill aesthetic).
 #'   The default equals the global option `hstats.color = "#3b528b"`. 
 #'   To change the global option, use `options(stats.color = new value)`.
+#' @param swap_dim Switches the role of grouping and facetting (default is `FALSE`).
+#'   Exception: For the 2D PDP with `d2_geom = "line"`, it swaps the role of the two
+#'   variables in `v`.
 #' @param show_points Logical flag indicating whether to show points (default) or not.
 #'   No effect for 2D PDPs.
-#' @param d2_geom The geometry used for 2D PDPs, by default "tile". The other option is
-#'   "point", which is useful, e.g., when the grid represents spatial points.
+#' @param d2_geom The geometry used for 2D PDPs, by default "tile". Option "point"
+#'   is useful, e.g., when the grid represents spatial points. Option "line" produces
+#'   lines grouped by the second variable.
 #' @param ... Arguments passed to geometries.
 #' @inheritParams plot.hstats_matrix
 #' @export
@@ -301,14 +311,15 @@ plot.partial_dep <- function(x,
                              viridis_args = getOption("hstats.viridis_args"),
                              facet_scales = "fixed",
                              rotate_x = FALSE, show_points = TRUE, 
-                             d2_geom = c("tile", "point"), ...) {
+                             d2_geom = c("tile", "point", "line"), ...) {
+  d2_geom <- match.arg(d2_geom)
   v <- x[["v"]]
   by_name <- x[["by_name"]]
   K <- x[["K"]]
   if (length(v) > 2L) {
     stop("Maximal two features can be plotted.")
   }
-  if ((K > 1L) + (!is.null(by_name)) + length(v) > 3L) {
+  if (((K > 1L) + (!is.null(by_name)) + length(v)) > 3L) {
     stop("No plot implemented for this case.")
   }
   if (is.null(viridis_args)) {
@@ -317,16 +328,31 @@ plot.partial_dep <- function(x,
   
   data <- with(x, poor_man_stack(data, to_stack = pred_names))
 
-  wrp <- NULL
-  if (length(v) == 1L) {
+  if (length(v) == 2L && (K > 1L || !is.null(by_name))) {  # Only one is possible
+    wrp <- if (K > 1L) "varying_" else by_name
+  } else {
+    wrp <- NULL
+  }
+  if (length(v) == 1L || d2_geom == "line") {
     # Line plots
-    grp <- if (is.null(by_name) && K > 1L) "varying_" else by_name  # can be NULL
-    wrp <- if (!is.null(by_name) && K > 1L) "varying_"
-    if (swap_dim) {
-      tmp <- grp
-      grp <- wrp
-      wrp <- tmp
+    
+    # Determine the role of x axis, color axis and facetting
+    if (length(v) == 1L) {
+      grp <- if (is.null(by_name) && K > 1L) "varying_" else by_name  # can be NULL
+      wrp <- if (!is.null(by_name) && K > 1L) "varying_"
+      if (swap_dim) {
+        tmp <- grp
+        grp <- wrp
+        wrp <- tmp
+      }
+    } else {  # length(v) == 2
+      if (swap_dim) {
+        v <- rev(v)
+      }
+      grp <- v[2L]
+      v <- v[1L]
     }
+
     p <- ggplot2::ggplot(data, ggplot2::aes(x = .data[[v]], y = value_)) +
       ggplot2::labs(x = v, y = "PD")
 
@@ -352,11 +378,7 @@ plot.partial_dep <- function(x,
       }
     }
   } else if (length(v) == 2L) {
-    # Heat maps
-    d2_geom <- match.arg(d2_geom)
-    if (K > 1L || !is.null(by_name)) {  # Only one is possible
-      wrp <- if (K > 1L) "varying_" else by_name
-    }
+    # Heat maps ("tile" or "point", "line" has been treated above)
     p <- ggplot2::ggplot(data, ggplot2::aes(x = .data[[v[1L]]], y = .data[[v[2L]]]))
     if (d2_geom == "tile") {
       p <- p + ggplot2::geom_tile(ggplot2::aes(fill = value_), ...) +

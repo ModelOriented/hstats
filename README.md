@@ -146,7 +146,7 @@ Note: {hstats} can crunch **three-way** interaction statistics $H^2_{jkl}$ as we
 Let's study different plots to understand *how* the strong interaction between distance to the ocean and age looks like. We will check the following three visualizations.
 
 1. Stratified PDP
-2. Two-dimensional PDP
+2. Two-dimensional PDP (once as heatmap, once by representing the second variable on the color scale)
 3. Centered ICE plot with colors
 
 They all reveal a substantial interaction between the two variables in the sense that the age effect gets weaker the closer to the ocean. Note that numeric `BY` features are automatically binned into quartile groups.
@@ -160,9 +160,11 @@ plot(partial_dep(fit, v = "age", X = X_train, BY = "log_ocean"), show_points = F
 ```r
 pd <- partial_dep(fit, v = c("age", "log_ocean"), X = X_train, grid_size = 1000)
 plot(pd)
+plot(pd, d2_geom = "line", show_points = FALSE)
 ```
 
-![](man/figures/pdp_2d.png)
+![](man/figures/pdp_2d.svg)
+![](man/figures/pdp_2d_line.svg)
 
 ```r
 ic <- ice(fit, v = "age", X = X_train, BY = "log_ocean")

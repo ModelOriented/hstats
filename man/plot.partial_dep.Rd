@@ -12,7 +12,7 @@
   facet_scales = "fixed",
   rotate_x = FALSE,
   show_points = TRUE,
-  d2_geom = c("tile", "point"),
+  d2_geom = c("tile", "point", "line"),
   ...
 )
 }
@@ -23,7 +23,9 @@
 The default equals the global option \code{hstats.color = "#3b528b"}.
 To change the global option, use \verb{options(stats.color = new value)}.}
 
-\item{swap_dim}{Switches the role of grouping and facetting (default is \code{FALSE}).}
+\item{swap_dim}{Switches the role of grouping and facetting (default is \code{FALSE}).
+Exception: For the 2D PDP with \code{d2_geom = "line"}, it swaps the role of the two
+variables in \code{v}.}
 
 \item{viridis_args}{List of viridis color scale arguments, see
 \verb{[ggplot2::scale_color_viridis_d()]}.
@@ -39,8 +41,9 @@ E.g., to switch to a standard viridis scale, you can change the default via
 \item{show_points}{Logical flag indicating whether to show points (default) or not.
 No effect for 2D PDPs.}
 
-\item{d2_geom}{The geometry used for 2D PDPs, by default "tile". The other option is
-"point", which is useful, e.g., when the grid represents spatial points.}
+\item{d2_geom}{The geometry used for 2D PDPs, by default "tile". Option "point"
+is useful, e.g., when the grid represents spatial points. Option "line" produces
+lines grouped by the second variable.}
 
 \item{...}{Arguments passed to geometries.}
 }
