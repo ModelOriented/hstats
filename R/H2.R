@@ -40,17 +40,17 @@
 #' @examples
 #' # MODEL 1: Linear regression
 #' fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
-#' s <- hstats(fit, X = iris[-1])
+#' s <- hstats(fit, X = iris[, -1])
 #' h2(s)
 #' 
 #' # MODEL 2: Multi-response linear regression
-#' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
-#' s <- hstats(fit, X = iris[3:5])
+#' fit <- lm(as.matrix(iris[, 1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
+#' s <- hstats(fit, X = iris[, 3:5])
 #' h2(s)
 #' 
 #' # MODEL 3: No interactions
 #' fit <- lm(Sepal.Length ~ ., data = iris)
-#' s <- hstats(fit, X = iris[-1], verbose = FALSE)
+#' s <- hstats(fit, X = iris[, -1], verbose = FALSE)
 #' h2(s)
 h2 <- function(object, ...) {
   UseMethod("h2")

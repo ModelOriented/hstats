@@ -35,12 +35,12 @@
 #' @examples
 #' # MODEL 1: Linear regression
 #' fit <- lm(Sepal.Length ~ . , data = iris)
-#' s <- hstats(fit, X = iris[-1])
+#' s <- hstats(fit, X = iris[, -1])
 #' plot(pd_importance(s))
 #' 
 #' # MODEL 2: Multi-response linear regression
-#' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width + Species, data = iris)
-#' s <- hstats(fit, X = iris[3:5])
+#' fit <- lm(as.matrix(iris[, 1:2]) ~ Petal.Length + Petal.Width + Species, data = iris)
+#' s <- hstats(fit, X = iris[, 3:5])
 #' plot(pd_importance(s))
 pd_importance <- function(object, ...) {
   UseMethod("pd_importance")

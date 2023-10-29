@@ -94,12 +94,12 @@ Similar remarks as for \code{\link[=h2_pairwise]{h2_pairwise()}} apply.
 \examples{
 # MODEL 1: Linear regression
 fit <- lm(uptake ~ Type * Treatment * conc, data = CO2)
-s <- hstats(fit, X = CO2[2:4], threeway_m = 5)
+s <- hstats(fit, X = CO2[, 2:4], threeway_m = 5)
 h2_threeway(s)
 
 #' MODEL 2: Multivariate output (taking just twice the same response as example)
 fit <- lm(cbind(up = uptake, up2 = 2 * uptake) ~ Type * Treatment * conc, data = CO2)
-s <- hstats(fit, X = CO2[2:4], threeway_m = 5)
+s <- hstats(fit, X = CO2[, 2:4], threeway_m = 5)
 h2_threeway(s)
 h2_threeway(s, normalize = FALSE, squared = FALSE)  # Unnormalized H
 plot(h2_threeway(s))

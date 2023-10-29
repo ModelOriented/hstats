@@ -96,13 +96,13 @@ statistics can be compared across features.
 \examples{
 # MODEL 1: Linear regression
 fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
-s <- hstats(fit, X = iris[-1])
+s <- hstats(fit, X = iris[, -1])
 h2_overall(s)
 plot(h2_overall(s))
 
 # MODEL 2: Multi-response linear regression
-fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
-s <- hstats(fit, X = iris[3:5], verbose = FALSE)
+fit <- lm(as.matrix(iris[, 1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
+s <- hstats(fit, X = iris[, 3:5], verbose = FALSE)
 plot(h2_overall(s, zero = FALSE))
 }
 \references{

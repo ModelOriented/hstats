@@ -155,7 +155,7 @@ plot(ic)
 plot(ic, center = TRUE)
 
 # MODEL 2: Multi-response linear regression
-fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
+fit <- lm(as.matrix(iris[, 1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
 ic <- ice(fit, v = "Petal.Width", X = iris, BY = iris$Species)
 plot(ic)
 plot(ic, center = TRUE)

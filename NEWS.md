@@ -11,6 +11,7 @@
 ## Other changes
 
 - Add unit tests to compare against {iml}.
+- Made all examples "tibble" and "data.table" friendly.
 
 # hstats 1.0.0
 

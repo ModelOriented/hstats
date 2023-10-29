@@ -203,7 +203,7 @@ library(ranger)
 set.seed(1)
 
 fit <- ranger(Sepal.Length ~ ., data = iris)
-ex <- DALEX::explain(fit, data = iris[-1], y = iris[, 1])
+ex <- DALEX::explain(fit, data = iris[, -1], y = iris[, 1])
 
 s <- hstats(ex)
 s  # 0.054
@@ -246,10 +246,10 @@ ix <- c(1:40, 51:90, 101:140)
 train <- iris[ix, ]
 valid <- iris[-ix, ]
 
-X_train <- data.matrix(train[-5])
-X_valid <- data.matrix(valid[-5])
-y_train <- train[, 5]
-y_valid <- valid[, 5]
+X_train <- data.matrix(train[, -5])
+X_valid <- data.matrix(valid[, -5])
+y_train <- train[[5]]
+y_valid <- valid[[5]]
 ```
 
 ### ranger
@@ -264,7 +264,7 @@ average_loss(fit, X = valid, y = "Species", loss = "mlogloss")  # 0.02
 
 perm_importance(fit, X = iris, y = "Species", loss = "mlogloss")
 
-(s <- hstats(fit, X = iris[-5]))
+(s <- hstats(fit, X = iris[, -5]))
 plot(s, normalize = FALSE, squared = FALSE)
 
 ice(fit, v = "Petal.Length", X = iris, BY = "Petal.Width") |> 
@@ -400,7 +400,7 @@ iris_wf <- workflow() |>
 fit <- iris_wf |>
   fit(iris)
   
-s <- hstats(fit, X = iris[-1])
+s <- hstats(fit, X = iris[, -1])
 s # 0 -> no interactions
 plot(partial_dep(fit, v = "Petal.Width", X = iris))
 
@@ -429,7 +429,7 @@ fit <- train(
   trControl = trainControl(method = "none")
 )
 
-h2(hstats(fit, X = iris[-1]))  # 0
+h2(hstats(fit, X = iris[, -1]))  # 0
 
 plot(ice(fit, v = "Petal.Width", X = iris), center = TRUE)
 plot(perm_importance(fit, X = iris, y = "Sepal.Length"))
@@ -448,7 +448,7 @@ set.seed(1)
 task_iris <- TaskClassif$new(id = "class", backend = iris, target = "Species")
 fit_rf <- lrn("classif.ranger", predict_type = "prob")
 fit_rf$train(task_iris)
-s <- hstats(fit_rf, X = iris[-5])
+s <- hstats(fit_rf, X = iris[, -5])
 plot(s)
 
 # Permutation importance
