@@ -85,9 +85,15 @@ wcolMeans <- function(x, w = NULL) {
 #' @param x A matrix-like object.
 #' @param g Optional grouping variable.
 #' @param w Optional case weights.
-#' @param reorder Should groups be ordered, see [rowsum()]. Default is `TRUE`. 
-#' @returns A matrix with one row per group.
-gwColMeans <- function(x, g = NULL, w = NULL, reorder = TRUE) {
+#' @param reorder Should groups be ordered, see [rowsum()]. Default is `TRUE`.
+#' @param mean_only If `TRUE`, only the means are returned. If `FALSE`, a list
+#'   with "mean", "num" and "denom" is returned.
+#' @returns A matrix with one row per group (if `mean_only = TRUE`), or a list
+#'   with slots "mean", "num", and "denom".
+#' @examples 
+#' with(iris, gwColMeans(Sepal.Width, g = Species, w = Sepal.Length))
+#' with(iris, gwColMeans(Sepal.Width, g = Species, w = Sepal.Length, mean_only = FALSE))
+gwColMeans <- function(x, g = NULL, w = NULL, reorder = TRUE, mean_only = TRUE) {
   if (is.null(g)) {
     return(rbind(wcolMeans(x, w = w)))
   }
@@ -98,7 +104,12 @@ gwColMeans <- function(x, g = NULL, w = NULL, reorder = TRUE) {
     num <- rowsum(x * w, group = g, reorder = reorder)
     denom <- rowsum(w, group = g, reorder = reorder)
   }
-  num / matrix(denom, nrow = nrow(num), ncol = ncol(num), byrow = FALSE)
+  out <- num / matrix(denom, nrow = nrow(num), ncol = ncol(num), byrow = FALSE)
+  
+  if (mean_only) {
+    return(out)
+  }
+  list(mean = out, num = num, denom = denom)
 }
 
 #' Weighted Mean Centering

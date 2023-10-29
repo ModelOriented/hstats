@@ -34,6 +34,9 @@
 #' (calib <- calibration(fit, v = "Petal.Length", X = iris, y = "Sepal.Length"))
 #' plot(calib)
 #' 
+#' (calib <- calibration(fit, v = "Petal.Length", X = iris, y = "Sepal.Length", BY = "Species"))
+#' plot(calib)
+#' 
 #' # MODEL 2: Multi-response linear regression
 #' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width + Species, data = iris)
 #' calib <- calibration(fit, v = "Petal.Width", X = iris, y = iris[1:2])
@@ -56,7 +59,9 @@ calibration <- function(object, ...) {
 #' @describeIn calibration Default method.
 #' @export
 calibration.default <- function(object, v, X, y = NULL, pred_fun = stats::predict, 
-                                grid_size = 17L, pred = NULL,
+                                BY = NULL, by_size = 4L, 
+                                grid_size = 17L, 
+                                pred = NULL,
                                 n_max = 1000L, w = NULL, ...) {
   stopifnot(
     is.matrix(X) || is.data.frame(X),
@@ -67,48 +72,52 @@ calibration.default <- function(object, v, X, y = NULL, pred_fun = stats::predic
   if (!is.null(y)) {
     y <- align_pred(prepare_y(y = y, X = X)[["y"]])
   }
-  
   if (!is.null(w)) {
     w <- prepare_w(w = w, X = X)[["w"]]
   }
-  
-  v_grouped <- approx_vector(X[[v]], m = grid_size)
+  if (!is.null(BY)) {
+    BY2 <- prepare_by(BY = BY, X = X, by_size = by_size)
+    BY <- BY2[["BY"]]
+  }
+  g <- v_grouped <- approx_vector(X[[v]], m = grid_size)
   grid <- sort(unique(v_grouped), na.last = TRUE)
+  
+  if (!is.null(BY)) {
+    g <- paste(BY, g, sep = ":")
+  }
   
   # Average predicted
   if (is.null(pred)) {
     pred <- pred_fun(object, X, ...)
   }
   pred <- align_pred(pred)
-  avg_pred <- gwColMeans(pred, g = v_grouped, w = w)
+  avg_pred <- gwColMeans(pred, g = g, w = w)
   
   # Average observed
-  avg_obs <- if (!is.null(y)) gwColMeans(y, g = v_grouped, w = w)
+  avg_obs <- if (!is.null(y)) gwColMeans(y, g = g, w = w)
   
   # Exposure
   ww <- if (is.null(w)) rep.int(1, NROW(X)) else w
-  exposure <- rowsum(ww, group = v_grouped)
+  exposure <- rowsum(ww, group = g)
   
   # Partial dependence
-  if (n_max > 0L) {
-    if (nrow(X) > n_max) {
-      ix <- sample(nrow(X), n_max)
-      X <- X[ix, , drop = FALSE]
-      w <- if (!is.null(w)) w[ix]
-    }
-    pd <- pd_raw(
-      object = object, v = v, X = X, grid = grid, pred_fun = pred_fun, w = w, ...
-    )
-    rownames(pd) <- grid
-  } else {
-    pd <- NULL
-  }
+  pd <- partial_dep(
+    object = object, 
+    v = v, 
+    X = X, 
+    grid = grid, 
+    pred_fun = pred_fun, 
+    BY = BY, 
+    w = w, 
+    ...
+  )[["data"]]
   
   out <- list(
     v = v,
     K = ncol(pred),
     pred_names = colnames(pred),
     grid = grid,
+    BY,
     avg_obs = avg_obs,
     avg_pred = avg_pred,
     pd = pd,
