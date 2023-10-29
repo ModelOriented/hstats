@@ -9,7 +9,9 @@ univariate_grid(
   grid_size = 49L,
   trim = c(0.01, 0.99),
   strategy = c("uniform", "quantile"),
-  na.rm = TRUE
+  na.rm = TRUE,
+  midpoints = FALSE,
+  grid_only = TRUE
 )
 }
 \arguments{
@@ -24,10 +26,16 @@ of grid values. Set to \code{0:1} for no trimming.}
 \item{strategy}{How to find grid values of non-discrete numeric columns?
 Either "uniform" or "quantile", see description of \code{\link[=univariate_grid]{univariate_grid()}}.}
 
-\item{na.rm}{Should missing values be dropped from grid? Default is \code{TRUE}.}
+\item{na.rm}{Should missing values be dropped from the grid? Default is \code{TRUE}.}
+
+\item{midpoints}{Should \code{grid_size} grid \emph{midpoints} be returned?}
+
+\item{grid_only}{If \code{TRUE} (default), only the grid values are returned. Set to
+\code{FALSE} to get a list with grid and approximate \code{z}.}
 }
 \value{
-A vector or factor of evaluation points.
+If \code{grid_only = TRUE}, vector or factor of evaluation points. Otherwise
+a list containing the "grid" and the approximate "z".
 }
 \description{
 Creates evaluation grid for any numeric or non-numeric vector \code{z}.
@@ -43,16 +51,20 @@ Set \code{trim = 0:1} for no trimming.
 If \code{strategy = "quantile"}, the evaluation points are quantiles over a regular grid
 of probabilities from \code{trim[1]} to \code{trim[2]}.
 
-All quantiles are calculated via the inverse of the ECDF, i.e., via
+Quantiles are calculated via the inverse of the ECDF, i.e., via
 \verb{stats::quantile(..., type = 1}).
+
+Set \code{grid_only = TRUE} to also get the vector with grid values corresponding to \code{z}.
+In that case, if \code{midpoints = FALSE}, the largest grid value is never reached.
 }
 \examples{
 univariate_grid(iris$Species)
 univariate_grid(rev(iris$Species))                       # Same
 
 x <- iris$Sepal.Width
-univariate_grid(x, grid_size = 5)                        # Quantile binning
-univariate_grid(x, grid_size = 5, strategy = "uniform")  # Uniform
+univariate_grid(x, grid_size = 5)                         # Uniform binning
+univariate_grid(x, grid_size = 5, strategy = "quantile")  # Quantile binning
+univariate_grid(x, grid_size = 3, grid_only = FALSE, midpoints = TRUE)
 }
 \seealso{
 \code{\link[=multivariate_grid]{multivariate_grid()}}

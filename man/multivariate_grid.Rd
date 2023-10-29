@@ -9,7 +9,8 @@ multivariate_grid(
   grid_size = 49L,
   trim = c(0.01, 0.99),
   strategy = c("uniform", "quantile"),
-  na.rm = TRUE
+  na.rm = TRUE,
+  midpoints = FALSE
 )
 }
 \arguments{
@@ -25,7 +26,9 @@ of grid values. Set to \code{0:1} for no trimming.}
 \item{strategy}{How to find grid values of non-discrete numeric columns?
 Either "uniform" or "quantile", see description of \code{\link[=univariate_grid]{univariate_grid()}}.}
 
-\item{na.rm}{Should missing values be dropped from grid? Default is \code{TRUE}.}
+\item{na.rm}{Should missing values be dropped from the grid? Default is \code{TRUE}.}
+
+\item{midpoints}{Should \code{grid_size} grid \emph{midpoints} be returned?}
 }
 \value{
 A vector, matrix, or data.frame with evaluation points.
