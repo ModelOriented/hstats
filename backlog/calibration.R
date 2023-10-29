@@ -281,3 +281,32 @@ plot.calibration <- function(x,
   }
   p
 }
+
+hist2 <- function(x, breaks = "Sturges", trim = c(0.01, 0.99), 
+                  include.lowest = TRUE, right = TRUE, na.rm = TRUE) {
+  if (!is.numeric(x)) {
+    g <- sort(unique(x), na.last = if (na.rm) NA else TRUE)
+    return(list(x = x, grid = g))
+  }
+  
+  # Trim outliers before histogram construction?
+  if (trim[1L] == 0 && trim[2L] == 1) {
+    xx <- x
+  } else {
+    r <- stats::quantile(x, probs = trim, names = FALSE, type = 1L, na.rm = TRUE)
+    xx <- x[x >= r[1L] & x <= r[2L]]
+  }
+  h <- hist(xx, breaks = breaks, include.lowest = include.lowest, right = right)
+  g <- h[["mids"]]
+  ix <- findInterval(
+    x, 
+    vec = h[["breaks"]], 
+    left.open = right, 
+    rightmost.closed = include.lowest, 
+    all.inside = TRUE
+  )
+  if (!na.rm && anyNA(x)) {
+    g <- c(g, NA)
+  }
+  list(x = g[ix], grid = g)
+}
