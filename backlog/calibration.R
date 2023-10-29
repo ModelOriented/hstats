@@ -70,7 +70,11 @@ calibration.default <- function(object, v, X, y = NULL, pred_fun = stats::predic
   )
   
   if (!is.null(y)) {
-    y <- align_pred(prepare_y(y = y, X = X)[["y"]])
+    y <- prepare_y(y = y, X = X)[["y"]]
+    if (is.factor(y) || is.character(y)) {
+      y <- stats::model.matrix(~ as.factor(y) + 0)
+    }
+    y <- align_pred(y)
   }
   if (!is.null(w)) {
     w <- prepare_w(w = w, X = X)[["w"]]
@@ -91,14 +95,14 @@ calibration.default <- function(object, v, X, y = NULL, pred_fun = stats::predic
     pred <- pred_fun(object, X, ...)
   }
   pred <- align_pred(pred)
-  avg_pred <- gwColMeans(pred, g = g, w = w)
+  tmp <- gwColMeans(pred, g = g, w = w, mean_only = FALSE)
+  avg_pred <- tmp[["mean"]]
+  
+  # Exposure
+  exposure <- tmp[["denom"]]
   
   # Average observed
   avg_obs <- if (!is.null(y)) gwColMeans(y, g = g, w = w)
-  
-  # Exposure
-  ww <- if (is.null(w)) rep.int(1, NROW(X)) else w
-  exposure <- rowsum(ww, group = g)
   
   # Partial dependence
   pd <- partial_dep(

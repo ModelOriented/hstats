@@ -103,7 +103,7 @@ features, we can select features with \emph{strongest overall interactions}.
 \examples{
 # MODEL 1: Linear regression
 fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
-s <- hstats(fit, X = iris[-1])
+s <- hstats(fit, X = iris[, -1])
 
 # Proportion of joint effect coming from pairwise interaction
 # (for features with strongest overall interactions)
@@ -116,8 +116,8 @@ abs_h
 abs_h$M
 
 # MODEL 2: Multi-response linear regression
-fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
-s <- hstats(fit, X = iris[3:5], verbose = FALSE)
+fit <- lm(as.matrix(iris[, 1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
+s <- hstats(fit, X = iris[, 3:5], verbose = FALSE)
 x <- h2_pairwise(s)
 plot(x)
 }

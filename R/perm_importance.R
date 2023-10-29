@@ -44,8 +44,8 @@
 #' plot(s)
 #' 
 #' # MODEL 2: Multi-response linear regression
-#' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width + Species, data = iris)
-#' s <- perm_importance(fit, X = iris[3:5], y = iris[1:2], normalize = TRUE)
+#' fit <- lm(as.matrix(iris[, 1:2]) ~ Petal.Length + Petal.Width + Species, data = iris)
+#' s <- perm_importance(fit, X = iris[, 3:5], y = iris[, 1:2], normalize = TRUE)
 #' s
 #' plot(s)
 #' plot(s, swap_dim = TRUE, top_m = 2)

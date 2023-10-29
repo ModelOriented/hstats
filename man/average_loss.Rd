@@ -168,10 +168,10 @@ average_loss(fit, X = iris, y = iris$Sepal.Length, BY = iris$Sepal.Width)
 average_loss(fit, X = iris, y = "Sepal.Length", BY = "Sepal.Width")
 
 # MODEL 2: Multi-response linear regression
-fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width + Species, data = iris)
-average_loss(fit, X = iris, y = iris[1:2])
+fit <- lm(as.matrix(iris[, 1:2]) ~ Petal.Length + Petal.Width + Species, data = iris)
+average_loss(fit, X = iris, y = iris[, 1:2])
 L <- average_loss(
-  fit, X = iris, y = iris[1:2], loss = "gamma", BY = "Species"
+  fit, X = iris, y = iris[, 1:2], loss = "gamma", BY = "Species"
 )
 L
 plot(L)

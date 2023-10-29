@@ -105,7 +105,7 @@
 #' @examples
 #' # MODEL 1: Linear regression
 #' fit <- lm(Sepal.Length ~ . + Petal.Width:Species, data = iris)
-#' s <- hstats(fit, X = iris[-1])
+#' s <- hstats(fit, X = iris[, -1])
 #' s
 #' plot(s)
 #' plot(s, zero = FALSE)  # Drop 0
@@ -115,8 +115,8 @@
 #' h2_pairwise(s, normalize = FALSE, squared = FALSE, zero = FALSE)
 #' 
 #' # MODEL 2: Multi-response linear regression
-#' fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
-#' s <- hstats(fit, X = iris[3:5], verbose = FALSE)
+#' fit <- lm(as.matrix(iris[, 1:2]) ~ Petal.Length + Petal.Width * Species, data = iris)
+#' s <- hstats(fit, X = iris[, 3:5], verbose = FALSE)
 #' plot(s)
 #' summary(s)
 #'
@@ -124,12 +124,12 @@
 #' fit <- glm(Sepal.Length ~ ., data = iris, family = Gamma(link = log))
 #' 
 #' # No interactions for additive features, at least on link scale
-#' s <- hstats(fit, X = iris[-1], verbose = FALSE)
+#' s <- hstats(fit, X = iris[, -1], verbose = FALSE)
 #' summary(s)
 #' 
 #' # On original scale, we have interactions everywhere. 
 #' # To see three-way interactions, we set threeway_m to a value above 2.
-#' s <- hstats(fit, X = iris[-1], type = "response", threeway_m = 5)
+#' s <- hstats(fit, X = iris[, -1], type = "response", threeway_m = 5)
 #' plot(s, ncol = 1)  # All three types use different denominators
 #' 
 #' # All statistics on same scale (of predictions)
