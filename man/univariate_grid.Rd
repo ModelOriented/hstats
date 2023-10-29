@@ -24,7 +24,7 @@ of grid values. Set to \code{0:1} for no trimming.}
 \item{strategy}{How to find grid values of non-discrete numeric columns?
 Either "uniform" or "quantile", see description of \code{\link[=univariate_grid]{univariate_grid()}}.}
 
-\item{na.rm}{Should missing values be dropped from grid? Default is \code{TRUE}.}
+\item{na.rm}{Should missing values be dropped from the grid? Default is \code{TRUE}.}
 }
 \value{
 A vector or factor of evaluation points.
@@ -43,7 +43,7 @@ Set \code{trim = 0:1} for no trimming.
 If \code{strategy = "quantile"}, the evaluation points are quantiles over a regular grid
 of probabilities from \code{trim[1]} to \code{trim[2]}.
 
-All quantiles are calculated via the inverse of the ECDF, i.e., via
+Quantiles are calculated via the inverse of the ECDF, i.e., via
 \verb{stats::quantile(..., type = 1}).
 }
 \examples{
@@ -51,8 +51,8 @@ univariate_grid(iris$Species)
 univariate_grid(rev(iris$Species))                       # Same
 
 x <- iris$Sepal.Width
-univariate_grid(x, grid_size = 5)                        # Quantile binning
-univariate_grid(x, grid_size = 5, strategy = "uniform")  # Uniform
+univariate_grid(x, grid_size = 5)                        # Uniform binning
+univariate_grid(x, grid_size = 5, strategy = "quantile")  # Quantile
 }
 \seealso{
 \code{\link[=multivariate_grid]{multivariate_grid()}}

@@ -25,7 +25,7 @@ of grid values. Set to \code{0:1} for no trimming.}
 \item{strategy}{How to find grid values of non-discrete numeric columns?
 Either "uniform" or "quantile", see description of \code{\link[=univariate_grid]{univariate_grid()}}.}
 
-\item{na.rm}{Should missing values be dropped from grid? Default is \code{TRUE}.}
+\item{na.rm}{Should missing values be dropped from the grid? Default is \code{TRUE}.}
 }
 \value{
 A vector, matrix, or data.frame with evaluation points.
