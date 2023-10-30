@@ -70,39 +70,36 @@ init_numerator <- function(x, way = 1L) {
 #' @keywords internal
 #' 
 #' @inheritParams H2_overall
-#' @param num Matrix or vector of statistic.
-#' @param denom Denominator of statistic (a matrix, number, or vector compatible with `num`).
-#' @returns Matrix or vector of statistics. If length of output is 0, then `NULL`.
-postprocess <- function(num, denom = 1, normalize = TRUE, squared = TRUE, 
+#' @param num Matrix with numerator statistics.
+#' @param denom Vector or matrix with denominator statistics.
+#' @returns Matrix of statistics, or `NULL`.
+postprocess <- function(num, denom = rep(1, times = NCOL(num)), 
+                        normalize = TRUE, squared = TRUE, 
                         sort = TRUE, zero = TRUE) {
-  out <- num
+  stopifnot(
+    is.matrix(num),
+    is.matrix(denom) || is.vector(denom),  # already covered by the next condition
+    is.matrix(denom) && all(dim(num) == dim(denom)) ||  ## h2_pairwise/threeway
+      is.vector(denom) && length(denom) == ncol(num)    ## all other stats
+  )
   if (normalize) {
-    if (length(denom) == 1L || length(num) == length(denom)) {
-      out <- out / denom
-    } else if (length(denom) == ncol(num)) {
-      out <- sweep(out, MARGIN = 2L, STATS = denom, FUN = "/")
+    if (is.matrix(denom)) {
+      out <- num / denom
     } else {
-      stop("Normalization error")
+      out <- sweep(num, MARGIN = 2L, STATS = denom, FUN = "/")
     }
+  } else {
+    out <- num
   }
   if (!squared) {
     out <- sqrt(out)
   }
   if (sort) {
-    if (is.matrix(out)) {
-      out <- out[order(-rowSums(out)), , drop = FALSE]
-    } else {
-      out <- sort(out, decreasing = TRUE)
-    }
+    out <- out[order(-rowSums(out)), , drop = FALSE]
   }
   if (!zero) {
-    if (is.matrix(out)) {
-      out <- out[rowSums(out) > 0, , drop = FALSE]
-    } else {
-      out <- out[out > 0]
-    }
+    out <- out[rowSums(out != 0) > 0, , drop = FALSE]
   }
-  # out <- utils::head(out, n = top_m)
   if (length(out) == 0L) NULL else out
 }
 
