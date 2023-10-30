@@ -282,11 +282,24 @@ plot.calibration <- function(x,
   p
 }
 
-hist2 <- function(x, breaks = "Sturges", trim = c(0.01, 0.99), 
+#' Histogram Bin Construction
+#' 
+#' Creates histogram of vector/factor `x`. In the discrete case, no binning is done.
+#' Otherwise, the values are optionally trimmed and then passed to [hist()]. Compared
+#' with [hist()], the function also returns the binned values of `x`.
+#' 
+#' @param x A vector or factor to be binned.
+#' @inheritParams hist
+#' @inheritParams univariate_grid
+#' @returns A list with binned "x", vector of "breaks", bin midpoints "grid", and a
+#'   logical flag "discrete" indicating whether the values have not been binned.
+#' @seealso See [calibration()] for examples.
+hist2 <- function(x, breaks = 17L, trim = c(0.01, 0.99), 
                   include.lowest = TRUE, right = TRUE, na.rm = TRUE) {
-  if (!is.numeric(x)) {
-    g <- sort(unique(x), na.last = if (na.rm) NA else TRUE)
-    return(list(x = x, grid = g))
+  g <- unique(x)
+  if (!is.numeric(x) || (length(breaks) == 1L && is.numeric(breaks) && length(g) <= breaks)) {
+    g <- sort(g, na.last = if (na.rm) NA else TRUE)
+    return(list(x = x, breaks = g, grid = g, discrete = TRUE))
   }
   
   # Trim outliers before histogram construction?
@@ -297,16 +310,13 @@ hist2 <- function(x, breaks = "Sturges", trim = c(0.01, 0.99),
     xx <- x[x >= r[1L] & x <= r[2L]]
   }
   h <- hist(xx, breaks = breaks, include.lowest = include.lowest, right = right)
-  g <- h[["mids"]]
+  b <- h$breaks
   ix <- findInterval(
-    x, 
-    vec = h[["breaks"]], 
-    left.open = right, 
-    rightmost.closed = include.lowest, 
-    all.inside = TRUE
+    x, vec = b, left.open = right, rightmost.closed = include.lowest, all.inside = TRUE
   )
+  g <- h$mids
   if (!na.rm && anyNA(x)) {
     g <- c(g, NA)
   }
-  list(x = g[ix], grid = g)
+  list(x = g[ix], breaks = b, grid = g, discrete = FALSE)
 }

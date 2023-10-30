@@ -71,31 +71,31 @@ test_that("gwcolMeans() works", {
   w2 <- 1:6
   
   # Ungrouped
-  expect_equal(gwColMeans(x), rbind(wcolMeans(x)))
-  expect_equal(gwColMeans(x, w = w1), rbind(wcolMeans(x, w = w1)))
-  expect_equal(gwColMeans(x, w = w2), rbind(wcolMeans(x, w = w2)))
+  r <- gwColMeans(x)
+  expect_equal(r$M, rbind(wcolMeans(x)))
+  expect_equal(r$w, nrow(x))
+  
+  r <- gwColMeans(x, w = w1)
+  expect_equal(r$M, rbind(wcolMeans(x, w = w1)))
+  expect_equal(r$w, sum(w1))
+  
+  r <- gwColMeans(x, w = w2)
+  expect_equal(r$M, rbind(wcolMeans(x, w = w2)))
+  expect_equal(r$w, sum(w2))
   
   # Grouped
-  expect_equal(gwColMeans(x, g = g)[2L, ], wcolMeans(x[g == 2, ]))
-  expect_equal(gwColMeans(x, g = g, reorder = FALSE)[2L, ], wcolMeans(x[g == 1, ]))
+  r <- gwColMeans(x, g = g)
+  expect_equal(r$M[2L, ], wcolMeans(x[g == 2, ]))
+  expect_equal(r$w, c(4, 2))
   
-  g1 <- gwColMeans(x, g = g)
-  g2 <- gwColMeans(x, g = g, mean_only = FALSE)
-  g2_d <- matrix(g2$denom, nrow = 2, ncol = 2, byrow = FALSE)
-  expect_equal(g1, g2$num / g2_d)
-  expect_equal(g2$mean, g1)
-  
+  r <- gwColMeans(x, g = g, reorder = FALSE)
+  expect_equal(r$M[2L, ], wcolMeans(x[g == 1, ]))
+  expect_equal(r$w, c(2, 4))
+
   # Grouped and weighted
-  expect_equal(
-    gwColMeans(x, g = g, w = w2)[2L, ], 
-    wcolMeans(x[g == 2, ], w = w2[g == 2])
-  )
-  
-  g1 <- gwColMeans(x, g = g, w = w2)
-  g2 <- gwColMeans(x, g = g, w = w2, mean_only = FALSE)
-  g2_d <- matrix(g2$denom, nrow = 2, ncol = 2, byrow = FALSE)
-  expect_equal(g1, g2$num / g2_d)
-  expect_equal(g2$mean, g1)
+  r <- gwColMeans(x, g = g, w = w2)
+  expect_equal(r$M[2L, ], wcolMeans(x[g == 2, ], w = w2[g == 2]))
+  expect_equal(r$w, c(sum(3:6), sum(1:2)))
 })
 
 test_that("wcenter() works for matrices with > 1 columns", {
