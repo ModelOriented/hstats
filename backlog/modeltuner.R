@@ -24,3 +24,4 @@ perm_importance(mm, X = iris, y = "Sepal.Length", w = "Petal.Width") |>
 plot(H)
 h2_pairwise(H, normalize = FALSE, squared = FALSE) |> 
   plot(swap_dim = TRUE)
+
