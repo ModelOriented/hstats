@@ -16,18 +16,6 @@
     <loc>/news/index.html</loc>
   </url>
   <url>
-    <loc>/reference/H2.html</loc>
-  </url>
-  <url>
-    <loc>/reference/H2_overall.html</loc>
-  </url>
-  <url>
-    <loc>/reference/H2_pairwise.html</loc>
-  </url>
-  <url>
-    <loc>/reference/H2_threeway.html</loc>
-  </url>
-  <url>
     <loc>/reference/average_loss.html</loc>
   </url>
   <url>
@@ -38,6 +26,18 @@
   </url>
   <url>
     <loc>/reference/dimnames.hstats_matrix.html</loc>
+  </url>
+  <url>
+    <loc>/reference/h2.html</loc>
+  </url>
+  <url>
+    <loc>/reference/h2_overall.html</loc>
+  </url>
+  <url>
+    <loc>/reference/h2_pairwise.html</loc>
+  </url>
+  <url>
+    <loc>/reference/h2_threeway.html</loc>
   </url>
   <url>
     <loc>/reference/hstats.html</loc>

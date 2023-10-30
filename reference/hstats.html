@@ -71,13 +71,13 @@ h2_threeway()."><meta property="og:image" content="/logo.png"><!-- mathjax --><s
     <div class="ref-description">
     <p>This is the main function of the package. It does the expensive calculations behind
 the following H-statistics:</p><ul><li><p>Total interaction strength \(H^2\), a statistic measuring the proportion of
-prediction variability unexplained by main effects of <code>v</code>, see <code><a href="H2.html">h2()</a></code> for details.</p></li>
+prediction variability unexplained by main effects of <code>v</code>, see <code><a href="h2.html">h2()</a></code> for details.</p></li>
 <li><p>Friedman and Popescu's statistic \(H^2_j\) of overall interaction strength per
-feature, see <code><a href="H2_overall.html">h2_overall()</a></code> for details.</p></li>
+feature, see <code><a href="h2_overall.html">h2_overall()</a></code> for details.</p></li>
 <li><p>Friedman and Popescu's statistic \(H^2_{jk}\) of pairwise interaction strength,
-see <code><a href="H2_pairwise.html">h2_pairwise()</a></code> for details.</p></li>
+see <code><a href="h2_pairwise.html">h2_pairwise()</a></code> for details.</p></li>
 <li><p>Friedman and Popescu's statistic \(H^2_{jkl}\) of three-way interaction strength,
-see <code><a href="H2_threeway.html">h2_threeway()</a></code> for details. To save time, this statistic is not calculated
+see <code><a href="h2_threeway.html">h2_threeway()</a></code> for details. To save time, this statistic is not calculated
 by default. Set <code>threeway_m</code> to a value above 2 to get three-way statistics of the
 <code>threeway_m</code> variables with strongest overall interaction.</p></li>
 </ul><p>Furthermore, it allows to calculate an experimental partial dependence based
@@ -85,8 +85,8 @@ measure of feature importance, \(\textrm{PDI}_j^2\). It equals the proportion of
 prediction variability unexplained by other features, see <code><a href="pd_importance.html">pd_importance()</a></code>
 for details. This statistic is not shown by <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> or <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code>.</p>
 <p>Instead of using <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>, interaction statistics can also be obtained via the
-more flexible functions <code><a href="H2.html">h2()</a></code>, <code><a href="H2_overall.html">h2_overall()</a></code>, <code><a href="H2_pairwise.html">h2_pairwise()</a></code>, and
-<code><a href="H2_threeway.html">h2_threeway()</a></code>.</p>
+more flexible functions <code><a href="h2.html">h2()</a></code>, <code><a href="h2_overall.html">h2_overall()</a></code>, <code><a href="h2_pairwise.html">h2_pairwise()</a></code>, and
+<code><a href="h2_threeway.html">h2_threeway()</a></code>.</p>
     </div>
 
     <div id="ref-usage">
@@ -268,7 +268,7 @@ partial dependence functions \(F_{jk}\).
 Only if pairwise calculations have been done.</p></li>
 <li><p><code>h2_pairwise</code>: List with numerator and denominator of \(H^2_{jk}\).
 Only if pairwise calculations have been done.</p></li>
-<li><p><code>v_threeway</code>: Subset of <code>v</code> with largest <code><a href="H2_overall.html">h2_overall()</a></code> used for three-way
+<li><p><code>v_threeway</code>: Subset of <code>v</code> with largest <code><a href="h2_overall.html">h2_overall()</a></code> used for three-way
 calculations. Only if three-way calculations have been done.</p></li>
 <li><p><code>combs3</code>: Named list of variable triples for which three-way partial
 dependence functions are available. Only if three-way calculations have been done.</p></li>
@@ -293,7 +293,7 @@ The Annals of Applied Statistics 2, no. 3 (2008): 916-54.</p>
     </div>
     <div id="see-also">
     <h2>See also</h2>
-    <div class="dont-index"><p><code><a href="H2.html">h2()</a></code>, <code><a href="H2_overall.html">h2_overall()</a></code>, <code><a href="H2_pairwise.html">h2_pairwise()</a></code>, <code><a href="H2_threeway.html">h2_threeway()</a></code>,
+    <div class="dont-index"><p><code><a href="h2.html">h2()</a></code>, <code><a href="h2_overall.html">h2_overall()</a></code>, <code><a href="h2_pairwise.html">h2_pairwise()</a></code>, <code><a href="h2_threeway.html">h2_threeway()</a></code>,
 and <code><a href="pd_importance.html">pd_importance()</a></code> for specific statistics calculated from the resulting object.</p></div>
     </div>
 
@@ -331,7 +331,7 @@ and <code><a href="pd_importance.html">pd_importance()</a></code> for specific s
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span>  </span></span>
 <span class="r-in"><span><span class="co"># Absolute pairwise interaction strengths</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="H2_pairwise.html">h2_pairwise</a></span><span class="op">(</span><span class="va">s</span>, normalize <span class="op">=</span> <span class="cn">FALSE</span>, squared <span class="op">=</span> <span class="cn">FALSE</span>, zero <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="h2_pairwise.html">h2_pairwise</a></span><span class="op">(</span><span class="va">s</span>, normalize <span class="op">=</span> <span class="cn">FALSE</span>, squared <span class="op">=</span> <span class="cn">FALSE</span>, zero <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Pairwise H (unnormalized)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Petal.Width:Species </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>           0.1726312 </span>
