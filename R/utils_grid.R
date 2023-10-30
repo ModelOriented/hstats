@@ -14,7 +14,7 @@
 #' If `strategy = "quantile"`, the evaluation points are quantiles over a regular grid 
 #' of probabilities from `trim[1]` to `trim[2]`.
 #' 
-#' All quantiles are calculated via the inverse of the ECDF, i.e., via
+#' Quantiles are calculated via the inverse of the ECDF, i.e., via
 #' `stats::quantile(..., type = 1`).
 #' 
 #' @param z A vector or factor.
@@ -24,7 +24,7 @@
 #'   of grid values. Set to `0:1` for no trimming.
 #' @param strategy How to find grid values of non-discrete numeric columns? 
 #'   Either "uniform" or "quantile", see description of [univariate_grid()].
-#' @param na.rm Should missing values be dropped from grid? Default is `TRUE`.
+#' @param na.rm Should missing values be dropped from the grid? Default is `TRUE`.
 #' @returns A vector or factor of evaluation points.
 #' @seealso [multivariate_grid()]
 #' @export
@@ -33,8 +33,8 @@
 #' univariate_grid(rev(iris$Species))                       # Same
 #' 
 #' x <- iris$Sepal.Width
-#' univariate_grid(x, grid_size = 5)                        # Quantile binning
-#' univariate_grid(x, grid_size = 5, strategy = "uniform")  # Uniform
+#' univariate_grid(x, grid_size = 5)                        # Uniform binning
+#' univariate_grid(x, grid_size = 5, strategy = "quantile")  # Quantile
 univariate_grid <- function(z, grid_size = 49L, trim = c(0.01, 0.99), 
                             strategy = c("uniform", "quantile"), na.rm = TRUE) {
   strategy <- match.arg(strategy)
@@ -50,9 +50,12 @@ univariate_grid <- function(z, grid_size = 49L, trim = c(0.01, 0.99),
     g <- stats::quantile(z, probs = p, names = FALSE, type = 1L, na.rm = TRUE)
     out <- unique(g)
   } else {
-    # strategy = "uniform" (could use range() if trim = 0:1)
-    r <- stats::quantile(z, probs = trim, names = FALSE, type = 1L, na.rm = TRUE)
-    # pretty(r, n = grid_size)  # Until version 0.2.0
+    # strategy = "uniform"
+    if (trim[1L] == 0 && trim[2L] == 1) {
+      r <- range(z, na.rm = TRUE)
+    } else {
+      r <- stats::quantile(z, probs = trim, names = FALSE, type = 1L, na.rm = TRUE)
+    }
     out <- seq(r[1L], r[2L], length.out = grid_size)  
   }
   if (!na.rm && anyNA(z)) {

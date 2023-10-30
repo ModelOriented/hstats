@@ -77,8 +77,9 @@ wcolMeans <- function(x, w = NULL) {
 
 #' Grouped wcolMeans()
 #' 
-#' Internal function used to calculate grouped column-wise weighted means.
-#' 
+#' Internal function used to calculate grouped column-wise weighted means along with
+#' corresponding (weighted) counts.
+#'
 #' @noRd
 #' @keywords internal
 #' 
@@ -86,30 +87,26 @@ wcolMeans <- function(x, w = NULL) {
 #' @param g Optional grouping variable.
 #' @param w Optional case weights.
 #' @param reorder Should groups be ordered, see [rowsum()]. Default is `TRUE`.
-#' @param mean_only If `TRUE`, only the means are returned. If `FALSE`, a list
-#'   with "mean", "num" and "denom" is returned.
-#' @returns A matrix with one row per group (if `mean_only = TRUE`), or a list
-#'   with slots "mean", "num", and "denom".
+#' @returns A list with two elements: "M" represents a matrix of grouped (column) 
+#'   means, and "w" is a vector of corresponding group counts/weights.
 #' @examples 
 #' with(iris, gwColMeans(Sepal.Width, g = Species, w = Sepal.Length))
-#' with(iris, gwColMeans(Sepal.Width, g = Species, w = Sepal.Length, mean_only = FALSE))
-gwColMeans <- function(x, g = NULL, w = NULL, reorder = TRUE, mean_only = TRUE) {
+gwColMeans <- function(x, g = NULL, w = NULL, reorder = TRUE) {
   if (is.null(g)) {
-    return(rbind(wcolMeans(x, w = w)))
+    M <- rbind(wcolMeans(x, w = w))
+    denom <- if (is.null(w)) NROW(x) else sum(w)
+    return(list(M = M, w = denom))
   }
-  if (is.null(w)) {
-    num <- rowsum(x, group = g, reorder = reorder)
-    denom <- rowsum(rep.int(1, NROW(x)), group = g, reorder = reorder)
-  } else {
-    num <- rowsum(x * w, group = g, reorder = reorder)
-    denom <- rowsum(w, group = g, reorder = reorder)
-  }
-  out <- num / matrix(denom, nrow = nrow(num), ncol = ncol(num), byrow = FALSE)
   
-  if (mean_only) {
-    return(out)
+  # Now the interesting case
+  if (is.null(w)) {
+    w <- rep.int(1, NROW(x))
+  } else {
+    x <- x * w  # w is correctly recycled over columns
   }
-  list(mean = out, num = num, denom = denom)
+  num <- rowsum(x, group = g, reorder = reorder)
+  denom <- as.numeric(rowsum(w, group = g, reorder = reorder))
+  list(M = num / denom, w = denom)
 }
 
 #' Weighted Mean Centering
