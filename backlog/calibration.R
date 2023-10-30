@@ -309,7 +309,9 @@ hist2 <- function(x, breaks = 17L, trim = c(0.01, 0.99),
     r <- stats::quantile(x, probs = trim, names = FALSE, type = 1L, na.rm = TRUE)
     xx <- x[x >= r[1L] & x <= r[2L]]
   }
-  h <- hist(xx, breaks = breaks, include.lowest = include.lowest, right = right)
+  h <- hist(
+    xx, breaks = breaks, include.lowest = include.lowest, right = right, plot = FALSE
+  )
   b <- h$breaks
   ix <- findInterval(
     x, vec = b, left.open = right, rightmost.closed = include.lowest, all.inside = TRUE
