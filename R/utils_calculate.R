@@ -93,9 +93,9 @@ wcolMeans <- function(x, w = NULL) {
 #' with(iris, gwColMeans(Sepal.Width, g = Species, w = Sepal.Length))
 gwColMeans <- function(x, g = NULL, w = NULL, reorder = TRUE) {
   if (is.null(g)) {
-    wg <- if (is.null(w)) NROW(x) else sum(w)
     M <- rbind(wcolMeans(x, w = w))
-    return(list(M = M, w = wg))
+    denom <- if (is.null(w)) NROW(x) else sum(w)
+    return(list(M = M, w = denom))
   }
   
   # Now the interesting case
@@ -105,10 +105,8 @@ gwColMeans <- function(x, g = NULL, w = NULL, reorder = TRUE) {
     x <- x * w  # w is correctly recycled over columns
   }
   num <- rowsum(x, group = g, reorder = reorder)
-  wg <- rowsum(w, group = g, reorder = reorder)
-  p <- ncol(num)
-  denom <- if (p == 1L) wg else matrix(wg, nrow = nrow(num), ncol = p)
-  list(M = num / denom, w = as.numeric(wg))
+  denom <- as.numeric(rowsum(w, group = g, reorder = reorder))
+  list(M = num / denom, w = denom)
 }
 
 #' Weighted Mean Centering
