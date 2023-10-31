@@ -10,6 +10,7 @@
 
 ## Other changes
 
+- Use of a much faster way to one-hot-encode factor predictions, written by Mathias Ambühl.
 - Add unit tests to compare against {iml}.
 - Made all examples "tibble" and "data.table" friendly.
 

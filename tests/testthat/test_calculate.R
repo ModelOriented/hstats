@@ -7,6 +7,12 @@ test_that("align_pred() works", {
   expect_equal(align_pred(1:4), cbind(1:4))
 })
 
+test_that("fdummy() works", {
+  x <- c("A", "A", "C", "D")
+  mm <- matrix(model.matrix(~ x + 0), ncol = 3, dimnames = list(NULL, c("A", "C", "D")))
+  expect_equal(fdummy(x), mm)
+})
+
 test_that("wrowmean() works for vector input", {
   x <- 6:1
   out <- wrowmean(x, ngroups = 2L)

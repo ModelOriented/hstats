@@ -20,7 +20,7 @@
 #'   a (n x K) matrix of probabilities (with row-sums 1).
 #'   The observed values `y` are either passed as (n x K) dummy matrix, 
 #'   or as discrete vector with corresponding levels. 
-#'   The latter case is turned into a dummy matrix via 
+#'   The latter case is turned into a dummy matrix by a fast version of
 #'   `model.matrix(~ as.factor(y) + 0)`.
 #' - "classification_error": Misclassification error. Both the 
 #'   observed values `y` and the predictions can be character/factor. This
@@ -37,7 +37,7 @@
 #'   can be provided that turns observed and predicted values into a numeric vector or 
 #'   matrix of unit losses of the same length as `X`.
 #'   For "mlogloss", the response `y` can either be a dummy matrix or a discrete vector. 
-#'   The latter case is handled via `model.matrix(~ as.factor(y) + 0)`.
+#'   The latter case is handled via a fast version of `model.matrix(~ as.factor(y) + 0)`.
 #'   For "classification_error", both predictions and responses can be non-numeric.
 #' @param agg_cols Should multivariate losses be summed up? Default is `FALSE`.
 #'   In combination with the squared error loss, `agg_cols = TRUE` gives

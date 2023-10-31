@@ -17,6 +17,36 @@ align_pred <- function(x) {
   x
 }
 
+#' Fast OHE
+#' 
+#' Turns vector/factor into integer matrix with One-Hot-Encoding.
+#' Ingeniouly written by Mathias Ambuehl.
+#' 
+#' @noRd
+#' @keywords internal
+#' 
+#' @param x Object representing model predictions.
+#' @returns Like `x`, but converted to matrix.
+fdummy <- function(x) {
+  x <- as.factor(x)
+  lev <- levels(x)
+  out <- matrix(0L, nrow = length(x), ncol = length(lev))
+  out[cbind(seq_along(x), as.integer(x))] <- 1L
+  colnames(out) <- lev
+  out 
+} 
+
+# # alternative to rowsum(fdummy(x), g)
+# frowsum <- function(x, g) {
+#   x <- as.factor(x)
+#   g <- as.factor(g)
+#   lev <- levels(x)
+#   out <- lapply(split(as.integer(x), g), tabulate, nbins = length(lev))
+#   out <- do.call(rbind, out)
+#   colnames(out) <- lev
+#   out
+# }
+
 #' Fast Weighted Mean by Fixed-Length Groups
 #' 
 #' Internal workhorse to aggregate predictions per evaluation point of a PD.

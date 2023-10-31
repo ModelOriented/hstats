@@ -115,14 +115,14 @@ loss_logloss <- function(actual, predicted) {
 #' @keywords internal
 #'
 #' @param actual A numeric matrix with values between 0 and 1, or a 
-#'   discrete vector that will be one-hot-encoded via 
+#'   discrete vector that will be one-hot-encoded by a fast version of
 #'   `model.matrix(~ as.factor(actual) + 0)`.
 #'   The column order of `predicted` must be in line with this!
 #' @param predicted A numeric matrix with values between 0 and 1.
 #' @returns `TRUE` (or an error message).
 loss_mlogloss <- function(actual, predicted) {
   if (NCOL(actual) == 1L && NCOL(predicted) > 1L) {
-    actual <- stats::model.matrix(~ as.factor(actual) + 0)
+    actual <- fdummy(actual)
   }
   stopifnot(
     NCOL(actual) == NCOL(predicted),
