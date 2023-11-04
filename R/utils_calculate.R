@@ -44,6 +44,9 @@ wrowmean <- function(x, ngroups = 1L, w = NULL) {
     if (length(w) != n_bg) {
       stop("w must be of length NROW(x) / ngroups.")
     }
+    if (!is.double(w)) {
+      w <- as.double(w)
+    }
     # w is recycled over rows and columns
     out <- rowsum(x * w, group = g, reorder = FALSE) / sum(w)
   }
@@ -77,7 +80,13 @@ wcolMeans <- function(x, w = NULL) {
   if (!is.matrix(x)) {
     x <- as.matrix(x)
   }
-  if (is.null(w)) colMeans(x) else colSums(x * w) / sum(w) 
+  if (is.null(w)) {
+    return(colMeans(x))
+  }
+  if (!is.double(w)) {
+    w <- as.double(w)
+  }
+  colSums(x * w) / sum(w)
 }
 
 #' Grouped wcolMeans()
@@ -110,6 +119,9 @@ gwColMeans <- function(x, g = NULL, w = NULL, reorder = TRUE) {
   if (is.null(w)) {
     w <- rep.int(1.0, NROW(x))
   } else {
+    if (!is.double(w)) {
+      w <- as.double(w)
+    }
     x <- x * w  # w is correctly recycled over columns
   }
   num <- rowsum(x, group = g, reorder = reorder)

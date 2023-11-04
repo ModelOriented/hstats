@@ -81,7 +81,7 @@ prepare_w <- function(w, X) {
     w_name <- NULL
   }
   if (!is.double(w)) {  # integer will be converted here
-    w <- as.numeric(w)
+    w <- as.double(w)
   }
   list(w = w, w_name = w_name)
 }
