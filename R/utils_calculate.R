@@ -1,22 +1,3 @@
-#' Aligns Predictions
-#' 
-#' Turns predictions into matrix.
-#' 
-#' @noRd
-#' @keywords internal
-#' 
-#' @param x Object representing model predictions.
-#' @returns Like `x`, but converted to matrix.
-align_pred <- function(x) {
-  if (!is.matrix(x)) {
-    x <- as.matrix(x)
-  }
-  if (!is.numeric(x)) {
-    stop("Predictions must be numeric")
-  }
-  x
-}
-
 #' Fast OHE
 #' 
 #' Turns vector/factor into integer matrix with One-Hot-Encoding.
@@ -36,17 +17,6 @@ fdummy <- function(x) {
   out 
 } 
 
-# # alternative to rowsum(fdummy(x), g)
-# frowsum <- function(x, g) {
-#   x <- as.factor(x)
-#   g <- as.factor(g)
-#   lev <- levels(x)
-#   out <- lapply(split(as.integer(x), g), tabulate, nbins = length(lev))
-#   out <- do.call(rbind, out)
-#   colnames(out) <- lev
-#   out
-# }
-
 #' Fast Weighted Mean by Fixed-Length Groups
 #' 
 #' Internal workhorse to aggregate predictions per evaluation point of a PD.
@@ -54,13 +24,16 @@ fdummy <- function(x) {
 #' @noRd
 #' @keywords internal
 #' 
-#' @param x Vector or matrix.
+#' @param x Vector or matrix-like.
 #' @param ngroups Number of groups (`x` was stacked that many times).
 #' @param w Optional vector with case weights of length `NROW(x) / ngroups`.
 #' @returns A (g x K) matrix, where g is the number of groups, and K = NCOL(x).
 wrowmean <- function(x, ngroups = 1L, w = NULL) {
   if (ngroups == 1L) {
-    return(rbind(wcolMeans(x, w = w)))
+    return(t.default(wcolMeans(x, w = w)))
+  }
+  if (!is.vector(x) && !is.matrix(x)) {
+    x <- as.matrix(x)
   }
   n_bg <- NROW(x) %/% ngroups
   g <- rep(seq_len(ngroups), each = n_bg)
@@ -88,15 +61,17 @@ wrowmean <- function(x, ngroups = 1L, w = NULL) {
 #' Weighted Version of colMeans()
 #' 
 #' Internal function used to calculate column-wise weighted means.
+#' Could made be faster for factors via tabulate().
 #' 
 #' @noRd
 #' @keywords internal
 #' 
-#' @param x A matrix-like object.
+#' @param x A matrix-like or vector.
 #' @param w Optional case weights.
 #' @returns A vector of column means.
 wcolMeans <- function(x, w = NULL) {
-  if (NCOL(x) == 1L && is.null(w)) {
+  if (NCOL(x) == 1L && is.atomic(x) && is.null(w)) {
+    # stat::weighted.mean() is much slower than via colSums()
     return(mean(x))
   }
   if (!is.matrix(x)) {
@@ -113,7 +88,7 @@ wcolMeans <- function(x, w = NULL) {
 #' @noRd
 #' @keywords internal
 #' 
-#' @param x A matrix-like object.
+#' @param x A vector or matrix-like object.
 #' @param g Optional grouping variable.
 #' @param w Optional case weights.
 #' @param reorder Should groups be ordered, see [rowsum()]. Default is `TRUE`.
@@ -123,14 +98,17 @@ wcolMeans <- function(x, w = NULL) {
 #' with(iris, gwColMeans(Sepal.Width, g = Species, w = Sepal.Length))
 gwColMeans <- function(x, g = NULL, w = NULL, reorder = TRUE) {
   if (is.null(g)) {
-    M <- rbind(wcolMeans(x, w = w))
+    M <- t.default(wcolMeans(x, w = w))
     denom <- if (is.null(w)) NROW(x) else sum(w)
     return(list(M = M, w = denom))
   }
   
   # Now the interesting case
+  if (!is.vector(x) && !is.matrix(x)) {
+    x <- as.matrix(x)
+  }
   if (is.null(w)) {
-    w <- rep.int(1, NROW(x))
+    w <- rep.int(1.0, NROW(x))
   } else {
     x <- x * w  # w is correctly recycled over columns
   }
@@ -147,7 +125,7 @@ gwColMeans <- function(x, g = NULL, w = NULL, reorder = TRUE) {
 #' @noRd
 #' @keywords internal
 #' 
-#' @param x Matrix, data.frame, or vector.
+#' @param x Vector or matrix-like.
 #' @param w Optional vector of case weights.
 #' @returns Centered version of `x` (vectors are turned into single-column matrix).
 wcenter <- function(x, w = NULL) {

@@ -1,3 +1,22 @@
+#' Prepares Predictions
+#' 
+#' @noRd
+#' @keywords internal
+#' 
+#' @param x Object representing model predictions.
+#' @param ohe If `TRUE` (default), a factor `x` is OHE. Otherwise, it is passed as is.
+#' @returns Like `x`, but converted to matrix, vector, or factor.
+prepare_pred <- function(x, ohe = TRUE) {
+  if (is.data.frame(x)) {
+    if (ncol(x) == 1L) {
+      x <- x[[1L]]
+    } else {
+      return(as.matrix(x))
+    }
+  }
+  if (is.factor(x) && ohe) fdummy(x) else x
+}
+
 #' Prepares Group BY Variable
 #' 
 #' Internal function that prepares a BY variable or BY column name.
@@ -56,10 +75,13 @@ prepare_w <- function(w, X) {
   } else {
     stopifnot(
       NCOL(w) == 1L,
-      is.numeric(w),
+      is.numeric(w),    # integer will be ok here
       length(w) == nrow(X)
     )
     w_name <- NULL
+  }
+  if (!is.double(w)) {  # integer will be converted here
+    w <- as.numeric(w)
   }
   list(w = w, w_name = w_name)
 }

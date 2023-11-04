@@ -1,12 +1,3 @@
-test_that("align_pred() works", {
-  expect_error(align_pred("a"))
-  
-  x <- array(1:4, dim = c(2L, 2L))
-  
-  expect_equal(align_pred(x), cbind(1:2, 3:4))
-  expect_equal(align_pred(1:4), cbind(1:4))
-})
-
 test_that("fdummy() works", {
   x <- c("A", "A", "C", "D")
   mm <- matrix(model.matrix(~ x + 0), ncol = 3, dimnames = list(NULL, c("A", "C", "D")))
