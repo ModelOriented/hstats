@@ -1,12 +1,13 @@
 #' Prepares Predictions
 #' 
+#' Converts predictions to vector, matrix or factor.
+#' 
 #' @noRd
 #' @keywords internal
 #' 
 #' @param x Object representing model predictions.
-#' @param ohe If `TRUE` (default), a factor `x` is OHE. Otherwise, it is passed as is.
 #' @returns Like `x`, but converted to matrix, vector, or factor.
-prepare_pred <- function(x, ohe = TRUE) {
+prepare_pred <- function(x) {
   if (is.data.frame(x)) {
     if (ncol(x) == 1L) {
       x <- x[[1L]]
@@ -14,7 +15,7 @@ prepare_pred <- function(x, ohe = TRUE) {
       return(as.matrix(x))
     }
   }
-  if (is.factor(x) && ohe) fdummy(x) else x
+  if (is.vector(x) || is.matrix(x) || is.factor(x)) x else as.matrix(x)
 }
 
 #' Prepares Group BY Variable

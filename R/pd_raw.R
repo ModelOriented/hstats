@@ -78,7 +78,7 @@ ice_raw <- function(object, v, X, grid, pred_fun = stats::predict,
   }
   
   # Calculate matrix/vector of predictions
-  pred <- prepare_pred(pred_fun(object, X_pred, ...), ohe = TRUE)
+  pred <- prepare_pred(pred_fun(object, X_pred, ...))
   
   if (pred_only) {
     return(pred)

@@ -1,7 +1,6 @@
 test_that("prepare_pred() works", {
   expect_equal(prepare_pred(iris[1:4]), data.matrix(iris[1:4]))
-  expect_equal(prepare_pred(iris["Species"]), fdummy(iris$Species))
-  expect_equal(prepare_pred(iris["Species"], ohe = FALSE), iris$Species)
+  expect_equal(prepare_pred(iris["Species"]), iris$Species)
   expect_equal(prepare_pred(iris$Sepal.Width), iris$Sepal.Width)
   expect_equal(prepare_pred(iris["Sepal.Width"]), iris$Sepal.Width)
 })

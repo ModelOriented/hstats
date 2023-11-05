@@ -1,7 +1,10 @@
 #' Fast OHE
 #' 
-#' Turns vector/factor into integer matrix with One-Hot-Encoding.
+#' Turns vector/factor into its One-Hot-Encoding.
 #' Ingeniouly written by Mathias Ambuehl.
+#' 
+#' Working with integers would be slightly faster, but at the price
+#' of potential integer overflows in subsequent operations.
 #' 
 #' @noRd
 #' @keywords internal
@@ -11,11 +14,11 @@
 fdummy <- function(x) {
   x <- as.factor(x)
   lev <- levels(x)
-  out <- matrix(0L, nrow = length(x), ncol = length(lev))
-  out[cbind(seq_along(x), as.integer(x))] <- 1L
+  out <- matrix(0, nrow = length(x), ncol = length(lev))
+  out[cbind(seq_along(x), as.integer(x))] <- 1
   colnames(out) <- lev
   out 
-} 
+}
 
 #' Fast Weighted Mean by Fixed-Length Groups
 #' 
@@ -24,7 +27,7 @@ fdummy <- function(x) {
 #' @noRd
 #' @keywords internal
 #' 
-#' @param x Vector or matrix-like.
+#' @param x Vector, factor or matrix-like.
 #' @param ngroups Number of groups (`x` was stacked that many times).
 #' @param w Optional vector with case weights of length `NROW(x) / ngroups`.
 #' @returns A (g x K) matrix, where g is the number of groups, and K = NCOL(x).
@@ -32,7 +35,9 @@ wrowmean <- function(x, ngroups = 1L, w = NULL) {
   if (ngroups == 1L) {
     return(t.default(wcolMeans(x, w = w)))
   }
-  if (!is.vector(x) && !is.matrix(x)) {
+  if (is.factor(x)) {
+    x <- fdummy(x)
+  } else if (!is.vector(x) && !is.matrix(x)) {
     x <- as.matrix(x)
   }
   n_bg <- NROW(x) %/% ngroups
@@ -53,12 +58,30 @@ wrowmean <- function(x, ngroups = 1L, w = NULL) {
   rownames(out) <- NULL
   out
 }
-# wrowmean <- function(x, ngroups, w = NULL) {
+
+# faster
+# wrowmean2 <- function(x, ngroups, w = NULL) {
 #   n_bg <- NROW(x) %/% ngroups
 #   if (!is.null(w)) {
 #     w <- rep(w, times = ngroups)
 #   }
 #   collapse::fmean(x, g = rep(seq_len(ngroups), each = n_bg), w = w)
+# }
+# 
+# faster for large vectors, slower for large matrices
+# wrowmean3 <- function(x, ngroups, w = NULL) {
+#   x <- as.matrix(x)
+#   p <- NCOL(x)
+#   n <- NROW(x) / ngroups
+#   x <- t.default(x)
+#   dim(x) <- c(p, n, ngroups)
+#   x <- aperm(x, perm = c(2L, 3L, 1L))
+#   
+#   if (is.null(w)) {
+#     colMeans(x)
+#   } else {
+#     colSums(x * w) / sum(w)
+#   }
 # }
 
 #' Weighted Version of colMeans()
@@ -69,7 +92,7 @@ wrowmean <- function(x, ngroups = 1L, w = NULL) {
 #' @noRd
 #' @keywords internal
 #' 
-#' @param x A matrix-like or vector.
+#' @param x A vector, factor, or matrix-like.
 #' @param w Optional case weights.
 #' @returns A vector of column means.
 wcolMeans <- function(x, w = NULL) {
@@ -77,7 +100,9 @@ wcolMeans <- function(x, w = NULL) {
     # stat::weighted.mean() is much slower than via colSums()
     return(mean(x))
   }
-  if (!is.matrix(x)) {
+  if (is.factor(x)) {
+    x <- fdummy(x)
+  } else if (!is.matrix(x)) {
     x <- as.matrix(x)
   }
   if (is.null(w)) {
@@ -97,15 +122,14 @@ wcolMeans <- function(x, w = NULL) {
 #' @noRd
 #' @keywords internal
 #' 
-#' @param x A vector or matrix-like object.
+#' @param x A vector, factor or matrix-like object.
 #' @param g Optional grouping variable.
 #' @param w Optional case weights.
-#' @param reorder Should groups be ordered, see [rowsum()]. Default is `TRUE`.
 #' @returns A list with two elements: "M" represents a matrix of grouped (column) 
 #'   means, and "w" is a vector of corresponding group counts/weights.
 #' @examples 
 #' with(iris, gwColMeans(Sepal.Width, g = Species, w = Sepal.Length))
-gwColMeans <- function(x, g = NULL, w = NULL, reorder = TRUE) {
+gwColMeans <- function(x, g = NULL, w = NULL) {
   if (is.null(g)) {
     M <- t.default(wcolMeans(x, w = w))
     denom <- if (is.null(w)) NROW(x) else sum(w)
@@ -113,20 +137,21 @@ gwColMeans <- function(x, g = NULL, w = NULL, reorder = TRUE) {
   }
   
   # Now the interesting case
-  if (!is.vector(x) && !is.matrix(x)) {
+  if (is.factor(x)) {
+    x <- fdummy(x)
+  } else if (!is.vector(x) && !is.matrix(x)) {
     x <- as.matrix(x)
   }
   if (is.null(w)) {
-    w <- rep.int(1.0, NROW(x))
+    w <- rep.int(1, NROW(x))
   } else {
     if (!is.double(w)) {
       w <- as.double(w)
     }
     x <- x * w  # w is correctly recycled over columns
   }
-  num <- rowsum(x, group = g, reorder = reorder)
-  denom <- as.numeric(rowsum(w, group = g, reorder = reorder))
-  list(M = num / denom, w = denom)
+  denom <- as.numeric(rowsum(w, group = g))
+  list(M = rowsum(x, group = g) / denom, w = denom)
 }
 
 #' Weighted Mean Centering
