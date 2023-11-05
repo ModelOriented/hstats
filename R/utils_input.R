@@ -8,12 +8,8 @@
 #' @param x Object representing model predictions.
 #' @returns Like `x`, but converted to matrix, vector, or factor.
 prepare_pred <- function(x) {
-  if (is.data.frame(x)) {
-    if (ncol(x) == 1L) {
-      x <- x[[1L]]
-    } else {
-      return(as.matrix(x))
-    }
+  if (is.data.frame(x) && ncol(x) == 1L) {
+    x <- x[[1L]]
   }
   if (is.vector(x) || is.matrix(x) || is.factor(x)) x else as.matrix(x)
 }
@@ -96,7 +92,8 @@ prepare_w <- function(w, X) {
 #' @param y Vector/matrix-like of the same length as `X`, or column names in `X`.
 #' @param X Matrix-like.
 #' 
-#' @returns A list.
+#' @returns A list with "y" (vector, matrix, or factor) and "y_names" (if `y`
+#'   was passed as column names).
 prepare_y <- function(y, X) {
   if (NROW(y) < nrow(X) && all(y %in% colnames(X))) {
     y_names <- y
@@ -109,7 +106,7 @@ prepare_y <- function(y, X) {
     stopifnot(NROW(y) == nrow(X))
     y_names <- NULL
   }
-  list(y = y, y_names = y_names)
+  list(y = prepare_pred(y), y_names = y_names)
 }
 
 #' mlr3 Helper

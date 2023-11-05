@@ -1,9 +1,10 @@
-# hstats 1.0.1
+# hstats 1.1.0
 
 ## Enhancements
 
-- `hstats()`, `partial_dep()`, `ice()` now also work for factor predictions. They are represented as one-hot-encoded vectors.
-- Use of a much faster way to one-hot-encode factor predictions, written by Mathias Ambühl.
+- `hstats()`, `partial_dep()`, `ice()` now also work for factor predictions. Each level is represented by its one-hot-encoded values.
+- Much faster one-hot-encoding, written by Mathias Ambühl.
+- Most functions are slightly faster.
 - The plot method of a two-dimensional PDP has recieved the option `d2_geom = "line"`. Instead of a heatmap of the two features, one of the features is moved to color grouping. This might give a better impression where the interaction happens. Combined with `swap_dim = TRUE`, you can swap the role of the two `v` variables without recalculating anything. The idea was proposed by [Roel Verbelen](https://github.com/RoelVerbelen) in [issue #91](https://github.com/mayer79/hstats/issues/91), see also [issue #94](https://github.com/mayer79/hstats/issues/94).
 
 ## Bug fixes

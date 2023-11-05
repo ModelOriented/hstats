@@ -15,7 +15,7 @@ test_that("print method does not give an error", {
 
 test_that("ice() returns the same values as ice_raw()", {
   g <- rev(univariate_grid(iris$Species))
-  ic1 <- c(ice_raw(fit1, v = "Species", X = iris2, grid = g))
+  ic1 <- unname(ice_raw(fit1, v = "Species", X = iris2, grid = g))
   ic2 <- ice(fit1, v = "Species", X = iris2, grid = g)$data$y
   expect_equal(ic1, ic2)
   
@@ -236,3 +236,4 @@ test_that("ice() works with missing value in BY", {
   expect_true(anyNA(r$data$x3))
   expect_s3_class(plot(r), "ggplot")
 })
+

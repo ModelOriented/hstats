@@ -125,3 +125,36 @@ test_that("multivariate_grid() can deal with missings", {
     anyNA(multivariate_grid(na.omit(xy), grid_size = 6, strategy = "uniform", na.rm = FALSE))
   )
 })
+
+test_that("qcut() works (test should be improved)", {
+  x <- 1:100
+  expect_equal(levels(qcut(x, m = 2)), c("[1,50]", "(50,100]"))
+  expect_equal(levels(qcut(x, m = 4)), c("[1,25]", "(25,50]", "(50,75]", "(75,100]"))
+})
+
+test_that("qcut() works with missings", {
+  expect_true(is.na(qcut(c(NA, 1:9), m = 2)[1L]))
+})
+
+test_that("approx_matrix_or_df works as expected", {
+  expect_equal(approx_matrix_or_df(iris, m = 200L), iris)
+  expect_false(identical(r <- approx_matrix_or_df(iris, m = 5L), iris))
+  expect_equal(length(unique(r$Species)), 3L)
+  expect_equal(length(unique(r$Sepal.Width)), 5L)
+  
+  ir <- data.matrix(iris[1:4])
+  expect_equal(approx_matrix_or_df(ir, m = 200L), ir)
+  expect_false(identical(approx_matrix_or_df(ir, m = 5L), ir))
+  expect_equal(length(unique(r[, "Sepal.Width"])), 5L)
+  
+  X <- cbind(dense = 1:20, discrete = rep(1:2, each = 10))
+  expect_equal(
+    apply(approx_matrix_or_df(X, m = 5L), 2L, function(x) length(unique(x))), 
+    c(dense = 5L, discrete = 2L)
+  )
+})
+
+test_that("approx_vector() works with missings", {
+  expect_equal(approx_vector(c(NA, "A", "B"), m = 2), c(NA, "A", "B"))
+  expect_true(is.na(approx_vector(c(NA, 1:9), m = 2)[1L]))
+})

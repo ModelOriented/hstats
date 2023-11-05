@@ -3,8 +3,8 @@
 #' Turns vector/factor into its One-Hot-Encoding.
 #' Ingeniouly written by Mathias Ambuehl.
 #' 
-#' Working with integers would be slightly faster, but at the price
-#' of potential integer overflows in subsequent operations.
+#' Working with integers instead of doubles would be slightly faster, but at the price
+#' of potential integer overflows in subsequent calculations.
 #' 
 #' @noRd
 #' @keywords internal
@@ -20,9 +20,65 @@ fdummy <- function(x) {
   out 
 }
 
+#' Weighted Version of colMeans()
+#' 
+#' Internal function used to calculate column-wise weighted means.
+#' 
+#' @noRd
+#' @keywords internal
+#' 
+#' @param x A vector, factor, or matrix-like.
+#' @param w Optional case weights.
+#' @returns A vector of column means.
+wcolMeans <- function(x, w = NULL) {
+  if (NCOL(x) == 1L && is.atomic(x) && !is.factor(x) && is.null(w)) {
+    # stat::weighted.mean() is much slower than via colSums()
+    return(mean(x))
+  }
+  if (is.factor(x)) {
+    if (is.null(w)) {
+      return(colMeans_factor(x))
+    }
+    x <- fdummy(x)
+  } else if (!is.matrix(x)) {
+    x <- as.matrix(x)
+  }
+  if (is.null(w)) {
+    return(colMeans(x))
+  }
+  if (length(w) != nrow(x)) {
+    stop("w must be of length nrow(x).")
+  }
+  if (!is.double(w)) {
+    w <- as.double(w)
+  }
+  colSums(x * w) / sum(w)
+}
+
+#' colMeans() for Factors
+#'
+#' Internal function used to calculate proportions of factor levels.
+#' It is less memory-hungry than `colMeans(fdummy(x))`, and much faster.
+#' A weighted version via `rowsum(w, x)` is not consistently faster than
+#' `wcolMeans(fdummy(x))`, so we currently focus on the non-weighted case.
+#' Furthermore, `rowsum()` drops empty factor levels.
+#'
+#' @noRd
+#' @keywords internal
+#'
+#' @param x Factor.
+#' @returns Named vector.
+colMeans_factor <- function(x) {
+  x <- as.factor(x)
+  lev <- levels(x)
+  out <- tabulate(x, nbins = length(lev)) / length(x)
+  names(out) <- lev
+  out
+}
+
 #' Fast Weighted Mean by Fixed-Length Groups
 #' 
-#' Internal workhorse to aggregate predictions per evaluation point of a PD.
+#' Internal workhorse to aggregate predictions over fixed-length grids.
 #' 
 #' @noRd
 #' @keywords internal
@@ -35,83 +91,107 @@ wrowmean <- function(x, ngroups = 1L, w = NULL) {
   if (ngroups == 1L) {
     return(t.default(wcolMeans(x, w = w)))
   }
-  if (is.factor(x)) {
-    x <- fdummy(x)
-  } else if (!is.vector(x) && !is.matrix(x)) {
-    x <- as.matrix(x)
-  }
-  n_bg <- NROW(x) %/% ngroups
-  g <- rep(seq_len(ngroups), each = n_bg)
-  # Even faster: cbind(collapse::fmean(x, g = g, w = w))
-  if (is.null(w)) {
-    out <- rowsum(x, group = g, reorder = FALSE) / n_bg
-  } else {
-    if (length(w) != n_bg) {
+  
+  # Prep w
+  if (!is.null(w)) {
+    if (length(w) != NROW(x) %/% ngroups) {
       stop("w must be of length NROW(x) / ngroups.")
     }
     if (!is.double(w)) {
       w <- as.double(w)
     }
+  }
+  
+  # Very fast case for factors w/o weights and vectors/1d-matrices
+  if (is.factor(x)) {
+    if (is.null(w)) {
+      return(rowmean_factor(x, ngroups = ngroups))
+    }
+    x <- fdummy(x)
+  } 
+  if (is.vector(x) || (is.matrix(x) && ncol(x) == 1L)) {
+    return(wrowmean_vector(x, ngroups = ngroups, w = w))
+  }
+
+  # General version
+  if (!is.matrix(x)) {
+    x <- as.matrix(x)
+  }
+  wrowmean_matrix(x, ngroups = ngroups, w = w)
+}
+
+#' (w)rowmean() for Factors (without weights)
+#'
+#' `colMeans_factor()` for equal sized groups.
+#'
+#' @noRd
+#' @keywords internal
+#'
+#' @param x Factor.
+#' @param ngroups Number of subsequent, equals sized groups.
+#' @returns Matrix with column names.
+rowmean_factor <- function(x, ngroups = 1L) {
+  if (!is.factor(x)) {
+    stop("x must be a factor.")
+  }
+  lev <- levels(x)
+  n_bg <- length(x) %/% ngroups
+  dim(x) <- c(n_bg, ngroups)
+  out <- t.default(apply(x, 2L, FUN = tabulate, nbins = length(lev)))
+  colnames(out) <- lev
+  out / n_bg
+}
+
+#' wrowmean() for Vectors
+#'
+#' Weighted column means over fixed-length groups for vectors or 1d matrices.
+#'
+#' @noRd
+#' @keywords internal
+#'
+#' @param x Vector or matrix with one column.
+#' @param ngroups Number of subsequent, equals sized groups.
+#' @param w Optional vector of case weights of length `NROW(x) / ngroups`.
+#' @returns Matrix.
+wrowmean_vector <- function(x, ngroups = 1L, w = NULL) {
+  if (!(is.vector(x) || (is.matrix(x) && ncol(x) == 1L))) {
+    stop("x must be a vector or a single column matrix")
+  }
+  nm <- if (is.matrix(x)) colnames(x)
+  dim(x) <- c(length(x) %/% ngroups, ngroups)
+  out <- as.matrix(if (is.null(w)) colMeans(x) else colSums(x * w) / sum(w))
+  if (!is.null(nm)) {
+    colnames(out) <- nm
+  }
+  out
+}
+
+#' wrowmean() for Matrices
+#'
+#' Weighted column means over fixed-length groups for matrices.
+#'
+#' @noRd
+#' @keywords internal
+#'
+#' @param x Matrix.
+#' @param ngroups Number of subsequent, equals sized groups.
+#' @param w Optional vector of case weights of length `NROW(x) / ngroups`.
+#' @returns Matrix.
+wrowmean_matrix <- function(x, ngroups = 1L, w = NULL) {
+  if (!is.matrix(x)) {
+    stop("x must be a matrix.")
+  }
+  n_bg <- nrow(x) %/% ngroups
+  g <- rep(seq_len(ngroups), each = n_bg)
+  # Even faster: cbind(collapse::fmean(x, g = g, w = w))
+  if (is.null(w)) {
+    out <- rowsum(x, group = g, reorder = FALSE) / n_bg
+  } else {
     # w is recycled over rows and columns
     out <- rowsum(x * w, group = g, reorder = FALSE) / sum(w)
   }
   rownames(out) <- NULL
   out
-}
-
-# faster
-# wrowmean2 <- function(x, ngroups, w = NULL) {
-#   n_bg <- NROW(x) %/% ngroups
-#   if (!is.null(w)) {
-#     w <- rep(w, times = ngroups)
-#   }
-#   collapse::fmean(x, g = rep(seq_len(ngroups), each = n_bg), w = w)
-# }
-# 
-# faster for large vectors, slower for large matrices
-# wrowmean3 <- function(x, ngroups, w = NULL) {
-#   x <- as.matrix(x)
-#   p <- NCOL(x)
-#   n <- NROW(x) / ngroups
-#   x <- t.default(x)
-#   dim(x) <- c(p, n, ngroups)
-#   x <- aperm(x, perm = c(2L, 3L, 1L))
-#   
-#   if (is.null(w)) {
-#     colMeans(x)
-#   } else {
-#     colSums(x * w) / sum(w)
-#   }
-# }
-
-#' Weighted Version of colMeans()
-#' 
-#' Internal function used to calculate column-wise weighted means.
-#' Could made be faster for factors via tabulate().
-#' 
-#' @noRd
-#' @keywords internal
-#' 
-#' @param x A vector, factor, or matrix-like.
-#' @param w Optional case weights.
-#' @returns A vector of column means.
-wcolMeans <- function(x, w = NULL) {
-  if (NCOL(x) == 1L && is.atomic(x) && is.null(w)) {
-    # stat::weighted.mean() is much slower than via colSums()
-    return(mean(x))
-  }
-  if (is.factor(x)) {
-    x <- fdummy(x)
-  } else if (!is.matrix(x)) {
-    x <- as.matrix(x)
-  }
-  if (is.null(w)) {
-    return(colMeans(x))
-  }
-  if (!is.double(w)) {
-    w <- as.double(w)
-  }
-  colSums(x * w) / sum(w)
 }
 
 #' Grouped wcolMeans()
@@ -171,63 +251,4 @@ wcenter <- function(x, w = NULL) {
   }
   # sweep(x, MARGIN = 2L, STATS = wcolMeans(x, w = w))  # Slower
   x - matrix(wcolMeans(x, w = w), nrow = nrow(x), ncol = ncol(x), byrow = TRUE)
-}
-
-#' Bin into Quantiles
-#' 
-#' Internal function. Applies [cut()] to quantile breaks.
-#' 
-#' @noRd
-#' @keywords internal
-#' 
-#' @param x A numeric vector.
-#' @param m Number of intervals.
-#' @returns A factor, representing binned `x`.
-qcut <- function(x, m) {
-  p <- seq(0, 1, length.out = m + 1L)
-  g <- stats::quantile(x, probs = p, names = FALSE, type = 1L, na.rm = TRUE)
-  cut(x, breaks = unique(g), include.lowest = TRUE)
-}
-
-#' Approximate Vector
-#' 
-#' Internal function. Approximates values by the average of the two closest quantiles.
-#' 
-#' @noRd
-#' @keywords internal
-#' 
-#' @param x A vector or factor.
-#' @param m Number of unique values.
-#' @returns An approximation of `x` (or `x` if non-numeric or discrete).
-approx_vector <- function(x, m = 50L) {
-  if (!is.numeric(x) || length(unique(x)) <= m) {
-    return(x)
-  }
-  p <- seq(0, 1, length.out = m + 1L)
-  q <- unique(stats::quantile(x, probs = p, names = FALSE, na.rm = TRUE))
-  mids <- (q[-length(q)] + q[-1L]) / 2
-  return(mids[findInterval(x, q, rightmost.closed = TRUE)])
-}
-
-#' Approximate df or Matrix
-#' 
-#' Internal function. Calls `approx_vector()` to each column in matrix or data.frame.
-#' 
-#' @noRd
-#' @keywords internal
-#' 
-#' @param X A matrix or data.frame.
-#' @param m Number of unique values.
-#' @returns An approximation of `X` (or `X` if non-numeric or discrete).
-approx_matrix_or_df <- function(X, v = colnames(X), m = 50L) {
-  stopifnot(
-    m >= 2L,
-    is.data.frame(X) || is.matrix(X)
-  )
-  if (is.data.frame(X)) {
-    X[v] <- lapply(X[v], FUN = approx_vector, m = m)  
-  } else {  # Matrix
-    X[, v] <- apply(X[, v, drop = FALSE], MARGIN = 2L, FUN = approx_vector, m = m)  
-  }
-  return(X)
 }
