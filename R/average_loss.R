@@ -93,8 +93,7 @@ average_loss.default <- function(object, X, y,
   
   # Real work
   pred <- prepare_pred(pred_fun(object, X, ...))
-  L <- loss(y, pred)
-  M <- gwColMeans(L, g = BY, w = w)[["M"]]
+  M <- gwColMeans(loss(y, pred), g = BY, w = w)[["M"]]
   
   if (agg_cols && ncol(M) > 1L) {
     M <- cbind(rowSums(M))

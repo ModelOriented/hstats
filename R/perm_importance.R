@@ -120,8 +120,7 @@ perm_importance.default <- function(object, X, y, v = NULL,
   
   # Pre-shuffle performance
   pred <- prepare_pred(pred_fun(object, X, ...))
-  L <- loss(y, pred)
-  perf <- wcolMeans(L, w = w)
+  perf <- wcolMeans(loss(y, pred), w = w)
 
   # Stack y and X m times
   if (m_rep > 1L) {
@@ -138,8 +137,7 @@ perm_importance.default <- function(object, X, y, v = NULL,
     ind <- c(replicate(m_rep, sample(seq_len(n))))
     XX[, z] <- XX[ind, z]
     pred <- prepare_pred(pred_fun(object, XX, ...))
-    L <- loss(y, pred)
-    t(wrowmean(L, ngroups = m_rep, w = w))
+    t(wrowmean(loss(y, pred), ngroups = m_rep, w = w))
   }
   
   # Step 0: Performance after shuffling (expensive)
