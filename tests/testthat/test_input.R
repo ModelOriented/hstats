@@ -20,3 +20,25 @@ test_that("prepare_by() works", {
   expect_equal(by1$by_name, "Group")
   expect_equal(by2$by_name, "Species")
 })
+
+test_that("prepare_y() works", {
+  # "Vector" interface
+  expect_equal(prepare_y(iris[1:4], X = iris)$y, data.matrix(iris[1:4]))
+  expect_equal(prepare_y(iris["Species"], X = iris)$y, iris$Species)
+  expect_equal(prepare_y(iris$Sepal.Width, X = iris)$y, iris$Sepal.Width)
+  expect_equal(prepare_y(iris["Sepal.Width"], X = iris)$y, iris$Sepal.Width)
+  
+  # "Column names" interface
+  cn <- colnames(iris[1:4])
+  out <- prepare_y(cn, X = iris)
+  expect_equal(out$y, data.matrix(iris[1:4]))
+  expect_equal(out$y_names, cn)
+  
+  out <- prepare_y("Species", X = iris)
+  expect_equal(out$y, iris$Species)
+  expect_equal(out$y_names, "Species")
+  
+  out <- prepare_y("Sepal.Width", X = iris)
+  expect_equal(out$y, iris$Sepal.Width)
+  expect_equal(out$y_names, "Sepal.Width")
+})
