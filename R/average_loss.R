@@ -39,6 +39,8 @@
 #'   For "mlogloss", the response `y` can either be a dummy matrix or a discrete vector. 
 #'   The latter case is handled via a fast version of `model.matrix(~ as.factor(y) + 0)`.
 #'   For "classification_error", both predictions and responses can be non-numeric.
+#'   For "squared_error", both predictions and responses can be factors with identical
+#'   levels. In this case, squared error is evaulated for each one-hot-encoded column.
 #' @param agg_cols Should multivariate losses be summed up? Default is `FALSE`.
 #'   In combination with the squared error loss, `agg_cols = TRUE` gives
 #'   the Brier score for (probabilistic) classification.

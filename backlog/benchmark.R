@@ -186,7 +186,7 @@ system.time({
 }
 )
 
-# Using 50 quantiles to approximate dense numerics: 0.8s
+# Using 50 quantiles to approximate dense numerics: 0.9s
 system.time(
   H_approx <- hstats(fit, v = x, X = X_v500, n_max = Inf, approx = TRUE)
 )

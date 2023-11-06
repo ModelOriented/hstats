@@ -1,3 +1,22 @@
+#' Fast Index Generation
+#' 
+#' For not too small m, much faster than `rep(seq_len(m), each = each)`.
+#' 
+#' @noRd
+#' @keywords internal
+#' 
+#' @param m Integer. See `each`.
+#' @param each Integer. How many times should each value in `1:m` be repeated?
+#' @returns Like `x`, but converted to matrix.
+#' @examples
+#' rep_each(10, 2)
+#' rep(1:10, each = 2)  # Dito
+rep_each <- function(m, each) {
+  out <- .col(dim = c(each, m))
+  dim(out) <- NULL
+  out 
+}
+
 #' Fast OHE
 #' 
 #' Turns vector/factor into its One-Hot-Encoding.
@@ -182,7 +201,7 @@ wrowmean_matrix <- function(x, ngroups = 1L, w = NULL) {
     stop("x must be a matrix.")
   }
   n_bg <- nrow(x) %/% ngroups
-  g <- rep(seq_len(ngroups), each = n_bg)
+  g <- rep_each(ngroups, each = n_bg)  # rep(seq_len(ngroups), each = n_bg)
   # Even faster: cbind(collapse::fmean(x, g = g, w = w))
   if (is.null(w)) {
     out <- rowsum(x, group = g, reorder = FALSE) / n_bg

@@ -102,7 +102,9 @@ can be provided that turns observed and predicted values into a numeric vector o
 matrix of unit losses of the same length as \code{X}.
 For "mlogloss", the response \code{y} can either be a dummy matrix or a discrete vector.
 The latter case is handled via a fast version of \code{model.matrix(~ as.factor(y) + 0)}.
-For "classification_error", both predictions and responses can be non-numeric.}
+For "classification_error", both predictions and responses can be non-numeric.
+For "squared_error", both predictions and responses can be factors with identical
+levels. In this case, squared error is evaulated for each one-hot-encoded column.}
 
 \item{m_rep}{Number of permutations (default 4).}
 

@@ -134,7 +134,7 @@ perm_importance.default <- function(object, X, y, v = NULL,
   }
   
   shuffle_perf <- function(z, XX) {
-    ind <- c(replicate(m_rep, sample(seq_len(n))))
+    ind <- c(replicate(m_rep, sample(seq_len(n))))  # shuffle within n rows
     XX[, z] <- XX[ind, z]
     pred <- prepare_pred(pred_fun(object, XX, ...))
     t(wrowmean(loss(y, pred), ngroups = m_rep, w = w))

@@ -8,6 +8,17 @@ test_that("losses are identical to stats package for specific case", {
   p <- c(0, 1, 0.1, 1, 0, 0.9)
   expect_equal(loss_poisson(y, p), poisson()$dev.resid(y, p, 1))
   expect_equal(loss_logloss(y, p), binomial()$dev.resid(y, p, 1) / 2)
+  
+  # Single values
+  y <- 3
+  p <- y^2
+  expect_equal(loss_squared_error(y, p), gaussian()$dev.resid(y, p, 1))
+  expect_equal(loss_gamma(y, p), Gamma()$dev.resid(y, p, 1))
+  
+  y <- 0
+  p <- 0.1
+  expect_equal(loss_poisson(y, p), poisson()$dev.resid(y, p, 1))
+  expect_equal(loss_logloss(y, p), binomial()$dev.resid(y, p, 1) / 2)
 })
 
 test_that("losses are identical to stats package for specific case (multivariate)", {
@@ -30,10 +41,36 @@ test_that("losses are identical to stats package for specific case (multivariate
   
   expect_equal(loss_logloss(y2, p), binomial()$dev.resid(y2, p, 1) / 2)
   expect_equal(loss_logloss(y, p), binomial()$dev.resid(y2, p, 1) / 2)
+  
+  # Single input
+  y <- 3
+  y2 <- rbind(replicate(2, y))
+  p <- y2^2
+  
+  expect_equal(loss_squared_error(y2, p), gaussian()$dev.resid(y2, p, 1))
+  expect_equal(loss_squared_error(y, p), gaussian()$dev.resid(y2, p, 1))
+  
+  expect_equal(loss_gamma(y2, p), Gamma()$dev.resid(y2, p, 1))
+  expect_equal(loss_gamma(y, p), Gamma()$dev.resid(y2, p, 1))
+  
+  y <- 0
+  y2 <- replicate(2, y)
+  p <- rbind(replicate(2, 0.1))
+  
+  expect_equal(loss_poisson(y2, p), poisson()$dev.resid(y2, p, 1))
+  expect_equal(loss_poisson(y, p), poisson()$dev.resid(y2, p, 1))
+  
+  expect_equal(loss_logloss(y2, p), rbind(binomial()$dev.resid(y2, p, 1) / 2))
+  expect_equal(loss_logloss(y, p), rbind(binomial()$dev.resid(y2, p, 1) / 2))
 })
 
 test_that("loss_absolute_error() works for specific case", {
   y <- 1:10
+  p <- y^2
+  expect_equal(loss_absolute_error(y, p), abs(y - p))
+  
+  # Single input
+  y <- 3
   p <- y^2
   expect_equal(loss_absolute_error(y, p), abs(y - p))
 })
@@ -45,11 +82,24 @@ test_that("loss_absolute_error() works for specific case (multivariate)", {
   colnames(p) <- c("a", "b")
   expect_equal(loss_absolute_error(y2, p), abs(y2 - p))
   expect_equal(loss_absolute_error(y, p), abs(y2 - p))
+  
+  # Single input
+  y <- 3
+  y2 <- rbind(replicate(2, y))
+  p <- y2^2
+  colnames(p) <- c("a", "b")
+  expect_equal(loss_absolute_error(y2, p), abs(y2 - p))
+  expect_equal(loss_absolute_error(y, p), abs(y2 - p))
 })
 
 test_that("loss_classification_error() works for specific case", {
   y <- iris$Species
   p <- rev(iris$Species)
+  expect_equal(loss_classification_error(y, p), 0 + (y != p))
+  
+  # Single input
+  y <- y[1L]
+  p <- rev(iris$Species)[1L]
   expect_equal(loss_classification_error(y, p), 0 + (y != p))
 })
 
@@ -85,16 +135,24 @@ test_that("loss_mlogloss() either understands matrix responses or factors", {
   expect_equal(loss_mlogloss(Y, pred), loss_mlogloss(y, pred))
 })
 
+test_that("squared error can be calculated on factors", {
+  expect_equal(
+    colSums(loss_squared_error(iris$Species, rev(iris$Species))),
+    c(setosa = 100, versicolor = 0, virginica = 100)
+  )
+})
+
 test_that("Some errors are thrown", {
   expect_error(loss_poisson(-1:1, 1:2))
   expect_error(loss_poisson(0:1, -1:0))
+  expect_error(loss_poisson(iris$Species, iris$Species))
   expect_error(loss_gamma(0:1, 1:2))
   expect_error(loss_gamma(1:2, -1:0))
   expect_error(loss_logloss(-1:0, 0:1))
   expect_error(loss_logloss(0:1, -1:0))
   expect_error(loss_mlogloss(cbind(-1:0), 0:1))
   expect_error(loss_mlogloss(0:1, cbind(-1:0)))
-  
+
   expect_error(check_dim(cbind(1:3), cbind(1:3, 1:3)))
 })
 
@@ -113,14 +171,3 @@ test_that("get_loss_fun() works", {
   expect_equal(get_loss_fun("poisson"), loss_poisson)
 })
 
-test_that("expand_actual() works", {
-  expect_equal(expand_actual(5:1, 1:5), 5:1)
-  expect_equal(expand_actual(head(iris), head(iris)), head(iris))
-  
-  xpected <- replicate(5L, 1:6)
-  colnames(xpected) <- colnames(iris)
-  expect_equal(expand_actual(1:6, head(iris)), xpected)
-  expect_equal(expand_actual(data.frame(a = 1:6), head(iris)), xpected)
-  expect_equal(expand_actual(cbind(a = 1:6), head(iris)), xpected)
-  expect_error(expand_actual(cbind(a = 1:6, b = 6:1), head(iris)))
-})

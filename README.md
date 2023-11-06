@@ -229,7 +229,7 @@ Strongest relative interaction shown as ICE plot.
 
 ## Multivariate responses
 
-{hstats} works also with multivariate output such as probabilistic classification, see examples with 
+{hstats} works also with multivariate output, see examples with 
 
 - ranger, 
 - LightGBM, and 
@@ -239,8 +239,6 @@ Strongest relative interaction shown as ICE plot.
 
 ```r
 library(hstats)
-
-set.seed(1)
 
 ix <- c(1:40, 51:90, 101:140)
 train <- iris[ix, ]
@@ -319,7 +317,9 @@ ice(fit, v = "Petal.Length", X = X_train, reshape = TRUE) |>
   plot(swap_dim = TRUE, alpha = 0.05)
 
 # Interaction statistics, including three-way stats
-(H <- hstats(fit, X = X_train, reshape = TRUE, threeway_m = 4))  # 0.3010446 0.4167927 0.1623982
+(H <- hstats(fit, X = X_train, reshape = TRUE, threeway_m = 4))  
+# 0.3010446 0.4167927 0.1623982
+
 plot(H, ncol = 1)
 ```
 
@@ -369,11 +369,38 @@ perm_importance(
 #  1.731532873  0.276671377  0.009158659  0.005717263 
 
 # Interaction statistics including three-way stats
-(H <- hstats(fit, X = X_train, reshape = TRUE, threeway_m = 4))  # 0.02714399 0.16067364 0.11606973
+(H <- hstats(fit, X = X_train, reshape = TRUE, threeway_m = 4))  
+# 0.02714399 0.16067364 0.11606973
+
 plot(H, normalize = FALSE, squared = FALSE, facet_scales = "free_y", ncol = 1)
 ```
 
 ![](man/figures/xgboost.svg)
+
+### (Non-probabilistic) classification works as well!
+
+```r
+library(ranger)
+
+set.seed(1)
+
+fit <- ranger(Species ~ ., data = train)
+average_loss(fit, X = valid, y = "Species", loss = "classification_error")  # 0
+
+perm_importance(fit, X = valid, y = "Species", loss = "classification_error")
+# Petal.Width Petal.Length Sepal.Length  Sepal.Width 
+#       0.350        0.275        0.000        0.000 
+       
+(s <- hstats(fit, X = train[, -5]))
+# H^2 (normalized)
+#     setosa versicolor  virginica 
+# 0.09885417 0.46151300 0.23238800 
+
+plot(s, normalize = FALSE, squared = FALSE)
+
+partial_dep(fit, v = "Petal.Length", X = train, BY = "Petal.Width") |> 
+  plot(show_points = FALSE)
+```W
 
 ## Meta-learning packages
 

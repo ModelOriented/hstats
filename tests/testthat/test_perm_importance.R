@@ -232,7 +232,6 @@ test_that("results are positive for modeled features and zero otherwise (multiva
 test_that("perm_importance() raises some errors (multivariate)", {
   expect_error(perm_importance(fit, X = iris[3:5], y = 1:10, verbose = FALSE))
   expect_error(perm_importance(fit, X = iris[3:5], y = "hi", verbose = FALSE))
-  expect_error(perm_importance(fit, X = iris, y = rev(yy), verbose = FALSE))
 })
 
 test_that("constant weights is same as unweighted (multivariate)", {
@@ -401,4 +400,3 @@ test_that("perm_importance() works with missing values", {
   )
   expect_true(r$M[1L] > 0 && all(r$M[2:3] == 0))
 })
-
