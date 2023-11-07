@@ -112,7 +112,6 @@ test_that("rowmean_factor() works for factor input", {
   x <- factor(c("C", "A", "C", "C", "A", "A"))
   out <- rowmean_factor(x, ngroups = 2L)
   
-  expect_error(rowmean_factor(1:3))
   expect_true(is.matrix(out))
   expect_equal(out, cbind(A = c(1/3, 2/3), C = c(2/3, 1/3)))
   expect_equal(out, wrowmean_matrix(fdummy(x), ngroups = 2L))

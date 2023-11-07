@@ -17,3 +17,11 @@ gcolMeans_factor <- function(x, g = NULL) {
   out
 }
 
+wrowmean_matrix2 <- function(x, ngroups = 1L, w = NULL) {
+  if (!is.matrix(x)) {
+    stop("x must be a matrix.")
+  }
+  dim(x) <- c(nrow(x)/ngroups, ngroups, ncol(x))
+  out <- colMeans(aperm(x, c(1, 3, 2)))
+  t.default(out)
+}
