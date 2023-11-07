@@ -116,11 +116,11 @@ microbenchmark(
 )
  
 # Unit: milliseconds
-# expr             min        lq      mean    median        uq       max neval  cld
-# iml        1532.8545 1535.5962 1578.6838 1538.3425 1621.7713 1705.1956     4 a  
-# dalex       599.6996  623.6306  673.3109  660.4653  722.9913  772.6134     4  b 
-# flashlight  602.7707  619.6451  670.2922  639.5598  720.9393  799.2784     4  b 
-# hstats      379.4195  381.1585  414.5308  410.3719  447.9031  457.9601     4   c
+# expr        min        lq      mean    median        uq       max neval cld
+# iml        1610.4464 1622.3517 1657.6455 1642.3422 1692.9394 1735.4514     4 a  
+# dalex       580.5633  628.7967  665.1718  685.7349  701.5470  708.6542     4  b 
+# flashlight  622.3130  630.7167  648.9690  648.5589  667.2214  676.4453     4  b 
+# hstats      332.1432  334.4255  337.0738  337.0140  339.7221  342.1240     4   c
 
 # Partial dependence (cont)
 v <- "tot_lvg_area"
@@ -132,11 +132,11 @@ microbenchmark(
   times = 4
 )
 # Unit: milliseconds
-# expr            min       lq     mean    median        uq       max neval  cld
-# iml        941.7763 968.5576 993.0481 1002.5849 1017.5386 1025.2462     4 a   
-# dalex      694.8007 740.1619 767.1501  788.6172  794.1384  796.5654     4  b  
-# flashlight 327.6056 328.7617 330.4069  330.5388  332.0522  332.9445     4   c 
-# hstats     216.4040 217.0602 217.5606  217.8603  218.0611  218.1179     4    d
+# expr             min        lq      mean    median        uq       max neval  cld
+# iml        1098.6226 1111.7868 1123.7506 1129.6484 1135.7144 1137.0828     4 a   
+# dalex       740.6559  762.3050  827.4134  784.8789  892.5218  999.2398     4  b  
+# flashlight  363.2473  368.0095  392.9258  373.7185  417.8420  461.0187     4   c 
+# hstats      213.4137  214.0246  225.5381  224.5216  237.0517  239.6956     4    d
 
 # Partial dependence (discrete)
 v <- "structure_quality"
@@ -149,11 +149,11 @@ microbenchmark(
 )
 
 # Unit: milliseconds
-# expr            min        lq      mean    median        uq      max neval  cld
-# iml         90.3690  91.08965  94.18403  92.57250  97.27840 101.2221     4 a   
-# dalex      174.2517 174.97330 179.43483 175.87115 183.89635 191.7453     4  b  
-# flashlight  43.9318  45.05070  48.09375  46.64275  51.13680  55.1577     4   c 
-# hstats      24.5972  24.64975  25.01325  24.94085  25.37675  25.5741     4    d
+# expr      min        lq      mean    median        uq      max neval  cld
+# iml         96.5188  96.84865 101.15893  99.27995 105.46920 109.5570     4 a   
+# dalex      166.5767 167.09505 169.68585 169.94295 172.27665 172.2808     4  b  
+# flashlight  40.8074  41.76215  49.22383  44.56515  56.68550  66.9576     4   c 
+# hstats      23.7283  23.86510  24.99588  24.01180  26.12665  28.2316     4    d
 
 # H-Stats -> we use a subset of 500 rows
 X_v500 <- X_valid[1:500, ]
@@ -178,7 +178,7 @@ system.time(  # 2s
   )
 )
 
-# hstats: 3s total
+# hstats: 3.4s total
 system.time({
   H <- hstats(fit, v = x, X = X_v500, n_max = Inf)
   hstats_overall <- h2_overall(H, squared = FALSE, zero = FALSE)
@@ -186,7 +186,7 @@ system.time({
 }
 )
 
-# Using 50 quantiles to approximate dense numerics: 0.8s
+# Using 50 quantiles to approximate dense numerics: 0.9s
 system.time(
   H_approx <- hstats(fit, v = x, X = X_v500, n_max = Inf, approx = TRUE)
 )

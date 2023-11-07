@@ -15,7 +15,7 @@ test_that("print method does not give an error", {
 
 test_that("ice() returns the same values as ice_raw()", {
   g <- rev(univariate_grid(iris$Species))
-  ic1 <- c(ice_raw(fit1, v = "Species", X = iris2, grid = g))
+  ic1 <- unname(ice_raw(fit1, v = "Species", X = iris2, grid = g))
   ic2 <- ice(fit1, v = "Species", X = iris2, grid = g)$data$y
   expect_equal(ic1, ic2)
   
@@ -235,4 +235,13 @@ test_that("ice() works with missing value in BY", {
   r <- ice(fit, v = "x2", X = X, pred_fun = pf, BY = "x3")
   expect_true(anyNA(r$data$x3))
   expect_s3_class(plot(r), "ggplot")
+})
+
+test_that("ice() works for factor predictions", {
+  pf <- function(m, X) factor(X[, "v1"], levels = 0:1, labels = c("zero", "one"))
+  out <- ice(1, v = "v1", X = cbind(v1 = 0:1), pred_fun = pf)
+  out <- out$data[out$data$obs_ == 1L, c("zero", "one")]
+  out <- as.matrix(out)
+  row.names(out) <- NULL
+  expect_equal(out, cbind(zero = 1:0, one = 0:1))
 })

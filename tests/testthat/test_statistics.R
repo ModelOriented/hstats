@@ -1,4 +1,3 @@
-
 test_that("poor_man_stack() works (test could be improved)", {
   y <- c("a", "b", "c")
   z <- c("aa", "bb", "cc")

@@ -247,7 +247,7 @@ test_that("loss_mlogloss() is in line with loss_logloss() in binary case", {
 
 test_that("classification_error works on factors", {
   pf <- function(m, X) rep("setosa", times = nrow(X))
-  expect_warning(average_loss(1, X = iris, y = iris$Species, pred_fun = pf))
+  expect_error(average_loss(1, X = iris, y = iris$Species, pred_fun = pf))
   expect_equal(
     c(average_loss(
       1, X = iris, y = iris$Species, pred_fun = pf, loss = "classification_error"
@@ -264,6 +264,20 @@ test_that("classification_error works on factors", {
       BY = iris$Species
     )$M),
     c(0, 1, 1)
+  )
+})
+
+test_that("factor predictions work as well (squared error)", {
+  expect_equal(
+    average_loss(
+      1, 
+      X = iris, 
+      y = iris$Species, 
+      pred_fun = function(m, X)
+        factor(rep("setosa", times = nrow(X)), levels = levels(iris$Species)),
+      agg_cols = TRUE
+    )$M,
+    matrix((0 + 2 + 2) / 3)
   )
 })
 

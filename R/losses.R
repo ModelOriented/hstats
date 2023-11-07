@@ -5,11 +5,13 @@
 #' @noRd
 #' @keywords internal
 #'
-#' @param actual A numeric vector/matrix.
-#' @param predicted A numeric vector/matrix.
+#' @param actual A numeric vector/matrix, or factor.
+#' @param predicted A numeric vector/matrix, or factor.
 #' @returns Vector or matrix of numeric losses.
 loss_squared_error <- function(actual, predicted) {
-  actual <- expand_actual(actual = actual, predicted = predicted)
+  actual <- drop(prepare_pred(actual, ohe = TRUE))
+  predicted <- prepare_pred(predicted, ohe = TRUE)
+
   (actual - predicted)^2
 }
 
@@ -24,7 +26,12 @@ loss_squared_error <- function(actual, predicted) {
 #' @param predicted A numeric vector/matrix.
 #' @returns Vector or matrix of numeric losses.
 loss_absolute_error <- function(actual, predicted) {
-  actual <- expand_actual(actual = actual, predicted = predicted)
+  actual <- drop(prepare_pred(actual))
+  predicted <- prepare_pred(predicted)
+  if (is.factor(actual) || is.factor(predicted)) {
+    stop("Absolute loss does not make sense for factors.")
+  }
+  
   abs(actual - predicted)
 }
 
@@ -39,11 +46,16 @@ loss_absolute_error <- function(actual, predicted) {
 #' @param predicted A numeric vector/matrix with non-negative values.
 #' @returns Vector or matrix of numeric losses.
 loss_poisson <- function(actual, predicted) {
-  actual <- expand_actual(actual = actual, predicted = predicted)
+  actual <- drop(prepare_pred(actual))
+  predicted <- prepare_pred(predicted)
+  if (is.factor(actual) || is.factor(predicted)) {
+    stop("Poisson loss does not make sense for factors.")
+  }
   stopifnot(
     all(predicted >= 0),
     all(actual >= 0)
   )
+  
   out <- predicted
   p <- actual > 0
   out[p] <- (actual * log(actual / predicted) - (actual  - predicted))[p]
@@ -61,11 +73,16 @@ loss_poisson <- function(actual, predicted) {
 #' @param predicted A numeric vector/matrix with positive values.
 #' @returns Vector or matrix of numeric losses.
 loss_gamma <- function(actual, predicted) {
-  actual <- expand_actual(actual = actual, predicted = predicted)
+  actual <- drop(prepare_pred(actual))
+  predicted <- prepare_pred(predicted)
+  if (is.factor(actual) || is.factor(predicted)) {
+    stop("Gamma loss does not make sense for factors.")
+  }
   stopifnot(
     all(predicted > 0), 
     all(actual > 0)
   )
+  
   -2 * (log(actual / predicted) - (actual - predicted) / predicted)
 }
 
@@ -80,7 +97,9 @@ loss_gamma <- function(actual, predicted) {
 #' @param predicted A vector/factor/matrix with discrete values.
 #' @returns Vector or matrix of numeric losses.
 loss_classification_error <- function(actual, predicted) {
-  actual <- expand_actual(actual = actual, predicted = predicted)
+  actual <- drop(prepare_pred(actual))
+  predicted <- prepare_pred(predicted)
+  
   (actual != predicted) * 1.0
 }
 
@@ -96,13 +115,18 @@ loss_classification_error <- function(actual, predicted) {
 #' @param predicted A numeric vector/matrix with values between 0 and 1.
 #' @returns Vector or matrix of numeric losses.
 loss_logloss <- function(actual, predicted) {
-  actual <- expand_actual(actual = actual, predicted = predicted)
+  actual <- drop(prepare_pred(actual))
+  predicted <- prepare_pred(predicted)
+  if (is.factor(actual) || is.factor(predicted)) {
+    stop("Log loss does not make sense for factors.")
+  }
   stopifnot(
     all(predicted >= 0), 
     all(predicted <= 1),
     all(actual >= 0),
     all(actual <= 1)
   )
+  
   -xlogy(actual, predicted) - xlogy(1 - actual, 1 - predicted)
 }
 
@@ -115,59 +139,28 @@ loss_logloss <- function(actual, predicted) {
 #' @keywords internal
 #'
 #' @param actual A numeric matrix with values between 0 and 1, or a 
-#'   discrete vector that will be one-hot-encoded via 
+#'   discrete vector that will be one-hot-encoded by a fast version of
 #'   `model.matrix(~ as.factor(actual) + 0)`.
 #'   The column order of `predicted` must be in line with this!
 #' @param predicted A numeric matrix with values between 0 and 1.
 #' @returns `TRUE` (or an error message).
 loss_mlogloss <- function(actual, predicted) {
-  if (NCOL(actual) == 1L && NCOL(predicted) > 1L) {
-    actual <- stats::model.matrix(~ as.factor(actual) + 0)
+  actual <- prepare_pred(actual)
+  predicted <- prepare_pred(predicted)
+  if (NCOL(actual) == 1L) {  # not only for factors
+    actual <- fdummy(actual)
   }
   stopifnot(
-    NCOL(actual) == NCOL(predicted),
+    is.matrix(predicted),
+    ncol(predicted) >= 2L,
+    ncol(actual) == ncol(predicted),
     all(predicted >= 0), 
     all(predicted <= 1),
     all(actual >= 0),
     all(actual <= 1)
   )
+  
   unname(-rowSums(xlogy(actual, predicted)))
-}
-
-#' Expands 1D actual to NCOL(predicted)
-#' 
-#' Internal function. Checks consistency of column counts. If `NCOL(actual) == 1`
-#' and `NCOL(predicted) > 1`, replicates `actual` into a matrix.
-#' 
-#' @noRd
-#' @keywords internal
-#'
-#' @param actual A vector/matrix/data.frame.
-#' @param predicted A vector/matrix/data.frame.
-#' @returns A matrix.
-expand_actual <- function(actual, predicted) {
-  pp <- NCOL(predicted)
-  pa <- NCOL(actual)
-  if (pa == pp) {
-    if (pa > 1L) {
-      nmp <- colnames(predicted)
-      nma <- colnames(actual)
-      if (!is.null(nmp) && !is.null(nma) && !identical(nmp, nma)) {
-        stop("Column names of multi-output response must correspond to predictions.")
-      }
-    }
-    return(actual)
-  }
-  if (pp > 1L && pa == 1L) {
-    if (is.data.frame(actual)) {
-      actual <- as.matrix(actual)
-    }
-    actual <- matrix(actual, nrow = NROW(actual), ncol = pp, byrow = FALSE)
-    colnames(actual) <- colnames(predicted)
-  } else {
-    stop("NCOL(actual) should be identical to NCOL(predicted), or equal to 1")
-  }
-  return(actual)
 }
 
 #' Calculates x*log(y)

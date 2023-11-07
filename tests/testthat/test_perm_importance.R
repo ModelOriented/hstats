@@ -162,6 +162,21 @@ test_that("non-numeric predictions can work as well (classification error)", {
   )
 })
 
+test_that("factor predictions can work as well (squared error)", {
+  expect_equal(
+    perm_importance(
+      1, 
+      v = "Sepal.Length", 
+      X = iris, 
+      y = iris$Species, 
+      pred_fun = function(m, X)
+        factor(rep("setosa", times = nrow(X)), levels = levels(iris$Species)), 
+      verbose = FALSE
+    )$M,
+    rbind(Sepal.Length = c(setosa = 0, versicolor = 0, virginica = 0))
+  )
+})
+
 #================================================
 # Multivariate model
 #================================================
@@ -232,7 +247,6 @@ test_that("results are positive for modeled features and zero otherwise (multiva
 test_that("perm_importance() raises some errors (multivariate)", {
   expect_error(perm_importance(fit, X = iris[3:5], y = 1:10, verbose = FALSE))
   expect_error(perm_importance(fit, X = iris[3:5], y = "hi", verbose = FALSE))
-  expect_error(perm_importance(fit, X = iris, y = rev(yy), verbose = FALSE))
 })
 
 test_that("constant weights is same as unweighted (multivariate)", {

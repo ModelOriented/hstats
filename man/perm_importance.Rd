@@ -101,8 +101,10 @@ most cases.}
 can be provided that turns observed and predicted values into a numeric vector or
 matrix of unit losses of the same length as \code{X}.
 For "mlogloss", the response \code{y} can either be a dummy matrix or a discrete vector.
-The latter case is handled via \code{model.matrix(~ as.factor(y) + 0)}.
-For "classification_error", both predictions and responses can be non-numeric.}
+The latter case is handled via a fast version of \code{model.matrix(~ as.factor(y) + 0)}.
+For "classification_error", both predictions and responses can be non-numeric.
+For "squared_error", both predictions and responses can be factors with identical
+levels. In this case, squared error is evaulated for each one-hot-encoded column.}
 
 \item{m_rep}{Number of permutations (default 4).}
 
@@ -176,7 +178,7 @@ situations. If there are K classes and n observations, the predictions form
 a (n x K) matrix of probabilities (with row-sums 1).
 The observed values \code{y} are either passed as (n x K) dummy matrix,
 or as discrete vector with corresponding levels.
-The latter case is turned into a dummy matrix via
+The latter case is turned into a dummy matrix by a fast version of
 \code{model.matrix(~ as.factor(y) + 0)}.
 \item "classification_error": Misclassification error. Both the
 observed values \code{y} and the predictions can be character/factor. This

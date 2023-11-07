@@ -1,8 +1,9 @@
-# hstats 1.0.1
+# hstats 1.1.0
 
 ## Enhancements
 
-- The plot method of a two-dimensional PDP has recieved the option `d2_geom = "line"`. Instead of a heatmap of the two features, one of the features is moved to color grouping. This might give a better impression where the interaction happens. Combined with `swap_dim = TRUE`, you can swap the role of the two `v` variables without recalculating anything. The idea was proposed by [Roel Verbelen](https://github.com/RoelVerbelen) in [issue #91](https://github.com/mayer79/hstats/issues/91), see also [issue #94](https://github.com/mayer79/hstats/issues/94).
+- {hstats} now also work for factor predictions. The levels are represented by one-hot-encoded columns.
+- The plot method of a two-dimensional PDP has recieved the option `d2_geom = "line"`. Instead of a heatmap of the two features, one of the features is moved to color grouping. Combined with `swap_dim = TRUE`, you can swap the role of the two `v` variables without recalculating anything. The idea was proposed by [Roel Verbelen](https://github.com/RoelVerbelen) in [issue #91](https://github.com/mayer79/hstats/issues/91), see also [issue #94](https://github.com/mayer79/hstats/issues/94).
 
 ## Bug fixes
 
@@ -10,8 +11,11 @@
 
 ## Other changes
 
+- Much faster one-hot-encoding, thanks to Mathias Ambühl.
+- Most functions are slightly faster.
 - Add unit tests to compare against {iml}.
 - Made all examples "tibble" and "data.table" friendly.
+- Revised input checks in loss functions (relevant for `perm_importance()` and `average_loss()`).
 
 # hstats 1.0.0
 

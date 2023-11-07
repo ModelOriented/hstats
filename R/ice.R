@@ -109,9 +109,19 @@ ice.default <- function(object, v, X, pred_fun = stats::predict,
   }
 
   ice_out <- ice_raw(
-    object, v = v, X = X, grid = grid, pred_fun = pred_fun, pred_only = FALSE, ...
+    object, 
+    v = v, 
+    X = X, 
+    grid = grid, 
+    pred_fun = pred_fun, 
+    pred_only = FALSE,
+    ohe = TRUE,
+    ...
   )
   pred <- ice_out[["pred"]]
+  if (!is.matrix(pred)) {
+    pred <- as.matrix(pred)
+  }
   grid_pred <- ice_out[["grid_pred"]]
   K <- ncol(pred)
   if (is.null(colnames(pred))) {

@@ -50,14 +50,15 @@ pd_raw <- function(object, v, X, grid, pred_fun = stats::predict,
 #' @keywords internal
 #' 
 #' @inheritParams pd_raw
-#' @param pred_only Logical flag determining the output mode. If `TRUE`, then a matrix
-#'   of predictions. Otherwise, a list with two elements: `pred` (prediction matrix)
+#' @param pred_only Logical flag determining the output mode. If `TRUE`, just
+#'   predictions. Otherwise, a list with two elements: `pred` (predictions)
 #'   and `grid_pred` (the corresponding grid values in the same mode as the input, 
 #'   but replicated over `X`).
+#' @param ohe Should factor output be one-hot encoded? Default is `FALSE`.
 #' @returns 
-#'   Either a matrix of predictions or a list with predictions and grid.
+#'   Either a vector/matrix of predictions or a list with predictions and grid.
 ice_raw <- function(object, v, X, grid, pred_fun = stats::predict, 
-                    pred_only = TRUE, ...) {
+                    pred_only = TRUE, ohe = FALSE, ...) {
   D1 <- length(v) == 1L
   n <- nrow(X)
   n_grid <- NROW(grid)
@@ -77,8 +78,8 @@ ice_raw <- function(object, v, X, grid, pred_fun = stats::predict,
     X_pred[, v] <- grid_pred
   }
   
-  # Calculate matrix of predictions
-  pred <- align_pred(pred_fun(object, X_pred, ...))
+  # Calculate matrix/vector of predictions
+  pred <- prepare_pred(pred_fun(object, X_pred, ...), ohe = ohe)
   
   if (pred_only) {
     return(pred)

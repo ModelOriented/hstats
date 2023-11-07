@@ -31,6 +31,7 @@
 #' # MODEL 1: Linear regression
 #' fit <- lm(Sepal.Length ~ ., data = iris)
 #' s <- perm_importance(fit, X = iris, y = "Sepal.Length")
+
 #' s
 #' s$M
 #' s$SE  # Standard errors are available thanks to repeated shuffling
@@ -118,8 +119,8 @@ perm_importance.default <- function(object, X, y, v = NULL,
   }
   
   # Pre-shuffle performance
-  L <- as.matrix(loss(y, pred_fun(object, X, ...)))
-  perf <- wcolMeans(L, w = w)
+  pred <- prepare_pred(pred_fun(object, X, ...))
+  perf <- wcolMeans(loss(y, pred), w = w)
 
   # Stack y and X m times
   if (m_rep > 1L) {
@@ -133,10 +134,10 @@ perm_importance.default <- function(object, X, y, v = NULL,
   }
   
   shuffle_perf <- function(z, XX) {
-    ind <- c(replicate(m_rep, sample(seq_len(n))))
+    ind <- c(replicate(m_rep, sample(seq_len(n))))  # shuffle within n rows
     XX[, z] <- XX[ind, z]
-    L <- as.matrix(loss(y, pred_fun(object, XX, ...)))
-    t(wrowmean(L, ngroups = m_rep, w = w))
+    pred <- prepare_pred(pred_fun(object, XX, ...))
+    t(wrowmean(loss(y, pred), ngroups = m_rep, w = w))
   }
   
   # Step 0: Performance after shuffling (expensive)
