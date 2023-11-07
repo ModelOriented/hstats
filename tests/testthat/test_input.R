@@ -3,6 +3,8 @@ test_that("prepare_pred() works", {
   expect_equal(prepare_pred(iris["Species"]), iris$Species)
   expect_equal(prepare_pred(iris$Sepal.Width), iris$Sepal.Width)
   expect_equal(prepare_pred(iris["Sepal.Width"]), iris$Sepal.Width)
+  expect_equal(prepare_pred(iris$Species, ohe = TRUE), fdummy(iris$Species))
+  expect_equal(prepare_pred(1:3, ohe = TRUE), 1:3)
 })
 
 test_that("prepare_w() works", {
@@ -41,4 +43,7 @@ test_that("prepare_y() works", {
   out <- prepare_y("Sepal.Width", X = iris)
   expect_equal(out$y, iris$Sepal.Width)
   expect_equal(out$y_names, "Sepal.Width")
+  
+  # OHE
+  expect_equal(prepare_y(iris$Species, X = iris, ohe = TRUE)$y, fdummy(iris$Species))
 })

@@ -9,15 +9,9 @@
 #' @param predicted A numeric vector/matrix, or factor.
 #' @returns Vector or matrix of numeric losses.
 loss_squared_error <- function(actual, predicted) {
-  actual <- drop(prepare_pred(actual))
-  predicted <- prepare_pred(predicted)
-  if (is.factor(actual) || is.factor(predicted)) {
-    # Both must be factors
-    stopifnot(identical(levels(actual), levels(predicted)))
-    actual <- fdummy(actual)
-    predicted <- fdummy(predicted)
-  }
-  
+  actual <- drop(prepare_pred(actual, ohe = TRUE))
+  predicted <- prepare_pred(predicted, ohe = TRUE)
+
   (actual - predicted)^2
 }
 

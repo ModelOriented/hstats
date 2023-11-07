@@ -267,6 +267,20 @@ test_that("classification_error works on factors", {
   )
 })
 
+test_that("factor predictions work as well (squared error)", {
+  expect_equal(
+    average_loss(
+      1, 
+      X = iris, 
+      y = iris$Species, 
+      pred_fun = function(m, X)
+        factor(rep("setosa", times = nrow(X)), levels = levels(iris$Species)),
+      agg_cols = TRUE
+    )$M,
+    matrix((0 + 2 + 2) / 3)
+  )
+})
+
 test_that("average_loss() works with missing values", {
   X <- data.frame(x1 = 1:6, x2 = c(NA, 1, 2, 1, 1, 3), x3 = factor(c("A", NA, NA, "B", "A", "A")))
   y <- 1:6

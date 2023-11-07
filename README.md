@@ -377,7 +377,7 @@ plot(H, normalize = FALSE, squared = FALSE, facet_scales = "free_y", ncol = 1)
 
 ![](man/figures/xgboost.svg)
 
-### (Non-probabilistic) classification works as well!
+### (Non-probabilistic) classification works as well
 
 ```r
 library(ranger)
@@ -400,7 +400,7 @@ plot(s, normalize = FALSE, squared = FALSE)
 
 partial_dep(fit, v = "Petal.Length", X = train, BY = "Petal.Width") |> 
   plot(show_points = FALSE)
-```W
+```
 
 ## Meta-learning packages
 

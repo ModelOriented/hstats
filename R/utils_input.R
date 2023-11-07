@@ -6,10 +6,14 @@
 #' @keywords internal
 #' 
 #' @param x Object representing model predictions.
+#' @param ohe If `x` is a factor: should it be one-hot encoded? Default is `FALSE`.
 #' @returns Like `x`, but converted to matrix, vector, or factor.
-prepare_pred <- function(x) {
+prepare_pred <- function(x, ohe = FALSE) {
   if (is.data.frame(x) && ncol(x) == 1L) {
     x <- x[[1L]]
+  }
+  if (ohe && is.factor(x)) {
+    return(fdummy(x))
   }
   if (is.vector(x) || is.matrix(x) || is.factor(x)) x else as.matrix(x)
 }
@@ -25,7 +29,7 @@ prepare_pred <- function(x) {
 #' @param by_size Determines if numeric `X` is discrete or needs to be binned.
 #' 
 #' @returns A list.
-prepare_by <- function(BY, X, by_size) {
+prepare_by <- function(BY, X, by_size = 4L) {
   if (length(BY) == 1L && BY %in% colnames(X)) {
     by_name <- BY
     if (is.data.frame(X)) {
@@ -91,10 +95,11 @@ prepare_w <- function(w, X) {
 #' @keywords internal
 #' @param y Vector/matrix-like of the same length as `X`, or column names in `X`.
 #' @param X Matrix-like.
+#' @param ohe If y is a factor: should it be one-hot encoded? Default is `FALSE`.
 #' 
 #' @returns A list with "y" (vector, matrix, or factor) and "y_names" (if `y`
 #'   was passed as column names).
-prepare_y <- function(y, X) {
+prepare_y <- function(y, X, ohe = FALSE) {
   if (NROW(y) < nrow(X) && all(y %in% colnames(X))) {
     y_names <- y
     if (is.data.frame(X) && length(y) == 1L) {
@@ -106,7 +111,7 @@ prepare_y <- function(y, X) {
     stopifnot(NROW(y) == nrow(X))
     y_names <- NULL
   }
-  list(y = prepare_pred(y), y_names = y_names)
+  list(y = prepare_pred(y, ohe = ohe), y_names = y_names)
 }
 
 #' mlr3 Helper
