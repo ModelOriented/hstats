@@ -18,7 +18,7 @@ optionally grouped by a variable. Use plot() to visualize the results."><meta pr
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">hstats</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.0</span>
       </span>
     </div>
 
@@ -149,8 +149,10 @@ most cases.</p></dd>
 can be provided that turns observed and predicted values into a numeric vector or
 matrix of unit losses of the same length as <code>X</code>.
 For "mlogloss", the response <code>y</code> can either be a dummy matrix or a discrete vector.
-The latter case is handled via <code>model.matrix(~ as.factor(y) + 0)</code>.
-For "classification_error", both predictions and responses can be non-numeric.</p></dd>
+The latter case is handled via a fast version of <code>model.matrix(~ as.factor(y) + 0)</code>.
+For "classification_error", both predictions and responses can be non-numeric.
+For "squared_error", both predictions and responses can be factors with identical
+levels. In this case, squared error is evaulated for each one-hot-encoded column.</p></dd>
 
 
 <dt>agg_cols</dt>
@@ -214,7 +216,7 @@ situations. If there are K classes and n observations, the predictions form
 a (n x K) matrix of probabilities (with row-sums 1).
 The observed values <code>y</code> are either passed as (n x K) dummy matrix,
 or as discrete vector with corresponding levels.
-The latter case is turned into a dummy matrix via
+The latter case is turned into a dummy matrix by a fast version of
 <code>model.matrix(~ as.factor(y) + 0)</code>.</p></li>
 <li><p>"classification_error": Misclassification error. Both the
 observed values <code>y</code> and the predictions can be character/factor. This

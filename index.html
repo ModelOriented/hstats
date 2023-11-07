@@ -49,7 +49,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">hstats</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.0</span>
       </span>
     </div>
 
@@ -319,7 +319,7 @@
 <div class="section level2">
 <h2 id="multivariate-responses">Multivariate responses<a class="anchor" aria-label="anchor" href="#multivariate-responses"></a>
 </h2>
-<p>{hstats} works also with multivariate output such as probabilistic classification, see examples with</p>
+<p>{hstats} works also with multivariate output, see examples with</p>
 <ul>
 <li>ranger,</li>
 <li>LightGBM, and</li>
@@ -330,8 +330,6 @@
 </h3>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/mayer79/hstats" class="external-link">hstats</a></span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">ix</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">40</span>, <span class="fl">51</span><span class="op">:</span><span class="fl">90</span>, <span class="fl">101</span><span class="op">:</span><span class="fl">140</span><span class="op">)</span></span>
 <span><span class="va">train</span> <span class="op">&lt;-</span> <span class="va">iris</span><span class="op">[</span><span class="va">ix</span>, <span class="op">]</span></span>
@@ -407,7 +405,9 @@
 <span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span>swap_dim <span class="op">=</span> <span class="cn">TRUE</span>, alpha <span class="op">=</span> <span class="fl">0.05</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Interaction statistics, including three-way stats</span></span>
-<span><span class="op">(</span><span class="va">H</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/hstats.html">hstats</a></span><span class="op">(</span><span class="va">fit</span>, X <span class="op">=</span> <span class="va">X_train</span>, reshape <span class="op">=</span> <span class="cn">TRUE</span>, threeway_m <span class="op">=</span> <span class="fl">4</span><span class="op">)</span><span class="op">)</span>  <span class="co"># 0.3010446 0.4167927 0.1623982</span></span>
+<span><span class="op">(</span><span class="va">H</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/hstats.html">hstats</a></span><span class="op">(</span><span class="va">fit</span>, X <span class="op">=</span> <span class="va">X_train</span>, reshape <span class="op">=</span> <span class="cn">TRUE</span>, threeway_m <span class="op">=</span> <span class="fl">4</span><span class="op">)</span><span class="op">)</span>  </span>
+<span><span class="co"># 0.3010446 0.4167927 0.1623982</span></span>
+<span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">H</span>, ncol <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
 <p><img src="reference/figures/lightgbm.svg"></p>
 </div>
@@ -455,9 +455,36 @@
 <span><span class="co">#  1.731532873  0.276671377  0.009158659  0.005717263 </span></span>
 <span></span>
 <span><span class="co"># Interaction statistics including three-way stats</span></span>
-<span><span class="op">(</span><span class="va">H</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/hstats.html">hstats</a></span><span class="op">(</span><span class="va">fit</span>, X <span class="op">=</span> <span class="va">X_train</span>, reshape <span class="op">=</span> <span class="cn">TRUE</span>, threeway_m <span class="op">=</span> <span class="fl">4</span><span class="op">)</span><span class="op">)</span>  <span class="co"># 0.02714399 0.16067364 0.11606973</span></span>
+<span><span class="op">(</span><span class="va">H</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/hstats.html">hstats</a></span><span class="op">(</span><span class="va">fit</span>, X <span class="op">=</span> <span class="va">X_train</span>, reshape <span class="op">=</span> <span class="cn">TRUE</span>, threeway_m <span class="op">=</span> <span class="fl">4</span><span class="op">)</span><span class="op">)</span>  </span>
+<span><span class="co"># 0.02714399 0.16067364 0.11606973</span></span>
+<span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">H</span>, normalize <span class="op">=</span> <span class="cn">FALSE</span>, squared <span class="op">=</span> <span class="cn">FALSE</span>, facet_scales <span class="op">=</span> <span class="st">"free_y"</span>, ncol <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
 <p><img src="reference/figures/xgboost.svg"></p>
+</div>
+<div class="section level3">
+<h3 id="non-probabilistic-classification-works-as-well">(Non-probabilistic) classification works as well<a class="anchor" aria-label="anchor" href="#non-probabilistic-classification-works-as-well"></a>
+</h3>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/imbs-hl/ranger" class="external-link">ranger</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">ranger</span><span class="op">(</span><span class="va">Species</span> <span class="op">~</span> <span class="va">.</span>, data <span class="op">=</span> <span class="va">train</span><span class="op">)</span></span>
+<span><span class="fu"><a href="reference/average_loss.html">average_loss</a></span><span class="op">(</span><span class="va">fit</span>, X <span class="op">=</span> <span class="va">valid</span>, y <span class="op">=</span> <span class="st">"Species"</span>, loss <span class="op">=</span> <span class="st">"classification_error"</span><span class="op">)</span>  <span class="co"># 0</span></span>
+<span></span>
+<span><span class="fu"><a href="reference/perm_importance.html">perm_importance</a></span><span class="op">(</span><span class="va">fit</span>, X <span class="op">=</span> <span class="va">valid</span>, y <span class="op">=</span> <span class="st">"Species"</span>, loss <span class="op">=</span> <span class="st">"classification_error"</span><span class="op">)</span></span>
+<span><span class="co"># Petal.Width Petal.Length Sepal.Length  Sepal.Width </span></span>
+<span><span class="co">#       0.350        0.275        0.000        0.000 </span></span>
+<span>       </span>
+<span><span class="op">(</span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/hstats.html">hstats</a></span><span class="op">(</span><span class="va">fit</span>, X <span class="op">=</span> <span class="va">train</span><span class="op">[</span>, <span class="op">-</span><span class="fl">5</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co"># H^2 (normalized)</span></span>
+<span><span class="co">#     setosa versicolor  virginica </span></span>
+<span><span class="co"># 0.09885417 0.46151300 0.23238800 </span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">s</span>, normalize <span class="op">=</span> <span class="cn">FALSE</span>, squared <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="reference/partial_dep.html">partial_dep</a></span><span class="op">(</span><span class="va">fit</span>, v <span class="op">=</span> <span class="st">"Petal.Length"</span>, X <span class="op">=</span> <span class="va">train</span>, BY <span class="op">=</span> <span class="st">"Petal.Width"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span>show_points <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
@@ -467,7 +494,7 @@
 <div class="section level3">
 <h3 id="tidymodels">tidymodels<a class="anchor" aria-label="anchor" href="#tidymodels"></a>
 </h3>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/mayer79/hstats" class="external-link">hstats</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidymodels.tidymodels.org" class="external-link">tidymodels</a></span><span class="op">)</span></span>
 <span></span>
@@ -501,7 +528,7 @@
 <div class="section level3">
 <h3 id="caret">caret<a class="anchor" aria-label="anchor" href="#caret"></a>
 </h3>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/mayer79/hstats" class="external-link">hstats</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/topepo/caret/" class="external-link">caret</a></span><span class="op">)</span></span>
 <span></span>
@@ -523,7 +550,7 @@
 <div class="section level3">
 <h3 id="mlr3">mlr3<a class="anchor" aria-label="anchor" href="#mlr3"></a>
 </h3>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/mayer79/hstats" class="external-link">hstats</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://mlr3.mlr-org.com" class="external-link">mlr3</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://mlr3learners.mlr-org.com" class="external-link">mlr3learners</a></span><span class="op">)</span></span>
