@@ -51,7 +51,7 @@
 <h2 class="page-header" data-toc-text="1.1.0" id="hstats-110">hstats 1.1.0<a class="anchor" aria-label="anchor" href="#hstats-110"></a></h2>
 <div class="section level3">
 <h3 id="enhancements-1-1-0">Enhancements<a class="anchor" aria-label="anchor" href="#enhancements-1-1-0"></a></h3>
-<ul><li>{hstats} now also work for factor predictions. The levels are represented by one-hot-encoded columns.</li>
+<ul><li>{hstats} now also work for factor predictions. The levels are represented by one-hot-encoded columns (<a href="https://github.com/mayer79/hstats/pull/101" class="external-link">PR#101</a>).</li>
 <li>The plot method of a two-dimensional PDP has recieved the option <code>d2_geom = "line"</code>. Instead of a heatmap of the two features, one of the features is moved to color grouping. Combined with <code>swap_dim = TRUE</code>, you can swap the role of the two <code>v</code> variables without recalculating anything. The idea was proposed by <a href="https://github.com/RoelVerbelen" class="external-link">Roel Verbelen</a> in <a href="https://github.com/mayer79/hstats/issues/91" class="external-link">issue </a><a href="https://github.com/mayer79/hstats/issues/91" class="external-link">#91</a>, see also <a href="https://github.com/mayer79/hstats/issues/94" class="external-link">issue </a><a href="https://github.com/mayer79/hstats/issues/94" class="external-link">#94</a>.</li>
 </ul></div>
 <div class="section level3">
@@ -60,8 +60,8 @@
 </ul></div>
 <div class="section level3">
 <h3 id="other-changes-1-1-0">Other changes<a class="anchor" aria-label="anchor" href="#other-changes-1-1-0"></a></h3>
-<ul><li>Much faster one-hot-encoding, thanks to Mathias Ambühl.</li>
-<li>Most functions are slightly faster.</li>
+<ul><li>Much faster one-hot-encoding, thanks to Mathias Ambühl (<a href="https://github.com/mayer79/hstats/pull/101" class="external-link">PR#101</a>).</li>
+<li>Most functions are slightly faster (<a href="https://github.com/mayer79/hstats/pull/101" class="external-link">PR#101</a>).</li>
 <li>Add unit tests to compare against {iml}.</li>
 <li>Made all examples “tibble” and “data.table” friendly.</li>
 <li>Revised input checks in loss functions (relevant for <code><a href="../reference/perm_importance.html">perm_importance()</a></code> and <code><a href="../reference/average_loss.html">average_loss()</a></code>).</li>
