@@ -85,7 +85,7 @@ wcolMeans <- function(x, w = NULL) {
 #' @noRd
 #' @keywords internal
 #'
-#' @param x Factor.
+#' @param x Factor-like.
 #' @returns Named vector.
 colMeans_factor <- function(x) {
   x <- as.factor(x)
@@ -133,9 +133,6 @@ wrowmean <- function(x, ngroups = 1L, w = NULL) {
   }
 
   # General version
-  if (!is.matrix(x)) {
-    x <- as.matrix(x)
-  }
   wrowmean_matrix(x, ngroups = ngroups, w = w)
 }
 
@@ -146,13 +143,11 @@ wrowmean <- function(x, ngroups = 1L, w = NULL) {
 #' @noRd
 #' @keywords internal
 #'
-#' @param x Factor.
+#' @param x Factor-like.
 #' @param ngroups Number of subsequent, equals sized groups.
 #' @returns Matrix with column names.
 rowmean_factor <- function(x, ngroups = 1L) {
-  if (!is.factor(x)) {
-    stop("x must be a factor.")
-  }
+  x <- as.factor(x)
   lev <- levels(x)
   n_bg <- length(x) %/% ngroups
   dim(x) <- c(n_bg, ngroups)
@@ -192,13 +187,13 @@ wrowmean_vector <- function(x, ngroups = 1L, w = NULL) {
 #' @noRd
 #' @keywords internal
 #'
-#' @param x Matrix.
+#' @param x Matrix-like.
 #' @param ngroups Number of subsequent, equals sized groups.
 #' @param w Optional vector of case weights of length `NROW(x) / ngroups`.
 #' @returns Matrix.
 wrowmean_matrix <- function(x, ngroups = 1L, w = NULL) {
   if (!is.matrix(x)) {
-    stop("x must be a matrix.")
+    x <- as.matrix(x)
   }
   n_bg <- nrow(x) %/% ngroups
   g <- rep_each(ngroups, each = n_bg)  # rep(seq_len(ngroups), each = n_bg)

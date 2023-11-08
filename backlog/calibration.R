@@ -58,9 +58,12 @@ calibration <- function(object, ...) {
 
 #' @describeIn calibration Default method.
 #' @export
-calibration.default <- function(object, v, X, y = NULL, pred_fun = stats::predict, 
+calibration.default <- function(object, v, X, y = NULL,
+                                pred_fun = stats::predict, 
                                 BY = NULL, by_size = 4L, 
-                                grid_size = 17L, 
+                                breaks = 17L, trim = c(0.01, 0.99), 
+                                include.lowest = TRUE,  
+                                right = TRUE, na.rm = TRUE,
                                 pred = NULL,
                                 n_max = 1000L, w = NULL, ...) {
   stopifnot(
@@ -70,11 +73,7 @@ calibration.default <- function(object, v, X, y = NULL, pred_fun = stats::predic
   )
   
   if (!is.null(y)) {
-    y <- prepare_y(y = y, X = X)[["y"]]
-    if (is.factor(y) || is.character(y)) {
-      y <- stats::model.matrix(~ as.factor(y) + 0)
-    }
-    y <- align_pred(y)
+    y <- prepare_y(y = y, X = X, ohe = TRUE)[["y"]]
   }
   if (!is.null(w)) {
     w <- prepare_w(w = w, X = X)[["w"]]
@@ -83,49 +82,53 @@ calibration.default <- function(object, v, X, y = NULL, pred_fun = stats::predic
     BY2 <- prepare_by(BY = BY, X = X, by_size = by_size)
     BY <- BY2[["BY"]]
   }
-  g <- v_grouped <- approx_vector(X[[v]], m = grid_size)
-  grid <- sort(unique(v_grouped), na.last = TRUE)
-  
+  h <- hist2(
+    X[[v]], 
+    breaks = breaks, 
+    trim = trim, 
+    include.lowest = include.lowest, 
+    right = right,
+    na.rm = TRUE
+  )
+
   if (!is.null(BY)) {
-    g <- paste(BY, g, sep = ":")
+    g <- paste(BY, h$x, sep = ":")
+  } else {
+    g <- h$x
   }
   
   # Average predicted
   if (is.null(pred)) {
     pred <- pred_fun(object, X, ...)
   }
-  pred <- align_pred(pred)
-  tmp <- gwColMeans(pred, g = g, w = w, mean_only = FALSE)
-  avg_pred <- tmp[["mean"]]
-  
-  # Exposure
-  exposure <- tmp[["denom"]]
-  
+  pred <- prepare_pred(pred, ohe = TRUE)
+  pr <- gwColMeans(pred, g = g, w = w)
+
   # Average observed
-  avg_obs <- if (!is.null(y)) gwColMeans(y, g = g, w = w)
+  avg_obs <- if (!is.null(y)) gwColMeans(y, g = g, w = w)$M
   
   # Partial dependence
   pd <- partial_dep(
     object = object, 
     v = v, 
     X = X, 
-    grid = grid, 
+    grid = h$grid, 
     pred_fun = pred_fun, 
     BY = BY, 
     w = w, 
     ...
-  )[["data"]]
+  )
   
   out <- list(
     v = v,
-    K = ncol(pred),
-    pred_names = colnames(pred),
-    grid = grid,
+    K = ncol(pr$M),
+    pred_names = colnames(pr$M),
+    grid = h[-1L],
     BY,
     avg_obs = avg_obs,
-    avg_pred = avg_pred,
-    pd = pd,
-    exposure = exposure
+    avg_pred = pr$M,
+    pd = pd[["data"]],
+    exposure = pr$w
   )
   return(structure(out, class = "calibration"))
 }
