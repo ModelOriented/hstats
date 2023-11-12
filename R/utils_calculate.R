@@ -95,9 +95,9 @@ colMeans_factor <- function(x) {
   out
 }
 
-#' Fast Weighted Mean by Fixed-Length Groups
+#' Grouped Column Means
 #' 
-#' Internal workhorse to aggregate predictions over fixed-length grids.
+#' Internal workhorse to aggregate predictions over fixed-length groups.
 #' 
 #' @noRd
 #' @keywords internal
@@ -138,7 +138,7 @@ wrowmean <- function(x, ngroups = 1L, w = NULL) {
 
 #' (w)rowmean() for Factors (without weights)
 #'
-#' `colMeans_factor()` for equal sized groups.
+#' Grouped `colMeans_factor()` for equal sized groups.
 #'
 #' @noRd
 #' @keywords internal
@@ -158,7 +158,7 @@ rowmean_factor <- function(x, ngroups = 1L) {
 
 #' wrowmean() for Vectors
 #'
-#' Weighted column means over fixed-length groups for vectors or 1d matrices.
+#' Grouped means over fixed-length groups for vectors or 1d matrices.
 #'
 #' @noRd
 #' @keywords internal
@@ -182,7 +182,7 @@ wrowmean_vector <- function(x, ngroups = 1L, w = NULL) {
 
 #' wrowmean() for Matrices
 #'
-#' Weighted column means over fixed-length groups for matrices.
+#' Grouped column means over fixed-length groups for matrices.
 #'
 #' @noRd
 #' @keywords internal
