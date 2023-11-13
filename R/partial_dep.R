@@ -61,6 +61,7 @@
 #' (pd <- partial_dep(fit, v = "Species", X = iris))
 #' plot(pd)
 #' 
+#' \dontrun{
 #' # Stratified by BY variable (numerics are automatically binned)
 #' pd <- partial_dep(fit, v = "Species", X = iris, BY = "Petal.Length")
 #' plot(pd)
@@ -91,6 +92,7 @@
 #'   fit, v = c("Petal.Width", "Petal.Length"), X = iris, BY = "Species"
 #' )
 #' pd
+#' }
 #' 
 #' # MODEL 3: Gamma GLM -> pass options to predict() via ...
 #' fit <- glm(Sepal.Length ~ ., data = iris, family = Gamma(link = log))
