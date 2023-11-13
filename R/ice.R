@@ -34,6 +34,7 @@
 #' plot(ic)
 #' plot(ic, center = TRUE)
 #' 
+#' \dontrun{
 #' # Stratified by two variables (the second one goes into facets)
 #' ic <- ice(fit, v = "Petal.Length", X = iris, BY = c("Petal.Width", "Species"))
 #' plot(ic)
@@ -45,6 +46,7 @@
 #' plot(ic)
 #' plot(ic, center = TRUE)
 #' plot(ic, swap_dim = TRUE)
+#' }
 #'
 #' # MODEL 3: Gamma GLM -> pass options to predict() via ...
 #' fit <- glm(Sepal.Length ~ ., data = iris, family = Gamma(link = log))
