@@ -50,10 +50,6 @@ fdummy <- function(x) {
 #' @param w Optional case weights.
 #' @returns A vector of column means.
 wcolMeans <- function(x, w = NULL) {
-  if (NCOL(x) == 1L && is.atomic(x) && !is.factor(x) && is.null(w)) {
-    # stat::weighted.mean() is much slower than via colSums()
-    return(mean(x))
-  }
   if (is.factor(x)) {
     if (is.null(w)) {
       return(colMeans_factor(x))

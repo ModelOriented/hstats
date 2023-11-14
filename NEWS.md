@@ -1,3 +1,9 @@
+# hstats 1.1.1
+
+## Other changes
+
+- Removed an unnecessary special case when calculating column means.
+
 # hstats 1.1.0
 
 ## Enhancements
