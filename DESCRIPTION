@@ -1,6 +1,6 @@
 Package: hstats
 Title: Interaction Statistics
-Version: 1.1.0
+Version: 1.1.1
 Authors@R: 
     person("Michael", "Mayer", , "mayermichael79@gmail.com", role = c("aut", "cre"))
 Description: Fast, model-agnostic implementation of different H-statistics
