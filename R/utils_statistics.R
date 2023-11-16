@@ -88,6 +88,7 @@ postprocess <- function(num, denom = rep(1, times = NCOL(num)),
     } else {
       out <- sweep(num, MARGIN = 2L, STATS = denom, FUN = "/")
     }
+    out[is.nan(out)] <- 0  # Deal explicitly with 0/0 cases
   } else {
     out <- num
   }

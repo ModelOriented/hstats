@@ -361,3 +361,44 @@ test_that("hstats() works for factor predictions", {
   out <- hstats(1, X = cbind(v1 = 0:1, v2 = 0), pred_fun = pf, verbose = FALSE)
   expect_equal(out$h2$num, cbind(zero = 0, one = 0))
 })
+
+test_that("hstats() gives all zero statistics if prediction is constant", {
+  pf <- function(m, X) numeric(nrow(X))
+  out <- hstats(1, X = iris[1:4], pred_fun = pf, verbose = FALSE)
+
+  expect_equal(h2(out)$M, matrix(0))
+  expect_equal(out$h2$num / out$h2$denom, matrix(NaN))
+  
+  expect_equal(c(h2_overall(out)$M), c(0, 0, 0, 0))
+  expect_equal(out$mean_f2, 0)
+  expect_equal(out$h2_overall$denom, out$mean_f2)
+  expect_equal(out$pd_importance$denom, 0)
+  
+  expect_equal(c(h2_pairwise(out)$M), rep(0, choose(4, 2)))
+  expect_equal(c(out$h2_pairwise$denom), rep(1, choose(4, 2)))
+})
+
+test_that("behavior is ok if one dim is constant and other not", {
+  pf <- function(m, X) cbind(0, X$Sepal.Length * X$Petal.Length)
+  out <- hstats(1, X = iris[1:4], pred_fun = pf, verbose = FALSE)
+  
+  expect_equal(c(h2(out)$M == 0), c(TRUE, FALSE))
+  expect_equal(out$h2$num[1L] / out$h2$denom[1L], NaN)
+  
+  ex <- rbind(
+    Sepal.Length = c(TRUE, FALSE),
+    Sepal.Width = c(TRUE, TRUE),
+    Petal.Length = c(TRUE, FALSE),
+    Petal.Width = c(TRUE, TRUE)
+  )
+  expect_equal(h2_overall(out, sort = FALSE)$M == 0, ex)
+  expect_equal(out$mean_f2 == 0, c(TRUE, FALSE))
+  expect_equal(out$h2_overall$denom, out$mean_f2)
+  
+  rs <- rowSums(h2_pairwise(out, sort = FALSE)$M) > 0
+  pos <- "Sepal.Length:Petal.Length"
+  
+  expect_equal(row.names(h2_pairwise(out, sort = FALSE)$M[rs, , drop = FALSE]), pos)
+  expect_equal(out$h2_pairwise$denom[rs, ] == 0, c(TRUE, FALSE))
+  expect_true(all(out$h2_pairwise$denom[!rs, ] == 1))
+})

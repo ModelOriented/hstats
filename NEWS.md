@@ -2,7 +2,8 @@
 
 ## Other changes
 
-- Removed an unnecessary special case when calculating column means.
+- In multivariate cases, it was possible that normalized H-statistics could equal `0/0 (= NaN)`. Such values are now replaced by 0 ([PR #107](https://github.com/mayer79/hstats/pull/107)).
+- Removed an unnecessary special case when calculating column means ([PR #106](https://github.com/mayer79/hstats/pull/106)).
 
 # hstats 1.1.0
 
