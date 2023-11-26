@@ -51,8 +51,9 @@
 <h2 class="page-header" data-toc-text="1.1.1" id="hstats-111">hstats 1.1.1<a class="anchor" aria-label="anchor" href="#hstats-111"></a></h2>
 <div class="section level3">
 <h3 id="other-changes-1-1-1">Other changes<a class="anchor" aria-label="anchor" href="#other-changes-1-1-1"></a></h3>
-<ul><li>In multivariate cases, it was possible that normalized H-statistics could equal <code>0/0 (= NaN)</code>. Such values are now replaced by 0 (<a href="https://github.com/mayer79/hstats/issues/107" class="external-link">Issue </a><a href="https://github.com/mayer79/hstats/issues/107" class="external-link">#107</a>).</li>
-<li>Removed an unnecessary special case when calculating column means (<a href="https://github.com/mayer79/hstats/pull/106" class="external-link">PR </a><a href="https://github.com/mayer79/hstats/issues/106" class="external-link">#106</a>).</li>
+<ul><li>In multivariate cases, it was possible that normalized H-statistics could equal <code>0/0 (= NaN)</code>. Such values are now replaced by 0 (<a href="https://github.com/mayer79/hstats/issues/107" class="external-link">#107</a>).</li>
+<li>Removed an unnecessary special case when calculating column means (<a href="https://github.com/mayer79/hstats/pull/106" class="external-link">#106</a>).</li>
+<li>Slight speed-up of permutation importance for non-matrix <code>X</code> (<a href="https://github.com/mayer79/hstats/pull/109" class="external-link">#109</a>).</li>
 </ul></div>
 </div>
     <div class="section level2">
