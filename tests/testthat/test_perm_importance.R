@@ -44,7 +44,7 @@ test_that("results are positive for modeled features and zero otherwise (univari
 
 test_that("perm_importance() raises some errors (univariate)", {
   expect_error(perm_importance(fit, X = iris[-1L], y = 1:10, verbose = FALSE))
-  expect_error(perm_importance(fit, X = iris[-1], y = "Hello", verbose = FALSE))
+  expect_error(perm_importance(fit, X = iris[-1L], y = "Hi", verbose = FALSE))
 })
 
 test_that("constant weights is same as unweighted (univariate)", {
@@ -139,12 +139,20 @@ test_that("groups of variables work as well", {
 })
 
 test_that("matrix case works as well", {
-  X <- cbind(i = 1, data.matrix(iris[2:4]))
+  v <- c("Petal.Length", "Petal.Width", "Sepal.Width")
+  X <- cbind(intercept = 1, data.matrix(iris[v]))
   fit <- lm.fit(x = X, y = y)
   pred_fun <- function(m, X) X %*% m$coefficients
-  expect_no_error(
-    perm_importance(fit, X = X, y = y, pred_fun = pred_fun, verbose = FALSE)
-  )
+  
+  set.seed(1L)
+  s2 <- perm_importance(fit, X = X, y = y, v = v, pred_fun = pred_fun, verbose = FALSE)
+  expect_equal(dim(s2), c(3L, 1L))
+  
+  v2 <- list(Petal.Length = "Petal.Length", Petal = c("Petal.Length", "Petal.Width"))
+  set.seed(1L)
+  s3 <- perm_importance(fit, X = X, y = y, v = v2, pred_fun = pred_fun, verbose = FALSE)
+  expect_equal(dim(s3), c(2L, 1L))
+  expect_equal(s2$M["Petal.Length", ], s3$M["Petal.Length", ])
 })
 
 test_that("non-numeric predictions can work as well (classification error)", {

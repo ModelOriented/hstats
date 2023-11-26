@@ -2,8 +2,9 @@
 
 ## Other changes
 
-- In multivariate cases, it was possible that normalized H-statistics could equal `0/0 (= NaN)`. Such values are now replaced by 0 ([Issue #107](https://github.com/mayer79/hstats/issues/107)).
-- Removed an unnecessary special case when calculating column means ([PR #106](https://github.com/mayer79/hstats/pull/106)).
+- In multivariate cases, it was possible that normalized H-statistics could equal `0/0 (= NaN)`. Such values are now replaced by 0 ([#107](https://github.com/mayer79/hstats/issues/107)).
+- Removed an unnecessary special case when calculating column means ([#106](https://github.com/mayer79/hstats/pull/106)).
+- Slight speed-up of permutation importance for non-matrix `X` ([#109](https://github.com/mayer79/hstats/pull/109)).
 
 # hstats 1.1.0
 
