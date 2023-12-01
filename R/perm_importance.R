@@ -124,7 +124,7 @@ perm_importance.default <- function(object, X, y, v = NULL,
 
   # Stack y and X m times
   if (m_rep > 1L) {
-    ind <- rep.int(seq_len(n), times = m_rep)
+    ind <- rep.int(seq_len(n), m_rep)
     X <- rep_rows(X, ind)
     if (is.vector(y) || is.factor(y)) {
       y <- y[ind]

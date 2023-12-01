@@ -64,7 +64,7 @@ ice_raw <- function(object, v, X, grid, pred_fun = stats::predict,
   n_grid <- NROW(grid)
   
   # Explode everything to n * n_grid rows
-  X_pred <- rep_rows(X, rep.int(seq_len(n), times = n_grid))
+  X_pred <- rep_rows(X, rep.int(seq_len(n), n_grid))
   if (D1) {
     grid_pred <- rep(grid, each = n)
   } else {
