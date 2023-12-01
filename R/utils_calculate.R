@@ -1,6 +1,6 @@
 #' Fast Index Generation
 #' 
-#' For not too small m, much faster than `rep(seq_len(m), each = each)`.
+#' For not too small m much faster than `rep(seq_len(m), each = each)`.
 #' 
 #' @noRd
 #' @keywords internal
@@ -16,6 +16,14 @@ rep_each <- function(m, each) {
   dim(out) <- NULL
   out 
 }
+# 
+# # Same as rep.int(seq_len(m), times)
+# rep_times <- function(m, times) {
+#   out <- .row(dim = c(m, times))
+#   dim(out) <- NULL
+#   out
+# }
+
 
 #' Fast OHE
 #' 
@@ -262,4 +270,27 @@ wcenter <- function(x, w = NULL) {
   }
   # sweep(x, MARGIN = 2L, STATS = wcolMeans(x, w = w))  # Slower
   x - matrix(wcolMeans(x, w = w), nrow = nrow(x), ncol = ncol(x), byrow = TRUE)
+}
+
+#' Fast Row Subsetting (from kernelshap)
+#' 
+#' Internal function used to row-subset data.frames.
+#' Brings a massive speed-up for data.frames. All other classes (tibble, data.table,
+#' matrix) are subsetted in the usual way.
+#' 
+#' @noRd
+#' @keywords internal
+#' 
+#' @param x A matrix-like object.
+#' @param i Logical or integer vector of rows to pick.
+#' @returns Subsetted version of `x`.
+rep_rows <- function(x, i) {
+  if (!(all(class(x) == "data.frame"))) {
+    return(x[i, , drop = FALSE])  # matrix, tibble, data.table, ...
+  }
+  # data.frame
+  out <- lapply(x, function(z) if (length(dim(z)) != 2L) z[i] else z[i, , drop = FALSE])
+  attr(out, "row.names") <- .set_row_names(length(i))
+  class(out) <- "data.frame"
+  out
 }
