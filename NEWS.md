@@ -1,10 +1,14 @@
 # hstats 1.1.1
 
+## Performance improvements
+
+- For pure data.frames (no tibbles, data.tables etc.), most functions are significantly faster ([#110](https://github.com/mayer79/hstats/pull/110)).
+- Slight speed-up of permutation importance for non-matrix `X` ([#109](https://github.com/mayer79/hstats/pull/109)).
+
 ## Other changes
 
 - In multivariate cases, it was possible that normalized H-statistics could equal `0/0 (= NaN)`. Such values are now replaced by 0 ([#107](https://github.com/mayer79/hstats/issues/107)).
 - Removed an unnecessary special case when calculating column means ([#106](https://github.com/mayer79/hstats/pull/106)).
-- Slight speed-up of permutation importance for non-matrix `X` ([#109](https://github.com/mayer79/hstats/pull/109)).
 
 # hstats 1.1.0
 

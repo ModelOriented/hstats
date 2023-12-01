@@ -218,7 +218,7 @@ perm_importance(ex)
 
 # Permutation importance
 # Petal.Length  Petal.Width  Sepal.Width      Species 
-#   0.59836442   0.11625137   0.08246635   0.03982554 
+#   0.59836442   0.11625137   0.07966910   0.03982554 
 ```
 
 ![](man/figures/dalex_hstats.svg)

@@ -64,11 +64,11 @@ ice_raw <- function(object, v, X, grid, pred_fun = stats::predict,
   n_grid <- NROW(grid)
   
   # Explode everything to n * n_grid rows
-  X_pred <- X[rep(seq_len(n), times = n_grid), , drop = FALSE]
+  X_pred <- rep_rows(X, rep.int(seq_len(n), n_grid))
   if (D1) {
     grid_pred <- rep(grid, each = n)
   } else {
-    grid_pred <- grid[rep(seq_len(n_grid), each = n), ]
+    grid_pred <- rep_rows(grid, rep_each(n_grid, n))
   }
   
   # Vary v
@@ -119,7 +119,7 @@ ice_raw <- function(object, v, X, grid, pred_fun = stats::predict,
 
   # Compensate via w
   if (is.null(w)) {
-    w <- rep(1.0, times = nrow(X))
+    w <- rep.int(1.0, nrow(X))
   }
   if (anyNA(x_not_v)) {
     # rowsum() warns about NA in group = x_not_v -> integer encode
@@ -153,8 +153,8 @@ ice_raw <- function(object, v, X, grid, pred_fun = stats::predict,
   }
   out <- list(grid = ugrid)
   if (NCOL(grid) >= 2L) {  # Non-vector case
-    grid <- apply(grid, MARGIN = 1L, FUN = paste, collapse = "_:_")
-    ugrid <- apply(ugrid, MARGIN = 1L, FUN = paste, collapse = "_:_")
+    grid <- do.call(paste, c(as.data.frame(grid), sep = "_:_"))
+    ugrid <- do.call(paste, c(as.data.frame(ugrid), sep = "_:_"))
     if (anyDuplicated(ugrid)) {
       stop("String '_:_' found in grid values at unlucky position.")
     }
