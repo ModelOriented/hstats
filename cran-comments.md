@@ -1,27 +1,19 @@
-# hstats 1.1.0
+# hstats 1.1.1
 
-Dear CRAN team
+Hello CRAN
 
-This release mainly brings factor-valued predictions into {hstats}.
+This is a small release with a bugfix and some speed improvements.
 
 ## Local checks: 1 NOTE
 
-checking HTML version of manual ... NOTE
-  Skipping checking HTML validation: no command 'tidy' found
+- Skipping checking math rendering: package 'V8' unavailable
   
-## Rhub: 3 NOTES
+## Rhub: 2 NOTES
 
-* checking HTML version of manual ... NOTE
-Skipping checking math rendering: package 'V8' unavailable
-* checking for non-standard things in the check directory ... NOTE
-Found the following files/directories:
-  ''NULL''
-* checking for detritus in the temp directory ... NOTE
-Found the following files/directories:
-  'lastMiKTeXException'
+- Skipping checking HTML validation: no command 'tidy' found
+- Skipping checking math rendering: package 'V8' unavailable
 
 ## Winbuilder
 
 Status: OK
-R Under development (unstable) (2023-11-12 r85514 ucrt)
 
