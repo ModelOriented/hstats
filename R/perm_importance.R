@@ -228,34 +228,6 @@ perm_importance.ranger <- function(object, X, y, v = NULL,
   )
 }
 
-#' @describeIn perm_importance Method for "mlr3" models.
-#' @export
-perm_importance.Learner <- function(object, X, y, v = NULL,
-                                    pred_fun = NULL,
-                                    loss = "squared_error", m_rep = 4L, 
-                                    agg_cols = FALSE, 
-                                    normalize = FALSE, n_max = 10000L, 
-                                    w = NULL, verbose = TRUE, ...) {
-  if (is.null(pred_fun)) {
-    pred_fun <- mlr3_pred_fun(object, X = X)
-  }
-  perm_importance.default(
-    object = object,
-    X = X,
-    y = y,
-    v = v,
-    pred_fun = pred_fun,
-    loss = loss,
-    m_rep = m_rep,
-    agg_cols = agg_cols,
-    normalize = normalize,
-    n_max = n_max,
-    w = w,
-    verbose = verbose,
-    ...
-  )
-}
-
 #' @describeIn perm_importance Method for DALEX "explainer".
 #' @export
 perm_importance.explainer <- function(object, 

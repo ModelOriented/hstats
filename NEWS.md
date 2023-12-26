@@ -1,3 +1,10 @@
+# hstats 1.1.2
+
+## API
+
+- {mlr3}: Non-probabilistic classification now works.
+- {mlr3}: For *probabilistic* classification, you now have to pass `predict_type = "prob"`.
+
 # hstats 1.1.1
 
 ## Performance improvements

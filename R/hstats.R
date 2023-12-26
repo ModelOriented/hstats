@@ -300,34 +300,6 @@ hstats.ranger <- function(object, X, v = NULL,
   )
 }
 
-#' @describeIn hstats Method for "mlr3" models.
-#' @export
-hstats.Learner <- function(object, X, v = NULL,
-                           pred_fun = NULL,
-                           pairwise_m = 5L, threeway_m = 0L, 
-                           approx = FALSE, grid_size = 50L, 
-                           n_max = 500L, eps = 1e-10, 
-                           w = NULL, verbose = TRUE, ...) {
-  if (is.null(pred_fun)) {
-    pred_fun <- mlr3_pred_fun(object, X = X)
-  }
-  hstats.default(
-    object = object,
-    X = X,
-    v = v,
-    pred_fun = pred_fun,
-    pairwise_m = pairwise_m,
-    threeway_m = threeway_m,
-    approx = approx,
-    grid_size = grid_size,
-    n_max = n_max,
-    eps = eps,
-    w = w,
-    verbose = verbose,
-    ...
-  )
-}
-
 #' @describeIn hstats Method for DALEX "explainer".
 #' @export
 hstats.explainer <- function(object, X = object[["data"]],

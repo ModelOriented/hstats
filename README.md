@@ -229,7 +229,7 @@ Strongest relative interaction shown as ICE plot.
 
 ## Multivariate responses
 
-{hstats} works also with multivariate output, see examples with 
+{hstats} works also with multivariate output, see examples for probabilistic classification with 
 
 - ranger, 
 - LightGBM, and 
@@ -377,7 +377,9 @@ plot(H, normalize = FALSE, squared = FALSE, facet_scales = "free_y", ncol = 1)
 
 ![](man/figures/xgboost.svg)
 
-### (Non-probabilistic) classification works as well
+### Non-probabilistic classification
+
+When predictions are factor levels, {hstats} uses internal one-hot-encoding.
 
 ```r
 library(ranger)
@@ -404,7 +406,7 @@ partial_dep(fit, v = "Petal.Length", X = train, BY = "Petal.Width") |>
 
 ## Meta-learning packages
 
-Here, we provide some working examples for "tidymodels", "caret", and "mlr3".
+Here, we provide examples for {tidymodels}, {caret}, and {mlr3}.
 
 ### tidymodels
 
@@ -478,8 +480,14 @@ fit_rf$train(task_iris)
 s <- hstats(fit_rf, X = iris[, -5])
 plot(s)
 
-# Permutation importance
-perm_importance(fit_rf, X = iris, y = "Species", loss = "mlogloss") |> 
+# Permutation importance (probabilistic using multi-logloss)
+p <- perm_importance(
+  fit_rf, X = iris, y = "Species", loss = "mlogloss", predict_type = "prob"
+)
+plot(p)
+
+# Non-probabilistic using classification error
+perm_importance(fit_rf, X = iris, y = "Species", loss = "classification_error") |> 
   plot()
 ```
 
