@@ -4,7 +4,6 @@
 \alias{hstats}
 \alias{hstats.default}
 \alias{hstats.ranger}
-\alias{hstats.Learner}
 \alias{hstats.explainer}
 \title{Calculate Interaction Statistics}
 \usage{
@@ -31,22 +30,6 @@ hstats(object, ...)
   X,
   v = NULL,
   pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
-  pairwise_m = 5L,
-  threeway_m = 0L,
-  approx = FALSE,
-  grid_size = 50L,
-  n_max = 500L,
-  eps = 1e-10,
-  w = NULL,
-  verbose = TRUE,
-  ...
-)
-
-\method{hstats}{Learner}(
-  object,
-  X,
-  v = NULL,
-  pred_fun = NULL,
   pairwise_m = 5L,
   threeway_m = 0L,
   approx = FALSE,
@@ -194,8 +177,6 @@ more flexible functions \code{\link[=h2]{h2()}}, \code{\link[=h2_overall]{h2_ove
 \item \code{hstats(default)}: Default hstats method.
 
 \item \code{hstats(ranger)}: Method for "ranger" models.
-
-\item \code{hstats(Learner)}: Method for "mlr3" models.
 
 \item \code{hstats(explainer)}: Method for DALEX "explainer".
 

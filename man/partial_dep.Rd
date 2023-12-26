@@ -4,7 +4,6 @@
 \alias{partial_dep}
 \alias{partial_dep.default}
 \alias{partial_dep.ranger}
-\alias{partial_dep.Learner}
 \alias{partial_dep.explainer}
 \title{Partial Dependence Plot}
 \usage{
@@ -32,23 +31,6 @@ partial_dep(object, ...)
   v,
   X,
   pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
-  BY = NULL,
-  by_size = 4L,
-  grid = NULL,
-  grid_size = 49L,
-  trim = c(0.01, 0.99),
-  strategy = c("uniform", "quantile"),
-  na.rm = TRUE,
-  n_max = 1000L,
-  w = NULL,
-  ...
-)
-
-\method{partial_dep}{Learner}(
-  object,
-  v,
-  X,
-  pred_fun = NULL,
   BY = NULL,
   by_size = 4L,
   grid = NULL,
@@ -148,8 +130,6 @@ The resulting object can be plotted via \code{plot()}.
 \item \code{partial_dep(default)}: Default method.
 
 \item \code{partial_dep(ranger)}: Method for "ranger" models.
-
-\item \code{partial_dep(Learner)}: Method for "mlr3" models.
 
 \item \code{partial_dep(explainer)}: Method for DALEX "explainer".
 

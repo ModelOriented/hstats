@@ -4,7 +4,6 @@
 \alias{perm_importance}
 \alias{perm_importance.default}
 \alias{perm_importance.ranger}
-\alias{perm_importance.Learner}
 \alias{perm_importance.explainer}
 \title{Permutation Importance}
 \usage{
@@ -32,22 +31,6 @@ perm_importance(object, ...)
   y,
   v = NULL,
   pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
-  loss = "squared_error",
-  m_rep = 4L,
-  agg_cols = FALSE,
-  normalize = FALSE,
-  n_max = 10000L,
-  w = NULL,
-  verbose = TRUE,
-  ...
-)
-
-\method{perm_importance}{Learner}(
-  object,
-  X,
-  y,
-  v = NULL,
-  pred_fun = NULL,
   loss = "squared_error",
   m_rep = 4L,
   agg_cols = FALSE,
@@ -153,8 +136,6 @@ data set. Set \code{normalize = TRUE} to get \emph{relative} increases in averag
 \item \code{perm_importance(default)}: Default method.
 
 \item \code{perm_importance(ranger)}: Method for "ranger" models.
-
-\item \code{perm_importance(Learner)}: Method for "mlr3" models.
 
 \item \code{perm_importance(explainer)}: Method for DALEX "explainer".
 

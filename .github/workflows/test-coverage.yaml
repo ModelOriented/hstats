@@ -33,22 +33,16 @@ jobs:
             clean = FALSE,
             install_path = file.path(Sys.getenv("RUNNER_TEMP"), "package"),
             function_exclusions = c(
-              "partial_dep\\.Learner",
               "partial_dep\\.ranger",
               "partial_dep\\.explainer",
-              "ice\\.Learner",
               "ice\\.ranger",
               "ice\\.explainer",
-              "hstats\\.Learner",
               "hstats\\.ranger",
               "hstats\\.explainer",
-              "perm_importance\\.Learner",
               "perm_importance\\.ranger",
               "perm_importance\\.explainer",
-              "average_loss\\.Learner",
               "average_loss\\.ranger",
-              "average_loss\\.explainer",
-              "mlr3_pred_fun"
+              "average_loss\\.explainer"
             )
           )
         shell: Rscript {0}

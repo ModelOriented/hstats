@@ -213,35 +213,6 @@ partial_dep.ranger <- function(object, v, X,
   )
 }
 
-#' @describeIn partial_dep Method for "mlr3" models.
-#' @export
-partial_dep.Learner <- function(object, v, X, 
-                                pred_fun = NULL,
-                                BY = NULL, by_size = 4L, grid = NULL, grid_size = 49L, 
-                                trim = c(0.01, 0.99), 
-                                strategy = c("uniform", "quantile"), na.rm = TRUE,
-                                n_max = 1000L, w = NULL, ...) {
-  if (is.null(pred_fun)) {
-    pred_fun <- mlr3_pred_fun(object, X = X)
-  }
-  partial_dep.default(
-    object = object,
-    v = v,
-    X = X,
-    pred_fun = pred_fun,
-    BY = BY,
-    by_size = by_size,
-    grid = grid,
-    grid_size = grid_size,
-    trim = trim,
-    strategy = strategy,
-    na.rm = na.rm,
-    n_max = n_max,
-    w = w,
-    ...
-  )
-}
-
 #' @describeIn partial_dep Method for DALEX "explainer".
 #' @export
 partial_dep.explainer <- function(object, v, X = object[["data"]], 

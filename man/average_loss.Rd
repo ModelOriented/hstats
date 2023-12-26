@@ -4,7 +4,6 @@
 \alias{average_loss}
 \alias{average_loss.default}
 \alias{average_loss.ranger}
-\alias{average_loss.Learner}
 \alias{average_loss.explainer}
 \title{Average Loss}
 \usage{
@@ -28,19 +27,6 @@ average_loss(object, ...)
   X,
   y,
   pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
-  loss = "squared_error",
-  agg_cols = FALSE,
-  BY = NULL,
-  by_size = 4L,
-  w = NULL,
-  ...
-)
-
-\method{average_loss}{Learner}(
-  object,
-  X,
-  y,
-  pred_fun = NULL,
   loss = "squared_error",
   agg_cols = FALSE,
   BY = NULL,
@@ -125,8 +111,6 @@ optionally grouped by a variable. Use \code{plot()} to visualize the results.
 \item \code{average_loss(default)}: Default method.
 
 \item \code{average_loss(ranger)}: Method for "ranger" models.
-
-\item \code{average_loss(Learner)}: Method for "mlr3" models.
 
 \item \code{average_loss(explainer)}: Method for DALEX "explainer".
 

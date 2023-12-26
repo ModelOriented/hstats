@@ -4,7 +4,6 @@
 \alias{ice}
 \alias{ice.default}
 \alias{ice.ranger}
-\alias{ice.Learner}
 \alias{ice.explainer}
 \title{Individual Conditional Expectations}
 \usage{
@@ -30,21 +29,6 @@ ice(object, ...)
   v,
   X,
   pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
-  BY = NULL,
-  grid = NULL,
-  grid_size = 49L,
-  trim = c(0.01, 0.99),
-  strategy = c("uniform", "quantile"),
-  na.rm = TRUE,
-  n_max = 100L,
-  ...
-)
-
-\method{ice}{Learner}(
-  object,
-  v,
-  X,
-  pred_fun = NULL,
   BY = NULL,
   grid = NULL,
   grid_size = 49L,
@@ -132,8 +116,6 @@ up to two grouping variables via \code{BY}.
 \item \code{ice(default)}: Default method.
 
 \item \code{ice(ranger)}: Method for "ranger" models.
-
-\item \code{ice(Learner)}: Method for "mlr3" models.
 
 \item \code{ice(explainer)}: Method for DALEX "explainer".
 

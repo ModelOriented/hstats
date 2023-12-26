@@ -135,31 +135,6 @@ average_loss.ranger <- function(object, X, y,
   )
 }
 
-#' @describeIn average_loss Method for "mlr3" models.
-#' @export
-average_loss.Learner <- function(object, X, y, 
-                                 pred_fun = NULL,
-                                 loss = "squared_error",
-                                 agg_cols = FALSE,
-                                 BY = NULL, by_size = 4L, 
-                                 w = NULL, ...) {
-  if (is.null(pred_fun)) {
-    pred_fun <- mlr3_pred_fun(object, X = X)
-  }
-  average_loss.default(
-    object = object, 
-    X = X, 
-    y = y, 
-    pred_fun = pred_fun, 
-    loss = loss,
-    agg_cols = agg_cols,
-    BY = BY,
-    by_size = by_size,
-    w = w, 
-    ...
-  )
-}
-
 #' @describeIn average_loss Method for DALEX "explainer".
 #' @export
 average_loss.explainer <- function(object, 
