@@ -49,7 +49,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">hstats</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.2</span>
       </span>
     </div>
 
@@ -319,7 +319,7 @@
 <div class="section level2">
 <h2 id="multivariate-responses">Multivariate responses<a class="anchor" aria-label="anchor" href="#multivariate-responses"></a>
 </h2>
-<p>{hstats} works also with multivariate output, see examples with</p>
+<p>{hstats} works also with multivariate output, see examples for probabilistic classification with</p>
 <ul>
 <li>ranger,</li>
 <li>LightGBM, and</li>
@@ -462,8 +462,9 @@
 <p><img src="reference/figures/xgboost.svg"></p>
 </div>
 <div class="section level3">
-<h3 id="non-probabilistic-classification-works-as-well">(Non-probabilistic) classification works as well<a class="anchor" aria-label="anchor" href="#non-probabilistic-classification-works-as-well"></a>
+<h3 id="non-probabilistic-classification">Non-probabilistic classification<a class="anchor" aria-label="anchor" href="#non-probabilistic-classification"></a>
 </h3>
+<p>When predictions are factor levels, {hstats} uses internal one-hot-encoding.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://imbs-hl.github.io/ranger/" class="external-link">ranger</a></span><span class="op">)</span></span>
 <span></span>
@@ -490,7 +491,7 @@
 <div class="section level2">
 <h2 id="meta-learning-packages">Meta-learning packages<a class="anchor" aria-label="anchor" href="#meta-learning-packages"></a>
 </h2>
-<p>Here, we provide some working examples for “tidymodels”, “caret”, and “mlr3”.</p>
+<p>Here, we provide examples for {tidymodels}, {caret}, and {mlr3}.</p>
 <div class="section level3">
 <h3 id="tidymodels">tidymodels<a class="anchor" aria-label="anchor" href="#tidymodels"></a>
 </h3>
@@ -564,8 +565,14 @@
 <span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/hstats.html">hstats</a></span><span class="op">(</span><span class="va">fit_rf</span>, X <span class="op">=</span> <span class="va">iris</span><span class="op">[</span>, <span class="op">-</span><span class="fl">5</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">s</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Permutation importance</span></span>
-<span><span class="fu"><a href="reference/perm_importance.html">perm_importance</a></span><span class="op">(</span><span class="va">fit_rf</span>, X <span class="op">=</span> <span class="va">iris</span>, y <span class="op">=</span> <span class="st">"Species"</span>, loss <span class="op">=</span> <span class="st">"mlogloss"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span><span class="co"># Permutation importance (probabilistic using multi-logloss)</span></span>
+<span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/perm_importance.html">perm_importance</a></span><span class="op">(</span></span>
+<span>  <span class="va">fit_rf</span>, X <span class="op">=</span> <span class="va">iris</span>, y <span class="op">=</span> <span class="st">"Species"</span>, loss <span class="op">=</span> <span class="st">"mlogloss"</span>, predict_type <span class="op">=</span> <span class="st">"prob"</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">p</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Non-probabilistic using classification error</span></span>
+<span><span class="fu"><a href="reference/perm_importance.html">perm_importance</a></span><span class="op">(</span><span class="va">fit_rf</span>, X <span class="op">=</span> <span class="va">iris</span>, y <span class="op">=</span> <span class="st">"Species"</span>, loss <span class="op">=</span> <span class="st">"classification_error"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>

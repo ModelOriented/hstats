@@ -18,7 +18,7 @@ optionally grouped by a variable. Use plot() to visualize the results."><meta pr
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">hstats</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.2</span>
       </span>
     </div>
 
@@ -77,20 +77,6 @@ optionally grouped by a variable. Use <code><a href="https://rdrr.io/r/graphics/
 <span>  <span class="va">X</span>,</span>
 <span>  <span class="va">y</span>,</span>
 <span>  pred_fun <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">m</span>, <span class="va">X</span>, <span class="va">...</span><span class="op">)</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">m</span>, <span class="va">X</span>, <span class="va">...</span><span class="op">)</span><span class="op">$</span><span class="va">predictions</span>,</span>
-<span>  loss <span class="op">=</span> <span class="st">"squared_error"</span>,</span>
-<span>  agg_cols <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  BY <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  by_size <span class="op">=</span> <span class="fl">4L</span>,</span>
-<span>  w <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  <span class="va">...</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># S3 method for Learner</span></span>
-<span><span class="fu">average_loss</span><span class="op">(</span></span>
-<span>  <span class="va">object</span>,</span>
-<span>  <span class="va">X</span>,</span>
-<span>  <span class="va">y</span>,</span>
-<span>  pred_fun <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  loss <span class="op">=</span> <span class="st">"squared_error"</span>,</span>
 <span>  agg_cols <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  BY <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -194,7 +180,6 @@ Currently, supported only for <code><a href="perm_importance.html">perm_importan
     
 <ul><li><p><code>average_loss(default)</code>: Default method.</p></li>
 <li><p><code>average_loss(ranger)</code>: Method for "ranger" models.</p></li>
-<li><p><code>average_loss(Learner)</code>: Method for "mlr3" models.</p></li>
 <li><p><code>average_loss(explainer)</code>: Method for DALEX "explainer".</p></li>
 </ul></div>
     <div id="losses">

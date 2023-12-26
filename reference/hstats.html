@@ -37,7 +37,7 @@ h2_threeway()."><meta property="og:image" content="/logo.png"><!-- mathjax --><s
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">hstats</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.2</span>
       </span>
     </div>
 
@@ -115,23 +115,6 @@ more flexible functions <code><a href="h2.html">h2()</a></code>, <code><a href="
 <span>  <span class="va">X</span>,</span>
 <span>  v <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  pred_fun <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">m</span>, <span class="va">X</span>, <span class="va">...</span><span class="op">)</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">m</span>, <span class="va">X</span>, <span class="va">...</span><span class="op">)</span><span class="op">$</span><span class="va">predictions</span>,</span>
-<span>  pairwise_m <span class="op">=</span> <span class="fl">5L</span>,</span>
-<span>  threeway_m <span class="op">=</span> <span class="fl">0L</span>,</span>
-<span>  approx <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  grid_size <span class="op">=</span> <span class="fl">50L</span>,</span>
-<span>  n_max <span class="op">=</span> <span class="fl">500L</span>,</span>
-<span>  eps <span class="op">=</span> <span class="fl">1e-10</span>,</span>
-<span>  w <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  verbose <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  <span class="va">...</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># S3 method for Learner</span></span>
-<span><span class="fu">hstats</span><span class="op">(</span></span>
-<span>  <span class="va">object</span>,</span>
-<span>  <span class="va">X</span>,</span>
-<span>  v <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  pred_fun <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  pairwise_m <span class="op">=</span> <span class="fl">5L</span>,</span>
 <span>  threeway_m <span class="op">=</span> <span class="fl">0L</span>,</span>
 <span>  approx <span class="op">=</span> <span class="cn">FALSE</span>,</span>
@@ -283,7 +266,6 @@ Only if three-way calculations have been done.</p></li>
     
 <ul><li><p><code>hstats(default)</code>: Default hstats method.</p></li>
 <li><p><code>hstats(ranger)</code>: Method for "ranger" models.</p></li>
-<li><p><code>hstats(Learner)</code>: Method for "mlr3" models.</p></li>
 <li><p><code>hstats(explainer)</code>: Method for DALEX "explainer".</p></li>
 </ul></div>
     <div id="references">
