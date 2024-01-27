@@ -4,7 +4,7 @@
 
 [![CRAN status](http://www.r-pkg.org/badges/version/hstats)](https://cran.r-project.org/package=hstats)
 [![R-CMD-check](https://github.com/mayer79/hstats/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/mayer79/hstats/actions)
-[![Codecov test coverage](https://codecov.io/gh/mayer79/hstats/branch/main/graph/badge.svg)](https://app.codecov.io/gh/mayer79/hstats?branch=main)
+[![Codecov test coverage](https://codecov.io/gh/mayer79/hstats/graph/badge.svg)](https://app.codecov.io/gh/mayer79/hstats?branch=main)
 
 [![](https://cranlogs.r-pkg.org/badges/hstats)](https://cran.r-project.org/package=hstats) 
 [![](https://cranlogs.r-pkg.org/badges/grand-total/hstats?color=orange)](https://cran.r-project.org/package=hstats)
