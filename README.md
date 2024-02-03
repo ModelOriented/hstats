@@ -275,7 +275,7 @@ ice(fit, v = "Petal.Length", X = iris, BY = "Petal.Width") |>
 
 ### LightGBM
 
-Note: Versions from 4.0.0 upwards to not anymore require passing `reshape = TRUE` to the prediction function.
+Note: Versions < 4.0.0 require passing `reshape = TRUE` to the prediction function.
 
 ```r
 library(lightgbm)
@@ -294,30 +294,22 @@ fit <- lgb.train(
   nrounds = 1000
 )
 
-# Check that predictions require reshape = TRUE to be a matrix
-predict(fit, head(X_train, 2), reshape = TRUE)
-#           [,1]         [,2]         [,3]
-# [1,] 0.9999997 2.918695e-07 2.858720e-14
-# [2,] 0.9999999 1.038470e-07 7.337221e-10
-
 # mlogloss: 9.331699e-05
-average_loss(fit, X = X_valid, y = y_valid, loss = "mlogloss", reshape = TRUE)
+average_loss(fit, X = X_valid, y = y_valid, loss = "mlogloss")
 
-perm_importance(
-  fit, X = X_valid, y = y_valid, loss = "mlogloss", reshape = TRUE, m_rep = 100
-)
+perm_importance(fit, X = X_valid, y = y_valid, loss = "mlogloss", m_rep = 100)
 # Permutation importance regarding mlogloss
 # Petal.Length  Petal.Width  Sepal.Width Sepal.Length 
 #  2.624241332  1.011168660  0.082477177  0.009757393
 
-partial_dep(fit, v = "Petal.Length", X = X_train, reshape = TRUE) |> 
+partial_dep(fit, v = "Petal.Length", X = X_train) |> 
   plot(show_points = FALSE)
 
-ice(fit, v = "Petal.Length", X = X_train, reshape = TRUE) |> 
-  plot(swap_dim = TRUE, alpha = 0.05)
+ice(fit, v = "Petal.Length", X = X_train) |> 
+  plot(alpha = 0.05)
 
 # Interaction statistics, including three-way stats
-(H <- hstats(fit, X = X_train, reshape = TRUE, threeway_m = 4))  
+(H <- hstats(fit, X = X_train, threeway_m = 4))  
 # 0.3010446 0.4167927 0.1623982
 
 plot(H, ncol = 1)
@@ -327,7 +319,7 @@ plot(H, ncol = 1)
 
 ### XGBoost
 
-Also here, mind the `reshape = TRUE` sent to the prediction function.
+Mind the `reshape = TRUE` sent to the prediction function.
 
 ```r
 library(xgboost)
@@ -379,7 +371,7 @@ plot(H, normalize = FALSE, squared = FALSE, facet_scales = "free_y", ncol = 1)
 
 ### Non-probabilistic classification
 
-When predictions are factor levels, {hstats} uses internal one-hot-encoding.
+When predictions are factor levels, {hstats} uses internal one-hot-encoding. Usually, probabilistic classification makes more sense though.
 
 ```r
 library(ranger)
