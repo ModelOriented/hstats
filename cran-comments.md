@@ -1,17 +1,21 @@
-# hstats 1.1.1
+# hstats 1.1.2
 
-Hello CRAN
+Hello CRAN team
 
-This is a small release with a bugfix and some speed improvements.
+This is a small release with two convenient API improvements.
 
-## Local checks: 1 NOTE
+## Local checks: 0 errors, 0 warnings, 0 notes
 
-- Skipping checking math rendering: package 'V8' unavailable
-  
-## Rhub: 2 NOTES
+## Rhub: 3 NOTES (sounding harmless)
 
-- Skipping checking HTML validation: no command 'tidy' found
-- Skipping checking math rendering: package 'V8' unavailable
+- checking HTML version of manual ... NOTE
+  Skipping checking math rendering: package 'V8' unavailable
+- checking for non-standard things in the check directory ... NOTE
+  Found the following files/directories:
+  ''NULL''
+- checking for detritus in the temp directory ... NOTE
+  Found the following files/directories:
+  'lastMiKTeXException'
 
 ## Winbuilder
 

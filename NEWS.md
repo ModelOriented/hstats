@@ -1,5 +1,9 @@
 # hstats 1.1.2
 
+## ICE plots
+
+- The ICE plot of a multioutput model without BY variable will now be using facets (instead of color). Use `swap_dim = TRUE` for the old behavior.
+
 ## API
 
 - {mlr3}: Non-probabilistic classification now works.
