@@ -532,11 +532,3 @@ test_that(".compress_grid() leaves grid unchanged if unique", {
   expect_equal(out$grid, g)
   expect_equal(out$reindex, NULL)
 })
-
-test_that("partial_dep() works for factor predictions", {
-  pf <- function(m, X) factor(X[, "v1"], levels = 0:1, labels = c("zero", "one"))
-  out <- partial_dep(1, v = "v1", X = cbind(v1 = 0:1), pred_fun = pf)
-  out <- as.matrix(out$data[c("zero", "one")])
-  row.names(out) <- NULL
-  expect_equal(out, cbind(zero = 1:0, one = 0:1))
-})

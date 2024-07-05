@@ -117,7 +117,6 @@ ice.default <- function(object, v, X, pred_fun = stats::predict,
     grid = grid, 
     pred_fun = pred_fun, 
     pred_only = FALSE,
-    ohe = TRUE,
     ...
   )
   pred <- ice_out[["pred"]]
