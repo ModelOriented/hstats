@@ -369,33 +369,6 @@ plot(H, normalize = FALSE, squared = FALSE, facet_scales = "free_y", ncol = 1)
 
 ![](man/figures/xgboost.svg)
 
-### Non-probabilistic classification
-
-When predictions are factor levels, {hstats} uses internal one-hot-encoding. Usually, probabilistic classification makes more sense though.
-
-```r
-library(ranger)
-
-set.seed(1)
-
-fit <- ranger(Species ~ ., data = train)
-average_loss(fit, X = valid, y = "Species", loss = "classification_error")  # 0
-
-perm_importance(fit, X = valid, y = "Species", loss = "classification_error")
-# Petal.Width Petal.Length Sepal.Length  Sepal.Width 
-#       0.350        0.275        0.000        0.000 
-       
-(s <- hstats(fit, X = train[, -5]))
-# H^2 (normalized)
-#     setosa versicolor  virginica 
-# 0.09885417 0.46151300 0.23238800 
-
-plot(s, normalize = FALSE, squared = FALSE)
-
-partial_dep(fit, v = "Petal.Length", X = train, BY = "Petal.Width") |> 
-  plot(show_points = FALSE)
-```
-
 ## Meta-learning packages
 
 Here, we provide examples for {tidymodels}, {caret}, and {mlr3}.
@@ -469,18 +442,14 @@ set.seed(1)
 task_iris <- TaskClassif$new(id = "class", backend = iris, target = "Species")
 fit_rf <- lrn("classif.ranger", predict_type = "prob")
 fit_rf$train(task_iris)
-s <- hstats(fit_rf, X = iris[, -5])
+s <- hstats(fit_rf, X = iris[, -5], predict_type = "prob")
 plot(s)
 
-# Permutation importance (probabilistic using multi-logloss)
+# Permutation importance (wrt multi-logloss)
 p <- perm_importance(
   fit_rf, X = iris, y = "Species", loss = "mlogloss", predict_type = "prob"
 )
 plot(p)
-
-# Non-probabilistic using classification error
-perm_importance(fit_rf, X = iris, y = "Species", loss = "classification_error") |> 
-  plot()
 ```
 
 ## Background
