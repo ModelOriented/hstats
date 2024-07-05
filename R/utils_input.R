@@ -115,4 +115,3 @@ prepare_y <- function(y, X) {
   }
   list(y = prepare_pred(y), y_names = y_names)
 }
-
