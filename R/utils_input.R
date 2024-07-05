@@ -11,7 +11,7 @@ prepare_pred <- function(x) {
   if (is.data.frame(x) && ncol(x) == 1L) {
     x <- x[[1L]]
   }
-  if (!is.vector(x) || !is.matrix(x)) {
+  if (!is.vector(x) && !is.matrix(x)) {
     x <- as.matrix(x)
   }
   if (!is.numeric(x)) {
@@ -95,11 +95,11 @@ prepare_w <- function(w, X) {
 #' 
 #' @noRd
 #' @keywords internal
-#' @param y Vector/matrix-like of the same length as `X`, or column names in `X`.
+#' @param y Vector, factor, or matrix-like of the same length as `X`,
+#'   or column names in `X`.
 #' @param X Matrix-like.
-#' @param ohe If y is a factor: should it be one-hot encoded? Default is `FALSE`.
 #' 
-#' @returns A list with "y" (vector, matrix, or factor) and "y_names" (if `y`
+#' @returns A list with "y" (vector, matrix) and "y_names" (if `y`
 #'   was passed as column names).
 prepare_y <- function(y, X) {
   if (NROW(y) < nrow(X) && all(y %in% colnames(X))) {
@@ -110,8 +110,20 @@ prepare_y <- function(y, X) {
       y <- X[, y]
     }
   } else {
+    if (is.data.frame(y) && ncol(y) == 1L) {
+      y <- y[[1L]]
+    }
     stopifnot(NROW(y) == nrow(X))
     y_names <- NULL
   }
-  list(y = prepare_pred(y), y_names = y_names)
+  if (is.factor(y)) {
+    y <- fdummy(y)
+  }
+  if (!is.vector(y) && !is.matrix(y)) {
+    y <- as.matrix(y)
+  }
+  if (!is.numeric(y)) {
+    stop("Response must be numeric (or factor.)")
+  }
+  list(y = y, y_names = y_names)
 }

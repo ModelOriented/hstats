@@ -1,6 +1,6 @@
 # hstats 1.2.0
 
-# Major changes
+## Major changes
 
 - Factor-valued predictions are no longer possible.
 - Consequently, also removed "classification_error" loss.

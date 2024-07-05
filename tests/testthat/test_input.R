@@ -1,6 +1,6 @@
 test_that("prepare_pred() works", {
   expect_equal(prepare_pred(iris[1:4]), data.matrix(iris[1:4]))
-  expect_equal(prepare_pred(iris["Species"]), iris$Species)
+  expect_error(prepare_pred(iris["Species"]))
   expect_equal(prepare_pred(iris$Sepal.Width), iris$Sepal.Width)
   expect_equal(prepare_pred(iris["Sepal.Width"]), iris$Sepal.Width)
 })
@@ -24,7 +24,7 @@ test_that("prepare_by() works", {
 test_that("prepare_y() works", {
   # "Vector" interface
   expect_equal(prepare_y(iris[1:4], X = iris)$y, data.matrix(iris[1:4]))
-  expect_equal(prepare_y(iris["Species"], X = iris)$y, iris$Species)
+  expect_equal(prepare_y(iris["Species"], X = iris)$y, fdummy(iris$Species))
   expect_equal(prepare_y(iris$Sepal.Width, X = iris)$y, iris$Sepal.Width)
   expect_equal(prepare_y(iris["Sepal.Width"], X = iris)$y, iris$Sepal.Width)
   
@@ -35,7 +35,7 @@ test_that("prepare_y() works", {
   expect_equal(out$y_names, cn)
   
   out <- prepare_y("Species", X = iris)
-  expect_equal(out$y, iris$Species)
+  expect_equal(out$y, fdummy(iris$Species))
   expect_equal(out$y_names, "Species")
   
   out <- prepare_y("Sepal.Width", X = iris)
