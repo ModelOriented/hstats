@@ -359,7 +359,7 @@ test_that("Single output multiple models works without recycling y", {
 })
 
 test_that("loss_mlogloss() is in line with loss_logloss() in binary case", {
-  y <- (iris$Species == "setosa") * 1
+  y <- (iris$Species == "setosa")
   Y <- cbind(no = 1 - y, yes = y)
   fit <- glm(y ~ Sepal.Length, data = iris, family = binomial())
   pf <- function(m, X, multi = FALSE) {

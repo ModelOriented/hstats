@@ -14,7 +14,7 @@ prepare_pred <- function(x) {
   if (!is.vector(x) && !is.matrix(x)) {
     x <- as.matrix(x)
   }
-  if (!is.numeric(x)) {
+  if (!is.numeric(x) && !is.logical(x)) {
     stop("Predictions must be numeric!")
   }
   return(x)
@@ -116,13 +116,10 @@ prepare_y <- function(y, X) {
     stopifnot(NROW(y) == nrow(X))
     y_names <- NULL
   }
-  if (is.factor(y)) {
-    y <- fdummy(y)
-  }
-  if (!is.vector(y) && !is.matrix(y)) {
+  if (!is.vector(y) && !is.matrix(y) && !is.factor(y)) {
     y <- as.matrix(y)
   }
-  if (!is.numeric(y)) {
+  if (!is.numeric(y) && !is.logical(y) && !is.factor(y)) {
     stop("Response must be numeric (or factor.)")
   }
   list(y = y, y_names = y_names)

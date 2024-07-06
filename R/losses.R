@@ -12,8 +12,8 @@ check_loss <- function(actual, predicted) {
   stopifnot(
     is.vector(actual) || is.matrix(actual),
     is.vector(predicted) || is.matrix(predicted),
-    is.numeric(actual),
-    is.numeric(predicted),
+    is.numeric(actual) || is.logical(actual),
+    is.numeric(predicted) || is.logical(predicted),
     NROW(actual) == NROW(predicted),
     NCOL(actual) == 1L || NCOL(actual) == NCOL(predicted)
   )
@@ -27,10 +27,14 @@ check_loss <- function(actual, predicted) {
 #' @noRd
 #' @keywords internal
 #'
-#' @param actual A numeric vector or matrix.
+#' @param actual A numeric vector or matrix, or a factor with levels in the same order 
+#'   as the column names of `predicted`.
 #' @param predicted A numeric vector or matrix.
 #' @returns Vector or matrix of numeric losses.
 loss_squared_error <- function(actual, predicted) {
+  if (is.factor(actual)) {
+    actual <- fdummy(actual)
+  }
   check_loss(actual, predicted)
   
   return((drop(actual) - predicted)^2)
@@ -147,11 +151,10 @@ loss_mlogloss <- function(actual, predicted) {
     is.matrix(actual),
     is.matrix(predicted),
     
-    is.numeric(actual),
-    is.numeric(predicted),
+    is.numeric(actual) || is.logical(actual),
+    is.numeric(predicted) || is.logical(predicted),
     
-    nrow(actual) == nrow(predicted),
-    ncol(actual) == ncol(predicted),
+    dim(actual) == dim(predicted),
     ncol(predicted) >= 2L,
     
     all(predicted >= 0), 
@@ -176,6 +179,7 @@ loss_mlogloss <- function(actual, predicted) {
 xlogy <- function(x, y) {
   out <- x * log(y)
   out[x == 0] <- 0
+  
   return(out)
 }
 

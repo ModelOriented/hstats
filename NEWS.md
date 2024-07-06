@@ -5,6 +5,10 @@
 - Factor-valued predictions are no longer possible.
 - Consequently, also removed "classification_error" loss.
 
+## Minor changes
+
+- Code simplifications.
+
 # hstats 1.1.2
 
 ## ICE plots

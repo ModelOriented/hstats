@@ -103,9 +103,9 @@ perm_importance.default <- function(object, X, y, v = NULL,
   if (nrow(X) > n_max) {
     ix <- sample(nrow(X), n_max)
     X <- X[ix, , drop = FALSE]
-    if (is.vector(y)) {
+    if (is.vector(y) || is.factor(y)) {
       y <- y[ix]
-    } else {
+    } else {  # matrix case
       y <- y[ix, , drop = FALSE]
     }
     if (!is.null(w)) {
@@ -126,9 +126,9 @@ perm_importance.default <- function(object, X, y, v = NULL,
   if (m_rep > 1L) {
     ind <- rep.int(seq_len(n), m_rep)
     X <- rep_rows(X, ind)
-    if (is.vector(y)) {
+    if (is.vector(y) || is.factor(y)) {
       y <- y[ind]
-    } else {
+    } else {  # matrix case
       y <- y[ind, , drop = FALSE]
     }
   }
