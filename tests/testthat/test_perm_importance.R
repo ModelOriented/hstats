@@ -155,36 +155,6 @@ test_that("matrix case works as well", {
   expect_equal(s2$M["Petal.Length", ], s3$M["Petal.Length", ])
 })
 
-test_that("non-numeric predictions can work as well (classification error)", {
-  expect_equal(
-    c(perm_importance(
-      1, 
-      v = "Sepal.Length", 
-      X = iris, 
-      y = iris$Species, 
-      pred_fun = function(m, X) rep("setosa", times = nrow(X)), 
-      loss = "classification_error", 
-      verbose = FALSE
-    )$M),
-    0
-  )
-})
-
-test_that("factor predictions can work as well (squared error)", {
-  expect_equal(
-    perm_importance(
-      1, 
-      v = "Sepal.Length", 
-      X = iris, 
-      y = iris$Species, 
-      pred_fun = function(m, X)
-        factor(rep("setosa", times = nrow(X)), levels = levels(iris$Species)), 
-      verbose = FALSE
-    )$M,
-    rbind(Sepal.Length = c(setosa = 0, versicolor = 0, virginica = 0))
-  )
-})
-
 #================================================
 # Multivariate model
 #================================================
@@ -356,7 +326,7 @@ test_that("groups of variables work as well", {
 test_that("mlogloss works with either matrix y or vector y", {
   pred_fun <- function(m, X) cbind(1 - (0.1 + 0.7 * (X == 1)), 0.1 + 0.7 * (X == 1))
   X <- cbind(z = c(1, 0, 0, 1, 1))
-  y <- c("B", "A", "B", "B", "B")
+  y <- c(2, 1, 2, 2, 2)
   Y <- model.matrix(~ y + 0)
   set.seed(1L)
   s1 <- perm_importance(
@@ -389,7 +359,7 @@ test_that("Single output multiple models works without recycling y", {
 })
 
 test_that("loss_mlogloss() is in line with loss_logloss() in binary case", {
-  y <- iris$Species == "setosa"
+  y <- (iris$Species == "setosa")
   Y <- cbind(no = 1 - y, yes = y)
   fit <- glm(y ~ Sepal.Length, data = iris, family = binomial())
   pf <- function(m, X, multi = FALSE) {

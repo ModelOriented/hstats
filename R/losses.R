@@ -1,3 +1,25 @@
+#' Input Checks for Losses
+#' 
+#' Internal function with general input checks.
+#' 
+#' @noRd
+#' @keywords internal
+#'
+#' @param actual Actual values.
+#' @param predicted Predictions.
+#' @returns `TRUE`
+check_loss <- function(actual, predicted) {
+  stopifnot(
+    is.vector(actual) || is.matrix(actual),
+    is.vector(predicted) || is.matrix(predicted),
+    is.numeric(actual) || is.logical(actual),
+    is.numeric(predicted) || is.logical(predicted),
+    NROW(actual) == NROW(predicted),
+    NCOL(actual) == 1L || NCOL(actual) == NCOL(predicted)
+  )
+  return(TRUE)
+}
+
 #' Squared Error Loss
 #' 
 #' Internal function. Calculates squared error.
@@ -5,14 +27,17 @@
 #' @noRd
 #' @keywords internal
 #'
-#' @param actual A numeric vector/matrix, or factor.
-#' @param predicted A numeric vector/matrix, or factor.
+#' @param actual A numeric vector or matrix, or a factor with levels in the same order 
+#'   as the column names of `predicted`.
+#' @param predicted A numeric vector or matrix.
 #' @returns Vector or matrix of numeric losses.
 loss_squared_error <- function(actual, predicted) {
-  actual <- drop(prepare_pred(actual, ohe = TRUE))
-  predicted <- prepare_pred(predicted, ohe = TRUE)
-
-  (actual - predicted)^2
+  if (is.factor(actual)) {
+    actual <- fdummy(actual)
+  }
+  check_loss(actual, predicted)
+  
+  return((drop(actual) - predicted)^2)
 }
 
 #' Absolute Error Loss
@@ -26,13 +51,9 @@ loss_squared_error <- function(actual, predicted) {
 #' @param predicted A numeric vector/matrix.
 #' @returns Vector or matrix of numeric losses.
 loss_absolute_error <- function(actual, predicted) {
-  actual <- drop(prepare_pred(actual))
-  predicted <- prepare_pred(predicted)
-  if (is.factor(actual) || is.factor(predicted)) {
-    stop("Absolute loss does not make sense for factors.")
-  }
-  
-  abs(actual - predicted)
+  check_loss(actual, predicted)
+
+  return(abs(drop(actual) - predicted))
 }
 
 #' Poisson Deviance Loss
@@ -46,20 +67,18 @@ loss_absolute_error <- function(actual, predicted) {
 #' @param predicted A numeric vector/matrix with non-negative values.
 #' @returns Vector or matrix of numeric losses.
 loss_poisson <- function(actual, predicted) {
-  actual <- drop(prepare_pred(actual))
-  predicted <- prepare_pred(predicted)
-  if (is.factor(actual) || is.factor(predicted)) {
-    stop("Poisson loss does not make sense for factors.")
-  }
+  check_loss(actual, predicted)
   stopifnot(
     all(predicted >= 0),
     all(actual >= 0)
   )
   
+  actual <- drop(actual)
+  
   out <- predicted
   p <- actual > 0
   out[p] <- (actual * log(actual / predicted) - (actual  - predicted))[p]
-  2 * out
+  return(2 * out)
 }
 
 #' Gamma Deviance Loss
@@ -73,34 +92,15 @@ loss_poisson <- function(actual, predicted) {
 #' @param predicted A numeric vector/matrix with positive values.
 #' @returns Vector or matrix of numeric losses.
 loss_gamma <- function(actual, predicted) {
-  actual <- drop(prepare_pred(actual))
-  predicted <- prepare_pred(predicted)
-  if (is.factor(actual) || is.factor(predicted)) {
-    stop("Gamma loss does not make sense for factors.")
-  }
+  check_loss(actual, predicted)
   stopifnot(
     all(predicted > 0), 
     all(actual > 0)
   )
   
-  -2 * (log(actual / predicted) - (actual - predicted) / predicted)
-}
-
-#' Classification Error Loss
-#' 
-#' Internal function. Calculates per-row misclassification errors.
-#' 
-#' @noRd
-#' @keywords internal
-#'
-#' @param actual A vector/factor/matrix with discrete values.
-#' @param predicted A vector/factor/matrix with discrete values.
-#' @returns Vector or matrix of numeric losses.
-loss_classification_error <- function(actual, predicted) {
-  actual <- drop(prepare_pred(actual))
-  predicted <- prepare_pred(predicted)
+  actual <- drop(actual)
   
-  (actual != predicted) * 1.0
+  return(-2 * (log(actual / predicted) - (actual - predicted) / predicted))
 }
 
 #' Log Loss
@@ -115,11 +115,7 @@ loss_classification_error <- function(actual, predicted) {
 #' @param predicted A numeric vector/matrix with values between 0 and 1.
 #' @returns Vector or matrix of numeric losses.
 loss_logloss <- function(actual, predicted) {
-  actual <- drop(prepare_pred(actual))
-  predicted <- prepare_pred(predicted)
-  if (is.factor(actual) || is.factor(predicted)) {
-    stop("Log loss does not make sense for factors.")
-  }
+  check_loss(actual, predicted)
   stopifnot(
     all(predicted >= 0), 
     all(predicted <= 1),
@@ -127,7 +123,9 @@ loss_logloss <- function(actual, predicted) {
     all(actual <= 1)
   )
   
-  -xlogy(actual, predicted) - xlogy(1 - actual, 1 - predicted)
+  actual <- drop(actual)
+  
+  return(-xlogy(actual, predicted) - xlogy(1 - actual, 1 - predicted))
 }
 
 #' Multi-Column Log Loss
@@ -139,28 +137,33 @@ loss_logloss <- function(actual, predicted) {
 #' @keywords internal
 #'
 #' @param actual A numeric matrix with values between 0 and 1, or a 
-#'   discrete vector that will be one-hot-encoded by a fast version of
-#'   `model.matrix(~ as.factor(actual) + 0)`.
+#'   factor, or a discrete numeric vector that will be one-hot-encoded by a 
+#'   fast version of `model.matrix(~ as.factor(actual) + 0)`.
 #'   The column order of `predicted` must be in line with this!
 #' @param predicted A numeric matrix with values between 0 and 1.
-#' @returns `TRUE` (or an error message).
+#' @returns A numeric vector of losses.
 loss_mlogloss <- function(actual, predicted) {
-  actual <- prepare_pred(actual)
-  predicted <- prepare_pred(predicted)
   if (NCOL(actual) == 1L) {  # not only for factors
     actual <- fdummy(actual)
   }
+  
   stopifnot(
+    is.matrix(actual),
     is.matrix(predicted),
+    
+    is.numeric(actual) || is.logical(actual),
+    is.numeric(predicted) || is.logical(predicted),
+    
+    dim(actual) == dim(predicted),
     ncol(predicted) >= 2L,
-    ncol(actual) == ncol(predicted),
+    
     all(predicted >= 0), 
     all(predicted <= 1),
     all(actual >= 0),
     all(actual <= 1)
   )
   
-  unname(-rowSums(xlogy(actual, predicted)))
+  return(unname(-rowSums(xlogy(actual, predicted))))
 }
 
 #' Calculates x*log(y)
@@ -176,6 +179,7 @@ loss_mlogloss <- function(actual, predicted) {
 xlogy <- function(x, y) {
   out <- x * log(y)
   out[x == 0] <- 0
+  
   return(out)
 }
 
@@ -198,7 +202,6 @@ get_loss_fun <- function(loss) {
     poisson = loss_poisson,
     gamma = loss_gamma,
     absolute_error = loss_absolute_error,
-    classification_error = loss_classification_error,
     stop("Unknown loss function.")
   )
 }

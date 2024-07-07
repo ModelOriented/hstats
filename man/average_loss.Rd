@@ -67,14 +67,13 @@ model) can be passed via \code{...}. The default, \code{\link[stats:predict]{sta
 most cases.}
 
 \item{loss}{One of "squared_error", "logloss", "mlogloss", "poisson",
-"gamma", "absolute_error", "classification_error". Alternatively, a loss function
+"gamma", or "absolute_error". Alternatively, a loss function
 can be provided that turns observed and predicted values into a numeric vector or
 matrix of unit losses of the same length as \code{X}.
 For "mlogloss", the response \code{y} can either be a dummy matrix or a discrete vector.
 The latter case is handled via a fast version of \code{model.matrix(~ as.factor(y) + 0)}.
-For "classification_error", both predictions and responses can be non-numeric.
-For "squared_error", both predictions and responses can be factors with identical
-levels. In this case, squared error is evaulated for each one-hot-encoded column.}
+For "squared_error", the response can be a factor with levels in column order of
+the predictions. In this case, squared error is evaluated for each one-hot-encoded column.}
 
 \item{agg_cols}{Should multivariate losses be summed up? Default is \code{FALSE}.
 In combination with the squared error loss, \code{agg_cols = TRUE} gives
@@ -136,11 +135,6 @@ The observed values \code{y} are either passed as (n x K) dummy matrix,
 or as discrete vector with corresponding levels.
 The latter case is turned into a dummy matrix by a fast version of
 \code{model.matrix(~ as.factor(y) + 0)}.
-\item "classification_error": Misclassification error. Both the
-observed values \code{y} and the predictions can be character/factor. This
-loss function can be used in non-probabilistic classification settings.
-BUT: Probabilistic classification (with "mlogloss") is clearly preferred in most
-situations.
 \item A function with signature \code{f(actual, predicted)}, returning a numeric
 vector or matrix of the same length as the input.
 }

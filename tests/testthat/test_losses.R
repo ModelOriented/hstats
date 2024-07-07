@@ -54,7 +54,8 @@ test_that("losses are identical to stats package for specific case (multivariate
   expect_equal(loss_gamma(y, p), Gamma()$dev.resid(y2, p, 1))
   
   y <- 0
-  y2 <- replicate(2, y)
+  y2 <- cbind(y, y)
+  colnames(y2) <- NULL
   p <- rbind(replicate(2, 0.1))
   
   expect_equal(loss_poisson(y2, p), poisson()$dev.resid(y2, p, 1))
@@ -92,26 +93,6 @@ test_that("loss_absolute_error() works for specific case (multivariate)", {
   expect_equal(loss_absolute_error(y, p), abs(y2 - p))
 })
 
-test_that("loss_classification_error() works for specific case", {
-  y <- iris$Species
-  p <- rev(iris$Species)
-  expect_equal(loss_classification_error(y, p), 0 + (y != p))
-  
-  # Single input
-  y <- y[1L]
-  p <- rev(iris$Species)[1L]
-  expect_equal(loss_classification_error(y, p), 0 + (y != p))
-})
-
-test_that("loss_classification_error() works for specific case (multivariate)", {
-  y <- iris$Species
-  y2 <- replicate(2L, y)
-  p <- y2[nrow(y2):1, ]
-  colnames(p) <- c("a", "b")
-  expect_equal(loss_classification_error(y2, p), 0 + (y2 != p))
-  expect_equal(loss_classification_error(y, p), 0 + (y2 != p))
-})
-
 test_that("loss_mlogloss() is in line with loss_logloss() in binary case", {
   y <- c(0, 0, 0, 1, 1)
   pred <- c(0, 0.1, 0.2, 1, 0.9)
@@ -133,13 +114,6 @@ test_that("loss_mlogloss() either understands matrix responses or factors", {
   }
   pred <- pf(fit, iris)
   expect_equal(loss_mlogloss(Y, pred), loss_mlogloss(y, pred))
-})
-
-test_that("squared error can be calculated on factors", {
-  expect_equal(
-    colSums(loss_squared_error(iris$Species, rev(iris$Species))),
-    c(setosa = 100, versicolor = 0, virginica = 100)
-  )
 })
 
 test_that("Some errors are thrown", {

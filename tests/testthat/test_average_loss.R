@@ -219,10 +219,10 @@ test_that("average_loss() works with weights and grouped (multi)", {
   expect_equal(s3, s4)
 })
 
-test_that("mlogloss works with either matrix y or vector y", {
+test_that("mlogloss works with either matrix y or factor y", {
   pf <- function(m, X) cbind(1 - (0.1 + 0.7 * (X == 1)), 0.1 + 0.7 * (X == 1))
   X <- cbind(z = c(1, 0, 0, 1, 1))
-  y <- c("B", "A", "B", "B", "B")
+  y <- factor(c("B", "A", "B", "B", "B"))
   Y <- model.matrix(~ y + 0)
   s1 <- average_loss(NULL, X = X, y = Y, loss = "mlogloss", pred_fun = pf)
   s2 <- average_loss(NULL, X = X, y = y, loss = "mlogloss", pred_fun = pf)
@@ -230,7 +230,7 @@ test_that("mlogloss works with either matrix y or vector y", {
 })
 
 test_that("loss_mlogloss() is in line with loss_logloss() in binary case", {
-  y <- iris$Species == "setosa"
+  y <- (iris$Species == "setosa")
   Y <- cbind(no = 1 - y, yes = y)
   fit <- glm(y ~ Sepal.Length, data = iris, family = binomial())
   pf <- function(m, X, multi = FALSE) {
@@ -242,42 +242,6 @@ test_that("loss_mlogloss() is in line with loss_logloss() in binary case", {
     average_loss(
       fit, X = iris, y = y, pred_fun = pf, loss = "mlogloss", BY = y, multi = TRUE
     )
-  )
-})
-
-test_that("classification_error works on factors", {
-  pf <- function(m, X) rep("setosa", times = nrow(X))
-  expect_error(average_loss(1, X = iris, y = iris$Species, pred_fun = pf))
-  expect_equal(
-    c(average_loss(
-      1, X = iris, y = iris$Species, pred_fun = pf, loss = "classification_error"
-    )$M),
-    2/3
-  )
-  expect_equal(
-    c(average_loss(
-      1, 
-      X = iris, 
-      y = iris$Species, 
-      pred_fun = pf, 
-      loss = "classification_error",
-      BY = iris$Species
-    )$M),
-    c(0, 1, 1)
-  )
-})
-
-test_that("factor predictions work as well (squared error)", {
-  expect_equal(
-    average_loss(
-      1, 
-      X = iris, 
-      y = iris$Species, 
-      pred_fun = function(m, X)
-        factor(rep("setosa", times = nrow(X)), levels = levels(iris$Species)),
-      agg_cols = TRUE
-    )$M,
-    matrix((0 + 2 + 2) / 3)
   )
 })
 

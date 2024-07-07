@@ -22,25 +22,19 @@
 #'   or as discrete vector with corresponding levels. 
 #'   The latter case is turned into a dummy matrix by a fast version of
 #'   `model.matrix(~ as.factor(y) + 0)`.
-#' - "classification_error": Misclassification error. Both the 
-#'   observed values `y` and the predictions can be character/factor. This
-#'   loss function can be used in non-probabilistic classification settings.
-#'   BUT: Probabilistic classification (with "mlogloss") is clearly preferred in most
-#'   situations.
 #' - A function with signature `f(actual, predicted)`, returning a numeric 
 #'   vector or matrix of the same length as the input.
 #'
 #' @inheritParams hstats
 #' @param y Vector/matrix of the response, or the corresponding column names in `X`.
 #' @param loss One of "squared_error", "logloss", "mlogloss", "poisson",
-#'   "gamma", "absolute_error", "classification_error". Alternatively, a loss function 
+#'   "gamma", or "absolute_error". Alternatively, a loss function 
 #'   can be provided that turns observed and predicted values into a numeric vector or 
 #'   matrix of unit losses of the same length as `X`.
 #'   For "mlogloss", the response `y` can either be a dummy matrix or a discrete vector. 
 #'   The latter case is handled via a fast version of `model.matrix(~ as.factor(y) + 0)`.
-#'   For "classification_error", both predictions and responses can be non-numeric.
-#'   For "squared_error", both predictions and responses can be factors with identical
-#'   levels. In this case, squared error is evaulated for each one-hot-encoded column.
+#'   For "squared_error", the response can be a factor with levels in column order of
+#'   the predictions. In this case, squared error is evaluated for each one-hot-encoded column.
 #' @param agg_cols Should multivariate losses be summed up? Default is `FALSE`.
 #'   In combination with the squared error loss, `agg_cols = TRUE` gives
 #'   the Brier score for (probabilistic) classification.
@@ -116,7 +110,8 @@ average_loss.default <- function(object, X, y,
 #' @describeIn average_loss Method for "ranger" models.
 #' @export
 average_loss.ranger <- function(object, X, y, 
-                                pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
+                                pred_fun = function(m, X, ...)
+                                  stats::predict(m, X, ...)$predictions,
                                 loss = "squared_error",
                                 agg_cols = FALSE,
                                 BY = NULL, by_size = 4L, 

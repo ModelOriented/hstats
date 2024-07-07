@@ -16,14 +16,6 @@ rep_each <- function(m, each) {
   dim(out) <- NULL
   out 
 }
-# 
-# # Same as rep.int(seq_len(m), times)
-# rep_times <- function(m, times) {
-#   out <- .row(dim = c(m, times))
-#   dim(out) <- NULL
-#   out
-# }
-
 
 #' Fast OHE
 #' 
@@ -54,49 +46,14 @@ fdummy <- function(x) {
 #' @noRd
 #' @keywords internal
 #' 
-#' @param x A vector, factor, or matrix-like.
+#' @param x A vector or matrix-like.
 #' @param w Optional case weights.
 #' @returns A vector of column means.
 wcolMeans <- function(x, w = NULL) {
-  if (is.factor(x)) {
-    if (is.null(w)) {
-      return(colMeans_factor(x))
-    }
-    x <- fdummy(x)
-  } else if (!is.matrix(x)) {
+  if (!is.matrix(x)) {
     x <- as.matrix(x)
   }
-  if (is.null(w)) {
-    return(colMeans(x))
-  }
-  if (length(w) != nrow(x)) {
-    stop("w must be of length nrow(x).")
-  }
-  if (!is.double(w)) {
-    w <- as.double(w)
-  }
-  colSums(x * w) / sum(w)
-}
-
-#' colMeans() for Factors
-#'
-#' Internal function used to calculate proportions of factor levels.
-#' It is less memory-hungry than `colMeans(fdummy(x))`, and much faster.
-#' A weighted version via `rowsum(w, x)` is not consistently faster than
-#' `wcolMeans(fdummy(x))`, so we currently focus on the non-weighted case.
-#' Furthermore, `rowsum()` drops empty factor levels.
-#'
-#' @noRd
-#' @keywords internal
-#'
-#' @param x Factor-like.
-#' @returns Named vector.
-colMeans_factor <- function(x) {
-  x <- as.factor(x)
-  lev <- levels(x)
-  out <- tabulate(x, nbins = length(lev)) / length(x)
-  names(out) <- lev
-  out
+  if (is.null(w)) colMeans(x) else colSums(x * w) / sum(w)
 }
 
 #' Grouped Column Means
@@ -106,7 +63,7 @@ colMeans_factor <- function(x) {
 #' @noRd
 #' @keywords internal
 #' 
-#' @param x Vector, factor or matrix-like.
+#' @param x Vector or matrix-like.
 #' @param ngroups Number of groups (`x` was stacked that many times).
 #' @param w Optional vector with case weights of length `NROW(x) / ngroups`.
 #' @returns A (g x K) matrix, where g is the number of groups, and K = NCOL(x).
@@ -115,49 +72,11 @@ wrowmean <- function(x, ngroups = 1L, w = NULL) {
     return(t.default(wcolMeans(x, w = w)))
   }
   
-  # Prep w
-  if (!is.null(w)) {
-    if (length(w) != NROW(x) %/% ngroups) {
-      stop("w must be of length NROW(x) / ngroups.")
-    }
-    if (!is.double(w)) {
-      w <- as.double(w)
-    }
-  }
-  
-  # Very fast case for factors w/o weights and vectors/1d-matrices
-  if (is.factor(x)) {
-    if (is.null(w)) {
-      return(rowmean_factor(x, ngroups = ngroups))
-    }
-    x <- fdummy(x)
-  } 
+  # Very fast case for 1d structures
   if (is.vector(x) || (is.matrix(x) && ncol(x) == 1L)) {
     return(wrowmean_vector(x, ngroups = ngroups, w = w))
   }
-
-  # General version
   wrowmean_matrix(x, ngroups = ngroups, w = w)
-}
-
-#' (w)rowmean() for Factors (without weights)
-#'
-#' Grouped `colMeans_factor()` for equal sized groups.
-#'
-#' @noRd
-#' @keywords internal
-#'
-#' @param x Factor-like.
-#' @param ngroups Number of subsequent, equals sized groups.
-#' @returns Matrix with column names.
-rowmean_factor <- function(x, ngroups = 1L) {
-  x <- as.factor(x)
-  lev <- levels(x)
-  n_bg <- length(x) %/% ngroups
-  dim(x) <- c(n_bg, ngroups)
-  out <- t.default(apply(x, 2L, FUN = tabulate, nbins = length(lev)))
-  colnames(out) <- lev
-  out / n_bg
 }
 
 #' wrowmean() for Vectors
@@ -170,14 +89,11 @@ rowmean_factor <- function(x, ngroups = 1L) {
 #' @param x Vector or matrix with one column.
 #' @param ngroups Number of subsequent, equals sized groups.
 #' @param w Optional vector of case weights of length `NROW(x) / ngroups`.
-#' @returns Matrix.
+#' @returns Matrix with one column.
 wrowmean_vector <- function(x, ngroups = 1L, w = NULL) {
-  if (!(is.vector(x) || (is.matrix(x) && ncol(x) == 1L))) {
-    stop("x must be a vector or a single column matrix")
-  }
   nm <- if (is.matrix(x)) colnames(x)
   dim(x) <- c(length(x) %/% ngroups, ngroups)
-  out <- if (is.null(w)) colMeans(x) else colSums(x * w) / sum(w)
+  out <- wcolMeans(x, w = w)
   dim(out) <- c(ngroups, 1L)
   if (!is.null(nm)) {
     colnames(out) <- nm
@@ -202,7 +118,6 @@ wrowmean_matrix <- function(x, ngroups = 1L, w = NULL) {
   }
   n_bg <- nrow(x) %/% ngroups
   g <- rep_each(ngroups, each = n_bg)  # rep(seq_len(ngroups), each = n_bg)
-  # Even faster: cbind(collapse::fmean(x, g = g, w = w))
   if (is.null(w)) {
     out <- rowsum(x, group = g, reorder = FALSE) / n_bg
   } else {
@@ -221,7 +136,7 @@ wrowmean_matrix <- function(x, ngroups = 1L, w = NULL) {
 #' @noRd
 #' @keywords internal
 #' 
-#' @param x A vector, factor or matrix-like object.
+#' @param x A vector or matrix-like object.
 #' @param g Optional grouping variable.
 #' @param w Optional case weights.
 #' @returns A list with two elements: "M" represents a matrix of grouped (column) 
@@ -236,17 +151,12 @@ gwColMeans <- function(x, g = NULL, w = NULL) {
   }
   
   # Now the interesting case
-  if (is.factor(x)) {
-    x <- fdummy(x)
-  } else if (!is.vector(x) && !is.matrix(x)) {
+  if (!is.vector(x) && !is.matrix(x)) {
     x <- as.matrix(x)
   }
   if (is.null(w)) {
     w <- rep.int(1, NROW(x))
   } else {
-    if (!is.double(w)) {
-      w <- as.double(w)
-    }
     x <- x * w  # w is correctly recycled over columns
   }
   denom <- as.numeric(rowsum(w, group = g))

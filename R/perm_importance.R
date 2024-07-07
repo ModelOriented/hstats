@@ -2,7 +2,7 @@
 #' 
 #' Calculates permutation importance for a set of features or a set of feature groups. 
 #' By default, importance is calculated for all columns in `X` (except column names
-#' used as response `y` or case weight `w`).
+#' used as response `y` or as case weight `w`).
 #' 
 #' The permutation importance of a feature is defined as the increase in the average
 #' loss when shuffling the corresponding feature values before calculating predictions.
@@ -31,7 +31,7 @@
 #' # MODEL 1: Linear regression
 #' fit <- lm(Sepal.Length ~ ., data = iris)
 #' s <- perm_importance(fit, X = iris, y = "Sepal.Length")
-
+#'
 #' s
 #' s$M
 #' s$SE  # Standard errors are available thanks to repeated shuffling
@@ -105,7 +105,7 @@ perm_importance.default <- function(object, X, y, v = NULL,
     X <- X[ix, , drop = FALSE]
     if (is.vector(y) || is.factor(y)) {
       y <- y[ix]
-    } else {
+    } else {  # matrix case
       y <- y[ix, , drop = FALSE]
     }
     if (!is.null(w)) {
@@ -128,8 +128,8 @@ perm_importance.default <- function(object, X, y, v = NULL,
     X <- rep_rows(X, ind)
     if (is.vector(y) || is.factor(y)) {
       y <- y[ind]
-    } else {
-      y <- rep_rows(y, ind)
+    } else {  # matrix case
+      y <- y[ind, , drop = FALSE]
     }
   }
   
@@ -206,7 +206,8 @@ perm_importance.default <- function(object, X, y, v = NULL,
 #' @describeIn perm_importance Method for "ranger" models.
 #' @export
 perm_importance.ranger <- function(object, X, y, v = NULL,
-                                   pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
+                                   pred_fun = function(m, X, ...)
+                                     stats::predict(m, X, ...)$predictions,
                                    loss = "squared_error", m_rep = 4L, 
                                    agg_cols = FALSE, 
                                    normalize = FALSE, n_max = 10000L, 

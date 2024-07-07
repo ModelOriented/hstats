@@ -236,12 +236,3 @@ test_that("ice() works with missing value in BY", {
   expect_true(anyNA(r$data$x3))
   expect_s3_class(plot(r), "ggplot")
 })
-
-test_that("ice() works for factor predictions", {
-  pf <- function(m, X) factor(X[, "v1"], levels = 0:1, labels = c("zero", "one"))
-  out <- ice(1, v = "v1", X = cbind(v1 = 0:1), pred_fun = pf)
-  out <- out$data[out$data$obs_ == 1L, c("zero", "one")]
-  out <- as.matrix(out)
-  row.names(out) <- NULL
-  expect_equal(out, cbind(zero = 1:0, one = 0:1))
-})

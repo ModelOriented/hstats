@@ -356,12 +356,6 @@ test_that("hstats() matches {iml} 0.11.1 in a specific case", {
   )
 })
 
-test_that("hstats() works for factor predictions", {
-  pf <- function(m, X) factor(X[, "v1"], levels = 0:1, labels = c("zero", "one"))
-  out <- hstats(1, X = cbind(v1 = 0:1, v2 = 0), pred_fun = pf, verbose = FALSE)
-  expect_equal(out$h2$num, cbind(zero = 0, one = 0))
-})
-
 test_that("hstats() gives all zero statistics if prediction is constant", {
   pf <- function(m, X) numeric(nrow(X))
   out <- hstats(1, X = iris[1:4], pred_fun = pf, verbose = FALSE)
