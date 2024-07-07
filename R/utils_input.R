@@ -99,7 +99,7 @@ prepare_w <- function(w, X) {
 #'   or column names in `X`.
 #' @param X Matrix-like.
 #' 
-#' @returns A list with "y" (vector, matrix) and "y_names" (if `y`
+#' @returns A list with "y" (vector, matrix, or factor) and "y_names" (if `y`
 #'   was passed as column names).
 prepare_y <- function(y, X) {
   if (NROW(y) < nrow(X) && all(y %in% colnames(X))) {

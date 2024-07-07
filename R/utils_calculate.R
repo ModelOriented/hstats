@@ -151,7 +151,7 @@ gwColMeans <- function(x, g = NULL, w = NULL) {
   }
   
   # Now the interesting case
-  if (!is.vector(x) || !is.matrix(x)) {
+  if (!is.vector(x) && !is.matrix(x)) {
     x <- as.matrix(x)
   }
   if (is.null(w)) {
