@@ -1,8 +1,12 @@
 Package: hstats
 Title: Interaction Statistics
 Version: 1.2.0
-Authors@R: 
-    person("Michael", "Mayer", , "mayermichael79@gmail.com", role = c("aut", "cre"))
+Authors@R: c(
+    person("Michael", "Mayer", , "mayermichael79@gmail.com", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0002-6148-5756")),
+    person("Przemyslaw", "Biecek", , "przemyslaw.biecek@gmail.com", role = "ctb",
+           comment = c(ORCID = "0000-0001-8423-1823"))
+  )
 Description: Fast, model-agnostic implementation of different H-statistics
     introduced by Jerome H. Friedman and Bogdan E. Popescu (2008)
     <doi:10.1214/07-AOAS148>.  These statistics quantify interaction
@@ -18,7 +22,7 @@ Depends:
     R (>= 3.2.0)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.2
 Imports: 
     ggplot2,
     stats,
@@ -26,5 +30,5 @@ Imports:
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
-URL: https://github.com/mayer79/hstats, https://mayer79.github.io/hstats/
-BugReports: https://github.com/mayer79/hstats/issues
+URL: https://github.com/ModelOriented/hstats, https://mayer79.github.io/hstats
+BugReports: https://github.com/ModelOriented/hstats/issues
