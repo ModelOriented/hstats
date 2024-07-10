@@ -1,5 +1,9 @@
 # hstats 1.2.0
 
+## New home
+
+- My brand new home: https://github.com/ModelOriented/hstats
+
 ## Major changes
 
 - Factor-valued predictions are no longer possible.
