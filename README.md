@@ -1,10 +1,10 @@
-# hstats <a href='https://github.com/mayer79/hstats'><img src='man/figures/logo.png' align="right" height="139"/></a>
+# hstats <a href='https://github.com/ModelOriented/hstats'><img src='man/figures/logo.png' align="right" height="139"/></a>
 
 <!-- badges: start -->
 
 [![CRAN status](http://www.r-pkg.org/badges/version/hstats)](https://cran.r-project.org/package=hstats)
-[![R-CMD-check](https://github.com/mayer79/hstats/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/mayer79/hstats/actions)
-[![Codecov test coverage](https://codecov.io/gh/mayer79/hstats/graph/badge.svg)](https://app.codecov.io/gh/mayer79/hstats?branch=main)
+[![R-CMD-check](https://github.com/ModelOriented/hstats/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/ModelOriented/hstats/actions)
+[![Codecov test coverage](https://codecov.io/gh/ModelOriented/hstats/graph/badge.svg)](https://app.codecov.io/gh/ModelOriented/hstats?branch=main)
 
 [![](https://cranlogs.r-pkg.org/badges/hstats)](https://cran.r-project.org/package=hstats) 
 [![](https://cranlogs.r-pkg.org/badges/grand-total/hstats?color=orange)](https://cran.r-project.org/package=hstats)
@@ -52,7 +52,7 @@ The core functions `hstats()`, `partial_dep()`, `ice()`, `perm_importance()`, an
 install.packages("hstats")
 
 # From Github
-devtools::install_github("mayer79/hstats")
+devtools::install_github("ModelOriented/hstats")
 ```
 
 ## Usage
