@@ -1,99 +1,35 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>/404.html</loc>
-  </url>
-  <url>
-    <loc>/LICENSE.html</loc>
-  </url>
-  <url>
-    <loc>/authors.html</loc>
-  </url>
-  <url>
-    <loc>/index.html</loc>
-  </url>
-  <url>
-    <loc>/news/index.html</loc>
-  </url>
-  <url>
-    <loc>/reference/average_loss.html</loc>
-  </url>
-  <url>
-    <loc>/reference/dim.hstats_matrix.html</loc>
-  </url>
-  <url>
-    <loc>/reference/dimnames-set-.hstats_matrix.html</loc>
-  </url>
-  <url>
-    <loc>/reference/dimnames.hstats_matrix.html</loc>
-  </url>
-  <url>
-    <loc>/reference/h2.html</loc>
-  </url>
-  <url>
-    <loc>/reference/h2_overall.html</loc>
-  </url>
-  <url>
-    <loc>/reference/h2_pairwise.html</loc>
-  </url>
-  <url>
-    <loc>/reference/h2_threeway.html</loc>
-  </url>
-  <url>
-    <loc>/reference/hstats.html</loc>
-  </url>
-  <url>
-    <loc>/reference/ice.html</loc>
-  </url>
-  <url>
-    <loc>/reference/index.html</loc>
-  </url>
-  <url>
-    <loc>/reference/multivariate_grid.html</loc>
-  </url>
-  <url>
-    <loc>/reference/partial_dep.html</loc>
-  </url>
-  <url>
-    <loc>/reference/pd_importance.html</loc>
-  </url>
-  <url>
-    <loc>/reference/perm_importance.html</loc>
-  </url>
-  <url>
-    <loc>/reference/plot.hstats.html</loc>
-  </url>
-  <url>
-    <loc>/reference/plot.hstats_matrix.html</loc>
-  </url>
-  <url>
-    <loc>/reference/plot.ice.html</loc>
-  </url>
-  <url>
-    <loc>/reference/plot.partial_dep.html</loc>
-  </url>
-  <url>
-    <loc>/reference/print.hstats.html</loc>
-  </url>
-  <url>
-    <loc>/reference/print.hstats_matrix.html</loc>
-  </url>
-  <url>
-    <loc>/reference/print.hstats_summary.html</loc>
-  </url>
-  <url>
-    <loc>/reference/print.ice.html</loc>
-  </url>
-  <url>
-    <loc>/reference/print.partial_dep.html</loc>
-  </url>
-  <url>
-    <loc>/reference/sub-.hstats_matrix.html</loc>
-  </url>
-  <url>
-    <loc>/reference/summary.hstats.html</loc>
-  </url>
-  <url>
-    <loc>/reference/univariate_grid.html</loc>
-  </url>
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>/404.html</loc></url>
+<url><loc>/LICENSE.html</loc></url>
+<url><loc>/authors.html</loc></url>
+<url><loc>/index.html</loc></url>
+<url><loc>/news/index.html</loc></url>
+<url><loc>/reference/average_loss.html</loc></url>
+<url><loc>/reference/dim.hstats_matrix.html</loc></url>
+<url><loc>/reference/dimnames-set-.hstats_matrix.html</loc></url>
+<url><loc>/reference/dimnames.hstats_matrix.html</loc></url>
+<url><loc>/reference/h2.html</loc></url>
+<url><loc>/reference/h2_overall.html</loc></url>
+<url><loc>/reference/h2_pairwise.html</loc></url>
+<url><loc>/reference/h2_threeway.html</loc></url>
+<url><loc>/reference/hstats.html</loc></url>
+<url><loc>/reference/ice.html</loc></url>
+<url><loc>/reference/index.html</loc></url>
+<url><loc>/reference/multivariate_grid.html</loc></url>
+<url><loc>/reference/partial_dep.html</loc></url>
+<url><loc>/reference/pd_importance.html</loc></url>
+<url><loc>/reference/perm_importance.html</loc></url>
+<url><loc>/reference/plot.hstats.html</loc></url>
+<url><loc>/reference/plot.hstats_matrix.html</loc></url>
+<url><loc>/reference/plot.ice.html</loc></url>
+<url><loc>/reference/plot.partial_dep.html</loc></url>
+<url><loc>/reference/print.hstats.html</loc></url>
+<url><loc>/reference/print.hstats_matrix.html</loc></url>
+<url><loc>/reference/print.hstats_summary.html</loc></url>
+<url><loc>/reference/print.ice.html</loc></url>
+<url><loc>/reference/print.partial_dep.html</loc></url>
+<url><loc>/reference/sub-.hstats_matrix.html</loc></url>
+<url><loc>/reference/summary.hstats.html</loc></url>
+<url><loc>/reference/univariate_grid.html</loc></url>
 </urlset>
+

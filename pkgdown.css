@@ -56,10 +56,8 @@ img.icon {
   float: right;
 }
 
-/* Ensure in-page images don't run outside their container */
-.contents img {
+img {
   max-width: 100%;
-  height: auto;
 }
 
 /* Fix bug in bootstrap (only seen in firefox) */
@@ -80,10 +78,11 @@ dd {
 /* Section anchors ---------------------------------*/
 
 a.anchor {
-  display: none;
-  margin-left: 5px;
-  width: 20px;
-  height: 20px;
+  margin-left: -30px;
+  display:inline-block;
+  width: 30px;
+  height: 30px;
+  visibility: hidden;
 
   background-image: url(./link.svg);
   background-repeat: no-repeat;
@@ -91,14 +90,16 @@ a.anchor {
   background-position: center center;
 }
 
-h1:hover .anchor,
-h2:hover .anchor,
-h3:hover .anchor,
-h4:hover .anchor,
-h5:hover .anchor,
-h6:hover .anchor {
-  display: inline-block;
+.hasAnchor:hover a.anchor {
+  visibility: visible;
 }
+
+@media (max-width: 767px) {
+  .hasAnchor:hover a.anchor {
+    visibility: hidden;
+  }
+}
+
 
 /* Fixes for fixed navbar --------------------------*/
 
@@ -179,7 +180,7 @@ h6:hover .anchor {
 
 /* All levels of nav */
 
-nav[data-toggle='toc'] .nav > li > a {
+/*nav[data-toggle='toc'] .nav > li > a {
   padding: 4px 20px 4px 6px;
   font-size: 1.5rem;
   font-weight: 400;
@@ -201,7 +202,7 @@ nav[data-toggle='toc'] .nav > .active:focus > a {
   font-weight: 400;
   color: inherit;
   border-left: 2px solid #878787;
-}
+}*/
 
 /* Nav: second level (shown on .active) */
 
@@ -209,7 +210,7 @@ nav[data-toggle='toc'] .nav .nav {
   display: none; /* Hide by default, but at >768px, show it */
   padding-bottom: 10px;
 }
-
+/*
 nav[data-toggle='toc'] .nav .nav > li > a {
   padding-left: 16px;
   font-size: 1.35rem;
@@ -226,7 +227,7 @@ nav[data-toggle='toc'] .nav .nav > .active:focus > a {
   padding-left: 15px;
   font-weight: 500;
   font-size: 1.35rem;
-}
+}*/
 
 /* orcid ------------------------------------------------------------------- */
 
@@ -243,14 +244,14 @@ nav[data-toggle='toc'] .nav .nav > .active:focus > a {
 
 .ref-index th {font-weight: normal;}
 
-.ref-index td {vertical-align: top; min-width: 100px}
+.ref-index td {vertical-align: top;}
 .ref-index .icon {width: 40px;}
 .ref-index .alias {width: 40%;}
 .ref-index-icons .alias {width: calc(40% - 40px);}
 .ref-index .title {width: 60%;}
 
 .ref-arguments th {text-align: right; padding-right: 10px;}
-.ref-arguments th, .ref-arguments td {vertical-align: top; min-width: 100px}
+.ref-arguments th, .ref-arguments td {vertical-align: top;}
 .ref-arguments .name {width: 20%;}
 .ref-arguments .desc {width: 80%;}
 
@@ -263,26 +264,31 @@ table {
 
 /* Syntax highlighting ---------------------------------------------------- */
 
-pre, code, pre code {
-  background-color: #f8f8f8;
-  color: #333;
-}
-pre, pre code {
-  white-space: pre-wrap;
-  word-break: break-all;
-  overflow-wrap: break-word;
-}
-
 pre {
+  word-wrap: normal;
+  word-break: normal;
   border: 1px solid #eee;
 }
 
-pre .img, pre .r-plt {
+pre, code {
+  background-color: #f8f8f8;
+  color: #333;
+}
+
+pre code {
+  overflow: auto;
+  word-wrap: normal;
+  white-space: pre;
+}
+
+pre .img {
   margin: 5px 0;
 }
 
-pre .img img, pre .r-plt img {
+pre .img img {
   background-color: #fff;
+  display: block;
+  height: auto;
 }
 
 code a, pre a {
@@ -299,8 +305,9 @@ a.sourceLine:hover {
 .kw      {color: #264D66;} /* keyword */
 .co      {color: #888888;} /* comment */
 
-.error   {font-weight: bolder;}
-.warning {font-weight: bolder;}
+.message { color: black;   font-weight: bolder;}
+.error   { color: orange;  font-weight: bolder;}
+.warning { color: #6A0366; font-weight: bolder;}
 
 /* Clipboard --------------------------*/
 
@@ -357,28 +364,4 @@ mark {
   code a:link:after, code a:visited:after {
     content: "";
   }
-}
-
-/* Section anchors ---------------------------------
-   Added in pandoc 2.11: https://github.com/jgm/pandoc-templates/commit/9904bf71
-*/
-
-div.csl-bib-body { }
-div.csl-entry {
-  clear: both;
-}
-.hanging-indent div.csl-entry {
-  margin-left:2em;
-  text-indent:-2em;
-}
-div.csl-left-margin {
-  min-width:2em;
-  float:left;
-}
-div.csl-right-inline {
-  margin-left:2em;
-  padding-left:1em;
-}
-div.csl-indent {
-  margin-left: 2em;
 }
