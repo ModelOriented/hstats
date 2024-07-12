@@ -15,7 +15,7 @@ library(usethis)
 use_description(
   fields = list(
     Title = "Interaction Statistics",
-    Version = "1.2.0",
+    Version = "1.2.1",
     Description = "Fast, model-agnostic implementation of different H-statistics
     introduced by Jerome H. Friedman and Bogdan E. Popescu (2008) <doi:10.1214/07-AOAS148>. 
     These statistics quantify interaction strength per feature, feature pair, 
@@ -26,7 +26,7 @@ use_description(
     or individual conditional expectation plots. 'DALEX' explainers, meta learners 
     ('mlr3', 'tidymodels', 'caret') and most other models work out-of-the-box.",
     `Authors@R` = 
-    "c(person('Michael', family='Mayer', role=c('aut', 'cre'), email='mayermichael79@gmail.com', comment=c(ORCID='0000-0002-6148-5756')),
+    "c(person('Michael', family='Mayer', role=c('aut', 'cre'), email='mayermichael79@gmail.com', comment=c(ORCID='0009-0007-2540-9629')),
        person('Przemyslaw', family='Biecek', email='przemyslaw.biecek@gmail.com', role='ctb', comment=c(ORCID='0000-0001-8423-1823'))
       )",
     Depends = "R (>= 3.2.0)",
@@ -34,7 +34,7 @@ use_description(
   ),
   roxygen = TRUE
 )
-  
+
 use_package("stats", "Imports")
 use_package("utils", "Imports")
 use_package("ggplot2", "Imports")
