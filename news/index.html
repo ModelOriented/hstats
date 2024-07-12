@@ -58,18 +58,14 @@
     <div class="section level2">
 <h2 class="page-header" data-toc-text="1.2.0" id="hstats-120">hstats 1.2.0<a class="anchor" aria-label="anchor" href="#hstats-120"></a></h2>
 <div class="section level3">
-<h3 id="new-home-1-2-0">New home<a class="anchor" aria-label="anchor" href="#new-home-1-2-0"></a></h3>
+<h3 id="my-new-home-1-2-0">My new home<a class="anchor" aria-label="anchor" href="#my-new-home-1-2-0"></a></h3>
 <ul><li>My brand new home: <a href="https://github.com/ModelOriented/hstats" class="external-link uri">https://github.com/ModelOriented/hstats</a>
 </li>
 </ul></div>
 <div class="section level3">
-<h3 id="major-changes-1-2-0">Major changes<a class="anchor" aria-label="anchor" href="#major-changes-1-2-0"></a></h3>
+<h3 id="other-changes-1-2-0">Other changes<a class="anchor" aria-label="anchor" href="#other-changes-1-2-0"></a></h3>
 <ul><li>Factor-valued predictions are no longer possible.</li>
 <li>Consequently, also removed “classification_error” loss.</li>
-</ul></div>
-<div class="section level3">
-<h3 id="minor-changes-1-2-0">Minor changes<a class="anchor" aria-label="anchor" href="#minor-changes-1-2-0"></a></h3>
-<ul><li>Code simplifications.</li>
 </ul></div>
 </div>
     <div class="section level2">
@@ -88,30 +84,30 @@
 <h2 class="page-header" data-toc-text="1.1.1" id="hstats-111">hstats 1.1.1<small>2023-12-06</small><a class="anchor" aria-label="anchor" href="#hstats-111"></a></h2>
 <div class="section level3">
 <h3 id="performance-improvements-1-1-1">Performance improvements<a class="anchor" aria-label="anchor" href="#performance-improvements-1-1-1"></a></h3>
-<ul><li>For pure data.frames (no tibbles, data.tables etc.), most functions are significantly faster (<a href="https://github.com/mayer79/hstats/pull/110" class="external-link">#110</a>).</li>
-<li>Slight speed-up of permutation importance for non-matrix <code>X</code> (<a href="https://github.com/mayer79/hstats/pull/109" class="external-link">#109</a>).</li>
+<ul><li>For pure data.frames (no tibbles, data.tables etc.), most functions are significantly faster (<a href="https://github.com/ModelOriented/hstats/pull/110" class="external-link">#110</a>).</li>
+<li>Slight speed-up of permutation importance for non-matrix <code>X</code> (<a href="https://github.com/ModelOriented/hstats/pull/109" class="external-link">#109</a>).</li>
 </ul></div>
 <div class="section level3">
 <h3 id="other-changes-1-1-1">Other changes<a class="anchor" aria-label="anchor" href="#other-changes-1-1-1"></a></h3>
-<ul><li>In multivariate cases, it was possible that normalized H-statistics could equal <code>0/0 (= NaN)</code>. Such values are now replaced by 0 (<a href="https://github.com/mayer79/hstats/issues/107" class="external-link">#107</a>).</li>
-<li>Removed an unnecessary special case when calculating column means (<a href="https://github.com/mayer79/hstats/pull/106" class="external-link">#106</a>).</li>
+<ul><li>In multivariate cases, it was possible that normalized H-statistics could equal <code>0/0 (= NaN)</code>. Such values are now replaced by 0 (<a href="https://github.com/ModelOriented/hstats/issues/107" class="external-link">#107</a>).</li>
+<li>Removed an unnecessary special case when calculating column means (<a href="https://github.com/ModelOriented/hstats/pull/106" class="external-link">#106</a>).</li>
 </ul></div>
 </div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="1.1.0" id="hstats-110">hstats 1.1.0<small>2023-11-13</small><a class="anchor" aria-label="anchor" href="#hstats-110"></a></h2>
 <div class="section level3">
 <h3 id="enhancements-1-1-0">Enhancements<a class="anchor" aria-label="anchor" href="#enhancements-1-1-0"></a></h3>
-<ul><li>{hstats} now also works for factor predictions. The levels are represented by one-hot-encoded columns (<a href="https://github.com/mayer79/hstats/pull/101" class="external-link">PR#101</a>).</li>
-<li>The plot method of a two-dimensional PDP has recieved the option <code>d2_geom = "line"</code>. Instead of a heatmap of the two features, one of the features is moved to color grouping. Combined with <code>swap_dim = TRUE</code>, you can swap the role of the two <code>v</code> variables without recalculating anything. The idea was proposed by <a href="https://github.com/RoelVerbelen" class="external-link">Roel Verbelen</a> in <a href="https://github.com/mayer79/hstats/issues/91" class="external-link">issue </a><a href="https://github.com/ModelOriented/hstats/issues/91" class="external-link">#91</a>, see also <a href="https://github.com/mayer79/hstats/issues/94" class="external-link">issue </a><a href="https://github.com/ModelOriented/hstats/issues/94" class="external-link">#94</a>.</li>
+<ul><li>{hstats} now also works for factor predictions. The levels are represented by one-hot-encoded columns (<a href="https://github.com/ModelOriented/hstats/pull/101" class="external-link">PR#101</a>).</li>
+<li>The plot method of a two-dimensional PDP has recieved the option <code>d2_geom = "line"</code>. Instead of a heatmap of the two features, one of the features is moved to color grouping. Combined with <code>swap_dim = TRUE</code>, you can swap the role of the two <code>v</code> variables without recalculating anything. The idea was proposed by <a href="https://github.com/RoelVerbelen" class="external-link">Roel Verbelen</a> in <a href="https://github.com/ModelOriented/hstats/issues/91" class="external-link">issue </a><a href="https://github.com/ModelOriented/hstats/issues/91" class="external-link">#91</a>, see also <a href="https://github.com/ModelOriented/hstats/issues/94" class="external-link">issue </a><a href="https://github.com/ModelOriented/hstats/issues/94" class="external-link">#94</a>.</li>
 </ul></div>
 <div class="section level3">
 <h3 id="bug-fixes-1-1-0">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-1-1-0"></a></h3>
-<ul><li>Using <code>BY</code> and <code>w</code> via column names would fail for tibbles. This problem was described in <a href="https://github.com/mayer79/hstats/issues/92" class="external-link">#92</a> by <a href="https://github.com/RoelVerbelen" class="external-link">Roel Verbelen</a>. Thx!</li>
+<ul><li>Using <code>BY</code> and <code>w</code> via column names would fail for tibbles. This problem was described in <a href="https://github.com/ModelOriented/hstats/issues/92" class="external-link">#92</a> by <a href="https://github.com/RoelVerbelen" class="external-link">Roel Verbelen</a>. Thx!</li>
 </ul></div>
 <div class="section level3">
 <h3 id="other-changes-1-1-0">Other changes<a class="anchor" aria-label="anchor" href="#other-changes-1-1-0"></a></h3>
-<ul><li>Much faster one-hot-encoding, thanks to Mathias Ambühl (<a href="https://github.com/mayer79/hstats/pull/101" class="external-link">PR#101</a>).</li>
-<li>Most functions are slightly faster (<a href="https://github.com/mayer79/hstats/pull/101" class="external-link">PR#101</a>).</li>
+<ul><li>Much faster one-hot-encoding, thanks to Mathias Ambühl (<a href="https://github.com/ModelOriented/hstats/pull/101" class="external-link">PR#101</a>).</li>
+<li>Most functions are slightly faster (<a href="https://github.com/ModelOriented/hstats/pull/101" class="external-link">PR#101</a>).</li>
 <li>Add unit tests to compare against {iml}.</li>
 <li>Made all examples “tibble” and “data.table” friendly.</li>
 <li>Revised input checks in loss functions (relevant for <code><a href="../reference/perm_importance.html">perm_importance()</a></code> and <code><a href="../reference/average_loss.html">average_loss()</a></code>).</li>
