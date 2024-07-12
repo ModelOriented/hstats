@@ -1,3 +1,9 @@
+# hstats 1.2.1
+
+## Other changes
+
+- Fixed wrong ORCID of Michael.
+
 # hstats 1.2.0
 
 ## My new home
