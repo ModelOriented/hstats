@@ -30,5 +30,5 @@ Imports:
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
-URL: https://github.com/ModelOriented/hstats, https://ModelOriented.github.io/hstats
-BugReports: https://github.com/ModelOriented/hstats/issues
+URL: https://github.com/ModelOriented/hstats/, https://modeloriented.github.io/hstats/
+BugReports: https://github.com/ModelOriented/hstats/issues/

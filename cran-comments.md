@@ -1,4 +1,8 @@
-# hstats 1.2.0
+# Re-submission: hstats 1.2.0
+
+Moving the github repo has left some old links in the NEWS file. This is fixed here.
+
+# Original message
 
 Hello CRAN
 
