@@ -1,23 +1,19 @@
-# hstats 1.1.2
+# Re-submission: hstats 1.2.0
 
-Hello CRAN team
+Moving the github repo has left some old links in the NEWS file. This is fixed here.
 
-This is a small release with two convenient API improvements.
+# Original message
 
-## Local checks: 0 errors, 0 warnings, 0 notes
+Hello CRAN
 
-## Rhub: 3 NOTES (sounding harmless)
+This release mainly updates the new repository ("ModelOriented" of TU Warcaw instead of my personal one), and adds Prof Biecek as co-author.
 
-- checking HTML version of manual ... NOTE
-  Skipping checking math rendering: package 'V8' unavailable
-- checking for non-standard things in the check directory ... NOTE
-  Found the following files/directories:
-  ''NULL''
-- checking for detritus in the temp directory ... NOTE
-  Found the following files/directories:
-  'lastMiKTeXException'
+## Local checks
+
+0 errors, 0 warnings, 0 notes
 
 ## Winbuilder
 
-Status: OK
+Status: 1 NOTE
+R Under development (unstable) (2024-07-11 r86890 ucrt)
 

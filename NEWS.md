@@ -1,17 +1,13 @@
 # hstats 1.2.0
 
-## New home
+## My new home
 
 - My brand new home: https://github.com/ModelOriented/hstats
 
-## Major changes
+## Other changes
 
 - Factor-valued predictions are no longer possible.
 - Consequently, also removed "classification_error" loss.
-
-## Minor changes
-
-- Code simplifications.
 
 # hstats 1.1.2
 
@@ -28,29 +24,29 @@
 
 ## Performance improvements
 
-- For pure data.frames (no tibbles, data.tables etc.), most functions are significantly faster ([#110](https://github.com/mayer79/hstats/pull/110)).
-- Slight speed-up of permutation importance for non-matrix `X` ([#109](https://github.com/mayer79/hstats/pull/109)).
+- For pure data.frames (no tibbles, data.tables etc.), most functions are significantly faster ([#110](https://github.com/ModelOriented/hstats/pull/110)).
+- Slight speed-up of permutation importance for non-matrix `X` ([#109](https://github.com/ModelOriented/hstats/pull/109)).
 
 ## Other changes
 
-- In multivariate cases, it was possible that normalized H-statistics could equal `0/0 (= NaN)`. Such values are now replaced by 0 ([#107](https://github.com/mayer79/hstats/issues/107)).
-- Removed an unnecessary special case when calculating column means ([#106](https://github.com/mayer79/hstats/pull/106)).
+- In multivariate cases, it was possible that normalized H-statistics could equal `0/0 (= NaN)`. Such values are now replaced by 0 ([#107](https://github.com/ModelOriented/hstats/issues/107)).
+- Removed an unnecessary special case when calculating column means ([#106](https://github.com/ModelOriented/hstats/pull/106)).
 
 # hstats 1.1.0
 
 ## Enhancements
 
-- {hstats} now also works for factor predictions. The levels are represented by one-hot-encoded columns ([PR#101](https://github.com/mayer79/hstats/pull/101)).
-- The plot method of a two-dimensional PDP has recieved the option `d2_geom = "line"`. Instead of a heatmap of the two features, one of the features is moved to color grouping. Combined with `swap_dim = TRUE`, you can swap the role of the two `v` variables without recalculating anything. The idea was proposed by [Roel Verbelen](https://github.com/RoelVerbelen) in [issue #91](https://github.com/mayer79/hstats/issues/91), see also [issue #94](https://github.com/mayer79/hstats/issues/94).
+- {hstats} now also works for factor predictions. The levels are represented by one-hot-encoded columns ([PR#101](https://github.com/ModelOriented/hstats/pull/101)).
+- The plot method of a two-dimensional PDP has recieved the option `d2_geom = "line"`. Instead of a heatmap of the two features, one of the features is moved to color grouping. Combined with `swap_dim = TRUE`, you can swap the role of the two `v` variables without recalculating anything. The idea was proposed by [Roel Verbelen](https://github.com/RoelVerbelen) in [issue #91](https://github.com/ModelOriented/hstats/issues/91), see also [issue #94](https://github.com/ModelOriented/hstats/issues/94).
 
 ## Bug fixes
 
-- Using `BY` and `w` via column names would fail for tibbles. This problem was described in [#92](https://github.com/mayer79/hstats/issues/92) by [Roel Verbelen](https://github.com/RoelVerbelen). Thx!
+- Using `BY` and `w` via column names would fail for tibbles. This problem was described in [#92](https://github.com/ModelOriented/hstats/issues/92) by [Roel Verbelen](https://github.com/RoelVerbelen). Thx!
 
 ## Other changes
 
-- Much faster one-hot-encoding, thanks to Mathias Ambühl ([PR#101](https://github.com/mayer79/hstats/pull/101)).
-- Most functions are slightly faster ([PR#101](https://github.com/mayer79/hstats/pull/101)).
+- Much faster one-hot-encoding, thanks to Mathias Ambühl ([PR#101](https://github.com/ModelOriented/hstats/pull/101)).
+- Most functions are slightly faster ([PR#101](https://github.com/ModelOriented/hstats/pull/101)).
 - Add unit tests to compare against {iml}.
 - Made all examples "tibble" and "data.table" friendly.
 - Revised input checks in loss functions (relevant for `perm_importance()` and `average_loss()`).
