@@ -152,7 +152,8 @@ Let's study different plots to understand *how* the strong interaction between d
 They all reveal a substantial interaction between the two variables in the sense that the age effect gets weaker the closer to the ocean. Note that numeric `BY` features are automatically binned into quartile groups.
 
 ```r
-plot(partial_dep(fit, v = "age", X = X_train, BY = "log_ocean"), show_points = FALSE)
+partial_dep(fit, v = "age", X = X_train, BY = "log_ocean") |> 
+  plot(show_points = FALSE)
 ```
 
 ![](man/figures/pdp_ocean_age.svg)
@@ -167,8 +168,8 @@ plot(pd, d2_geom = "line", show_points = FALSE)
 ![](man/figures/pdp_2d_line.svg)
 
 ```r
-ic <- ice(fit, v = "age", X = X_train, BY = "log_ocean")
-plot(ic, center = TRUE)
+ice(fit, v = "age", X = X_train, BY = "log_ocean") |> 
+  plot(center = TRUE)
 ```
 
 ![](man/figures/ice.svg)
@@ -178,11 +179,14 @@ plot(ic, center = TRUE)
 In the spirit of [1], and related to [4], we can extract from the "hstats" objects a partial dependence based variable importance measure. It measures not only the main effect strength (see [4]), but also all its interaction effects. It is rather experimental, so use it with care (details in the section "Background"):
 
 ```r
-plot(pd_importance(s))
+pd_importance(s) |> 
+  plot()
 
 # Compared with four times repeated permutation importance regarding MSE
 set.seed(10)
-plot(perm_importance(fit, X = X_valid, y = y_valid))
+
+perm_importance(fit, X = X_valid, y = y_valid) |> 
+  plot()
 ```
 
 ![](man/figures/importance.svg)
@@ -209,14 +213,17 @@ s <- hstats(ex)
 s  # 0.054
 plot(s)
 
-# Strongest relative interaction
-plot(ice(ex, v = "Sepal.Width", BY = "Petal.Width"), center = TRUE)
-plot(partial_dep(ex, v = "Sepal.Width", BY = "Petal.Width"), show_points = FALSE)
-plot(partial_dep(ex, v = c("Sepal.Width", "Petal.Width"), grid_size = 200))
+# Strongest relative interaction (different visualizations)
+ice(ex, v = "Sepal.Width", BY = "Petal.Width") |> 
+  plot(center = TRUE)
+  
+partial_dep(ex, v = "Sepal.Width", BY = "Petal.Width") |> 
+  plot(show_points = FALSE)
+
+partial_dep(ex, v = c("Sepal.Width", "Petal.Width"), grid_size = 200) |> 
+  plot()
 
 perm_importance(ex)
-
-# Permutation importance
 # Petal.Length  Petal.Width  Sepal.Width      Species 
 #   0.59836442   0.11625137   0.07966910   0.03982554 
 ```
@@ -298,7 +305,7 @@ fit <- lgb.train(
 average_loss(fit, X = X_valid, y = y_valid, loss = "mlogloss")
 
 perm_importance(fit, X = X_valid, y = y_valid, loss = "mlogloss", m_rep = 100)
-# Permutation importance regarding mlogloss
+
 # Petal.Length  Petal.Width  Sepal.Width Sepal.Length 
 #  2.624241332  1.011168660  0.082477177  0.009757393
 
@@ -396,7 +403,9 @@ fit <- iris_wf |>
   
 s <- hstats(fit, X = iris[, -1])
 s # 0 -> no interactions
-plot(partial_dep(fit, v = "Petal.Width", X = iris))
+
+partial_dep(fit, v = "Petal.Width", X = iris) |> 
+  plot()
 
 imp <- perm_importance(fit, X = iris, y = "Sepal.Length")
 imp
@@ -425,8 +434,11 @@ fit <- train(
 
 h2(hstats(fit, X = iris[, -1]))  # 0
 
-plot(ice(fit, v = "Petal.Width", X = iris), center = TRUE)
-plot(perm_importance(fit, X = iris, y = "Sepal.Length"))
+ice(fit, v = "Petal.Width", X = iris) |> 
+  plot(center = TRUE)
+  
+perm_importance(fit, X = iris, y = "Sepal.Length") |> 
+  plot()
 ```
 
 ### mlr3
