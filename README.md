@@ -2,13 +2,12 @@
 
 <!-- badges: start -->
 
-[![CRAN status](http://www.r-pkg.org/badges/version/hstats)](https://cran.r-project.org/package=hstats)
-[![R-CMD-check](https://github.com/ModelOriented/hstats/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/ModelOriented/hstats/actions)
+[![R-CMD-check](https://github.com/ModelOriented/hstats/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/ModelOriented/hstats/actions/workflows/R-CMD-check.yaml)
 [![Codecov test coverage](https://codecov.io/gh/ModelOriented/hstats/graph/badge.svg)](https://app.codecov.io/gh/ModelOriented/hstats?branch=main)
+[![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/hstats)](https://cran.r-project.org/package=hstats)
 
 [![](https://cranlogs.r-pkg.org/badges/hstats)](https://cran.r-project.org/package=hstats) 
 [![](https://cranlogs.r-pkg.org/badges/grand-total/hstats?color=orange)](https://cran.r-project.org/package=hstats)
-
 <!-- badges: end -->
 
 ## Overview
