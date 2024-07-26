@@ -28,7 +28,7 @@ ice(object, ...)
   object,
   v,
   X,
-  pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
+  pred_fun = NULL,
   BY = NULL,
   grid = NULL,
   grid_size = 49L,
@@ -36,6 +36,7 @@ ice(object, ...)
   strategy = c("uniform", "quantile"),
   na.rm = TRUE,
   n_max = 100L,
+  survival = c("chf", "prob"),
   ...
 )
 
@@ -95,6 +96,9 @@ Either "uniform" or "quantile", see description of \code{\link[=univariate_grid]
 
 \item{n_max}{If \code{X} has more than \code{n_max} rows, a random sample of \code{n_max} rows is
 selected from \code{X}. In this case, set a random seed for reproducibility.}
+
+\item{survival}{Should cumulative hazards ("chf", default) or survival
+probabilities ("prob") per time be predicted? Only in \code{ranger()} survival models.}
 }
 \value{
 An object of class "ice" containing these elements:

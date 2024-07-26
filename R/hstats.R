@@ -53,6 +53,8 @@
 #' @param eps Threshold below which numerator values are set to 0. Default is 1e-10.
 #' @param w Optional vector of case weights. Can also be a column name of `X`.
 #' @param verbose Should a progress bar be shown? The default is `TRUE`.
+#' @param survival Should cumulative hazards ("chf", default) or survival
+#'   probabilities ("prob") per time be predicted? Only in `ranger()` survival models.
 #' @param ... Additional arguments passed to `pred_fun(object, X, ...)`, 
 #'   for instance `type = "response"` in a [glm()] model, or `reshape = TRUE` in a 
 #'   multiclass XGBoost model.
@@ -145,7 +147,8 @@ hstats.default <- function(object, X, v = NULL,
                            pairwise_m = 5L, threeway_m = 0L,
                            approx = FALSE, grid_size = 50L, 
                            n_max = 500L, eps = 1e-10, 
-                           w = NULL, verbose = TRUE, ...) {
+                           w = NULL, verbose = TRUE, 
+                           ...) {
   stopifnot(
     is.matrix(X) || is.data.frame(X),
     is.function(pred_fun)
@@ -278,11 +281,18 @@ hstats.default <- function(object, X, v = NULL,
 #' @describeIn hstats Method for "ranger" models.
 #' @export
 hstats.ranger <- function(object, X, v = NULL,
-                          pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
+                          pred_fun = NULL,
                           pairwise_m = 5L, threeway_m = 0L,
                           approx = FALSE, grid_size = 50L, 
                           n_max = 500L, eps = 1e-10,
-                          w = NULL, verbose = TRUE, ...) {
+                          w = NULL, verbose = TRUE, 
+                          survival = c("chf", "prob"), ...) {
+  survival <- match.arg(survival)
+  
+  if (is.null(pred_fun)) {
+    pred_fun <- pred_ranger
+  }
+
   hstats.default(
     object = object,
     X = X,
@@ -296,6 +306,7 @@ hstats.ranger <- function(object, X, v = NULL,
     eps = eps,
     w = w,
     verbose = verbose,
+    survival = survival,
     ...
   )
 }

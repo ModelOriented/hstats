@@ -190,11 +190,18 @@ partial_dep.default <- function(object, v, X, pred_fun = stats::predict,
 #' @describeIn partial_dep Method for "ranger" models.
 #' @export
 partial_dep.ranger <- function(object, v, X, 
-                               pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
+                               pred_fun = NULL,
                                BY = NULL, by_size = 4L, grid = NULL, grid_size = 49L, 
                                trim = c(0.01, 0.99), 
                                strategy = c("uniform", "quantile"), na.rm = TRUE,
-                               n_max = 1000L, w = NULL, ...) {
+                               n_max = 1000L, w = NULL,
+                               survival = c("chf", "prob"), ...) {
+  survival <- match.arg(survival)
+  
+  if (is.null(pred_fun)) {
+    pred_fun <- pred_ranger
+  }
+  
   partial_dep.default(
     object = object,
     v = v,
@@ -209,6 +216,7 @@ partial_dep.ranger <- function(object, v, X,
     na.rm = na.rm,
     n_max = n_max,
     w = w,
+    survival = survival,
     ...
   )
 }

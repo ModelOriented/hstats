@@ -151,11 +151,18 @@ ice.default <- function(object, v, X, pred_fun = stats::predict,
 #' @describeIn ice Method for "ranger" models.
 #' @export
 ice.ranger <- function(object, v, X,
-                       pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
+                       pred_fun = NULL,
                        BY = NULL, grid = NULL, grid_size = 49L,
                        trim = c(0.01, 0.99),
                        strategy = c("uniform", "quantile"), na.rm = TRUE,
-                       n_max = 100L, ...) {
+                       n_max = 100L, 
+                       survival = c("chf", "prob"), ...) {
+  survival <- match.arg(survival)
+    
+  if (is.null(pred_fun)) {
+    pred_fun <- pred_ranger
+  }
+  
   ice.default(
     object = object,
     v = v,
@@ -168,6 +175,7 @@ ice.ranger <- function(object, v, X,
     strategy = strategy,
     na.rm = na.rm,
     n_max = n_max,
+    survival = survival,
     ...
   )
 }
