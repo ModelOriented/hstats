@@ -99,3 +99,4 @@ mat2df <- function(mat, id = "Overall") {
   out <- cbind.data.frame(id_ = id, variable_ = factor(nm, levels = nm), mat)
   poor_man_stack(out, to_stack = pred_names)
 }
+

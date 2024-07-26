@@ -81,13 +81,14 @@ h2_pairwise.default <- function(object, ...) {
 
 #' @describeIn h2_pairwise Pairwise interaction strength from "hstats" object.
 #' @export
-h2_pairwise.hstats <- function(object, normalize = TRUE, squared = TRUE,
-                               sort = TRUE, zero = TRUE, ...) {
+h2_pairwise.hstats <- function(
+    object, normalize = TRUE, squared = TRUE, sort = TRUE, zero = TRUE, ...
+  ) {
   get_hstats_matrix(
     statistic = "h2_pairwise",
     object = object,
-    normalize = normalize, 
-    squared = squared, 
+    normalize = normalize,
+    squared = squared,
     sort = sort,
     zero = zero
   )
@@ -122,3 +123,4 @@ h2_pairwise_raw <- function(x) {
   
   list(num = num, denom = denom)
 }
+

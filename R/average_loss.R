@@ -66,12 +66,18 @@ average_loss <- function(object, ...) {
 
 #' @describeIn average_loss Default method.
 #' @export
-average_loss.default <- function(object, X, y, 
-                                 pred_fun = stats::predict,
-                                 loss = "squared_error",
-                                 agg_cols = FALSE,
-                                 BY = NULL, by_size = 4L, 
-                                 w = NULL, ...) {
+average_loss.default <- function(
+    object,
+    X,
+    y,
+    pred_fun = stats::predict,
+    loss = "squared_error",
+    agg_cols = FALSE,
+    BY = NULL,
+    by_size = 4L,
+    w = NULL,
+    ...
+  ) {
   stopifnot(
     is.matrix(X) || is.data.frame(X),
     is.function(pred_fun)
@@ -109,13 +115,18 @@ average_loss.default <- function(object, X, y,
 
 #' @describeIn average_loss Method for "ranger" models.
 #' @export
-average_loss.ranger <- function(object, X, y, 
-                                pred_fun = function(m, X, ...)
-                                  stats::predict(m, X, ...)$predictions,
-                                loss = "squared_error",
-                                agg_cols = FALSE,
-                                BY = NULL, by_size = 4L, 
-                                w = NULL, ...) {
+average_loss.ranger <- function(
+    object,
+    X,
+    y,
+    pred_fun = function(m, X, ...)
+    stats::predict(m, X, ...)$predictions,
+    loss = "squared_error",
+    agg_cols = FALSE,
+    BY = NULL, by_size = 4L,
+    w = NULL,
+    ...
+  ) {
   average_loss.default(
     object = object, 
     X = X, 
@@ -132,16 +143,18 @@ average_loss.ranger <- function(object, X, y,
 
 #' @describeIn average_loss Method for DALEX "explainer".
 #' @export
-average_loss.explainer <- function(object, 
-                                   X = object[["data"]], 
-                                   y = object[["y"]], 
-                                   pred_fun = object[["predict_function"]],
-                                   loss = "squared_error",
-                                   agg_cols = FALSE,
-                                   BY = NULL, 
-                                   by_size = 4L,
-                                   w = object[["weights"]], 
-                                   ...) {
+average_loss.explainer <- function(
+    object, 
+    X = object[["data"]],
+    y = object[["y"]],
+    pred_fun = object[["predict_function"]],
+    loss = "squared_error",
+    agg_cols = FALSE,
+    BY = NULL,
+    by_size = 4L,
+    w = object[["weights"]],
+    ...
+  ) {
   average_loss.default(
     object = object[["model"]],
     X = X,
@@ -155,3 +168,4 @@ average_loss.explainer <- function(object,
     ...
   )
 }
+

@@ -14,8 +14,17 @@
 #' @returns 
 #'   A matrix of partial dependence values (one column per prediction dimension, 
 #'   one row per grid row, in the same order as `grid`).
-pd_raw <- function(object, v, X, grid, pred_fun = stats::predict,
-                   w = NULL, compress_X = TRUE, compress_grid = TRUE, ...) {
+pd_raw <- function(
+    object,
+    v,
+    X,
+    grid,
+    pred_fun = stats::predict,
+    w = NULL,
+    compress_X = TRUE,
+    compress_grid = TRUE,
+    ...
+  ) {
   # Try different compressions
   if (compress_X && length(v) == ncol(X) - 1L) {
     # Removes duplicates in X[, not_v] and compensates via w
@@ -56,8 +65,9 @@ pd_raw <- function(object, v, X, grid, pred_fun = stats::predict,
 #'   but replicated over `X`).
 #' @returns 
 #'   Either a vector/matrix of predictions or a list with predictions and grid.
-ice_raw <- function(object, v, X, grid, pred_fun = stats::predict, 
-                    pred_only = TRUE, ...) {
+ice_raw <- function(
+    object, v, X, grid, pred_fun = stats::predict, pred_only = TRUE, ...
+  ) {
   D1 <- length(v) == 1L
   n <- nrow(X)
   n_grid <- NROW(grid)
@@ -161,3 +171,4 @@ ice_raw <- function(object, v, X, grid, pred_fun = stats::predict,
   out[["reindex"]] <- match(grid, ugrid)
   out
 }
+

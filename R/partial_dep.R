@@ -104,11 +104,22 @@ partial_dep <- function(object, ...) {
 
 #' @describeIn partial_dep Default method.
 #' @export
-partial_dep.default <- function(object, v, X, pred_fun = stats::predict, 
-                                BY = NULL, by_size = 4L, grid = NULL, grid_size = 49L, 
-                                trim = c(0.01, 0.99), 
-                                strategy = c("uniform", "quantile"), na.rm = TRUE,
-                                n_max = 1000L, w = NULL, ...) {
+partial_dep.default <- function(
+    object,
+    v,
+    X,
+    pred_fun = stats::predict,
+    BY = NULL,
+    by_size = 4L,
+    grid = NULL,
+    grid_size = 49L,
+    trim = c(0.01, 0.99),
+    strategy = c("uniform", "quantile"),
+    na.rm = TRUE,
+    n_max = 1000L,
+    w = NULL,
+    ...
+  ) {
   stopifnot(
     is.matrix(X) || is.data.frame(X),
     is.function(pred_fun),
@@ -189,13 +200,23 @@ partial_dep.default <- function(object, v, X, pred_fun = stats::predict,
 
 #' @describeIn partial_dep Method for "ranger" models.
 #' @export
-partial_dep.ranger <- function(object, v, X, 
-                               pred_fun = NULL,
-                               BY = NULL, by_size = 4L, grid = NULL, grid_size = 49L, 
-                               trim = c(0.01, 0.99), 
-                               strategy = c("uniform", "quantile"), na.rm = TRUE,
-                               n_max = 1000L, w = NULL,
-                               survival = c("chf", "prob"), ...) {
+partial_dep.ranger <- function(
+    object,
+    v,
+    X, 
+    pred_fun = NULL,
+    BY = NULL,
+    by_size = 4L,
+    grid = NULL,
+    grid_size = 49L,
+    trim = c(0.01, 0.99),
+    strategy = c("uniform", "quantile"),
+    na.rm = TRUE,
+    n_max = 1000L,
+    w = NULL,
+    survival = c("chf", "prob"),
+    ...
+  ) {
   survival <- match.arg(survival)
   
   if (is.null(pred_fun)) {
@@ -223,12 +244,22 @@ partial_dep.ranger <- function(object, v, X,
 
 #' @describeIn partial_dep Method for DALEX "explainer".
 #' @export
-partial_dep.explainer <- function(object, v, X = object[["data"]], 
-                                  pred_fun = object[["predict_function"]],
-                                  BY = NULL, by_size = 4L, grid = NULL, grid_size = 49L, 
-                                  trim = c(0.01, 0.99), 
-                                  strategy = c("uniform", "quantile"), na.rm = TRUE,
-                                  n_max = 1000L, w = object[["weights"]], ...) {
+partial_dep.explainer <- function(
+    object,
+    v,
+    X = object[["data"]],
+    pred_fun = object[["predict_function"]],
+    BY = NULL,
+    by_size = 4L,
+    grid = NULL,
+    grid_size = 49L,
+    trim = c(0.01, 0.99),
+    strategy = c("uniform", "quantile"),
+    na.rm = TRUE,
+    n_max = 1000L,
+    w = object[["weights"]],
+    ...
+  ) {
   partial_dep.default(
     object = object[["model"]],
     v = v,
@@ -286,13 +317,17 @@ print.partial_dep <- function(x, n = 3L, ...) {
 #' @export
 #' @returns An object of class "ggplot".
 #' @seealso See [partial_dep()] for examples.
-plot.partial_dep <- function(x,
-                             color = getOption("hstats.color"),
-                             swap_dim = FALSE,
-                             viridis_args = getOption("hstats.viridis_args"),
-                             facet_scales = "fixed",
-                             rotate_x = FALSE, show_points = TRUE, 
-                             d2_geom = c("tile", "point", "line"), ...) {
+plot.partial_dep <- function(
+    x,
+    color = getOption("hstats.color"),
+    swap_dim = FALSE,
+    viridis_args = getOption("hstats.viridis_args"),
+    facet_scales = "fixed",
+    rotate_x = FALSE,
+    show_points = TRUE,
+    d2_geom = c("tile", "point", "line"),
+    ...
+  ) {
   d2_geom <- match.arg(d2_geom)
   v <- x[["v"]]
   by_name <- x[["by_name"]]
@@ -379,3 +414,4 @@ plot.partial_dep <- function(x,
   }
   p
 }
+

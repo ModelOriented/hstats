@@ -58,11 +58,20 @@ ice <- function(object, ...) {
 
 #' @describeIn ice Default method.
 #' @export
-ice.default <- function(object, v, X, pred_fun = stats::predict,
-                        BY = NULL, grid = NULL, grid_size = 49L,
-                        trim = c(0.01, 0.99),
-                        strategy = c("uniform", "quantile"), na.rm = TRUE,
-                        n_max = 100L, ...) {
+ice.default <- function(
+  object,
+  v,
+  X,
+  pred_fun = stats::predict,
+  BY = NULL,
+  grid = NULL,
+  grid_size = 49L,
+  trim = c(0.01, 0.99),
+  strategy = c("uniform", "quantile"),
+  na.rm = TRUE,
+  n_max = 100L,
+  ...
+  ) {
   stopifnot(
     is.matrix(X) || is.data.frame(X),
     is.function(pred_fun),
@@ -150,13 +159,21 @@ ice.default <- function(object, v, X, pred_fun = stats::predict,
 
 #' @describeIn ice Method for "ranger" models.
 #' @export
-ice.ranger <- function(object, v, X,
-                       pred_fun = NULL,
-                       BY = NULL, grid = NULL, grid_size = 49L,
-                       trim = c(0.01, 0.99),
-                       strategy = c("uniform", "quantile"), na.rm = TRUE,
-                       n_max = 100L, 
-                       survival = c("chf", "prob"), ...) {
+ice.ranger <- function(
+    object,
+    v,
+    X,
+    pred_fun = NULL,
+    BY = NULL,
+    grid = NULL,
+    grid_size = 49L,
+    trim = c(0.01, 0.99),
+    strategy = c("uniform", "quantile"),
+    na.rm = TRUE,
+    n_max = 100L,
+    survival = c("chf", "prob"),
+    ...
+  ) {
   survival <- match.arg(survival)
     
   if (is.null(pred_fun)) {
@@ -182,12 +199,20 @@ ice.ranger <- function(object, v, X,
 
 #' @describeIn ice Method for DALEX "explainer".
 #' @export
-ice.explainer <- function(object, v = v, X = object[["data"]],
-                          pred_fun = object[["predict_function"]],
-                          BY = NULL, grid = NULL, grid_size = 49L,
-                          trim = c(0.01, 0.99),
-                          strategy = c("uniform", "quantile"), na.rm = TRUE,
-                          n_max = 100L, ...) {
+ice.explainer <- function(
+    object,
+    v = v,
+    X = object[["data"]],
+    pred_fun = object[["predict_function"]],
+    BY = NULL,
+    grid = NULL,
+    grid_size = 49L,
+    trim = c(0.01, 0.99),
+    strategy = c("uniform", "quantile"),
+    na.rm = TRUE,
+    n_max = 100L,
+    ...
+  ) {
   ice.default(
     object = object[["model"]],
     v = v,
@@ -234,12 +259,17 @@ print.ice <- function(x, n = 3L, ...) {
 #' @export
 #' @returns An object of class "ggplot".
 #' @seealso See [ice()] for examples.
-plot.ice <- function(x, center = FALSE, alpha = 0.2, 
-                     color = getOption("hstats.color"),
-                     swap_dim = FALSE,
-                     viridis_args = getOption("hstats.viridis_args"),
-                     facet_scales = "fixed", 
-                     rotate_x = FALSE, ...) {
+plot.ice <- function(
+    x,
+    center = FALSE,
+    alpha = 0.2,
+    color = getOption("hstats.color"),
+    swap_dim = FALSE,
+    viridis_args = getOption("hstats.viridis_args"),
+    facet_scales = "fixed",
+    rotate_x = FALSE,
+    ...
+  ) {
   v <- x[["v"]]
   K <- x[["K"]]
   data <- x[["data"]]
@@ -300,3 +330,4 @@ plot.ice <- function(x, center = FALSE, alpha = 0.2,
   }
   p
 }
+
