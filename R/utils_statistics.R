@@ -73,9 +73,14 @@ init_numerator <- function(x, way = 1L) {
 #' @param num Matrix with numerator statistics.
 #' @param denom Vector or matrix with denominator statistics.
 #' @returns Matrix of statistics, or `NULL`.
-postprocess <- function(num, denom = rep(1, times = NCOL(num)), 
-                        normalize = TRUE, squared = TRUE, 
-                        sort = TRUE, zero = TRUE) {
+postprocess <- function(
+    num,
+    denom = rep(1, times = NCOL(num)),
+    normalize = TRUE,
+    squared = TRUE,
+    sort = TRUE,
+    zero = TRUE
+  ) {
   stopifnot(
     is.matrix(num),
     is.matrix(denom) || is.vector(denom),  # already covered by the next condition
@@ -113,8 +118,9 @@ postprocess <- function(num, denom = rep(1, times = NCOL(num)),
 #' @param statistic Name of statistic as stored in "hstats" object.
 #' @inheritParams h2_overall
 #' @returns A character string.
-get_hstats_matrix <- function(statistic, object, normalize = TRUE, squared = TRUE, 
-                              sort = TRUE, zero = TRUE, ...) {
+get_hstats_matrix <- function(
+    statistic, object, normalize = TRUE, squared = TRUE, sort = TRUE, zero = TRUE, ...
+  ) {
   s <- object[[statistic]]
   if (!is.null(s)) {
     M <- postprocess(
@@ -306,13 +312,18 @@ dimnames.hstats_matrix <- function(x) {
 #' @param ... Passed to [ggplot2::geom_bar()].
 #' @export
 #' @returns An object of class "ggplot".
-plot.hstats_matrix <- function(x, top_m = 15L,
-                               fill = getOption("hstats.fill"),
-                               swap_dim = FALSE,
-                               viridis_args = getOption("hstats.viridis_args"),
-                               facet_scales = "fixed", 
-                               ncol = 2L, rotate_x = FALSE,
-                               err_type = c("SE", "SD", "No"), ...) {
+plot.hstats_matrix <- function(
+    x,
+    top_m = 15L,
+    fill = getOption("hstats.fill"),
+    swap_dim = FALSE,
+    viridis_args = getOption("hstats.viridis_args"),
+    facet_scales = "fixed",
+    ncol = 2L,
+    rotate_x = FALSE,
+    err_type = c("SE", "SD", "No"),
+    ...
+  ) {
   err_type <- match.arg(err_type)
   M <- x[["M"]]
   if (is.null(M)) {

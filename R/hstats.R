@@ -53,6 +53,8 @@
 #' @param eps Threshold below which numerator values are set to 0. Default is 1e-10.
 #' @param w Optional vector of case weights. Can also be a column name of `X`.
 #' @param verbose Should a progress bar be shown? The default is `TRUE`.
+#' @param survival Should cumulative hazards ("chf", default) or survival
+#'   probabilities ("prob") per time be predicted? Only in `ranger()` survival models.
 #' @param ... Additional arguments passed to `pred_fun(object, X, ...)`, 
 #'   for instance `type = "response"` in a [glm()] model, or `reshape = TRUE` in a 
 #'   multiclass XGBoost model.
@@ -140,12 +142,21 @@ hstats <- function(object, ...) {
 
 #' @describeIn hstats Default hstats method.
 #' @export
-hstats.default <- function(object, X, v = NULL,
-                           pred_fun = stats::predict, 
-                           pairwise_m = 5L, threeway_m = 0L,
-                           approx = FALSE, grid_size = 50L, 
-                           n_max = 500L, eps = 1e-10, 
-                           w = NULL, verbose = TRUE, ...) {
+hstats.default <- function(
+    object,
+    X,
+    v = NULL,
+    pred_fun = stats::predict,
+    pairwise_m = 5L,
+    threeway_m = 0L,
+    approx = FALSE,
+    grid_size = 50L,
+    n_max = 500L,
+    eps = 1e-10,
+    w = NULL,
+    verbose = TRUE,
+    ...
+  ) {
   stopifnot(
     is.matrix(X) || is.data.frame(X),
     is.function(pred_fun)
@@ -277,12 +288,28 @@ hstats.default <- function(object, X, v = NULL,
 
 #' @describeIn hstats Method for "ranger" models.
 #' @export
-hstats.ranger <- function(object, X, v = NULL,
-                          pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
-                          pairwise_m = 5L, threeway_m = 0L,
-                          approx = FALSE, grid_size = 50L, 
-                          n_max = 500L, eps = 1e-10,
-                          w = NULL, verbose = TRUE, ...) {
+hstats.ranger <- function(
+    object,
+    X,
+    v = NULL,
+    pred_fun = NULL,
+    pairwise_m = 5L,
+    threeway_m = 0L,
+    approx = FALSE,
+    grid_size = 50L,
+    n_max = 500L,
+    eps = 1e-10,
+    w = NULL,
+    verbose = TRUE,
+    survival = c("chf", "prob"),
+    ...
+  ) {
+  survival <- match.arg(survival)
+  
+  if (is.null(pred_fun)) {
+    pred_fun <- pred_ranger
+  }
+
   hstats.default(
     object = object,
     X = X,
@@ -296,19 +323,28 @@ hstats.ranger <- function(object, X, v = NULL,
     eps = eps,
     w = w,
     verbose = verbose,
+    survival = survival,
     ...
   )
 }
 
 #' @describeIn hstats Method for DALEX "explainer".
 #' @export
-hstats.explainer <- function(object, X = object[["data"]],
-                             v = NULL,
-                             pred_fun = object[["predict_function"]],
-                             pairwise_m = 5L, threeway_m = 0L,
-                             approx = FALSE, grid_size = 50L, 
-                             n_max = 500L, eps = 1e-10, 
-                             w = object[["weights"]], verbose = TRUE, ...) {
+hstats.explainer <- function(
+    object,
+    X = object[["data"]],
+    v = NULL,
+    pred_fun = object[["predict_function"]],
+    pairwise_m = 5L,
+    threeway_m = 0L,
+    approx = FALSE,
+    grid_size = 50L,
+    n_max = 500L,
+    eps = 1e-10,
+    w = object[["weights"]],
+    verbose = TRUE,
+    ...
+  ) {
   hstats.default(
     object = object[["model"]],
     X = X,
@@ -353,8 +389,9 @@ print.hstats <- function(x, ...) {
 #'   "h2", "h2_overall", "h2_pairwise", "h2_threeway", all of class "hstats_matrix".
 #' @export
 #' @seealso See [hstats()] for examples.
-summary.hstats <- function(object, normalize = TRUE, squared = TRUE, 
-                           sort = TRUE, zero = TRUE, ...) {
+summary.hstats <- function(
+    object, normalize = TRUE, squared = TRUE, sort = TRUE, zero = TRUE, ...
+  ) {
   args <- list(
     object = object, 
     normalize = normalize, 
@@ -407,11 +444,21 @@ print.hstats_summary <- function(x, ...) {
 #' @returns An object of class "ggplot".
 #' @export
 #' @seealso See [hstats()] for examples.
-plot.hstats <- function(x, which = 1:3, normalize = TRUE, squared = TRUE, 
-                        sort = TRUE, top_m = 15L, zero = TRUE, 
-                        fill = getOption("hstats.fill"), 
-                        viridis_args = getOption("hstats.viridis_args"),
-                        facet_scales = "free", ncol = 2L, rotate_x = FALSE, ...) {
+plot.hstats <- function(
+    x,
+    which = 1:3,
+    normalize = TRUE,
+    squared = TRUE,
+    sort = TRUE,
+    top_m = 15L,
+    zero = TRUE, 
+    fill = getOption("hstats.fill"),
+    viridis_args = getOption("hstats.viridis_args"),
+    facet_scales = "free",
+    ncol = 2L,
+    rotate_x = FALSE,
+    ...
+  ) {
   if (is.null(viridis_args)) {
     viridis_args <- list()
   }
@@ -477,8 +524,9 @@ plot.hstats <- function(x, which = 1:3, normalize = TRUE, squared = TRUE,
 #' @returns 
 #'   A list with a named list of feature combinations (pairs or triples), and
 #'   corresponding centered partial dependencies.
-mway <- function(object, v, X, pred_fun = stats::predict, w = NULL, 
-                 way = 2L, verb = TRUE, ...) {
+mway <- function(
+    object, v, X, pred_fun = stats::predict, w = NULL, way = 2L, verb = TRUE, ...
+  ) {
   combs <- utils::combn(v, way, simplify = FALSE)
   n_combs <- length(combs)
   F_way <- vector("list", length = n_combs)
@@ -528,3 +576,4 @@ get_v <- function(H, m) {
   }
   v[v %in% v_cand]
 }
+

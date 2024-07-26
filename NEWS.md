@@ -1,5 +1,9 @@
 # hstats 1.2.1
 
+## Usability
+
+- `ranger()` survival models now also work out-of-the-box without passing a tailored prediction function. Use the new argument `survival = "chf"` in `hstats()`, `ice()`, and  `partial_dep()` to distinguish cumulative hazards (default) and survival probabilities ("prob") per time point.
+
 ## Other changes
 
 - Fixed wrong ORCID of Michael.

@@ -80,8 +80,9 @@ h2_overall.default <- function(object, ...) {
 
 #' @describeIn h2_overall Overall interaction strength from "hstats" object.
 #' @export
-h2_overall.hstats <- function(object, normalize = TRUE, squared = TRUE, 
-                              sort = TRUE, zero = TRUE, ...) {
+h2_overall.hstats <- function(
+    object, normalize = TRUE, squared = TRUE, sort = TRUE, zero = TRUE, ...
+  ) {
   get_hstats_matrix(
     statistic = "h2_overall",
     object = object,
@@ -113,3 +114,4 @@ h2_overall_raw <- function(x) {
   
   list(num = num, denom = x[["mean_f2"]])
 }
+

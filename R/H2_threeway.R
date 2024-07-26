@@ -65,13 +65,14 @@ h2_threeway.default <- function(object, ...) {
 
 #' @describeIn h2_threeway Pairwise interaction strength from "hstats" object.
 #' @export
-h2_threeway.hstats <- function(object, normalize = TRUE, squared = TRUE, 
-                               sort = TRUE, zero = TRUE, ...) {
+h2_threeway.hstats <- function(
+    object, normalize = TRUE, squared = TRUE, sort = TRUE, zero = TRUE, ...
+  ) {
   get_hstats_matrix(
     statistic = "h2_threeway",
     object = object,
-    normalize = normalize, 
-    squared = squared, 
+    normalize = normalize,
+    squared = squared,
     sort = sort,
     zero = zero
   )
@@ -109,3 +110,4 @@ h2_threeway_raw <- function(x) {
 
   list(num = num, denom = denom)
 }
+

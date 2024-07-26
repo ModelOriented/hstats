@@ -35,8 +35,13 @@
 #' x <- iris$Sepal.Width
 #' univariate_grid(x, grid_size = 5)                        # Uniform binning
 #' univariate_grid(x, grid_size = 5, strategy = "quantile")  # Quantile
-univariate_grid <- function(z, grid_size = 49L, trim = c(0.01, 0.99), 
-                            strategy = c("uniform", "quantile"), na.rm = TRUE) {
+univariate_grid <- function(
+    z,
+    grid_size = 49L,
+    trim = c(0.01, 0.99),
+    strategy = c("uniform", "quantile"),
+    na.rm = TRUE
+  ) {
   strategy <- match.arg(strategy)
   uni <- unique(z)
   if (!is.numeric(z) || length(uni) <= grid_size) {
@@ -80,8 +85,13 @@ univariate_grid <- function(z, grid_size = 49L, trim = c(0.01, 0.99),
 #' multivariate_grid(iris[1:2], grid_size = 4)
 #' multivariate_grid(iris$Species)  # Works also in the univariate case
 #' @export
-multivariate_grid <- function(x, grid_size = 49L, trim = c(0.01, 0.99),
-                              strategy = c("uniform", "quantile"), na.rm = TRUE) {
+multivariate_grid <- function(
+    x,
+    grid_size = 49L,
+    trim = c(0.01, 0.99),
+    strategy = c("uniform", "quantile"),
+    na.rm = TRUE
+  ) {
   strategy <- match.arg(strategy)
   p <- NCOL(x)
   if (p == 1L) {
@@ -201,3 +211,4 @@ approx_matrix_or_df <- function(X, v = colnames(X), m = 50L) {
   }
   return(X)
 }
+

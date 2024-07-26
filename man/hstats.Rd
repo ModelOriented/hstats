@@ -29,7 +29,7 @@ hstats(object, ...)
   object,
   X,
   v = NULL,
-  pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
+  pred_fun = NULL,
   pairwise_m = 5L,
   threeway_m = 0L,
   approx = FALSE,
@@ -38,6 +38,7 @@ hstats(object, ...)
   eps = 1e-10,
   w = NULL,
   verbose = TRUE,
+  survival = c("chf", "prob"),
   ...
 )
 
@@ -103,6 +104,9 @@ selected from \code{X}. In this case, set a random seed for reproducibility.}
 \item{w}{Optional vector of case weights. Can also be a column name of \code{X}.}
 
 \item{verbose}{Should a progress bar be shown? The default is \code{TRUE}.}
+
+\item{survival}{Should cumulative hazards ("chf", default) or survival
+probabilities ("prob") per time be predicted? Only in \code{ranger()} survival models.}
 }
 \value{
 An object of class "hstats" containing these elements:

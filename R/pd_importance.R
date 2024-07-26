@@ -54,8 +54,9 @@ pd_importance.default <- function(object, ...) {
 
 #' @describeIn pd_importance PD based feature importance from "hstats" object.
 #' @export
-pd_importance.hstats <- function(object, normalize = TRUE, squared = TRUE,
-                                 sort = TRUE, zero = TRUE, ...) {
+pd_importance.hstats <- function(
+    object, normalize = TRUE, squared = TRUE, sort = TRUE, zero = TRUE, ...
+  ) {
   get_hstats_matrix(
     statistic = "pd_importance",
     object = object,
@@ -84,3 +85,4 @@ pd_importance_raw <- function(x) {
   num <- .zap_small(num, eps = x[["eps"]])  # Numeric precision
   list(num = num, denom = x[["mean_f2"]])
 }
+

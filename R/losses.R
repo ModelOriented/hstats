@@ -205,3 +205,4 @@ get_loss_fun <- function(loss) {
     stop("Unknown loss function.")
   )
 }
+

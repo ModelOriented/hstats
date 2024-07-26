@@ -56,12 +56,21 @@ perm_importance <- function(object, ...) {
 
 #' @describeIn perm_importance Default method.
 #' @export
-perm_importance.default <- function(object, X, y, v = NULL,
-                                    pred_fun = stats::predict,
-                                    loss = "squared_error", 
-                                    m_rep = 4L, agg_cols = FALSE,
-                                    normalize = FALSE, n_max = 10000L,
-                                    w = NULL, verbose = TRUE, ...) {
+perm_importance.default <- function(
+    object,
+    X,
+    y,
+    v = NULL,
+    pred_fun = stats::predict,
+    loss = "squared_error",
+    m_rep = 4L,
+    agg_cols = FALSE,
+    normalize = FALSE,
+    n_max = 10000L,
+    w = NULL,
+    verbose = TRUE,
+    ...
+  ) {
   stopifnot(
     is.matrix(X) || is.data.frame(X),
     is.function(pred_fun),
@@ -205,13 +214,21 @@ perm_importance.default <- function(object, X, y, v = NULL,
 
 #' @describeIn perm_importance Method for "ranger" models.
 #' @export
-perm_importance.ranger <- function(object, X, y, v = NULL,
-                                   pred_fun = function(m, X, ...)
-                                     stats::predict(m, X, ...)$predictions,
-                                   loss = "squared_error", m_rep = 4L, 
-                                   agg_cols = FALSE, 
-                                   normalize = FALSE, n_max = 10000L, 
-                                   w = NULL, verbose = TRUE, ...) {
+perm_importance.ranger <- function(
+    object,
+    X,
+    y,
+    v = NULL,
+    pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
+    loss = "squared_error",
+    m_rep = 4L,
+    agg_cols = FALSE,
+    normalize = FALSE,
+    n_max = 10000L,
+    w = NULL,
+    verbose = TRUE,
+    ...
+  ) {
   perm_importance.default(
     object = object,
     X = X,
@@ -231,19 +248,21 @@ perm_importance.ranger <- function(object, X, y, v = NULL,
 
 #' @describeIn perm_importance Method for DALEX "explainer".
 #' @export
-perm_importance.explainer <- function(object, 
-                                      X = object[["data"]], 
-                                      y = object[["y"]],
-                                      v = NULL,
-                                      pred_fun = object[["predict_function"]],
-                                      loss = "squared_error", 
-                                      m_rep = 4L,
-                                      agg_cols = FALSE,
-                                      normalize = FALSE,
-                                      n_max = 10000L, 
-                                      w = object[["weights"]], 
-                                      verbose = TRUE, 
-                                      ...) {
+perm_importance.explainer <- function(
+    object,
+    X = object[["data"]],
+    y = object[["y"]],
+    v = NULL,
+    pred_fun = object[["predict_function"]],
+    loss = "squared_error",
+    m_rep = 4L,
+    agg_cols = FALSE,
+    normalize = FALSE,
+    n_max = 10000L, 
+    w = object[["weights"]],
+    verbose = TRUE,
+    ...
+  ) {
   perm_importance.default(
     object = object[["model"]],
     X = X,
@@ -260,3 +279,4 @@ perm_importance.explainer <- function(object,
     ...
   )
 }
+

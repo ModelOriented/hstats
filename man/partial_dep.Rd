@@ -30,7 +30,7 @@ partial_dep(object, ...)
   object,
   v,
   X,
-  pred_fun = function(m, X, ...) stats::predict(m, X, ...)$predictions,
+  pred_fun = NULL,
   BY = NULL,
   by_size = 4L,
   grid = NULL,
@@ -40,6 +40,7 @@ partial_dep(object, ...)
   na.rm = TRUE,
   n_max = 1000L,
   w = NULL,
+  survival = c("chf", "prob"),
   ...
 )
 
@@ -109,6 +110,9 @@ Either "uniform" or "quantile", see description of \code{\link[=univariate_grid]
 selected from \code{X}. In this case, set a random seed for reproducibility.}
 
 \item{w}{Optional vector of case weights. Can also be a column name of \code{X}.}
+
+\item{survival}{Should cumulative hazards ("chf", default) or survival
+probabilities ("prob") per time be predicted? Only in \code{ranger()} survival models.}
 }
 \value{
 An object of class "partial_dep" containing these elements:
