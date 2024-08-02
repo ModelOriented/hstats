@@ -1,12 +1,6 @@
-# Re-submission: hstats 1.2.0
+# Re-submission: hstats 1.2.1
 
-Moving the github repo has left some old links in the NEWS file. This is fixed here.
-
-# Original message
-
-Hello CRAN
-
-This release mainly updates the new repository ("ModelOriented" of TU Warcaw instead of my personal one), and adds Prof Biecek as co-author.
+This is a small update, fixing a wrong ORCID.
 
 ## Local checks
 
@@ -14,6 +8,4 @@ This release mainly updates the new repository ("ModelOriented" of TU Warcaw ins
 
 ## Winbuilder
 
-Status: 1 NOTE
-R Under development (unstable) (2024-07-11 r86890 ucrt)
-
+Status: OK
