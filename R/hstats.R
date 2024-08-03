@@ -304,10 +304,9 @@ hstats.ranger <- function(
     survival = c("chf", "prob"),
     ...
   ) {
-  survival <- match.arg(survival)
-  
+
   if (is.null(pred_fun)) {
-    pred_fun <- pred_ranger
+    pred_fun <- create_ranger_pred_fun(object$treetype, survival = match.arg(survival))
   }
 
   hstats.default(
@@ -323,7 +322,6 @@ hstats.ranger <- function(
     eps = eps,
     w = w,
     verbose = verbose,
-    survival = survival,
     ...
   )
 }

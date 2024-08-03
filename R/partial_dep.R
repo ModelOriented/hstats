@@ -217,12 +217,11 @@ partial_dep.ranger <- function(
     survival = c("chf", "prob"),
     ...
   ) {
-  survival <- match.arg(survival)
-  
+
   if (is.null(pred_fun)) {
-    pred_fun <- pred_ranger
+    pred_fun <- create_ranger_pred_fun(object$treetype, survival = match.arg(survival))
   }
-  
+
   partial_dep.default(
     object = object,
     v = v,
@@ -237,7 +236,6 @@ partial_dep.ranger <- function(
     na.rm = na.rm,
     n_max = n_max,
     w = w,
-    survival = survival,
     ...
   )
 }
