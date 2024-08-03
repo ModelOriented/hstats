@@ -174,12 +174,11 @@ ice.ranger <- function(
     survival = c("chf", "prob"),
     ...
   ) {
-  survival <- match.arg(survival)
-    
+
   if (is.null(pred_fun)) {
-    pred_fun <- pred_ranger
+    pred_fun <- create_ranger_pred_fun(object$treetype, survival = match.arg(survival))
   }
-  
+
   ice.default(
     object = object,
     v = v,
@@ -192,7 +191,6 @@ ice.ranger <- function(
     strategy = strategy,
     na.rm = na.rm,
     n_max = n_max,
-    survival = survival,
     ...
   )
 }
