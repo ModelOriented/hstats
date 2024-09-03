@@ -1,6 +1,6 @@
 Package: hstats
 Title: Interaction Statistics
-Version: 1.2.1
+Version: 1.2.2
 Authors@R: c(
     person("Michael", "Mayer", , "mayermichael79@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0009-0007-2540-9629")),

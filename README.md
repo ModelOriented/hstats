@@ -101,7 +101,7 @@ average_loss(fit, X = X_valid, y = y_valid)
 Let's calculate different H-statistics via `hstats()`:
 
 ```r
-# 4 seconds on simple laptop - a random forest will take 2 minutes
+# 2 seconds on laptop - a random forest will take much longer
 set.seed(782)
 system.time(
   s <- hstats(fit, X = X_train)  #, approx = TRUE: twice as fast

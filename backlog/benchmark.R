@@ -115,11 +115,11 @@ bench::mark(
   check = FALSE,
   min_iterations = 3
 )
-#   expression      min   median `itr/sec` mem_alloc `gc/sec` n_itr  n_gc total_time result
-# 1 iml           1.76s    1.76s     0.565   211.6MB    3.39      3    18      5.31s <NULL>
-# 2 dalex      688.54ms 697.71ms     1.44     35.2MB    1.91      3     4      2.09s <NULL>
-# 3 flashlight 667.51ms 676.07ms     1.47     28.1MB    1.96      3     4      2.04s <NULL>
-# 4 hstats     392.15ms 414.41ms     2.39     26.6MB    0.796     3     1      1.26s <NULL>  
+# expression      min   median `itr/sec` mem_alloc `gc/sec` n_itr  n_gc
+# iml           1.26s    1.29s     0.778   235.3MB     3.63     3    14
+# dalex      594.39ms 620.76ms     1.63     30.5MB     1.63     3     3
+# flashlight  800.1ms  808.4ms     1.20     62.6MB     3.20     3     8
+# hstats     151.06ms 160.19ms     5.94       26MB     1.98     3     1
 
 # Partial dependence (cont)
 v <- "tot_lvg_area"
@@ -131,12 +131,12 @@ bench::mark(
   check = FALSE,
   min_iterations = 3
 )
-#     expression      min   median `itr/sec` mem_alloc `gc/sec` n_itr  n_gc total_time result
-# <bch:expr> <bch:tm> <bch:tm>     <dbl> <bch:byt>    <dbl> <int> <dbl>   <bch:tm> <list>
-#   1 iml            1.2s     1.4s     0.726   376.9MB     4.12     3    17      4.13s <NULL>
-#   2 dalex       759.3ms  760.6ms     1.28    192.8MB     2.55     3     6      2.35s <NULL>
-#   3 flashlight  369.1ms  403.1ms     2.55     66.8MB     2.55     3     3      1.18s <NULL>
-#   4 hstats      242.1ms  243.8ms     4.03     14.2MB     0        3     0   744.25ms <NULL>#   
+# expression      min   median `itr/sec` mem_alloc `gc/sec` n_itr  n_gc
+# iml         921.7ms  923.5ms      1.06   369.7MB     3.18     3     9
+# dalex       503.2ms  516.7ms      1.90   195.1MB     3.80     3     6
+# flashlight  190.3ms  228.9ms      4.62    67.9MB     1.54     3     1
+# hstats       74.6ms   76.8ms     12.2     14.1MB     1.75     7     1
+
 # Partial dependence (discrete)
 v <- "structure_quality"
 bench::mark(
@@ -145,39 +145,38 @@ bench::mark(
   flashlight = light_profile(fl, v = v, pd_n_max = Inf),
   hstats = partial_dep(fit, v = v, X = X_valid, n_max = Inf),
   check = FALSE,
-  min_iterations = 3
+  min_iterations = 10
 )
-#     expression      min   median `itr/sec` mem_alloc `gc/sec` n_itr  n_gc total_time result
-# <bch:expr> <bch:tm> <bch:tm>     <dbl> <bch:byt>    <dbl> <int> <dbl>   <bch:tm> <list>
-#   1 iml         107.9ms    108ms      9.26   13.64MB     9.26     2     2      216ms <NULL>
-#   2 dalex         172ms  172.2ms      5.81   21.14MB     2.90     2     1      344ms <NULL>
-#   3 flashlight   40.3ms   41.6ms     23.8     8.61MB     2.16    11     1      462ms <NULL>
-#   4 hstats       24.5ms   25.9ms     35.5     1.64MB     0       18     0      507ms <NULL>
-  
+# expression      min   median `itr/sec` mem_alloc `gc/sec` n_itr  n_gc
+# iml          77.1ms   80.6ms     12.4    12.66MB     8.25     6     4
+# dalex       122.4ms  137.7ms      7.49   20.48MB     7.49     5     5
+# flashlight   25.8ms   27.5ms     34.0      6.3MB     2.13    16     1
+# hstats       14.3ms   15.1ms     66.1     1.49MB     2.13    31     1
+
 # H-Stats -> we use a subset of 500 rows
 X_v500 <- X_valid[1:500, ]
 mod500 <- Predictor$new(fit, data = as.data.frame(X_v500), predict.function = predf)
 fl500 <- flashlight(fl, data = as.data.frame(valid[1:500, ]))
 
-# iml  # 243s total, using slow exact calculations
-system.time(  # 110s
+# iml 173 s total, using slow exact calculations (to be able to compare results)
+system.time(  # 85s
   iml_overall <- Interaction$new(mod500, grid.size = 500)
 )
-system.time(  # 133s for all combinations of latitude
+system.time(  # 88s for all combinations of latitude
   iml_pairwise <- Interaction$new(mod500, grid.size = 500, feature = "latitude")
 )
 
-# flashlight: 14s total, doing only one pairwise calculation, otherwise would take 63s
-system.time(  # 11.7s
+# flashlight: 8s total, doing only one pairwise calculation, otherwise would take 63s
+system.time(  # 7s
   fl_overall <- light_interaction(fl500, v = x, grid_size = Inf, n_max = Inf)
 )
-system.time(  # 2.3s
+system.time(  # 1s
   fl_pairwise <- light_interaction(
     fl500, v = coord, grid_size = Inf, n_max = Inf, pairwise = TRUE
   )
 )
 
-# hstats: 3.5s total
+# hstats: 1.5s total
 system.time({
   H <- hstats(fit, v = x, X = X_v500, n_max = Inf)
   hstats_overall <- h2_overall(H, squared = FALSE, zero = FALSE)
@@ -185,7 +184,7 @@ system.time({
 }
 )
 
-# Using 50 quantiles to approximate dense numerics: 0.8s
+# Using 50 quantiles to approximate dense numerics: 0.5s
 system.time(
   H_approx <- hstats(fit, v = x, X = X_v500, n_max = Inf, approx = TRUE)
 )
@@ -198,10 +197,10 @@ iml_overall$results |>
 # 2: longitude    0.2458269
 
 fl_overall$data |>
-  subset(value_ > 0, select = c(variable_, value_))
+  subset(value > 0, select = c(variable, value))
 #   variable_    value_
-# 3  latitude 0.2458269
-# 4 longitude 0.2458269
+# 3  latitude 0.246
+# 4 longitude 0.246
 
 hstats_overall
 # longitude  latitude 
@@ -214,8 +213,8 @@ iml_pairwise$results |>
 # 1: longitude:latitude    0.3942526
 
 fl_pairwise$data |>
-  subset(value_ > 0, select = c(variable_, value_))
-# latitude:longitude 0.3942526
+  subset(value > 0, select = c(variable, value))
+# latitude:longitude 0.394
 
 hstats_pairwise
 # latitude:longitude 
