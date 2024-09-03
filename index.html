@@ -45,7 +45,7 @@
         <div class="info">
           <span class="partof">part of the <a href="https://github.com/ModelOriented/DrWhy" class="external-link">DrWhy.AI</a>
            developed by the <a href="https://mi2.ai/" class="external-link">MI².AI</a> </span>
-          <span class="version version-default">1.2.1</span>
+          <span class="version version-default">1.2.2</span>
         </div>
       </div>
     </div>
@@ -204,7 +204,7 @@
 </h3>
 <p>Let’s calculate different H-statistics via <code><a href="reference/hstats.html">hstats()</a></code>:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># 4 seconds on simple laptop - a random forest will take 2 minutes</span></span>
+<code class="sourceCode R"><span><span class="co"># 2 seconds on laptop - a random forest will take much longer</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">782</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/system.time.html" class="external-link">system.time</a></span><span class="op">(</span></span>
 <span>  <span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/hstats.html">hstats</a></span><span class="op">(</span><span class="va">fit</span>, X <span class="op">=</span> <span class="va">X_train</span><span class="op">)</span>  <span class="co">#, approx = TRUE: twice as fast</span></span>
