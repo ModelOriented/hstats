@@ -15,7 +15,7 @@ library(usethis)
 use_description(
   fields = list(
     Title = "Interaction Statistics",
-    Version = "1.2.2",
+    Version = "1.3.0",
     Description = "Fast, model-agnostic implementation of different H-statistics
     introduced by Jerome H. Friedman and Bogdan E. Popescu (2008) <doi:10.1214/07-AOAS148>. 
     These statistics quantify interaction strength per feature, feature pair, 
@@ -38,6 +38,7 @@ use_description(
 use_package("stats", "Imports")
 use_package("utils", "Imports")
 use_package("ggplot2", "Imports")
+use_package("plotly", "Suggests")
 
 use_gpl_license(2)
 

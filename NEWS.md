@@ -1,3 +1,9 @@
+# hstats 1.3.0
+
+## Other changes
+
+- {plotly} is now a suggested package.
+
 # hstats 1.2.1
 
 ## Usability
