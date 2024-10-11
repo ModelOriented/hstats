@@ -70,20 +70,12 @@ prepare_by <- function(BY, X, by_size = 4L) {
 prepare_w <- function(w, X) {
   if (length(w) == 1L && w %in% colnames(X)) {
     w_name <- w
-    if (is.data.frame(X)) {
-      w <- X[[w]]
-    } else {
-      w <- X[, w]
-    }
+    w <- if (is.data.frame(X)) X[[w]] else X[, w]
   } else {
-    stopifnot(
-      NCOL(w) == 1L,
-      is.numeric(w),    # integer will be ok here
-      length(w) == nrow(X)
-    )
+    stopifnot(NCOL(w) == 1L, length(w) == nrow(X))
     w_name <- NULL
   }
-  if (!is.double(w)) {  # integer will be converted here
+  if (!is.double(w)) {
     w <- as.double(w)
   }
   list(w = w, w_name = w_name)
