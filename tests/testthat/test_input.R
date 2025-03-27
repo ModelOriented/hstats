@@ -5,6 +5,25 @@ test_that("prepare_pred() works", {
   expect_equal(prepare_pred(iris["Sepal.Width"]), iris$Sepal.Width)
 })
 
+test_that("prepare_hstat_pred() works", {
+  expect_equal(hstats::prepare_hstat_pred(iris[1:4]), data.matrix(iris[1:4]))
+  expect_error(
+    hstats::prepare_hstat_pred(iris["Species"]),
+    regexp = "must be numeric"
+  )
+  expect_warning(hstats::prepare_hstat_pred(iris), regexp = "must be numeric")
+  expect_warning(
+    hstats::prepare_hstat_pred(iris[, 4:5]),
+    regexp = "must be numeric"
+  )
+  expect_equal(hstats::prepare_hstat_pred(iris$Sepal.Width), iris$Sepal.Width)
+  expect_equal(
+    hstats::prepare_hstat_pred(iris["Sepal.Width"]),
+    iris$Sepal.Width
+  )
+})
+
+
 test_that("prepare_w() works", {
   w1 <- prepare_w(iris$Sepal.Length, X = iris)
   w2 <- prepare_w("Sepal.Length", X = iris)

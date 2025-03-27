@@ -20,6 +20,50 @@ prepare_pred <- function(x) {
   return(x)
 }
 
+prepare_hstat_pred <- function(x) {
+
+  x <- check_numeric_predictions(x)
+  
+  if (is.data.frame(x) && ncol(x) == 1L) {
+    x <- x[[1L]]
+  }
+  
+  if (!is.vector(x) && !is.matrix(x)) {
+    x <- as.matrix(x)
+  }
+  return(x)
+}
+
+# check to see if factor or non-numeric columns exist
+check_numeric_predictions <- function(x) {
+  if (is.vector(x) | is.factor(x)) {
+    if (!is.numeric(x)) {
+      stop("Predictions must be numeric", call. = FALSE)
+    }
+    return(x)
+  }
+  
+  if (is.matrix(x)) {
+    x <- as.data.frame(x)
+  }
+  
+  is_factor <- vapply(x, is.factor, logical(1))
+  is_non_num <- !vapply(x, is.numeric, logical(1))
+  bad_data <- is_factor | is_non_num
+  if (all(bad_data)) {
+    stop("Predictions must be numeric", call. = FALSE)
+  }
+  
+  if (any(bad_data)) {
+    bad_cols <- paste0("`", names(bad_data)[bad_data], "`", collapse = ", ")
+    x <- x[, !bad_data, drop = FALSE]
+    msg <- "Predictions must be numeric. Dropped column(s):"
+    warning(paste(msg, bad_cols), call. = FALSE)
+  }
+  
+  x
+}
+
 #' Prepares Group BY Variable
 #' 
 #' Internal function that prepares a BY variable or BY column name.

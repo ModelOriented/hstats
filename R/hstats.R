@@ -199,7 +199,7 @@ hstats.default <- function(
   }
   
   # Predictions ("F" in Friedman and Popescu) always calculated (cheap)
-  f <- wcenter(prepare_pred(pred_fun(object, X, ...)), w = w)
+  f <- wcenter(prepare_hstat_pred(pred_fun(object, X, ...)), w = w)
   mean_f2 <- wcolMeans(f^2, w = w)  # A vector
   
   # Initialize first progress bar
