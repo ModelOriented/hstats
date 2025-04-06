@@ -3,11 +3,11 @@
 <!-- badges: start -->
 
 [![R-CMD-check](https://github.com/ModelOriented/hstats/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/ModelOriented/hstats/actions/workflows/R-CMD-check.yaml)
-[![Codecov test coverage](https://codecov.io/gh/ModelOriented/hstats/graph/badge.svg)](https://app.codecov.io/gh/ModelOriented/hstats?branch=main)
+[![Codecov test coverage](https://codecov.io/gh/ModelOriented/hstats/graph/badge.svg)](https://app.codecov.io/gh/ModelOriented/hstats)
 [![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/hstats)](https://cran.r-project.org/package=hstats)
-
 [![](https://cranlogs.r-pkg.org/badges/hstats)](https://cran.r-project.org/package=hstats) 
 [![](https://cranlogs.r-pkg.org/badges/grand-total/hstats?color=orange)](https://cran.r-project.org/package=hstats)
+
 <!-- badges: end -->
 
 ## Overview
@@ -379,7 +379,9 @@ plot(H, normalize = FALSE, squared = FALSE, facet_scales = "free_y", ncol = 1)
 
 Here, we provide examples for {tidymodels}, {caret}, and {mlr3}.
 
-### tidymodels
+### Tidymodels
+
+In this probabilistic multiclass setting, we need to pass `type = "prob"` to Tidymodels `predict()`.
 
 ```r
 library(hstats)
@@ -388,32 +390,51 @@ library(tidymodels)
 set.seed(1)
 
 iris_recipe <- iris |> 
-  recipe(Sepal.Length ~ .)
+  recipe(Species ~ .)
 
-reg <- linear_reg() |>
-  set_engine("lm")
-  
+mod <- rand_forest() |>
+  set_engine("ranger") |> 
+  set_mode("classification")
+
 iris_wf <- workflow() |>
   add_recipe(iris_recipe) |>
-  add_model(reg)
+  add_model(mod)
 
 fit <- iris_wf |>
   fit(iris)
-  
-s <- hstats(fit, X = iris[, -1])
-s # 0 -> no interactions
 
-partial_dep(fit, v = "Petal.Width", X = iris) |> 
-  plot()
+# Relative and absolute H statistics
+# type = "prob" is passed to Tidymodels predict()
+s <- hstats(fit, X = iris[, -5], type = "prob")
+plot(s, normalize = FALSE) +
+  ggtitle("Unnormalized H statistics")
 
-imp <- perm_importance(fit, X = iris, y = "Sepal.Length")
-imp
-# Permutation importance
-# Petal.Length      Species  Petal.Width  Sepal.Width 
-#   4.39197781   0.35038891   0.11966090   0.09604322 
+partial_dep(fit, v = "Petal.Width", X = iris, type = "prob") |> 
+  plot() +
+  ggtitle("Partial dependence for Petal.Width")
 
-plot(imp)
+imp <- perm_importance(
+  fit, 
+  X = iris, 
+  y = "Species",
+  normalize = TRUE,
+  loss = "mlogloss",
+  type = "prob"
+)
+plot(imp) +
+  ggtitle("Relative permutation importance") +
+  xlab("mlogloss multiplier when shuffling column")
+
+# Multiclass logloss
+average_loss(  # 0.053
+  fit, X = iris, y = "Species", loss = "mlogloss", type = "prob"
+)
 ```
+![](man/figures/tidymodels_h_abs.svg)
+
+![](man/figures/tidymodels_pdp.svg)
+
+![](man/figures/tidymodels_perm_imp.svg)
 
 ### caret
 
