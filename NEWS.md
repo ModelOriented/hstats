@@ -1,3 +1,9 @@
+# hstats 1.2.2
+
+## Documentation
+
+- Changed Tidymodels example to probabilistic multiclass, see discussion in [#129](https://github.com/ModelOriented/hstats/issues/129).
+
 # hstats 1.2.1
 
 ## Usability
