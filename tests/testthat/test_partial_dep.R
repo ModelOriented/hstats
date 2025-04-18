@@ -10,10 +10,20 @@ test_that("pd_raw() works for simple example", {
 test_that("pd_raw() works on simple example with and without grid compression", {
   g <- c(3, 3, 1, 2)
   pd1 <- pd_raw(
-    1, v = "a", X = X, grid = g, pred_fun = pfun, compress_grid = FALSE
+    1,
+    v = "a",
+    X = X,
+    grid = g,
+    pred_fun = pfun,
+    compress_grid = FALSE
   )
   pd2 <- pd_raw(
-    1, v = "a", X = X, grid = g, pred_fun = pfun, compress_grid = TRUE
+    1,
+    v = "a",
+    X = X,
+    grid = g,
+    pred_fun = pfun,
+    compress_grid = TRUE
   )
   expect_equal(pd1, cbind(pred = g / 2))
   expect_equal(pd2, cbind(pred = g / 2))
@@ -23,10 +33,20 @@ test_that("pd_raw() works on simple example with and without X compression", {
   g <- 2:1
   X2 <- data.frame(a = 1:4, b = c(1, 1, 1, 2))
   pd1 <- pd_raw(
-    1, v = "a", X = X2, grid = g, pred_fun = pfun, compress_X = FALSE
+    1,
+    v = "a",
+    X = X2,
+    grid = g,
+    pred_fun = pfun,
+    compress_X = FALSE
   )
   pd2 <- pd_raw(
-    1, v = "a", X = X2, grid = g, pred_fun = pfun, compress_X = TRUE
+    1,
+    v = "a",
+    X = X2,
+    grid = g,
+    pred_fun = pfun,
+    compress_X = TRUE
   )
   expect_equal(pd1, cbind(pred = g / 2))
   expect_equal(pd2, cbind(pred = g / 2))
@@ -54,17 +74,21 @@ test_that("pd_raw() works with case weights on non-trivial example", {
   pd1 <- pd_raw(fit, v = "Species", X = iris, grid = unique(iris$Species))
   pd2 <- pd_raw(fit, v = "Species", X = iris, grid = unique(iris$Species), w = w)
   expect_equal(pd1, pd2)
-  
+
   pd2 <- pd_raw(fit, v = "Species", X = iris, grid = unique(iris$Species), w = 1:150)
   expect_false(identical(pd1, pd2))
 })
 
 test_that("pd_raw() respects ... argument for predictions", {
   fit2 <- glm(Sepal.Length ~ . + Petal.Width:Species, data = iris, family = Gamma())
-  
+
   pd1 <- pd_raw(fit2, v = "Species", X = iris, grid = unique(iris$Species))
   pd2 <- pd_raw(
-    fit2, v = "Species", X = iris, grid = unique(iris$Species), type = "response"
+    fit2,
+    v = "Species",
+    X = iris,
+    grid = unique(iris$Species),
+    type = "response"
   )
   expect_false(identical(pd1, pd2))
 })
@@ -72,7 +96,7 @@ test_that("pd_raw() respects ... argument for predictions", {
 test_that("pd_raw() can operate on multivariate grid", {
   g <- multivariate_grid(iris[4:5])
   pd1 <- pd_raw(fit, v = colnames(g), X = iris, grid = g)
-  
+
   expect_equal(nrow(pd1), nrow(g))
 })
 
@@ -84,10 +108,10 @@ test_that("pd_raw() also works for multioutput situations", {
 
 test_that("pd_raw() works with missings (all compressions on)", {
   X <- cbind(a = c(NA, NA, NA, 1, 1), b = 1:5)
-  
+
   out <- pd_raw(1, v = "a", X = X, pred_fun = function(m, x) x[, "b"], grid = c(NA, 1))
   expect_equal(drop(out), rep(mean(X[, "b"]), times = 2L))
-  
+
   out <- pd_raw(1, v = "b", X = X, pred_fun = function(m, x) x[, "b"], grid = 5:1)
   expect_equal(drop(out), 5:1)
 })
@@ -106,7 +130,7 @@ test_that("partial_dep() returns the same values as pd_raw()", {
   pd1 <- pd_raw(fit1, v = "Species", X = iris, grid = g)
   pd2 <- partial_dep(fit1, v = "Species", X = iris, grid = g)
   expect_equal(cbind.data.frame(Species = g, y = pd1), pd2$data)
-  
+
   pd1 <- pd_raw(fit2, v = "Species", X = iris, grid = g)
   pd2 <- partial_dep(fit2, v = "Species", X = iris, grid = g)
   expect_equal(cbind.data.frame(Species = g, pd1), pd2$data)
@@ -115,16 +139,16 @@ test_that("partial_dep() returns the same values as pd_raw()", {
 test_that("partial_dep() reacts on grid order", {
   g1 <- univariate_grid(iris$Species)
   g2 <- rev(g1)
-  
+
   pd1 <- partial_dep(fit1, v = "Species", X = iris, grid = g1)$data
   pd2 <- partial_dep(fit1, v = "Species", X = iris, grid = g2)$data
 
   rownames(pd2) <- 3:1
   expect_equal(pd1, pd2[3:1, ])
-  
+
   pd1 <- partial_dep(fit2, v = "Species", X = iris, grid = g1)$data
   pd2 <- partial_dep(fit2, v = "Species", X = iris, grid = g2)$data
-  
+
   rownames(pd2) <- 3:1
   expect_equal(pd1, pd2[3:1, ])
 })
@@ -140,7 +164,7 @@ test_that("partial_dep() with BY is same as stratified application", {
   )
   pd2 <- data.frame(Species = rep(unique(iris$Species), each = length(g)), pd2)
   expect_equal(pd1$data, pd2)
-  
+
   # Multioutput
   pd1 <- partial_dep(fit2, v = "Petal.Width", X = iris, BY = "Species")$data
   g <- unique(pd1$Petal.Width)
@@ -157,39 +181,67 @@ test_that("partial_dep() with BY is same as stratified application", {
 test_that("partial_dep() does subsampling", {
   set.seed(1L)
   pd1 <- partial_dep(
-    fit1, v = "Sepal.Width", X = iris, n_max = 10L, w = iris$Petal.Width
+    fit1,
+    v = "Sepal.Width",
+    X = iris,
+    n_max = 10L,
+    w = iris$Petal.Width
   )
 
   set.seed(2L)
   pd2 <- partial_dep(fit1, v = "Sepal.Width", X = iris, n_max = 10L, w = "Petal.Width")
-  
+
   expect_false(identical(pd1, pd2))
 })
 
 test_that("partial_dep() reacts on grid strategy", {
   pd1 <- partial_dep(
-    fit1, v = "Sepal.Width", X = iris, strategy = "uniform", grid_size = 5L
+    fit1,
+    v = "Sepal.Width",
+    X = iris,
+    strategy = "uniform",
+    grid_size = 5L
   )
   pd2 <- partial_dep(
-    fit1, v = "Sepal.Width", X = iris, strategy = "quantile", grid_size = 5L
+    fit1,
+    v = "Sepal.Width",
+    X = iris,
+    strategy = "quantile",
+    grid_size = 5L
   )
   expect_false(identical(pd1, pd2))
 })
 
 test_that("partial_dep() reacts on grid size", {
   pd1 <- partial_dep(
-    fit1, v = "Sepal.Width", X = iris, strategy = "q", grid_size = 5L
+    fit1,
+    v = "Sepal.Width",
+    X = iris,
+    strategy = "q",
+    grid_size = 5L
   )
   pd2 <- partial_dep(
-    fit1, v = "Sepal.Width", X = iris, strategy = "q", grid_size = 10L
+    fit1,
+    v = "Sepal.Width",
+    X = iris,
+    strategy = "q",
+    grid_size = 10L
   )
   expect_false(identical(pd1, pd2))
-  
+
   pd1 <- partial_dep(
-    fit1, v = "Sepal.Width", X = iris, strategy = "u", grid_size = 5L
+    fit1,
+    v = "Sepal.Width",
+    X = iris,
+    strategy = "u",
+    grid_size = 5L
   )
   pd2 <- partial_dep(
-    fit1, v = "Sepal.Width", X = iris, strategy = "u", grid_size = 10L
+    fit1,
+    v = "Sepal.Width",
+    X = iris,
+    strategy = "u",
+    grid_size = 10L
   )
   expect_false(identical(pd1, pd2))
 })
@@ -203,28 +255,36 @@ test_that("partial_dep() reacts on grid", {
 
 test_that("partial_dep() reacts on trim", {
   pd1 <- partial_dep(
-    fit1, 
-    v = "Sepal.Width", 
-    X = iris, 
-    strategy = "q", 
+    fit1,
+    v = "Sepal.Width",
+    X = iris,
+    strategy = "q",
     trim = c(0.2, 0.8),
     grid_size = 5L
   )
   pd2 <- partial_dep(
-    fit1, 
-    v = "Sepal.Width", 
-    X = iris, 
+    fit1,
+    v = "Sepal.Width",
+    X = iris,
     strategy = "q",
-    trim = 0:1, 
+    trim = 0:1,
     grid_size = 5L,
   )
   expect_false(identical(pd1, pd2))
-  
+
   pd1 <- partial_dep(
-    fit1, v = "Sepal.Width", X = iris, trim = c(0.2, 0.8), grid_size = 5L
+    fit1,
+    v = "Sepal.Width",
+    X = iris,
+    trim = c(0.2, 0.8),
+    grid_size = 5L
   )
   pd2 <- partial_dep(
-    fit1, v = "Sepal.Width", X = iris, trim = 0:1, grid_size = 5L,
+    fit1,
+    v = "Sepal.Width",
+    X = iris,
+    trim = 0:1,
+    grid_size = 5L,
   )
   expect_false(identical(pd1, pd2))
 })
@@ -256,11 +316,11 @@ test_that("partial_dep() gives same answer on example as iml 0.11.1", {
   # mod <- Predictor$new(fit, data = iris)
   # FeatureEffect$new(mod, feature = "Species", method = "pdp")$results
   # FeatureEffect$new(mod, feature = "Sepal.Width", method = "pdp", grid.points = 2:4)$results
-  
+
   iml_species <- c(6.847179, 5.737053, 5.260083)
   pd1 <- partial_dep(fit, v = "Species", X = iris)$data
   expect_equal(iml_species, pd1$y, tolerance = 0.001)
-  
+
   iml_sw <- c(5.309279, 5.814375, 6.319470)
   pd2 <- partial_dep(fit, v = "Sepal.Width", X = iris, grid = 2:4)$data
   expect_equal(iml_sw, pd2$y, tolerance = 0.001)
@@ -272,9 +332,9 @@ test_that("partial_dep() works on matrices and dfs", {
   fitm <- lm(X[, 1] ~ Sepal.Width + Petal.Width + Petal.Length, data = as.data.frame(X))
   pd1 <- partial_dep(fitdf, v = "Sepal.Width", X = iris)
   pd2 <- partial_dep(
-    fitm, 
-    v = "Sepal.Width", 
-    X = X, 
+    fitm,
+    v = "Sepal.Width",
+    X = X,
     pred_fun = function(m, x) predict(m, as.data.frame(x))
   )
   expect_equal(pd1, pd2)
@@ -283,15 +343,15 @@ test_that("partial_dep() works on matrices and dfs", {
 # Some plots
 test_that("Plots give 'ggplot' objects", {
   fit <- lm(Sepal.Length ~ ., data = iris)
-  
+
   # One v, no by, univariate
   expect_s3_class(plot(partial_dep(fit, v = "Species", X = iris)), "ggplot")
-  
+
   # One v, with by, univariate
   pd <- partial_dep(fit, v = "Species", X = iris, BY = "Petal.Width")
   expect_s3_class(plot(pd), "ggplot")
   expect_s3_class(plot(pd, swap_dim = TRUE), "ggplot")
-  
+
   # Two v, no by, univariate
   v <- c("Petal.Length", "Petal.Width")
   pd <- partial_dep(fit, v = v, X = iris)
@@ -299,53 +359,53 @@ test_that("Plots give 'ggplot' objects", {
   expect_s3_class(plot(pd, d2_geom = "point"), "ggplot")
   expect_s3_class(plot(pd, d2_geom = "line"), "ggplot")
   expect_s3_class(plot(pd, d2_geom = "line", swap_dim = TRUE), "ggplot")
-  
+
   # Two v, no by, univariate, prespecified grid
   g <- unique(iris[v])
   pd <- partial_dep(fit, v = v, X = iris, grid = g)
   expect_s3_class(plot(pd, d2_geom = "point"), "ggplot")
   expect_s3_class(plot(pd, d2_geom = "line", show_points = FALSE), "ggplot")
-  
+
   # Two v, with by, univariate
   pd <- partial_dep(fit, v = v, X = iris, BY = "Species")
   expect_s3_class(plot(pd), "ggplot")
   expect_s3_class(plot(pd, d2_geom = "line"), "ggplot")
-  
+
   # Two v, with by, univariate, prespecified grid
   pd <- partial_dep(fit, v = v, X = iris, BY = "Species", grid = g)
   expect_s3_class(plot(pd, d2_geom = "point"), "ggplot")
   expect_s3_class(plot(pd, d2_geom = "line", show_points = FALSE), "ggplot")
-  
+
   # Three v gives error
   pd <- partial_dep(fit, v = c(v, "Species"), X = iris)
   expect_error(plot(pd))
-  
+
   # Now multioutput
   fit <- lm(as.matrix(iris[1:2]) ~ Petal.Length + Petal.Width + Species, data = iris)
-  
+
   # One v, no by, multivariate
   pd <- partial_dep(fit, v = "Species", X = iris)
   expect_s3_class(plot(pd), "ggplot")
   expect_s3_class(plot(pd, color = "red", swap_dim = TRUE), "ggplot")
-  
+
   # One v, with by, multivariate
   pd <- partial_dep(fit, v = "Species", X = iris, BY = "Petal.Width")
   expect_s3_class(plot(pd, facet_scales = "free_y"), "ggplot")
   expect_s3_class(plot(pd, swap_dim = TRUE), "ggplot")
-  
+
   # Two v, no by, multivariate
   pd <- partial_dep(fit, v = v, X = iris)
   expect_s3_class(plot(pd, rotate_x = TRUE), "ggplot")
   expect_s3_class(plot(pd, d2_geom = "line"), "ggplot")
   expect_s3_class(plot(pd, d2_geom = "line", swap_dim = TRUE), "ggplot")
-  
+
   # Two v, no by, multivariate, prespecified grid
   pd <- partial_dep(fit, v = v, X = iris, grid = g)
   expect_s3_class(plot(pd, d2_geom = "point", alpha = 0.5), "ggplot")
   expect_s3_class(
     plot(pd, d2_geom = "line", alpha = 0.5, show_points = FALSE), "ggplot"
   )
-  
+
   # Two v, with by, multivariate gives error
   pd <- partial_dep(fit, v = v, X = iris, BY = "Petal.Width")
   expect_error(plot(pd))
@@ -365,7 +425,7 @@ test_that("partial_dep() works when non-v variable contains missing", {
 test_that("partial_dep() works when v contains missing", {
   expect_no_error(r1 <- partial_dep(fit, v = "x2", X = X, pred_fun = pf, grid_size = 2))
   expect_true(!anyNA(r1$data$x2))
-  
+
   expect_no_error(
     r2 <- partial_dep(fit, v = "x2", X = X, pred_fun = pf, na.rm = FALSE, grid_size = 2)
   )
@@ -378,7 +438,7 @@ test_that("partial_dep() works when v contains missing (multi)", {
   v <- c("x2", "x3")
   expect_no_error(r1 <- partial_dep(fit, v = v, X = X, pred_fun = pf))
   expect_true(!anyNA(r1$data$x2))
-  
+
   expect_no_error(
     r2 <- partial_dep(fit, v = v, X = X, pred_fun = pf, na.rm = FALSE)
   )
@@ -402,13 +462,13 @@ test_that(".compress_X() works for data.frames", {
   out <- .compress_X(X, v = "b")
   expect_equal(out$X, out_df)
   expect_equal(out$w, c(2, 3))
-  
+
   # Weighted with constants
   w <- rep(2, times = 5)
   out_w <- .compress_X(X, v = "b", w = w)
   expect_equal(out_w$X, out_df)
   expect_equal(out_w$w, 2 * c(2, 3))
-  
+
   # Varying weights
   w <- 5:1
   out_w2 <- .compress_X(X, v = "b", w = w)
@@ -423,13 +483,13 @@ test_that(".compress_X() works for matrices", {
   dimnames(out_mat) <- list(NULL, c("a", "b"))
   expect_equal(out$X, out_mat)
   expect_equal(out$w, c(2, 3))
-  
+
   # Weighted with constants
   w <- rep(2, times = 5)
   out_w <- .compress_X(X, v = "b", w = w)
   expect_equal(out_w$X, out_mat)
   expect_equal(out_w$w, 2 * c(2, 3))
-  
+
   # Varying weights
   w <- 5:1
   out_w2 <- .compress_X(X, v = "b", w = w)
@@ -455,27 +515,27 @@ test_that(".compress_X() leaves X unchanged if not exactly 1 non-grid variable",
 
 test_that(".compress_X() works with missing values", {
   # Note that b is not used after compression
-  
+
   # data.frame
   X <- data.frame(a = c(NA, NA, NA, 1, 1), b = 1:5)
   out_df <- data.frame(a = c(NA, 1), b = c(1, 4), row.names = c(1L, 4L))
   out <- .compress_X(X, v = "b")
   expect_equal(out$X, out_df)
   expect_equal(out$w, c(3, 2))
-  
+
   # Matrix
   X <- cbind(a = c(NA, NA, NA, 1, 1), b = 1:5)
   out_m <- cbind(a = c(NA, 1), b = c(1, 4))
   out <- .compress_X(X, v = "b")
   expect_equal(out$X, out_m)
   expect_equal(out$w, c(3, 2))
-  
+
   # Factor case
   a <- factor(c(NA, NA, "B", "B", NA, "A"))
   X <- data.frame(a = a, b = 1:6)
   out_df <- data.frame(
-    a = factor(c(NA, "B", "A"), levels = levels(a)), 
-    b = c(1, 3, 6), 
+    a = factor(c(NA, "B", "A"), levels = levels(a)),
+    b = c(1, 3, 6),
     row.names = c(1L, 3L, 6L)
   )
   out <- .compress_X(X, v = "b")
@@ -487,11 +547,11 @@ test_that(".compress_grid() works with missing values in grid", {
   g <- c(2, 2, NA, 1, NA)
   gg <- .compress_grid(g)
   expect_equal(gg$grid[gg$reindex], g)
-  
+
   g <- cbind(c(2, 2, NA, 1, NA), c(NA, NA, 3, 4, 4))
   gg <- .compress_grid(g)
   expect_equal(gg$grid[gg$reindex, , drop = FALSE], g)
-  
+
   g <- data.frame(g)
   gg <- .compress_grid(g)
   res <- gg$grid[gg$reindex, , drop = FALSE]
@@ -517,7 +577,7 @@ test_that(".compress_grid() works for data.frames", {
   g <- data.frame(a = c(1, 1, 2, 2, 3), b = c(2, 2, 1, 1, 1))
   out <- .compress_grid(g)
   expect_equal(
-    out$grid, 
+    out$grid,
     data.frame(a = c(1, 2, 3), b = c(2, 1, 1), row.names = c(1L, 3L, 5L))
   )
   g_out <- out$grid[out$reindex, ]
@@ -531,4 +591,9 @@ test_that(".compress_grid() leaves grid unchanged if unique", {
   expect_equal(length(out), 2L)
   expect_equal(out$grid, g)
   expect_equal(out$reindex, NULL)
+})
+
+test_that(".compress_grid() can fail with very strange values", {
+  g <- data.frame(X = c("", "", "_:_"), Y = c("_:_", "_:_", ""))
+  expect_error(.compress_grid(g))
 })
