@@ -4,6 +4,10 @@
 
 - Changed Tidymodels example to probabilistic multiclass, see discussion in [#129](https://github.com/ModelOriented/hstats/issues/129).
 
+## Internals
+
+- Use "\r" instead of "_:_" as separator to paste values in multi-column grids (similar to `merge()`). [#133](https://github.com/ModelOriented/hstats/issues/133).
+
 # hstats 1.2.1
 
 ## Usability
