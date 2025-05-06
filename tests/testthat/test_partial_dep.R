@@ -594,6 +594,6 @@ test_that(".compress_grid() leaves grid unchanged if unique", {
 })
 
 test_that(".compress_grid() can fail with very strange values", {
-  g <- data.frame(X = c("", "", "_:_"), Y = c("_:_", "_:_", ""))
+  g <- data.frame(X = c("", "", "\r"), Y = c("\r", "\r", ""))
   expect_error(.compress_grid(g))
 })
