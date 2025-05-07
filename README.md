@@ -64,7 +64,7 @@ To demonstrate the typical workflow, we use a beautiful house price dataset with
 ```r
 library(hstats)
 library(ggplot2)
-library(xgboost)
+library(xgboost)  # XGBoost 3. For earlier versions, replace `evals` by `watchlist`
 library(shapviz)
 
 colnames(miami) <- tolower(colnames(miami))
@@ -87,13 +87,13 @@ dvalid <- xgb.DMatrix(X_valid, label = y_valid)
 fit <- xgb.train(
   params = list(learning_rate = 0.15, objective = "reg:squarederror", max_depth = 5),
   data = dtrain,
-  watchlist = list(valid = dvalid),
+  evals = list(valid = dvalid),
   early_stopping_rounds = 20,
   nrounds = 1000,
-  callbacks = list(cb.print.evaluation(period = 100))
+  callbacks = list(xgb.cb.print.evaluation(period = 100))
 )
 
-# Mean squared error: 0.0515
+# Mean squared error: 0.052
 average_loss(fit, X = X_valid, y = y_valid)
 ```
 
@@ -102,14 +102,14 @@ average_loss(fit, X = X_valid, y = y_valid)
 Let's calculate different H-statistics via `hstats()`:
 
 ```r
-# 2 seconds on laptop - a random forest will take much longer
+# 1s on laptop - a random forest will take longer
 set.seed(782)
 system.time(
   s <- hstats(fit, X = X_train)  #, approx = TRUE: twice as fast
 )
 s
 # H^2 (normalized)
-# [1] 0.10
+# [1] 0.09
 
 plot(s)  # Or summary(s) for numeric output
 
@@ -340,41 +340,31 @@ dvalid <- xgb.DMatrix(X_valid, label = as.integer(y_valid) - 1)
 fit <- xgb.train(
   params = params, 
   data = dtrain,
-  watchlist = list(valid = dvalid),
+  evals = list(valid = dvalid),
   early_stopping_rounds = 20,
   nrounds = 1000
 )
 
-# We need to pass reshape = TRUE to get a beautiful matrix
-predict(fit, head(X_train, 2), reshape = TRUE)
-#           [,1]        [,2]         [,3]
-# [1,] 0.9974016 0.002130089 0.0004682819
-# [2,] 0.9971375 0.002129525 0.0007328897
-
 # mlogloss: 0.006689544
-average_loss(fit, X = X_valid, y = y_valid, loss = "mlogloss", reshape = TRUE)
+average_loss(fit, X = X_valid, y = y_valid, loss = "mlogloss")
 
-partial_dep(fit, v = "Petal.Length", X = X_train, reshape = TRUE) |> 
+partial_dep(fit, v = "Petal.Length", X = X_train) |> 
   plot(show_points = FALSE)
 
-ice(fit, v = "Petal.Length", X = X_train, reshape = TRUE) |> 
+ice(fit, v = "Petal.Length", X = X_train) |> 
   plot(alpha = 0.05)
 
-perm_importance(
-  fit, X = X_valid, y = y_valid, loss = "mlogloss", reshape = TRUE, m_rep = 100
-)
+perm_importance(fit, X = X_valid, y = y_valid, loss = "mlogloss", m_rep = 100)
 # Permutation importance regarding mlogloss
 # Petal.Length  Petal.Width Sepal.Length  Sepal.Width 
-#  1.731532873  0.276671377  0.009158659  0.005717263 
+#  1.557624510  0.176201365  0.003885496  0.001187475 
 
 # Interaction statistics including three-way stats
-(H <- hstats(fit, X = X_train, reshape = TRUE, threeway_m = 4))  
-# 0.02714399 0.16067364 0.11606973
+(H <- hstats(fit, X = X_train, threeway_m = 4))  
+# 0.002906938 0.118144615 0.099156774
 
 plot(H, normalize = FALSE, squared = FALSE, facet_scales = "free_y", ncol = 1)
 ```
-
-![](man/figures/xgboost.svg)
 
 ## Meta-learning packages
 
