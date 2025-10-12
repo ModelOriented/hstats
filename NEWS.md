@@ -2,7 +2,7 @@
 
 ## Bug fixes
 
-- Compatibility warning with ggplot v4.0.
+- Compatibility warning with ggplot v4.0 ([#137](https://github.com/ModelOriented/hstats/pull/137)).
 
 ## Documentation
 
@@ -10,7 +10,7 @@
 
 ## Internals
 
-- Use "\r" instead of "_:_" as separator to paste values in multi-column grids (similar to `merge()`). [#133](https://github.com/ModelOriented/hstats/issues/133).
+- Use `"\r"` instead of `"_:_"` as separator to paste values in multi-column grids (similar to `merge()`) ([#133](https://github.com/ModelOriented/hstats/issues/133)).
 
 # hstats 1.2.1
 
