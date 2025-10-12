@@ -1,5 +1,9 @@
 # hstats 1.2.2
 
+## Bug fixes
+
+- Compatibility warning with ggplot v4.0.
+
 ## Documentation
 
 - Changed Tidymodels example to probabilistic multiclass, see discussion in [#129](https://github.com/ModelOriented/hstats/issues/129).

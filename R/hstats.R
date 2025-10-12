@@ -481,7 +481,7 @@ plot.hstats <- function(
   dat <- barplot_reverter(dat)
   
   p <- ggplot2::ggplot(dat, ggplot2::aes(x = value_, y = variable_)) +
-    ggplot2::ylab(ggplot2::element_blank()) +
+    ggplot2::ylab(NULL) +
     ggplot2::xlab(su$h2$description)  # Generic enough?
   
   if (x[["K"]] == 1L) {
