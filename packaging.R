@@ -72,6 +72,9 @@ use_github_links() # use this if this project is on github
 # use_github_action("test-coverage")
 # use_github_action("pkgdown")
 
+# Revdep
+use_revdep()
+
 #=============================================================================
 # Finish package building (can use fresh session)
 #=============================================================================
@@ -91,6 +94,10 @@ if (FALSE) {
   check_rhub()
   
   # Wait until above checks are passed without relevant notes/warnings
-  # then submit to CRAN
+  
+  # Takes long
+  revdepcheck::revdep_check(num_workers = 4, bioc = FALSE)
+  
+  # Submit to CRAN
   release()
 }

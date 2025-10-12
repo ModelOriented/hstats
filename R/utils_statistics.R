@@ -350,7 +350,7 @@ plot.hstats_matrix <- function(
   }
   
   p <- ggplot2::ggplot(df, ggplot2::aes(x = value_, y = variable_)) + 
-    ggplot2::ylab(ggplot2::element_blank()) +
+    ggplot2::ylab(NULL) +
     ggplot2::xlab(x[["description"]])
   
   K <- ncol(M)

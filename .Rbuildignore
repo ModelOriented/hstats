@@ -11,3 +11,4 @@
 ^backlog$
 ^CRAN-SUBMISSION$
 ^pkgdown$
+^revdep$
