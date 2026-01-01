@@ -332,7 +332,7 @@ library(xgboost)
 
 set.seed(1)
 
-params <- list(objective = "multi:softprob", num_class = 3, learning_rate = 0.2)
+params <- list(objective = "multi:softprob", num_class = 3, learning_rate = 0.05)
 dtrain <- xgb.DMatrix(X_train, label = as.integer(y_train) - 1)
 dvalid <- xgb.DMatrix(X_valid, label = as.integer(y_valid) - 1)
 
@@ -344,7 +344,7 @@ fit <- xgb.train(
   nrounds = 1000
 )
 
-# mlogloss: 0.006689544
+# mlogloss: 0.1730338
 average_loss(fit, X = X_valid, y = y_valid, loss = "mlogloss")
 
 partial_dep(fit, v = "Petal.Length", X = X_train) |> 
@@ -355,12 +355,12 @@ ice(fit, v = "Petal.Length", X = X_train) |>
 
 perm_importance(fit, X = X_valid, y = y_valid, loss = "mlogloss", m_rep = 100)
 # Permutation importance regarding mlogloss
-# Petal.Length  Petal.Width Sepal.Length  Sepal.Width 
-#  1.557624510  0.176201365  0.003885496  0.001187475 
+# Petal.Length  Petal.Width Sepal.Length  Sepal.Width
+#  1.595534278  0.172690586  0.004122967  0.001353077
 
 # Interaction statistics including three-way stats
-(H <- hstats(fit, X = X_train, threeway_m = 4))  
-# 0.002906938 0.118144615 0.099156774
+(H <- hstats(fit, X = X_train, threeway_m = 4))
+# 0.002449502 0.118281885 0.100340053
 
 plot(H, normalize = FALSE, squared = FALSE, facet_scales = "free_y", ncol = 1)
 ```
